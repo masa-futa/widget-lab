@@ -1,3 +1,14 @@
+import 'package:widget_lab/catalog/animation/animated_align.dart';
+import 'package:widget_lab/catalog/animation/animated_container.dart';
+import 'package:widget_lab/catalog/animation/animated_cross_fade.dart';
+import 'package:widget_lab/catalog/animation/animated_default_text_style.dart';
+import 'package:widget_lab/catalog/animation/animated_modal_barrier.dart';
+import 'package:widget_lab/catalog/animation/animated_opacity.dart';
+import 'package:widget_lab/catalog/animation/animated_physical_model.dart';
+import 'package:widget_lab/catalog/animation/animated_positioned.dart';
+import 'package:widget_lab/catalog/animation/animated_scale.dart';
+import 'package:widget_lab/catalog/animation/animated_size.dart';
+import 'package:widget_lab/catalog/animation/implicitly_animated_widget.dart';
 import 'package:widget_lab/catalog/async/stream_builder.dart';
 import 'package:widget_lab/catalog/basics/container.dart';
 import 'package:widget_lab/catalog/basics/row.dart';
@@ -26,4 +37,15 @@ final allEntries = <WidgetEntry>[
   appBarEntry,
   navigationBarEntry,
   datePickerEntry,
+  animatedAlignEntry,
+  animatedContainerEntry,
+  animatedCrossFadeEntry,
+  animatedDefaultTextStyleEntry,
+  animatedModalBarrierEntry,
+  animatedOpacityEntry,
+  animatedPhysicalModelEntry,
+  animatedPositionedEntry,
+  animatedScaleEntry,
+  animatedSizeEntry,
+  implicitlyAnimatedWidgetEntry,
 ];
