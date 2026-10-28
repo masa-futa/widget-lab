@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:widget_lab/catalog/basics/container.dart';
+import 'package:widget_lab/catalog/demo/rebuild_counter.dart';
+import 'package:widget_lab/catalog/scrolling/notification_listener.dart';
 import 'package:widget_lab/catalog/styling/media_query.dart';
 import 'package:widget_lab/core/data/catalog_repository.dart';
 import 'package:widget_lab/core/data/clipboard_client.dart';
@@ -15,6 +17,8 @@ import 'package:widget_lab/features/detail/ui/widgets/compare_preview.dart';
 import 'package:widget_lab/features/detail/ui/widgets/editor_panel.dart';
 import 'package:widget_lab/features/detail/ui/widgets/preview_card.dart';
 import 'package:widget_lab/features/detail/ui/widgets/property_chip.dart';
+import 'package:widget_lab/features/detail/view_model/probe_notifier.dart';
+import 'package:widget_lab/features/detail/view_model/probe_state.dart';
 import 'package:widget_lab/l10n/gen/app_localizations.dart';
 
 import '../fakes.dart';
@@ -926,6 +930,148 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text('build 0 回'), findsNWidgets(3));
+    });
+  });
+
+  group('NotificationListener', () {
+    Future<void> pumpListener(WidgetTester tester) async {
+      await pumpDetail(
+        tester,
+        'notificationListener',
+        repository: FakeCatalogRepository([notificationListenerEntry]),
+      );
+      await tester.pumpAndSettle();
+    }
+
+    /// [side] のログの文（起きた順。build の記録は除く）。
+    List<String> logsOf(WidgetTester tester, [DemoSide side = DemoSide.used]) {
+      final container = ProviderScope.containerOf(
+        tester.element(find.byType(DetailScreen)),
+      );
+      return [
+        for (final log
+            in container
+                .read(probeProvider('notificationListener'))
+                .logs
+                .reversed)
+          if (log
+              case ProbeLog(side: final s, message: TextMessage(:final text))
+              when s == side)
+            text,
+      ];
+    }
+
+    int outerCount(WidgetTester tester) =>
+        logsOf(tester).where((text) => text.startsWith('外:')).length;
+
+    /// デモの木の ListView を [offset] だけ動かす。[nth] は左右の何枚目か（0 が左・使った）。
+    Future<void> scroll(
+      WidgetTester tester, {
+      int nth = 0,
+      Offset offset = const Offset(0, -60),
+    }) async {
+      await tester.drag(
+        find
+            .descendant(
+              of: find.byType(RebuildCounter),
+              matching: find.byType(ListView),
+            )
+            .at(nth),
+        offset,
+      );
+      await tester.pumpAndSettle();
+    }
+
+    testWidgets(
+      'TC-82: スクロールすると「内:」「外:」が出て、ListView は 1 回のまま。true にした後は「外:」が出ない',
+      (tester) async {
+        await pumpListener(tester);
+
+        await scroll(tester);
+
+        final logs = logsOf(tester);
+        expect(logs, contains('内: ScrollUpdateNotification'));
+        expect(logs, contains('外: ScrollUpdateNotification'));
+        // 通知は内から外へ上がる
+        expect(
+          logs.indexOf('内: ScrollStartNotification'),
+          lessThan(logs.indexOf('外: ScrollStartNotification')),
+        );
+        expect(
+          find.descendant(
+            of: find.byType(LogStrip),
+            matching: find.textContaining('外: ScrollEndNotification'),
+          ),
+          findsOneWidget,
+        );
+        expect(find.text('build 1 回'), findsOneWidget);
+        expect(stripText(tester), 'NotificationListener<ScrollNotification>(');
+
+        await select(tester, 'onNotification');
+        await tester.tap(inPanel(find.text('true')));
+        await tester.pumpAndSettle();
+        final outerBefore = outerCount(tester);
+        final innerBefore = logsOf(tester).length - outerBefore;
+
+        await scroll(tester);
+
+        expect(outerCount(tester), outerBefore);
+        expect(
+          logsOf(tester).length - outerCount(tester),
+          greaterThan(innerBefore),
+        );
+        // 戻り値を変えても型は同じなので、ListView は組み直されない
+        expect(find.text('build 1 回'), findsOneWidget);
+      },
+    );
+
+    testWidgets('受ける型を ScrollUpdateNotification にすると、「内:」はその型だけ', (
+      tester,
+    ) async {
+      await pumpListener(tester);
+      await tester.tap(inPanel(find.text('ScrollUpdateNotification')));
+      await tester.pumpAndSettle();
+
+      await scroll(tester);
+
+      final inner = logsOf(tester).where((text) => text.startsWith('内:'));
+      expect(inner, isNotEmpty);
+      expect(inner.toSet(), {'内: ScrollUpdateNotification'});
+      expect(
+        stripText(tester),
+        'NotificationListener<ScrollUpdateNotification>(',
+      );
+    });
+
+    testWidgets('受ける型を OverscrollNotification にすると、端を越えて引いたときだけ「内:」', (
+      tester,
+    ) async {
+      await pumpListener(tester);
+      await tester.tap(inPanel(find.text('OverscrollNotification')));
+      await tester.pumpAndSettle();
+
+      await scroll(tester);
+      expect(logsOf(tester).where((text) => text.startsWith('内:')), isEmpty);
+
+      // 先頭まで戻して、さらに下へ引く
+      await scroll(tester, offset: const Offset(0, 200));
+
+      final inner = logsOf(tester).where((text) => text.startsWith('内:'));
+      expect(inner.toSet(), {'内: OverscrollNotification'});
+    }, variant: TargetPlatformVariant.mobile());
+
+    testWidgets('TC-82: 使わない側では「外:」だけ出る', (tester) async {
+      await pumpListener(tester);
+      await tester.ensureVisible(inPanel(find.text('使わない場合と比べる')));
+      await tester.tap(inPanel(find.text('使わない場合と比べる')));
+      await tester.pumpAndSettle();
+
+      await scroll(tester, nth: 1);
+
+      final logs = logsOf(tester, DemoSide.unused);
+      expect(logs, contains('外: ScrollUpdateNotification'));
+      expect(logs.where((text) => text.startsWith('内:')), isEmpty);
+      expect(logsOf(tester), isEmpty);
     });
   });
 }

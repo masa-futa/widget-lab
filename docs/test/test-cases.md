@@ -127,7 +127,7 @@
 | TC-79 | R-14 | MediaQuery（textScaler 1.5）と NotificationListener（ScrollUpdateNotification） | コードの行を作る | `data: MediaQuery.of(context).copyWith(` の中に `textScaler: TextScaler.linear(1.5),` が 1 行で入り「変えた」。`NotificationListener<ScrollUpdateNotification>(` の行が型のプロパティの行になる | ロジック | ✅ |
 | TC-80 | R-25 | 見た目を持たない Widget がジャンルにある | ジャンル画面の行を見る | 見本の枠に `account_tree` のアイコンが出て、組み立てない。読み上げない | 部品 | ✅ |
 | TC-81 | R-27 | StreamBuilder の詳細（3 回流して終わる） | 「最初から流す」を押し、時を 4 秒進める | ログが waiting → active: 1 → active: 2 → active: 3 → done の順（新しい順の表示では逆）。builder の外の子は回数が増えない。比較中の「使わない」側では外の子も増える | 画面 | — |
-| TC-82 | R-27 | NotificationListener の詳細 | リストをスクロールし、戻り値を true にしてまたスクロールする | 「内:」「外:」のログが出て、ListView の回数は 1 のまま。true の後は「外:」が出ない。「使わない」側では「外:」だけ出る | 画面 | — |
+| TC-82 | R-27 | NotificationListener の詳細 | リストをスクロールし、戻り値を true にしてまたスクロールする | 「内:」「外:」のログが出て、ListView の回数は 1 のまま。true の後は「外:」が出ない。「使わない」側では「外:」だけ出る | 画面 | ✅ |
 
 ## 外した観点
 
