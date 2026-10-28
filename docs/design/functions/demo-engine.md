@@ -197,7 +197,7 @@ sequenceDiagram
 
 | 置き場所 | 部品 |
 |---|---|
-| `lib/catalog/demo/` | 収録データが使うもの: 記録の窓口 `DemoRecorder`（`recordBuild`・`log`・`comparing`・`badge(label)`。アプリの文字の倍率は `DemoRecorder.textScalerOf`）と、それを木に置く `DemoRecorderScope`（倍率が変わったときだけ札と印に知らせる）、`RebuildCounter`・`DemoScope`・`DemoFit` |
+| `lib/catalog/demo/` | 収録データが使うもの: 記録の窓口 `DemoRecorder`（`recordBuild`・`log`・`comparing`・`badge(label)`。アプリの文字の倍率は `DemoRecorder.textScalerOf`）と、それを木に置く `DemoRecorderScope`（倍率が変わったときだけ札と印に知らせる）、`RebuildCounter`・`DemoScope`・`DemoFit`。見た目を持つ Widget のデモにも使う `DemoValue`（押すと値が変わる Widget の値を手元に持つ。プロパティの値が変わったら合わせる）・`DemoNavigator`（Route・Page のデモで、カードの大きさの Navigator に積む。アプリの Navigator に積むと詳細画面ごと覆うため） |
 | `lib/features/detail/ui/probe/` | 窓口の実装 `DemoProbe`（Riverpod につなぐ）・回数の印 `RebuildBadge`・ログの帯 `LogStrip`・ログのシート `LogSheet` |
 
 - `DemoProbe`: 左右のカードの根に置き、自分を `DemoRecorder` として `DemoRecorderScope` に置く（`side`: `DemoSide.used` / `unused`、`comparing`）。子は `DemoRecorder.of(context)` で引く（`getInheritedWidgetOfExactType` で依存を作らないので、DemoProbe 側の変化で子が組み直されることはない）。窓口の外（見本・全件のテスト）では何もしない窓口が返る
