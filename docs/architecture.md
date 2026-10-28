@@ -14,10 +14,10 @@ lib/
     gen/                    gen-l10n の生成物（コミットする）
   catalog/
     model/                  収録データの型（WidgetEntry・PropertySpec・PropertyControl など）
-    genres.dart             公式カタログのジャンルと順番
+    genres.dart             公式カタログのジャンル（並びはリストの順）
     manifest.dart           公式カタログに載る Widget 名の一覧（抜けの確認用）
     catalog.dart            全件の一覧
-    <ジャンル>/             1 Widget = 1 ファイルの収録データ（プロパティ・説明文・組み立ての関数）
+    <ジャンル>/             1 Widget = 1 ファイルの収録データ（プロパティ・説明文・組み立ての関数）。複数のジャンルに載るものは最初のジャンルに置く
   features/
     catalog/{ui,view_model,data}   ジャンル別の一覧と検索
     detail/{ui,view_model,data}    詳細（プレビュー・操作パネル・比較・コード）
