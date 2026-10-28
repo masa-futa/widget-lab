@@ -24,5 +24,5 @@
 
 ## テスト
 - 層ごとに書く。純粋なロジック・Notifier・Repository は unit を必ず、画面と使い回す部品は widget を2段で（画面は状態ごとに ProviderScope の overrides、部品は部品だけを包む）。偽物は fake を優先し、要るときだけ mocktail
-- 実装の前にテストケース（`docs/test/test-cases.md`）を書き、テストの名前を `TC-01: …` で始める。要件ごとに単体か widget のテストを最低1本
+- 実装の前にテストケース（`docs/test/test-cases.md`）を書き、テストの名前を `TC-01: …` で始める。要件ごとに単体か widget のテストを最低1本。テストケースに対応しない層ごとの単体テスト（例: `test/core/data/` の Client・Repository の変換と例外）は番号を付けない
 - 生成物（`*.g.dart`・`lib/l10n/gen/`）はコミットする

@@ -200,11 +200,13 @@ Snackbar は一度だけ出す知らせなので State に持たず、メソッ�
 
 ## 状態と依存
 
+Provider の名前は riverpod_generator が付けるもので、クラス名から `Notifier` を除いた名前になる（`DetailNotifier` → `detailProvider`）。下の表の `probeNotifierProvider` も、実装では `probeProvider` になる。
+
 | Provider | 種類 | 持つもの | 寿命 |
 |---|---|---|---|
 | `catalogRepositoryProvider` | Provider（`keepAlive`） | `CatalogRepository`（同梱データを返す。同期） | アプリの間ずっと |
 | `catalogProvider` | Notifier（`CatalogNotifier`） | `CatalogState` | 一覧画面の間 |
-| `detailNotifierProvider(entryId)` | Notifier（family・autoDispose） | `DetailState` | 詳細画面の間。戻ると捨てる（cb_dtl の確認・調整事項 1） |
+| `detailProvider(entryId)`（`DetailNotifier`） | Notifier（family・autoDispose） | `DetailState` | 詳細画面の間。戻ると捨てる（cb_dtl の確認・調整事項 1） |
 | `detailCodeProvider(entryId)` | Provider（family・autoDispose） | コードの文字列（`DetailState` から作る） | 同上 |
 | `probeNotifierProvider(entryId)` | Notifier（family・autoDispose） | `ProbeState` | 同上 |
 | `clipboardClientProvider`・`urlLauncherClientProvider` | Provider | OS の機能の薄い包み（テストで差し替える） | アプリの間ずっと |
@@ -225,10 +227,13 @@ Snackbar は一度だけ出す知らせなので State に持たず、メソッ�
 | プロパティ | 型 | 初期値 | 内容 |
 |---|---|---|---|
 | `entry` | `WidgetEntry` | 受け取った ID の収録データ | |
+| `genres` | `List<Genre>` | `entry.genreIds` の順のジャンル | 説明タブのチップ（ds-genr）に名前を出すため |
 | `settings` | `Map<String, PropertySetting>` | 各プロパティの `initiallyOn` と `control.initial` | `PropertySetting(on: bool, value: ControlValue)`。OFF にしても `value` は覚えておく |
 | `comparing` | `String?` | `null` | 比べているプロパティの名前。`null` は比較していない |
 
-`isModified`（最初の値から1つでも変わった、または比較中）は State から求める（ab-rset の活性）。
+`isModified`（最初の値から1つでも変わった、または比較中）は State から求める（ab-rset の活性）。比較の2枚の設定は `settingsForSide(on:)` が、比べているプロパティの定義は `comparingSpec` が返す。値の短い表示（スライダーの `16.0`・選択肢の名前など。操作パネルと比較のカードの読み上げで使う）は `valueLabel(control, value)`（`lib/features/detail/view_model/value_label.dart`）。
+
+ない ID で開くと `build` が `StateError` を出す（一覧は同じ収録データから作るので起きない。一覧へ戻す処理は作らない）。
 
 ### ProbeState
 
@@ -275,9 +280,8 @@ Snackbar は一度だけ出す知らせなので State に持たず、メソッ�
 | 公式ドキュメントを開けない（ブラウザがない・URL を扱えない） | Snackbar「ブラウザを開けませんでした」 | 利用者がもう一度押す | なし |
 | クリップボードに書けない | Snackbar「コピーできませんでした」 | 利用者がもう一度押す | なし |
 | 組み立ての関数が例外を出す（収録データの不備） | プレビューのカードに Flutter の標準のエラー表示（debug）。release では空のカード | なし | なし。全件の組み立てをテストで確かめて防ぐ |
-| 一覧から渡された ID の収録データがない | 起きない（一覧は同じ収録データから作る）。万一のときは一覧へ戻す | なし | なし |
+| 一覧から渡された ID の収録データがない | 起きない（一覧は同じ収録データから作る）。`DetailNotifier.build` が `StateError` を出す | なし | なし |
 
-「コピーできませんでした」は ui-spec の文言の表にないため、cb_dtl の文言に足す。
 
 ## 外部 SDK・API の扱い
 
@@ -290,7 +294,7 @@ Snackbar は一度だけ出す知らせなので State に持たず、メソッ�
 
 ## テストの観点
 
-- 収録データ: 全件の組み立てが、全部 OFF・全部 ON（required は常に ON）・各 Choice のどれでも例外を出さない
+- 収録データ: 全件の組み立てが、全部 OFF・全部 ON（required は常に ON）・各 Choice のどれでも例外を出さない。組み立ては実物のプレビューのカード（`PreviewCard`）に入れ、1 枚のときと比較中の小さいカードの大きさで行う
 - 収録データ: ID が重ならない。全件が1つ以上のジャンルに入っている。ジャンルの ID が `genres.dart` にある
 - 収録データ: `manifest.dart` にない Widget を収録していない。収録の抜けを数える（全部揃うまでは数を出すだけ。揃ったら全件を求めるテストにする）
 - 検索: 部分一致・大文字小文字の区別なし・前後の空白の無視・0 件
