@@ -11,6 +11,7 @@
 | 余白 | [gap](https://pub.dev/packages/gap) | Row・Column の中の余白は `Gap` |
 | テーマ | Material 3 の `ThemeData`＋土台の拡張（`NimiColors`・`NimiSpacing`・`NimiRadius`・`NimiTextStyles`） | 色は `Theme.of(context).colorScheme` と `NimiColors.of(context)`、余白は `NimiSpacing.of(context)`、角丸は `NimiRadius.of(context)`、コードの文字は `NimiTextStyles.of(context).code`。値は docs/design-system.md |
 | lint | flutter_lints＋strict＋[riverpod_lint](https://pub.dev/packages/riverpod_lint) | `analysis_options.yaml` |
+| アイコン | [cupertino_icons](https://pub.dev/packages/cupertino_icons) | Cupertino の Widget が中で使う `CupertinoIcons` の字形（入れないと豆腐になる） |
 | リンク | [url_launcher](https://pub.dev/packages/url_launcher) | 公式の API ドキュメントを開くときだけ。ほかに通信しない |
 
 ## 書き方

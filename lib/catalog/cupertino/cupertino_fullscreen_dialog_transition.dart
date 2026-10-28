@@ -1,0 +1,92 @@
+import 'package:flutter/cupertino.dart';
+import 'package:widget_lab/catalog/model/demo_args.dart';
+import 'package:widget_lab/catalog/model/property_control.dart';
+import 'package:widget_lab/catalog/model/property_spec.dart';
+import 'package:widget_lab/catalog/model/widget_entry.dart';
+
+final cupertinoFullscreenDialogTransitionEntry = WidgetEntry(
+  id: 'cupertinoFullscreenDialogTransition',
+  name: 'CupertinoFullscreenDialogTransition',
+  genreIds: const ['cupertino'],
+  summary: '下からせり上がる iOS の全画面ダイアログの動き',
+  description:
+      'fullscreenDialog の CupertinoPageRoute が使う、遷移の動きです。primaryRouteAnimation が 0 なら'
+      '下の外、1 なら元の位置にあり、secondaryRouteAnimation が進むと左へ少しずれます。'
+      'ここでは値を止めた AlwaysStoppedAnimation を渡し、途中の姿を見ます。',
+  docUrl: Uri.parse(
+    'https://api.flutter.dev/flutter/cupertino/CupertinoFullscreenDialogTransition-class.html',
+  ),
+  properties: [
+    PropertySpec(
+      name: 'primaryRouteAnimation',
+      typeLabel: 'Animation<double>',
+      description: 'この画面が出てくる進み具合。0 で下の外、1 で元の位置',
+      required: true,
+      control: _animation(0.5),
+    ),
+    PropertySpec(
+      name: 'secondaryRouteAnimation',
+      typeLabel: 'Animation<double>',
+      description: '上に次の画面が来る進み具合。進むと左へ少しずれる',
+      required: true,
+      control: _animation(0),
+    ),
+    const PropertySpec(
+      name: 'linearTransition',
+      typeLabel: 'bool',
+      description: 'true なら進み具合をそのまま位置にする。false なら iOS の曲線で緩急をつける',
+      required: true,
+      control: SwitchControl(initialValue: false),
+    ),
+    const PropertySpec(
+      name: 'child',
+      typeLabel: 'Widget',
+      description: '動かす画面',
+      required: true,
+      control: FixedControl(value: _Page(), source: 'const NextPage()'),
+    ),
+  ],
+  build: _build,
+  codeName: 'CupertinoFullscreenDialogTransition',
+);
+
+SliderControl _animation(double initialValue) => SliderControl(
+  min: 0,
+  max: 1,
+  divisions: 10,
+  initialValue: initialValue,
+  resolve: AlwaysStoppedAnimation<double>.new,
+  code: (v) => 'AlwaysStoppedAnimation($v)',
+);
+
+// どれも必須のプロパティなので、常に値がある
+Widget _build(DemoArgs args) => SizedBox(
+  width: 240,
+  height: 140,
+  // 枠の外へずれた分は切り、枠の中のどこにあるかを見せる
+  child: ClipRect(
+    child: CupertinoFullscreenDialogTransition(
+      primaryRouteAnimation: args.valueOf<Animation<double>>(
+        'primaryRouteAnimation',
+      )!,
+      secondaryRouteAnimation: args.valueOf<Animation<double>>(
+        'secondaryRouteAnimation',
+      )!,
+      linearTransition: args.valueOf<bool>('linearTransition')!,
+      child: args.valueOf<Widget>('child')!,
+    ),
+  ),
+);
+
+/// 動かす画面（デモの部品。コードでは `const NextPage()`）。
+class _Page extends StatelessWidget {
+  const _Page();
+
+  @override
+  Widget build(BuildContext context) => const ColoredBox(
+    color: Color(0xFF1E50A2),
+    child: Center(
+      child: Text('次の画面', style: TextStyle(color: Color(0xFFFFFFFF))),
+    ),
+  );
+}
