@@ -34,8 +34,8 @@
 | color/surface-muted | `NimiColors.surfaceMuted` | #E7E7E9 | #28282C | コードの地・無効の地・チップの地 | — |
 | color/ink | `ColorScheme.onSurface` | #18181B | #F3F3F4 | 本文・見出し・アイコン | L 17.72（surface）・15.42（canvas）・14.35（surface-muted）／D 15.16・17.14・13.24 |
 | color/ink-secondary | `ColorScheme.onSurfaceVariant` | #5E5E64 | #A6A6AB | 補足の文字（プロパティの説明・型） | L 6.44（surface）・5.60（canvas）・5.21（surface-muted）／D 6.94・7.84・6.06 |
-| color/outline | `NimiColors.outline` | #88888E | #76767C | 部品の境界（図形のみ） | L 3.52（surface）／D 3.73（surface） |
-| color/outline-variant | `NimiColors.outlineVariant` | #DEDEE0 | #2E2E32 | 区切り線（比較の上下の境目） | 基準の対象外 |
+| color/outline | `ColorScheme.outline` | #88888E | #76767C | 部品の境界（図形のみ） | L 3.52（surface）／D 3.73（surface） |
+| color/outline-variant | `ColorScheme.outlineVariant` | #DEDEE0 | #2E2E32 | 区切り線（比較の上下の境目） | 基準の対象外 |
 | color/accent（ruri） | `ColorScheme.primary` | #1E50A2 | #709DE6 | スイッチの ON・選択中・主な操作 | L 白の文字 7.71・canvas 6.71／D 墨の文字 6.46・surface 6.13 |
 | color/on-accent | `ColorScheme.onPrimary` | #FFFFFF | #18181B | accent の上の文字 | 上の行のとおり |
 | color/brand | `NimiColors.brand` | #F8B500 | #F8B500 | ワードマークの印だけ | 白い地の上の文字には使わない |
@@ -46,13 +46,29 @@
 | color/error | `ColorScheme.error` | #B8342A | #FF8A80 | エラー | L 5.13（canvas）／D 7.37 |
 | color/on-success・on-warning・on-error | `NimiColors` / `ColorScheme.onError` | #FFFFFF | #18181B | 意味の色の上の文字 | 上の行のとおり |
 
-ruri の値とコントラスト比は土台の「アプリの色」の表から写した。surface-muted の上の ink は、このアプリで足した組（コードの地）として計算した。
+ruri の値とコントラスト比は土台の「アプリの色」の表から写した。surface-muted の上の ink は、このアプリで足した組（コードの地）として計算した。outline 系は、Material の部品（Divider・OutlinedButton・Switch の枠）が標準で参照するため、土台の対応表の `NimiColors` ではなく `ColorScheme` に置く。
+
+#### 土台との差分（色）
+Material 3 の部品が使う役割のうち、土台にないもの。未指定だと `primary` などに落ち、スイッチのつまみが押したときにトラックと同じ色になる・選択中と主な操作が同じ見た目になる（2026-10-28 のレビューで判明）。
+
+| Flutter | Light | Dark | 用途 | コントラスト比 |
+|------|-------|------|------|------|
+| `ColorScheme.primaryContainer` / `secondaryContainer` | #DCE5F4 | #2A3F66 | スイッチのつまみ（押した・ホバー）、選択中のセグメント・チップ、tonal のボタン | — |
+| `ColorScheme.onPrimaryContainer` / `onSecondaryContainer` | #18181B | #F3F3F4 | 上の地の上の文字 | L 13.97／D 9.46 |
+| `ColorScheme.inverseSurface` | #18181B | #F3F3F4 | Snackbar の地（ink と同じ） | — |
+| `ColorScheme.onInverseSurface` | #F3F3F4 | #18181B | Snackbar の文字 | L 15.16 以上／D 同 |
+| `ColorScheme.inversePrimary` | #709DE6 | #1E50A2 | Snackbar のアクションの文字（反対のモードの瑠璃） | L 6.46／D 6.95 |
+| `ColorScheme.secondary` | accent と同じ | accent と同じ | 使う場面は今はない | — |
+| `ColorScheme.surfaceContainerLowest`〜`High` | surface と同じ | surface と同じ | 土台の surface は1段だけのため | — |
+
+部品の調整: スライダーの値のない側のトラックは `outline`（白の上で 3.52:1。`surfaceContainerHighest` のままだと 1.23:1 で図形の基準に届かない）。AppBar はスクロールしても地を canvas のままにする（`scrolledUnderElevation: 0`）。
 
 ### タイポグラフィ
 土台と同じ。見出しは Murecho、本文はシステムの書体。文字の拡大に追従させる。Flutter の `TextTheme` への対応は土台のとおり。
 
 | スタイル | 書体 | TextTheme | サイズ | ウェイト | 行間 | 用途 |
 |---------|------|----------------|--------|---------|------|------|
+| largeTitle | Murecho | displaySmall | 34 | Bold | 44 | 使う場面は今はない |
 | title1 | Murecho | headlineMedium | 28 | Bold | 36 | 使う場面は今はない |
 | title2 | Murecho | titleLarge | 22 | Bold | 30 | AppBar の題（Widget 名） |
 | title3 | Murecho | titleMedium | 20 | SemiBold | 28 | ジャンル名・節の見出し |
@@ -62,6 +78,7 @@ ruri の値とコントラスト比は土台の「アプリの色」の表から
 | subheadline | システム | bodySmall | 15 | Regular | 22 | プロパティの一言の説明 |
 | footnote | システム | labelMedium | 13 | Regular | 18 | プロパティの型・値の表示 |
 | caption1 | システム | labelSmall | 12 | Regular | 16 | 比較のラベル（付けた／付けない） |
+| caption2 | システム | `NimiTextStyles.caption2` | 11 | Regular | 14 | 使う場面は今はない |
 | **code（土台との差分）** | 等幅のシステム書体（iOS: Menlo、Android: monospace） | `NimiTextStyles.code` | 14 | Regular | 20 | コードの表示 |
 
 code は土台にない。コードの表示に等幅の書体が要るため足した。サイズは callout と footnote の間にし、横に長い行を減らす。
@@ -106,5 +123,4 @@ code は土台にない。コードの表示に等幅の書体が要るため足
 ## 未決事項
 - Murecho をアプリに同梱する方法（使う字に絞るか。見出しは Widget 名の英字が多く、日本語はジャンル名・節の見出しくらい）
 - コードの表示の等幅の書体を、同梱するか（システムの書体だと iOS と Android で見た目が変わる）
-- 土台の PR #1 の `AppSpacing`（xs4/s8/m16/l24/xl32）と、`ColorScheme.fromSeed(#0175C2)` は、この文書の `NimiSpacing`・土台の値に置き換える（実装の段で行う）
-- 土台との差分は2つ（部品の形と動きを Material 3 にしたこと、code の文字のスタイル）。土台そのものに足すかはオーナーが決める
+- 土台との差分は3つ（部品の形と動きを Material 3 にしたこと、code の文字のスタイル、Material 3 の部品が使う色の役割）。土台そのものに足すかはオーナーが決める

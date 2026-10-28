@@ -9,7 +9,7 @@
 | モデル | 手書きの不変クラス | `final` のフィールド、`==` と `hashCode` |
 | 文言 | gen-l10n（`lib/l10n/app_ja.arb`） | UI の文言は ARB に置く。Widget とプロパティの説明文は `lib/catalog/` の定義に置く |
 | 余白 | [gap](https://pub.dev/packages/gap) | Row・Column の中の余白は `Gap` |
-| テーマ | Material 3 の `ThemeData`＋`AppSpacing` | 色は `Theme.of(context).colorScheme`、余白は `AppSpacing.of(context)` |
+| テーマ | Material 3 の `ThemeData`＋土台の拡張（`NimiColors`・`NimiSpacing`・`NimiRadius`・`NimiTextStyles`） | 色は `Theme.of(context).colorScheme` と `NimiColors.of(context)`、余白は `NimiSpacing.of(context)`、角丸は `NimiRadius.of(context)`、コードの文字は `NimiTextStyles.of(context).code`。値は docs/design-system.md |
 | lint | flutter_lints＋strict＋[riverpod_lint](https://pub.dev/packages/riverpod_lint) | `analysis_options.yaml` |
 | リンク | [url_launcher](https://pub.dev/packages/url_launcher) | 公式の API ドキュメントを開くときだけ。ほかに通信しない |
 
