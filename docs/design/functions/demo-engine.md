@@ -25,7 +25,6 @@ classDiagram
     class Genre {
         +String id
         +String name
-        +int order
     }
     class WidgetEntry {
         +String id
@@ -71,7 +70,7 @@ classDiagram
     }
     class FixedControl {
         +Object value
-        +String code
+        +String source
     }
     WidgetEntry "1" --> "*" PropertySpec
     WidgetEntry "*" --> "1..*" Genre
@@ -88,10 +87,15 @@ classDiagram
   - 例: `padding` は `SliderControl(min: 0, max: 48, divisions: 12, resolve: EdgeInsets.all, code: 'EdgeInsets.all($v)')`
   - 例: `mainAxisAlignment` は `ChoiceControl([Choice('start', MainAxisAlignment.start, 'MainAxisAlignment.start'), …])`
   - `ChoiceControl` は 4 つまでなら `SegmentedButton`、5 つ以上なら `DropdownMenu` で出す（ui-spec の op-valu）
-  - `FixedControl` は `child` のように利用者が変えない値（例: デモの子 `FlutterLogo()`）。操作パネルでは ON/OFF だけを出す
+  - `FixedControl` は `child` のように利用者が変えない値（例: デモの子 `FlutterLogo()`）。操作パネルでは ON/OFF だけを出す。コードでの書き方は `source`（メソッドの `code` と名前が重なるため）
+  - 開いたときの値は、操作部品ごとに `initialValue`（スライダー・スイッチ・文字）か `initialIndex`（選択肢・色見本）で書き、`initial` で `ControlValue` として読む
+  - スライダーの値は、Slider が段ごとに返す値（`min + (max - min) * i / divisions`）の浮動小数の誤差を小数第 6 位で丸めてから写す（例: 109.99999999999999 → `110.0`）
+  - 色見本は `Choice.color('瑠璃', Color(…))` で書く（コードは `colorCode` が `Color(0xFF1E50A2)` にする）。文字のコードは `dartString` が一重引用符で囲み、`\`・`'`・`$`・改行を逃がす（どちらも `lib/catalog/model/dart_code.dart`）
+  - 操作部品と合わない種類の値（例: スイッチに `SliderValue`）は `ArgumentError`
 - **PropertyArg** はコードでの書き方: `named`（`padding: …`）か `positional`（`Text('こんにちは')` の最初の引数）
 - **required** のプロパティは常に ON（スイッチを出さず「必須」の印）。`initiallyOn` は開いたときの ON/OFF
-- **DemoBuilder** は `Widget Function(DemoArgs args)`。`DemoArgs` は ON のプロパティだけ値を返す（`args.valueOf<EdgeInsets>('padding')` は OFF なら `null`）。組み立ての関数は、`null` のときに Widget の既定値を渡す（Dart では引数を条件つきで省けないため。既定値は公式の API ドキュメントの値に合わせ、テストで全部 OFF の組み立てが落ちないことを確かめる）
+- **PropertySetting**（`on`・`value`）も `lib/catalog/model/` に置く（DemoArgs・CodeGenerator・DetailState が使う）。`WidgetEntry.initialSettings()` が開いたときの設定を、`PropertySpec.isOnIn(settings)`・`valueIn(settings)` が「必須なら常に ON」「設定がなければ OFF・最初の値」を返す
+- **DemoBuilder** は `Widget Function(DemoArgs args)`。`DemoArgs(entry, settings)` で作る。収録データにない名前を `valueOf` で読むと `ArgumentError`、値の型が合わないと `StateError`（収録データの不備を全件のテストで落とすため）。`DemoArgs` は ON のプロパティだけ値を返す（`args.valueOf<EdgeInsets>('padding')` は OFF なら `null`）。組み立ての関数は、`null` のときに Widget の既定値を渡す（Dart では引数を条件つきで省けないため。既定値は公式の API ドキュメントの値に合わせ、テストで全部 OFF の組み立てが落ちないことを確かめる）
 - `behavior` の Widget の組み立ての関数は、`DemoArgs.probe`（`DemoProbe`）を受け取り、子を `RebuildCounter(label: 'Counter', probe: …)` で包んで再ビルドを数え、`probe.log('…')` でログを出す
 
 置き場所:
@@ -99,9 +103,9 @@ classDiagram
 | ファイル | 中身 |
 |---|---|
 | `lib/catalog/model/*.dart` | 上の型 |
-| `lib/catalog/genres.dart` | 公式カタログのジャンルと順番 |
-| `lib/catalog/<ジャンル>/<widget>.dart` | 1 Widget = 1 ファイル（`final paddingEntry = WidgetEntry(…)`） |
-| `lib/catalog/catalog.dart` | 全件の一覧（`const allEntries = [...]`） |
+| `lib/catalog/genres.dart` | 公式カタログのジャンル。並びはリストの順（Cupertino・Material design のあと、基本の12ジャンルを ABC 順） |
+| `lib/catalog/<ジャンル>/<widget>.dart` | 1 Widget = 1 ファイル（`final paddingEntry = WidgetEntry(…)`）。複数のジャンルに載る Widget は `genreIds` の最初のジャンルに置く |
+| `lib/catalog/catalog.dart` | 全件の一覧（`final allEntries = [...]`。`docUrl` の `Uri` が const にできないため） |
 | `lib/catalog/manifest.dart` | 公式カタログに載る Widget 名の一覧（ジャンルごと）。収録の進み具合と抜けを確かめるためのもの |
 
 ## 処理の流れ
@@ -134,7 +138,7 @@ sequenceDiagram
     N-->>V: DetailState（全プロパティが最初の値）
     V->>N: propertyToggled(name, on) / propertyValueChanged(name, value)
     N-->>V: DetailState（values を更新）
-    V->>V: entry.build(DemoArgs(values)) でプレビューを組み立て直す
+    V->>V: entry.build(DemoArgs(entry, settings)) でプレビューを組み立て直す
     V->>C: detailCodeProvider（values から）
     C-->>V: コードの文字列
 ```
@@ -256,11 +260,12 @@ Snackbar は一度だけ出す知らせなので State に持たず、メソッ�
 
 ## コード生成
 
-`CodeGenerator.generate(entry, settings)` は純粋な関数（`lib/features/detail/view_model/`）。
+`CodeGenerator.generate(entry, settings)` は純粋な関数（`lib/features/detail/view_model/`。`const CodeGenerator()`）。OS にも時刻にも頼らないので、テストで差し替えずにそのまま使う。
 
 1. `entry.codeName`（例: `Padding`）を書き、`(` を開く
 2. `positional` のプロパティ（ON のもの）を先に、`named` のプロパティ（ON のもの・required）を収録データの順に、`name: control.code(value),` の形で1行ずつ書く（字下げは2文字）
 3. `)` で閉じる。プロパティが1つもなければ `Padding()` のように1行にする
+   - 位置で渡す引数も 1 行ずつ書く（`Text(` の次の行に `'こんにちは',`）
 4. 値の文字列は `control.code` に任せる（`Color(0xFF1E50A2)`・`'こんにちは'` のように、そのまま貼れる Dart の式にする）
 
 ## エラーと例外
@@ -278,8 +283,10 @@ Snackbar は一度だけ出す知らせなので State に持たず、メソッ�
 
 | 相手 | この処理でしていること | 失敗したとき |
 |---|---|---|
-| url_launcher（`launchUrl`、外部のブラウザ） | 公式の API ドキュメントを開く | `false` を返し、Snackbar |
-| Flutter の `Clipboard.setData` | コードをコピー | 例外を捕まえて `false`、Snackbar |
+| url_launcher（`launchUrl`、外部のブラウザ） | 公式の API ドキュメントを開く。https でない URL は開かない（ほかのアプリを起動させない） | `false` を返し、Snackbar。例外（`Exception`）も `false` |
+| Flutter の `Clipboard.setData` | コードをコピー | 例外（`Exception`）を捕まえて `false`、Snackbar |
+
+`CatalogRepository` は `abstract interface class` で、同梱データを返す実装は `BundledCatalogRepository`。`entryById(id)` は詳細画面が ID から1件を引くのに使う（ない ID は `null`）。Client も同じく interface と `System…` の実装に分け、テストでは fake に差し替える。
 
 ## テストの観点
 
