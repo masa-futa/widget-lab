@@ -3,5 +3,37 @@
   "appTitle": "Widget Lab",
   "@appTitle": {
     "description": "アプリ名。一覧画面の AppBar にも出す"
+  },
+  "catalogSearchHint": "Widget 名で検索",
+  "@catalogSearchHint": {
+    "description": "一覧画面の検索欄のプレースホルダー"
+  },
+  "catalogSearchClear": "検索を消す",
+  "@catalogSearchClear": {
+    "description": "検索の入力を消すボタン。消すボタンの読み上げと、空状態のボタンに使う"
+  },
+  "catalogEmpty": "「{query}」に一致する Widget はありません",
+  "@catalogEmpty": {
+    "description": "検索の結果が 0 件のときの文言",
+    "placeholders": {
+      "query": {
+        "type": "String",
+        "example": "zzzz"
+      }
+    }
+  },
+  "catalogSectionLabel": "{genre}、{count} 件",
+  "@catalogSectionLabel": {
+    "description": "ジャンルの見出しの読み上げ",
+    "placeholders": {
+      "genre": {
+        "type": "String",
+        "example": "Layout"
+      },
+      "count": {
+        "type": "int",
+        "example": "30"
+      }
+    }
   }
 }

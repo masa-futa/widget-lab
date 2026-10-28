@@ -11,4 +11,20 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get appTitle => 'Widget Lab';
+
+  @override
+  String get catalogSearchHint => 'Widget 名で検索';
+
+  @override
+  String get catalogSearchClear => '検索を消す';
+
+  @override
+  String catalogEmpty(String query) {
+    return '「$query」に一致する Widget はありません';
+  }
+
+  @override
+  String catalogSectionLabel(String genre, int count) {
+    return '$genre、$count 件';
+  }
 }
