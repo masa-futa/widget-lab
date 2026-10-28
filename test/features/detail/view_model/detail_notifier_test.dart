@@ -12,6 +12,8 @@ import 'package:widget_lab/core/data/url_launcher_client.dart';
 import 'package:widget_lab/features/detail/view_model/code_generator.dart';
 import 'package:widget_lab/features/detail/view_model/comparing.dart';
 import 'package:widget_lab/features/detail/view_model/detail_notifier.dart';
+import 'package:widget_lab/features/detail/view_model/probe_notifier.dart';
+import 'package:widget_lab/features/detail/view_model/probe_state.dart';
 
 import '../fakes.dart';
 
@@ -381,6 +383,27 @@ void main() {
     expect(state.comparing, isNull);
     expect(state.selected, 'padding');
     expect(state.isModified, isFalse);
+  });
+
+  test('TC-73: 初期状態に戻すと、build の回数とログも空になる', () {
+    final container = makeContainer(
+      repository: FakeCatalogRepository([behaviorEntry]),
+    );
+    final probe = probeProvider('behavior');
+    container.listen(probe, (_, _) {});
+    container.read(probe.notifier).recorded(const [
+      BuildEvent(side: DemoSide.used, label: '読む子'),
+    ]);
+    container.read(detailProvider('behavior').notifier)
+      ..propertyValueChanged('scale', const SliderValue(1.5))
+      ..resetTapped();
+
+    expect(container.read(probe).counts, isEmpty);
+    expect(container.read(probe).logs, isEmpty);
+    expect(
+      container.read(detailProvider('behavior')).settings,
+      behaviorEntry.initialSettings(),
+    );
   });
 
   group('コード', () {

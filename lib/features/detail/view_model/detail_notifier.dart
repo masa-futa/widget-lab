@@ -10,6 +10,7 @@ import 'package:widget_lab/core/data/url_launcher_client.dart';
 import 'package:widget_lab/features/detail/view_model/code_generator.dart';
 import 'package:widget_lab/features/detail/view_model/comparing.dart';
 import 'package:widget_lab/features/detail/view_model/detail_state.dart';
+import 'package:widget_lab/features/detail/view_model/probe_notifier.dart';
 
 part 'detail_notifier.g.dart';
 
@@ -74,8 +75,10 @@ class DetailNotifier extends _$DetailNotifier {
     state = state.copyWith(comparing: () => null);
   }
 
+  /// 設定・選択・比較を最初に戻し、build の回数とログも空にする。
   void resetTapped() {
     state = DetailState.initial(state.entry, state.genres);
+    ref.read(probeProvider(entryId).notifier).logCleared();
   }
 
   /// 今のコードをクリップボードに書く。書けなければ `false`。
