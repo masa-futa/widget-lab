@@ -123,6 +123,132 @@ abstract class AppLocalizations {
   /// In ja, this message translates to:
   /// **'{genre}、{count} 件'**
   String catalogSectionLabel(String genre, int count);
+
+  /// 詳細画面のタブ（プロパティの操作）
+  ///
+  /// In ja, this message translates to:
+  /// **'操作'**
+  String get detailTabOperation;
+
+  /// 詳細画面のタブ（要約と公式ドキュメント）
+  ///
+  /// In ja, this message translates to:
+  /// **'説明'**
+  String get detailTabDescription;
+
+  /// 詳細画面のタブ（今の設定のコード）
+  ///
+  /// In ja, this message translates to:
+  /// **'コード'**
+  String get detailTabCode;
+
+  /// 詳細画面の AppBar のボタンのツールチップと読み上げ
+  ///
+  /// In ja, this message translates to:
+  /// **'初期状態に戻す'**
+  String get detailReset;
+
+  /// 操作パネルの行の「比べる」ボタンのツールチップと読み上げ
+  ///
+  /// In ja, this message translates to:
+  /// **'付けた／付けないを比べる'**
+  String get detailCompare;
+
+  /// 比較中の行の「比べる」ボタンの読み上げ
+  ///
+  /// In ja, this message translates to:
+  /// **'比較中'**
+  String get detailComparing;
+
+  /// 比較の上のカードのラベル
+  ///
+  /// In ja, this message translates to:
+  /// **'付けた'**
+  String get detailCompareWith;
+
+  /// 比較の下のカードのラベル
+  ///
+  /// In ja, this message translates to:
+  /// **'付けない'**
+  String get detailCompareWithout;
+
+  /// 比較の上のカードの読み上げ
+  ///
+  /// In ja, this message translates to:
+  /// **'付けた、{name}、{value}'**
+  String detailCompareWithSemantics(String name, String value);
+
+  /// 比較の下のカードの読み上げ
+  ///
+  /// In ja, this message translates to:
+  /// **'付けない、{name}'**
+  String detailCompareWithoutSemantics(String name);
+
+  /// 比較しているプロパティ
+  ///
+  /// In ja, this message translates to:
+  /// **'{name} を比較中'**
+  String detailComparingTarget(String name);
+
+  /// 比較をやめる文字のボタン
+  ///
+  /// In ja, this message translates to:
+  /// **'比較をやめる'**
+  String get detailCompareDismiss;
+
+  /// 必須のプロパティの印（スイッチの代わり）
+  ///
+  /// In ja, this message translates to:
+  /// **'必須'**
+  String get detailRequired;
+
+  /// プロパティの ON/OFF のスイッチの読み上げ
+  ///
+  /// In ja, this message translates to:
+  /// **'{name} を付ける'**
+  String detailToggleLabel(String name);
+
+  /// プロパティの値の操作の読み上げ
+  ///
+  /// In ja, this message translates to:
+  /// **'{name} の値'**
+  String detailValueLabel(String name);
+
+  /// 操作できるプロパティがないときの操作タブ
+  ///
+  /// In ja, this message translates to:
+  /// **'この Widget には変えられるプロパティがありません'**
+  String get detailNoProperties;
+
+  /// 説明タブのボタン
+  ///
+  /// In ja, this message translates to:
+  /// **'公式ドキュメントを開く'**
+  String get detailOpenDocs;
+
+  /// 公式ドキュメントを開けなかったときの Snackbar
+  ///
+  /// In ja, this message translates to:
+  /// **'ブラウザを開けませんでした'**
+  String get detailOpenDocsFailed;
+
+  /// コードタブのボタン
+  ///
+  /// In ja, this message translates to:
+  /// **'コードをコピー'**
+  String get detailCopyCode;
+
+  /// コピーできたときの Snackbar
+  ///
+  /// In ja, this message translates to:
+  /// **'コードをコピーしました'**
+  String get detailCopySucceeded;
+
+  /// クリップボードに書けなかったときの Snackbar
+  ///
+  /// In ja, this message translates to:
+  /// **'コピーできませんでした'**
+  String get detailCopyFailed;
 }
 
 class _AppLocalizationsDelegate

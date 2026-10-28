@@ -11,8 +11,14 @@ import 'package:widget_lab/features/catalog/view_model/catalog_state.dart';
 import 'package:widget_lab/l10n/gen/app_localizations.dart';
 
 /// ジャンル別の一覧画面（ca_lst）。
+///
+/// 行を押したときの遷移は [onEntryTapped] で受け取る（機能をまたいで詳細画面を
+/// 直接参照しないため。組み立ては app.dart）。
 class CatalogScreen extends ConsumerStatefulWidget {
-  const CatalogScreen({super.key});
+  const CatalogScreen({required this.onEntryTapped, super.key});
+
+  /// 行を押したとき。押した Widget の `WidgetEntry.id` を渡す。
+  final void Function(BuildContext context, String entryId) onEntryTapped;
 
   @override
   ConsumerState<CatalogScreen> createState() => _CatalogScreenState();
@@ -94,6 +100,8 @@ class _CatalogScreenState extends ConsumerState<CatalogScreen> {
                         sections: state.sections,
                         controller: _listController,
                         headerKey: _headerKey,
+                        onEntryTapped: (entryId) =>
+                            widget.onEntryTapped(context, entryId),
                       ),
               ),
             ],
@@ -223,11 +231,13 @@ class _SectionList extends StatelessWidget {
     required this.sections,
     required this.controller,
     required this.headerKey,
+    required this.onEntryTapped,
   });
 
   final List<CatalogSection> sections;
   final ScrollController controller;
   final GlobalKey Function(String genreId) headerKey;
+  final ValueChanged<String> onEntryTapped;
 
   @override
   Widget build(BuildContext context) {
@@ -244,7 +254,8 @@ class _SectionList extends StatelessWidget {
               genre: section.genre,
               count: section.entries.length,
             ),
-            for (final entry in section.entries) _EntryTile(entry: entry),
+            for (final entry in section.entries)
+              _EntryTile(entry: entry, onTap: () => onEntryTapped(entry.id)),
           ],
         ],
       ),
@@ -302,9 +313,10 @@ class CatalogSectionHeader extends StatelessWidget {
 
 /// Widget の行（ls-item）。名前と一行の要約。
 class _EntryTile extends StatelessWidget {
-  const _EntryTile({required this.entry});
+  const _EntryTile({required this.entry, required this.onTap});
 
   final WidgetEntry entry;
+  final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
@@ -324,9 +336,7 @@ class _EntryTile extends StatelessWidget {
           color: theme.colorScheme.onSurfaceVariant,
         ),
         trailing: const Icon(Icons.chevron_right),
-        // TODO(PR 4/5): 詳細画面への遷移（Navigator.push）は feat/detail-screen が
-        // PR 3/5 のマージ後に配線する（TC-15・16・46 もそちらで書く）。
-        onTap: () {},
+        onTap: onTap,
       ),
     );
   }

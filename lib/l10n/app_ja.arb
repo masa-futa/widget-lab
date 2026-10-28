@@ -35,5 +35,123 @@
         "example": "30"
       }
     }
+  },
+  "detailTabOperation": "操作",
+  "@detailTabOperation": {
+    "description": "詳細画面のタブ（プロパティの操作）"
+  },
+  "detailTabDescription": "説明",
+  "@detailTabDescription": {
+    "description": "詳細画面のタブ（要約と公式ドキュメント）"
+  },
+  "detailTabCode": "コード",
+  "@detailTabCode": {
+    "description": "詳細画面のタブ（今の設定のコード）"
+  },
+  "detailReset": "初期状態に戻す",
+  "@detailReset": {
+    "description": "詳細画面の AppBar のボタンのツールチップと読み上げ"
+  },
+  "detailCompare": "付けた／付けないを比べる",
+  "@detailCompare": {
+    "description": "操作パネルの行の「比べる」ボタンのツールチップと読み上げ"
+  },
+  "detailComparing": "比較中",
+  "@detailComparing": {
+    "description": "比較中の行の「比べる」ボタンの読み上げ"
+  },
+  "detailCompareWith": "付けた",
+  "@detailCompareWith": {
+    "description": "比較の上のカードのラベル"
+  },
+  "detailCompareWithout": "付けない",
+  "@detailCompareWithout": {
+    "description": "比較の下のカードのラベル"
+  },
+  "detailCompareWithSemantics": "付けた、{name}、{value}",
+  "@detailCompareWithSemantics": {
+    "description": "比較の上のカードの読み上げ",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "padding"
+      },
+      "value": {
+        "type": "String",
+        "example": "16.0"
+      }
+    }
+  },
+  "detailCompareWithoutSemantics": "付けない、{name}",
+  "@detailCompareWithoutSemantics": {
+    "description": "比較の下のカードの読み上げ",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "padding"
+      }
+    }
+  },
+  "detailComparingTarget": "{name} を比較中",
+  "@detailComparingTarget": {
+    "description": "比較しているプロパティ",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "padding"
+      }
+    }
+  },
+  "detailCompareDismiss": "比較をやめる",
+  "@detailCompareDismiss": {
+    "description": "比較をやめる文字のボタン"
+  },
+  "detailRequired": "必須",
+  "@detailRequired": {
+    "description": "必須のプロパティの印（スイッチの代わり）"
+  },
+  "detailToggleLabel": "{name} を付ける",
+  "@detailToggleLabel": {
+    "description": "プロパティの ON/OFF のスイッチの読み上げ",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "padding"
+      }
+    }
+  },
+  "detailValueLabel": "{name} の値",
+  "@detailValueLabel": {
+    "description": "プロパティの値の操作の読み上げ",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "padding"
+      }
+    }
+  },
+  "detailNoProperties": "この Widget には変えられるプロパティがありません",
+  "@detailNoProperties": {
+    "description": "操作できるプロパティがないときの操作タブ"
+  },
+  "detailOpenDocs": "公式ドキュメントを開く",
+  "@detailOpenDocs": {
+    "description": "説明タブのボタン"
+  },
+  "detailOpenDocsFailed": "ブラウザを開けませんでした",
+  "@detailOpenDocsFailed": {
+    "description": "公式ドキュメントを開けなかったときの Snackbar"
+  },
+  "detailCopyCode": "コードをコピー",
+  "@detailCopyCode": {
+    "description": "コードタブのボタン"
+  },
+  "detailCopySucceeded": "コードをコピーしました",
+  "@detailCopySucceeded": {
+    "description": "コピーできたときの Snackbar"
+  },
+  "detailCopyFailed": "コピーできませんでした",
+  "@detailCopyFailed": {
+    "description": "クリップボードに書けなかったときの Snackbar"
   }
 }

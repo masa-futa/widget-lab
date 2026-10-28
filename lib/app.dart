@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:widget_lab/core/theme/app_theme.dart';
 import 'package:widget_lab/features/catalog/ui/catalog_screen.dart';
+import 'package:widget_lab/features/detail/ui/detail_screen.dart';
 import 'package:widget_lab/l10n/gen/app_localizations.dart';
 
 class WidgetLabApp extends StatelessWidget {
@@ -14,7 +15,14 @@ class WidgetLabApp extends StatelessWidget {
       darkTheme: AppTheme.dark(),
       localizationsDelegates: AppLocalizations.localizationsDelegates,
       supportedLocales: AppLocalizations.supportedLocales,
-      home: const CatalogScreen(),
+      home: const CatalogScreen(onEntryTapped: _openDetail),
     );
   }
+}
+
+/// 一覧の行から詳細へ進む（一覧 → 詳細の1段だけ。docs/architecture.md の遷移）。
+void _openDetail(BuildContext context, String entryId) {
+  Navigator.of(context).push(
+    MaterialPageRoute<void>(builder: (_) => DetailScreen(entryId: entryId)),
+  );
 }
