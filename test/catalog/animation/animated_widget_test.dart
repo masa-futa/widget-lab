@@ -2,7 +2,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:widget_lab/catalog/animation/animated_widget.dart';
 import 'package:widget_lab/catalog/model/demo_args.dart';
 
-import 'recording.dart';
+import '../recording.dart';
 
 /// 「動かす」を押し、1 回転（1 秒）が終わるまで進める。
 Future<void> _spin(WidgetTester tester) async {

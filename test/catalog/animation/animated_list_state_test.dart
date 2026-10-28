@@ -2,7 +2,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:widget_lab/catalog/animation/animated_list_state.dart';
 import 'package:widget_lab/catalog/model/demo_args.dart';
 
-import 'recording.dart';
+import '../recording.dart';
 
 void main() {
   final entry = animatedListStateEntry;

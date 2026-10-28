@@ -3,7 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:widget_lab/catalog/demo/demo_recorder.dart';
 import 'package:widget_lab/core/theme/app_theme.dart';
 
-/// build の回数とログを貯めるだけの窓口（詳細画面の DemoProbe の代わり）。
+/// build の回数とログを貯めるだけの窓口（詳細画面の DemoProbe の代わり。収録ごとのテストで使う）。
 final class RecordingRecorder implements DemoRecorder {
   final counts = <String, int>{};
   final logs = <String>[];
@@ -20,6 +20,13 @@ final class RecordingRecorder implements DemoRecorder {
 
   @override
   Widget? badge(String label) => null;
+
+  /// [child] の上に、この窓口を置く。
+  Widget wrap(Widget child) => DemoRecorderScope(
+    recorder: this,
+    textScaler: TextScaler.noScaling,
+    child: child,
+  );
 }
 
 /// [demo] を [recorder] の窓口の下に置いて組み立てる。
@@ -31,10 +38,8 @@ Future<void> pumpRecorded(
   MaterialApp(
     theme: AppTheme.light(),
     home: Scaffold(
-      body: DemoRecorderScope(
-        recorder: recorder,
-        textScaler: TextScaler.noScaling,
-        child: Center(child: SizedBox(width: 328, height: 400, child: demo)),
+      body: recorder.wrap(
+        Center(child: SizedBox(width: 328, height: 400, child: demo)),
       ),
     ),
   ),
