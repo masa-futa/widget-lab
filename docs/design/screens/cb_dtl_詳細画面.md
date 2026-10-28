@@ -16,7 +16,7 @@
 ## デザイン
 
 - ワイヤー: なし（下の mermaid の図）
-- デザイン: [Figma](https://www.figma.com/design/W9DAjjGAmMzNhnCQu0BLo7/Widget-Lab?node-id=3-2)「cb_dtl v2 / …」の 7 枚。色・文字・余白は docs/design-system.md
+- デザイン: [Figma](https://www.figma.com/design/W9DAjjGAmMzNhnCQu0BLo7/Widget-Lab?node-id=3-2)「cb_dtl v2 / …」の 10 枚（見た目を持たない Widget の 3 枚: MediaQuery・使わない場合と比べる・ログのシート。部品の build の回数の印・ログの帯は「Components（見た目を持たない Widget）」）。色・文字・余白は docs/design-system.md
 
 ## バージョン履歴
 
