@@ -174,6 +174,15 @@ import 'package:widget_lab/catalog/material/tab_bar.dart';
 import 'package:widget_lab/catalog/material/text_field.dart';
 import 'package:widget_lab/catalog/material/time_picker.dart';
 import 'package:widget_lab/catalog/model/widget_entry.dart';
+import 'package:widget_lab/catalog/painting/backdrop_filter.dart';
+import 'package:widget_lab/catalog/painting/clip_oval.dart';
+import 'package:widget_lab/catalog/painting/clip_path.dart';
+import 'package:widget_lab/catalog/painting/clip_rect.dart';
+import 'package:widget_lab/catalog/painting/custom_paint.dart';
+import 'package:widget_lab/catalog/painting/decorated_box.dart';
+import 'package:widget_lab/catalog/painting/fractional_translation.dart';
+import 'package:widget_lab/catalog/painting/opacity.dart';
+import 'package:widget_lab/catalog/painting/rotated_box.dart';
 import 'package:widget_lab/catalog/scrolling/notification_listener.dart';
 import 'package:widget_lab/catalog/styling/media_query.dart';
 
@@ -289,6 +298,15 @@ final allEntries = <WidgetEntry>[
   sliverPaddingEntry,
   sliverPersistentHeaderEntry,
   sliverToBoxAdapterEntry,
+  backdropFilterEntry,
+  clipOvalEntry,
+  clipPathEntry,
+  clipRectEntry,
+  customPaintEntry,
+  decoratedBoxEntry,
+  fractionalTranslationEntry,
+  opacityEntry,
+  rotatedBoxEntry,
   mediaQueryEntry,
   streamBuilderEntry,
   notificationListenerEntry,
