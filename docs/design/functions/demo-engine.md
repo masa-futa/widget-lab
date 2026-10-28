@@ -105,6 +105,7 @@ classDiagram
 - `behavior` の Widget は `buildWithout`（「使わない」側の木）を必ず持つ（全件のテストで確かめる）。既定の考え方は「包みを外す」で、中の木を返すだけの 1 行にする。包みを外すと比べる意味がなくなる Widget（builder 系）は、使わない場合のよくある書き方を手で書き、そのコードを `codeWithout` に書く（コードの全文のシートの cd-side）。`visual` の Widget は両方 `null`
 - `behavior` の組み立ての関数は、数えたい子を `RebuildCounter(label: '読む子', builder: (context) => …)` で組み、出来事は `DemoRecorder.of(context).log('…')` でログに出す（「4. 見た目を持たない Widget の可視化」）。包む Widget の下の木は `const` の Widget にする（値が変わるたびに組み立ての関数が木を作り直すので、`const` でないと読んでいない子まで組み直されて数が増える）。包む範囲は `DemoScope(label: 'MediaQuery(…)', child: …)`（accent の点線と札）、使わない側の木は `DemoFit`（カードの幅に合わせ、低ければ縮める）で包む
 - **CodeNest**（`name`・`receiver`・`method`。既定は `copyWith`）は、値を入れ子の式に書く Widget の書き方（例: `CodeNest(name: 'data', receiver: 'MediaQuery.of(context)')`）。**codeArguments** はチップに出さない固定の引数（例: `['child: const Readers()']`。末尾の `,` は付けない）
+- **見た目を持つ Widget のデモの部品**: カードより大きい Widget（ダイアログ・ドロワーなど）は `DemoStage(size: …)` で本来の大きさに組み立ててから縮める（比較中の低いカードや見本でもはみ出さない）。Transition 系に渡す Animation は `DemoAnimation`（0 → 1 → 0 を繰り返す AnimationController。コードでは `controller` と書く。見本では止まる）が持つ。どちらも `lib/catalog/demo/` に置き、コードには出さない
 
 置き場所:
 
@@ -196,7 +197,7 @@ sequenceDiagram
 
 | 置き場所 | 部品 |
 |---|---|
-| `lib/catalog/demo/` | 収録データが使うもの: 記録の窓口 `DemoRecorder`（`recordBuild`・`log`・`comparing`・`badge(label)`。アプリの文字の倍率は `DemoRecorder.textScalerOf`）と、それを木に置く `DemoRecorderScope`（倍率が変わったときだけ札と印に知らせる）、`RebuildCounter`・`DemoScope`・`DemoFit`。見た目を持つ Widget のデモの子 `DemoTile`（番号つきの色の箱。コードでは `Tile(n)`）と、繰り返し使う選択肢・スライダーの写し方（`demo_choices.dart`） |
+| `lib/catalog/demo/` | 収録データが使うもの: 記録の窓口 `DemoRecorder`（`recordBuild`・`log`・`comparing`・`badge(label)`。アプリの文字の倍率は `DemoRecorder.textScalerOf`）と、それを木に置く `DemoRecorderScope`（倍率が変わったときだけ札と印に知らせる）、`RebuildCounter`・`DemoScope`・`DemoFit`。見た目を持つ Widget のデモにも使う `DemoValue`（押すと値が変わる Widget の値を手元に持つ。プロパティの値が変わったら合わせる）・`DemoNavigator`（Route・Page のデモで、カードの大きさの Navigator に積む。アプリの Navigator に積むと詳細画面ごと覆うため）。見た目を持つ Widget のデモの子 `DemoTile`（番号つきの色の箱。コードでは `Tile(n)`）と、繰り返し使う選択肢・スライダーの写し方（`demo_choices.dart`） |
 | `lib/features/detail/ui/probe/` | 窓口の実装 `DemoProbe`（Riverpod につなぐ）・回数の印 `RebuildBadge`・ログの帯 `LogStrip`・ログのシート `LogSheet` |
 
 - `DemoProbe`: 左右のカードの根に置き、自分を `DemoRecorder` として `DemoRecorderScope` に置く（`side`: `DemoSide.used` / `unused`、`comparing`）。子は `DemoRecorder.of(context)` で引く（`getInheritedWidgetOfExactType` で依存を作らないので、DemoProbe 側の変化で子が組み直されることはない）。窓口の外（見本・全件のテスト）では何もしない窓口が返る
