@@ -7,6 +7,8 @@ import 'package:widget_lab/core/data/clipboard_client.dart';
 import 'package:widget_lab/core/data/url_launcher_client.dart';
 import 'package:widget_lab/core/theme/app_theme.dart';
 import 'package:widget_lab/features/detail/ui/detail_screen.dart';
+import 'package:widget_lab/features/detail/ui/probe/log_sheet.dart';
+import 'package:widget_lab/features/detail/ui/probe/log_strip.dart';
 import 'package:widget_lab/features/detail/ui/widgets/code_strip.dart';
 import 'package:widget_lab/features/detail/ui/widgets/compare_preview.dart';
 import 'package:widget_lab/features/detail/ui/widgets/editor_panel.dart';
@@ -628,6 +630,74 @@ void main() {
         tester.getSize(find.byKey(DetailScreen.panelAreaKey)).height,
         greaterThanOrEqualTo(96),
       );
+    });
+  });
+
+  group('ログの帯（見た目を持たない Widget）', () {
+    Future<void> pumpBehavior(WidgetTester tester) async {
+      await pumpDetail(
+        tester,
+        'behavior',
+        repository: FakeCatalogRepository([behaviorEntry]),
+      );
+      await tester.pumpAndSettle();
+    }
+
+    testWidgets('TC-74: 最初の組み立てのログと件数を出し、押すとシートに全件', (tester) async {
+      await pumpBehavior(tester);
+
+      expect(find.byType(LogStrip), findsOneWidget);
+      expect(
+        find.descendant(
+          of: find.byType(LogStrip),
+          matching: find.text('読む子を build（1 回目）'),
+        ),
+        findsOneWidget,
+      );
+      expect(find.text('build 1 回'), findsOneWidget);
+
+      await tester.tap(find.byType(LogStrip));
+      await tester.pumpAndSettle();
+
+      expect(find.byType(LogSheet), findsOneWidget);
+      expect(
+        find.descendant(
+          of: find.byType(LogSheet),
+          matching: find.text('読む子を build（1 回目）'),
+        ),
+        findsOneWidget,
+      );
+    });
+
+    testWidgets('TC-74: 見た目を持つ Widget では帯を出さない', (tester) async {
+      await pumpDetail(tester, 'padding');
+
+      expect(find.byType(LogStrip), findsNothing);
+    });
+
+    testWidgets('TC-37: シートで「ログを消す」と帯も空になり、回数の印が 0 回', (tester) async {
+      await pumpBehavior(tester);
+      await tester.tap(find.byType(LogStrip));
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.text('ログを消す'));
+      await tester.pumpAndSettle();
+
+      expect(
+        find.descendant(
+          of: find.byType(LogSheet),
+          matching: find.text('まだ何も起きていません'),
+        ),
+        findsOneWidget,
+      );
+      expect(
+        find.descendant(
+          of: find.byType(LogStrip),
+          matching: find.text('まだ何も起きていません'),
+        ),
+        findsOneWidget,
+      );
+      expect(find.text('build 0 回'), findsOneWidget);
     });
   });
 }

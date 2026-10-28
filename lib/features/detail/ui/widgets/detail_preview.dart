@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:widget_lab/catalog/model/demo_args.dart';
+import 'package:widget_lab/catalog/model/widget_entry.dart';
 import 'package:widget_lab/core/theme/nimi_colors.dart';
 import 'package:widget_lab/core/theme/nimi_radius.dart';
 import 'package:widget_lab/core/theme/nimi_spacing.dart';
+import 'package:widget_lab/features/detail/ui/probe/demo_probe.dart';
 import 'package:widget_lab/features/detail/ui/widgets/compare_preview.dart';
 import 'package:widget_lab/features/detail/ui/widgets/preview_card.dart';
 import 'package:widget_lab/features/detail/view_model/detail_notifier.dart';
+import 'package:widget_lab/features/detail/view_model/probe_state.dart';
 import 'package:widget_lab/features/detail/view_model/value_label.dart';
 import 'package:widget_lab/l10n/gen/app_localizations.dart';
 
@@ -37,7 +40,11 @@ class _DetailPreviewState extends ConsumerState<DetailPreview> {
       content = PreviewCard(
         key: const ValueKey('single'),
         scale: scale,
-        child: entry.build(DemoArgs(entry, state.settings)),
+        child: _probed(
+          entry,
+          DemoSide.used,
+          entry.build(DemoArgs(entry, state.settings)),
+        ),
       );
     } else {
       content = ComparePreview(
@@ -81,6 +88,22 @@ class _DetailPreviewState extends ConsumerState<DetailPreview> {
     );
   }
 }
+
+/// 見た目を持たない Widget なら、[side] の DemoProbe で包んで build の回数とログを集める。
+Widget _probed(
+  WidgetEntry entry,
+  DemoSide side,
+  Widget child, {
+  bool comparing = false,
+}) => switch (entry.kind) {
+  EntryKind.visual => child,
+  EntryKind.behavior => DemoProbe(
+    entryId: entry.id,
+    side: side,
+    comparing: comparing,
+    child: child,
+  ),
+};
 
 class _ZoomPill extends StatelessWidget {
   const _ZoomPill({required this.zoomed, required this.onTap});

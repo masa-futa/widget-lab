@@ -12,6 +12,7 @@ import 'package:widget_lab/catalog/model/widget_entry.dart';
 import 'package:widget_lab/core/data/catalog_repository.dart';
 import 'package:widget_lab/core/data/clipboard_client.dart';
 import 'package:widget_lab/core/data/url_launcher_client.dart';
+import 'package:widget_lab/features/detail/ui/probe/rebuild_counter.dart';
 
 /// お試しの4件（か渡したもの）だけを返す Repository。ジャンルは本物。
 class FakeCatalogRepository implements CatalogRepository {
@@ -105,7 +106,7 @@ final noPropertyEntry = WidgetEntry(
   codeName: 'None',
 );
 
-/// 見た目を持たない Widget。2 つのプロパティを持ち、使わない側は中の木だけ。
+/// 見た目を持たない Widget。2 つのプロパティを持ち、「読む子」を数える。使わない側も同じ木。
 final behaviorEntry = WidgetEntry(
   id: 'behavior',
   name: 'Behavior',
@@ -140,7 +141,9 @@ final behaviorEntry = WidgetEntry(
       ),
     ),
   ],
-  build: (args) => const SizedBox(),
-  buildWithout: (args) => const SizedBox(),
+  build: (args) =>
+      RebuildCounter(label: '読む子', builder: (context) => const Text('中身')),
+  buildWithout: (args) =>
+      RebuildCounter(label: '読む子', builder: (context) => const Text('中身')),
   codeName: 'Behavior',
 );
