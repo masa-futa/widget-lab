@@ -105,6 +105,7 @@ classDiagram
 - `behavior` の Widget は `buildWithout`（「使わない」側の木）を必ず持つ（全件のテストで確かめる）。既定の考え方は「包みを外す」で、中の木を返すだけの 1 行にする。包みを外すと比べる意味がなくなる Widget（builder 系）は、使わない場合のよくある書き方を手で書き、そのコードを `codeWithout` に書く（コードの全文のシートの cd-side）。`visual` の Widget は両方 `null`
 - `behavior` の組み立ての関数は、数えたい子を `RebuildCounter(label: '読む子', builder: (context) => …)` で組み、出来事は `DemoRecorder.of(context).log('…')` でログに出す（「4. 見た目を持たない Widget の可視化」）。包む Widget の下の木は `const` の Widget にする（値が変わるたびに組み立ての関数が木を作り直すので、`const` でないと読んでいない子まで組み直されて数が増える）。包む範囲は `DemoScope(label: 'MediaQuery(…)', child: …)`（accent の点線と札）、使わない側の木は `DemoFit`（カードの幅に合わせ、低ければ縮める）で包む
 - **CodeNest**（`name`・`receiver`・`method`。既定は `copyWith`）は、値を入れ子の式に書く Widget の書き方（例: `CodeNest(name: 'data', receiver: 'MediaQuery.of(context)')`）。**codeArguments** はチップに出さない固定の引数（例: `['child: const Readers()']`。末尾の `,` は付けない）
+- **見た目を持つ Widget のデモの部品**: カードより大きい Widget（ダイアログ・ドロワーなど）は `DemoStage(size: …)` で本来の大きさに組み立ててから縮める（比較中の低いカードや見本でもはみ出さない）。Transition 系に渡す Animation は `DemoAnimation`（0 → 1 → 0 を繰り返す AnimationController。コードでは `controller` と書く。見本では止まる）が持つ。どちらも `lib/catalog/demo/` に置き、コードには出さない
 
 置き場所:
 

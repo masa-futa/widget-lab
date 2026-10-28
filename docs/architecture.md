@@ -14,7 +14,7 @@ lib/
     gen/                    gen-l10n の生成物（コミットする）
   catalog/
     model/                  収録データの型（WidgetEntry・PropertySpec・PropertyControl など）
-    demo/                   見た目を持たない Widget のデモの部品（RebuildCounter・DemoScope）と記録の窓口（DemoRecorder）
+    demo/                   見た目を持たない Widget のデモの部品（RebuildCounter・DemoScope）と記録の窓口（DemoRecorder）、カードより大きい Widget とアニメーションのデモの部品（DemoStage・DemoAnimation）
     genres.dart             公式カタログのジャンル（並びはリストの順）
     manifest.dart           公式カタログに載る Widget 名の一覧（抜けの確認用）
     catalog.dart            全件の一覧
