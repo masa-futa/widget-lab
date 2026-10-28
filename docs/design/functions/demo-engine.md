@@ -197,7 +197,7 @@ sequenceDiagram
 
 | 置き場所 | 部品 |
 |---|---|
-| `lib/catalog/demo/` | 収録データが使うもの: 記録の窓口 `DemoRecorder`（`recordBuild`・`log`・`comparing`・`badge(label)`。アプリの文字の倍率は `DemoRecorder.textScalerOf`）と、それを木に置く `DemoRecorderScope`（倍率が変わったときだけ札と印に知らせる）、`RebuildCounter`・`DemoScope`・`DemoFit`。見た目を持つ Widget のデモにも使う `DemoValue`（押すと値が変わる Widget の値を手元に持つ。プロパティの値が変わったら合わせる）・`DemoNavigator`（Route・Page のデモで、カードの大きさの Navigator に積む。アプリの Navigator に積むと詳細画面ごと覆うため）・`SemanticsReadout`（読み上げの Widget のデモで、子の読み上げの木を下に書き出し、変わったらログに出す。`debugSemantics` は release で使えないので、`identifier` 付きのノードで包んで `SemanticsOwner` の木から引く）。見た目を持つ Widget のデモの子 `DemoTile`（番号つきの色の箱。コードでは `Tile(n)`）と、繰り返し使う選択肢・スライダーの写し方（`demo_choices.dart`） |
+| `lib/catalog/demo/` | 収録データが使うもの: 記録の窓口 `DemoRecorder`（`recordBuild`・`log`・`comparing`・`badge(label)`。アプリの文字の倍率は `DemoRecorder.textScalerOf`）と、それを木に置く `DemoRecorderScope`（倍率が変わったときだけ札と印に知らせる）、`RebuildCounter`・`DemoScope`・`DemoFit`。見た目を持つ Widget のデモにも使う `DemoValue`（押すと値が変わる Widget の値を手元に持つ。プロパティの値が変わったら合わせる）・`DemoNavigator`（Route・Page のデモで、カードの大きさの Navigator に積む。アプリの Navigator に積むと詳細画面ごと覆うため）・`SemanticsReadout`（読み上げの Widget のデモで、子の読み上げの木を下に書き出し、変わったらログに出す。`debugSemantics` は release で使えないので、`identifier` 付きのノードで包んで `SemanticsOwner` の木から引く）。見た目を持つ Widget のデモの子 `DemoTile`（番号つきの色の箱。コードでは `Tile(n)`）と、繰り返し使う選択肢・スライダーの写し方（`demo_choices.dart`）。押す相手を見せる `DemoTapLayers`・`DemoFrontButton`（AbsorbPointer・IgnorePointer）と、落とした値を受け取る `DemoDropZone`・`DemoDropArea`（Draggable 系） |
 | `lib/features/detail/ui/probe/` | 窓口の実装 `DemoProbe`（Riverpod につなぐ）・回数の印 `RebuildBadge`・ログの帯 `LogStrip`・ログのシート `LogSheet` |
 
 - `DemoProbe`: 左右のカードの根に置き、自分を `DemoRecorder` として `DemoRecorderScope` に置く（`side`: `DemoSide.used` / `unused`、`comparing`）。子は `DemoRecorder.of(context)` で引く（`getInheritedWidgetOfExactType` で依存を作らないので、DemoProbe 側の変化で子が組み直されることはない）。窓口の外（見本・全件のテスト）では何もしない窓口が返る
@@ -347,6 +347,10 @@ Provider の名前は riverpod_generator が付けるもので、クラス名か
 | `DefaultTextStyle`（text） | `style`（大きく太く / 紅の斜体。必須）・`maxLines`・`overflow` | `DefaultTextStyle` の下に「大きさを読む子」（`DefaultTextStyle.of`）・「受ける Text」（style なし）・「受けない Text」（`inherit: false`） | style を変えると大きさを読む子だけ build が増える。受ける Text は見た目が変わるが、Text が自分で読むので包む子は組み直されない。受けない Text は変わらない | 包みを外す。子はアプリの既定の文字の見た目を受けるので、値を変えても届かない |
 | `AssetBundle`（assets） | `key`（greeting.txt / haiku.txt / ない名前。必須。`DefaultAssetBundle.of(context).loadString` の最初の引数） | `assets/demo/` のファイルを読む子（「読み込み中…」→ 読めた文）。ログに「読み込み開始」「読み込み完了: n 文字」か「読み込みに失敗」 | 読み込みは非同期なので、文を出す子は 2 回組み立てられる。ない名前は失敗する | 手書き（`codeWithout` あり）。文をコードに書いておくので、読み込まずにすぐ出る（1 回） |
 | `ScrollConfiguration`（scrolling） | `behavior`（はね返る / 端で止まる / スクロールバーなし。必須） | 端の動きを聞くデモの部品（ログに「端で止まる（OverscrollNotification）」「端を越えて動く（はね返り）」）の下に `ScrollConfiguration`、その下に 20 行の `ListView`（回数の印つき） | 端まで送ると、選んだ振る舞いで端の動きが変わる。振る舞いを変えても ListView を包む子は 1 回のまま | 包みを外す。アプリ（端末）の振る舞いのまま |
+| `AbsorbPointer`（interaction） | `absorbing`（ON は true） | 後ろの面（押すとログに「後ろの面: onTap」）の中央に、`AbsorbPointer` で包んだボタン（「手前のボタン: onPressed」） | ボタンを押してもログに何も出ない（後ろの面にも届かない） | 包みを外す。ボタンが押せる |
+| `IgnorePointer`（interaction） | `ignoring`（ON は true） | AbsorbPointer と同じ木で、包むのが `IgnorePointer` | ボタンを押すと「後ろの面: onTap」が出る（後ろに通す） | 包みを外す。ボタンが押せる |
+| `GestureDetector`（interaction） | `onTap`（ON）・`onDoubleTap`・`onLongPress`・`behavior` | 左に文字だけがある横長の枠を包む。受け取った呼び出しをログに出す | 既定（deferToChild）では文字の右の何も描いていない所は受け取らず、opaque にすると受け取る。onDoubleTap を足すと onTap が遅れる | 包みを外す。押しても何も起きない |
+| `Navigator`（interaction） | `initialRoute`（/ か /detail）・`onGenerateRoute`（必須） | カードの中の小さな Navigator（ホーム ⇄ 詳細）。NavigatorObserver で「push: /detail」「pop: /detail」をログに出す | 進むと上に積み、戻ると外す。/detail で始めると / の上に積んだ状態で始まる | 手書き（`codeWithout` あり）。どちらの画面かを State に持ち、setState で入れ替える（ログに「setState: 詳細を出す」）。積まないので切り替えの動きはない |
 
 デモの部品（ボタン・外の聞き手）は収録データのファイルの中に書き、コードには出さない。Stream と時刻は、テストで `fakeAsync` で進められるように組む。
 
