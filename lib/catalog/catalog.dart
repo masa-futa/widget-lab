@@ -1,21 +1,27 @@
 import 'package:widget_lab/catalog/animation/align_transition.dart';
 import 'package:widget_lab/catalog/animation/animated_align.dart';
+import 'package:widget_lab/catalog/animation/animated_builder.dart';
 import 'package:widget_lab/catalog/animation/animated_container.dart';
 import 'package:widget_lab/catalog/animation/animated_cross_fade.dart';
 import 'package:widget_lab/catalog/animation/animated_default_text_style.dart';
+import 'package:widget_lab/catalog/animation/animated_list.dart';
+import 'package:widget_lab/catalog/animation/animated_list_state.dart';
 import 'package:widget_lab/catalog/animation/animated_modal_barrier.dart';
 import 'package:widget_lab/catalog/animation/animated_opacity.dart';
 import 'package:widget_lab/catalog/animation/animated_physical_model.dart';
 import 'package:widget_lab/catalog/animation/animated_positioned.dart';
 import 'package:widget_lab/catalog/animation/animated_scale.dart';
 import 'package:widget_lab/catalog/animation/animated_size.dart';
+import 'package:widget_lab/catalog/animation/animated_widget.dart';
 import 'package:widget_lab/catalog/animation/decorated_box_transition.dart';
 import 'package:widget_lab/catalog/animation/default_text_style_transition.dart';
 import 'package:widget_lab/catalog/animation/fade_transition.dart';
+import 'package:widget_lab/catalog/animation/hero.dart';
 import 'package:widget_lab/catalog/animation/implicitly_animated_widget.dart';
 import 'package:widget_lab/catalog/animation/matrix_transition.dart';
 import 'package:widget_lab/catalog/animation/positioned_transition.dart';
 import 'package:widget_lab/catalog/animation/relative_positioned_transition.dart';
+import 'package:widget_lab/catalog/animation/repeating_animation_builder.dart';
 import 'package:widget_lab/catalog/animation/rotation_transition.dart';
 import 'package:widget_lab/catalog/animation/scale_transition.dart';
 import 'package:widget_lab/catalog/animation/size_transition.dart';
@@ -242,4 +248,10 @@ final allEntries = <WidgetEntry>[
   sizeTransitionEntry,
   slideTransitionEntry,
   sliverFadeTransitionEntry,
+  animatedBuilderEntry,
+  animatedListEntry,
+  animatedListStateEntry,
+  animatedWidgetEntry,
+  heroEntry,
+  repeatingAnimationBuilderEntry,
 ];
