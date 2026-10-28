@@ -377,4 +377,51 @@ void main() {
       );
     });
   });
+
+  group('TC-41: ほかのプロパティとの組み合わせで渡さないプロパティ', () {
+    final entry = WidgetEntry(
+      id: 'pair',
+      name: 'Pair',
+      genreIds: const ['basics'],
+      summary: '',
+      description: '',
+      docUrl: Uri.parse('https://api.flutter.dev/'),
+      properties: [
+        PropertySpec(
+          name: 'labelType',
+          typeLabel: 'int',
+          description: '',
+          control: const SwitchControl(initialValue: true),
+          omitIf: (settings) => settings['extended']?.on ?? false,
+        ),
+        const PropertySpec(
+          name: 'extended',
+          typeLabel: 'bool',
+          description: '',
+          initiallyOn: false,
+          control: SwitchControl(initialValue: true),
+        ),
+      ],
+      build: (args) => const SizedBox(),
+      codeName: 'Pair',
+    );
+
+    test('条件に当たらなければ書く', () {
+      expect(
+        const CodeGenerator().generate(entry, entry.initialSettings()),
+        'Pair(\n  labelType: true,\n)',
+      );
+    });
+
+    test('条件に当たれば、ON でも書かない', () {
+      final settings = {
+        ...entry.initialSettings(),
+        'extended': const PropertySetting(on: true, value: SwitchValue(true)),
+      };
+      expect(
+        const CodeGenerator().generate(entry, settings),
+        'Pair(\n  extended: true,\n)',
+      );
+    });
+  });
 }

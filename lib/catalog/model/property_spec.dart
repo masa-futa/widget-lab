@@ -30,6 +30,7 @@ final class PropertySpec {
     this.required = false,
     this.initiallyOn = true,
     this.arg = PropertyArg.named,
+    this.omitIf,
   });
 
   final String name;
@@ -46,6 +47,10 @@ final class PropertySpec {
   final bool initiallyOn;
   final PropertyArg arg;
 
+  /// ほかのプロパティとの組み合わせで、ON でも Widget に渡さない（コードにも書かない）条件。
+  /// 例: NavigationRail は extended の間、labelType を渡せない（assert）。
+  final bool Function(Map<String, PropertySetting> settings)? omitIf;
+
   /// 開いたときの設定。
   PropertySetting get initialSetting =>
       PropertySetting(on: required || initiallyOn, value: control.initial);
@@ -53,6 +58,10 @@ final class PropertySpec {
   /// [settings] のもとで ON か。必須なら常に ON、設定がなければ OFF。
   bool isOnIn(Map<String, PropertySetting> settings) =>
       required || (settings[name]?.on ?? false);
+
+  /// [settings] のもとでコードに書くか。ON で、[omitIf] に当たらない。
+  bool isWrittenIn(Map<String, PropertySetting> settings) =>
+      isOnIn(settings) && !(omitIf?.call(settings) ?? false);
 
   /// [settings] のもとでの値。設定がなければ最初の値。
   ControlValue valueIn(Map<String, PropertySetting> settings) =>

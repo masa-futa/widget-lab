@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:widget_lab/catalog/demo/demo_stage.dart';
 import 'package:widget_lab/catalog/model/choice.dart';
+import 'package:widget_lab/catalog/model/control_value.dart';
 import 'package:widget_lab/catalog/model/demo_args.dart';
 import 'package:widget_lab/catalog/model/property_control.dart';
+import 'package:widget_lab/catalog/model/property_setting.dart';
 import 'package:widget_lab/catalog/model/property_spec.dart';
 import 'package:widget_lab/catalog/model/widget_entry.dart';
 
@@ -60,6 +62,7 @@ final navigationRailEntry = WidgetEntry(
       name: 'labelType',
       typeLabel: 'NavigationRailLabelType?',
       description: '行き先の名前を出すか。selected は選んでいるものだけ、all は全部',
+      omitIf: _isExtended,
       control: ChoiceControl(
         initialIndex: 2,
         choices: [
@@ -92,6 +95,13 @@ final navigationRailEntry = WidgetEntry(
   build: _build,
   codeName: 'NavigationRail',
 );
+
+/// extended の間は labelType を none 以外にできない（assert）ので渡さない。
+bool _isExtended(Map<String, PropertySetting> settings) =>
+    switch (settings['extended']) {
+      PropertySetting(on: true, value: SwitchValue(value: true)) => true,
+      _ => false,
+    };
 
 Widget _build(DemoArgs args) {
   final extended = args.valueOf<bool>('extended') ?? false;
