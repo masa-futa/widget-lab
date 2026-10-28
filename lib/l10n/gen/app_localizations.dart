@@ -99,6 +99,30 @@ abstract class AppLocalizations {
   /// In ja, this message translates to:
   /// **'Widget Lab'**
   String get appTitle;
+
+  /// 一覧画面の検索欄のプレースホルダー
+  ///
+  /// In ja, this message translates to:
+  /// **'Widget 名で検索'**
+  String get catalogSearchHint;
+
+  /// 検索の入力を消すボタン。消すボタンの読み上げと、空状態のボタンに使う
+  ///
+  /// In ja, this message translates to:
+  /// **'検索を消す'**
+  String get catalogSearchClear;
+
+  /// 検索の結果が 0 件のときの文言
+  ///
+  /// In ja, this message translates to:
+  /// **'「{query}」に一致する Widget はありません'**
+  String catalogEmpty(String query);
+
+  /// ジャンルの見出しの読み上げ
+  ///
+  /// In ja, this message translates to:
+  /// **'{genre}、{count} 件'**
+  String catalogSectionLabel(String genre, int count);
 }
 
 class _AppLocalizationsDelegate
