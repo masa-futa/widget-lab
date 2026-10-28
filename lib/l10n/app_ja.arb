@@ -198,10 +198,6 @@
       }
     }
   },
-  "detailCompareWithoutSemantics": "付けない",
-  "@detailCompareWithoutSemantics": {
-    "description": "比較の右半分の読み上げ"
-  },
   "detailCompareDivider": "比較の仕切り",
   "@detailCompareDivider": {
     "description": "比較の仕切りの読み上げ"

@@ -12,8 +12,9 @@ void main() {
         width: 400,
         height: 300,
         child: ComparePreview(
-          propertyName: 'color',
-          valueLabel: '瑠璃',
+          withLabel: '付けた',
+          withoutLabel: '付けない',
+          withSemanticsLabel: '付けた、color、瑠璃',
           scale: scale,
           withChild: const Text('with'),
           withoutChild: const Text('without'),

@@ -22,12 +22,16 @@ class EditorPanel extends StatelessWidget {
     required this.onValueChanged,
     required this.onCompareTapped,
     required this.onDefaultTapped,
+    this.comparesUse = false,
     super.key,
   });
 
   final PropertySpec spec;
   final PropertySetting setting;
   final bool isComparing;
+
+  /// プロパティではなく Widget そのものを使った／使わないで比べる（見た目を持たない Widget）。
+  final bool comparesUse;
 
   /// 最初の値のまま（既定に戻すを押せない）。
   final bool isDefault;
@@ -94,6 +98,7 @@ class EditorPanel extends StatelessWidget {
         Gap(spacing.md),
         _Actions(
           isComparing: isComparing,
+          comparesUse: comparesUse,
           isDefault: isDefault,
           onCompareTapped: onCompareTapped,
           onDefaultTapped: onDefaultTapped,
@@ -129,12 +134,14 @@ class _RequiredBadge extends StatelessWidget {
 class _Actions extends StatelessWidget {
   const _Actions({
     required this.isComparing,
+    required this.comparesUse,
     required this.isDefault,
     required this.onCompareTapped,
     required this.onDefaultTapped,
   });
 
   final bool isComparing;
+  final bool comparesUse;
   final bool isDefault;
   final VoidCallback onCompareTapped;
   final VoidCallback onDefaultTapped;
@@ -159,7 +166,9 @@ class _Actions extends StatelessWidget {
           FilledButton.tonalIcon(
             onPressed: onCompareTapped,
             icon: compareIcon,
-            label: Text(l10n.detailCompare),
+            label: Text(
+              comparesUse ? l10n.detailCompareUse : l10n.detailCompare,
+            ),
           ),
         TextButton.icon(
           onPressed: isDefault ? null : onDefaultTapped,

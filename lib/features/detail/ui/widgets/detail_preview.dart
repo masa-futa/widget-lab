@@ -8,6 +8,7 @@ import 'package:widget_lab/core/theme/nimi_spacing.dart';
 import 'package:widget_lab/features/detail/ui/probe/demo_probe.dart';
 import 'package:widget_lab/features/detail/ui/widgets/compare_preview.dart';
 import 'package:widget_lab/features/detail/ui/widgets/preview_card.dart';
+import 'package:widget_lab/features/detail/view_model/comparing.dart';
 import 'package:widget_lab/features/detail/view_model/detail_notifier.dart';
 import 'package:widget_lab/features/detail/view_model/probe_state.dart';
 import 'package:widget_lab/features/detail/view_model/value_label.dart';
@@ -32,33 +33,63 @@ class _DetailPreviewState extends ConsumerState<DetailPreview> {
   Widget build(BuildContext context) {
     final state = ref.watch(detailProvider(widget.entryId));
     final entry = state.entry;
-    final spec = state.comparingSpec;
+    final comparing = state.comparing;
     final spacing = NimiSpacing.of(context);
+    final l10n = AppLocalizations.of(context);
     final scale = _zoomed ? 2.0 : 1.0;
     final Widget content;
-    if (spec == null) {
-      content = PreviewCard(
-        key: const ValueKey('single'),
-        scale: scale,
-        child: _probed(
-          entry,
-          DemoSide.used,
-          entry.build(DemoArgs(entry, state.settings)),
-        ),
-      );
-    } else {
-      content = ComparePreview(
-        key: const ValueKey('compare'),
-        propertyName: spec.name,
-        valueLabel: valueLabel(spec.control, spec.valueIn(state.settings)),
-        scale: scale,
-        withChild: entry.build(
-          DemoArgs(entry, state.settingsForSide(on: true)),
-        ),
-        withoutChild: entry.build(
-          DemoArgs(entry, state.settingsForSide(on: false)),
-        ),
-      );
+    switch (comparing) {
+      case null:
+        content = PreviewCard(
+          key: const ValueKey('single'),
+          scale: scale,
+          child: _probed(
+            entry,
+            DemoSide.used,
+            entry.build(DemoArgs(entry, state.settings)),
+          ),
+        );
+      case ComparingProperty():
+        final spec = state.comparingSpec!;
+        content = ComparePreview(
+          key: const ValueKey('compare'),
+          withLabel: l10n.detailCompareWith,
+          withoutLabel: l10n.detailCompareWithout,
+          withSemanticsLabel: l10n.detailCompareWithSemantics(
+            spec.name,
+            valueLabel(spec.control, spec.valueIn(state.settings)),
+          ),
+          scale: scale,
+          withChild: entry.build(
+            DemoArgs(entry, state.settingsForSide(on: true)),
+          ),
+          withoutChild: entry.build(
+            DemoArgs(entry, state.settingsForSide(on: false)),
+          ),
+        );
+      case ComparingUse():
+        // 設定は 2 枚とも同じ。左は収録データの build、右は buildWithout
+        final args = DemoArgs(entry, state.settings);
+        final buildWithout = entry.buildWithout ?? entry.build;
+        content = ComparePreview(
+          key: const ValueKey('compareUse'),
+          withLabel: l10n.probeSideUsed,
+          withoutLabel: l10n.probeSideUnused,
+          withSemanticsLabel: l10n.probeSideUsed,
+          scale: scale,
+          withChild: _probed(
+            entry,
+            DemoSide.used,
+            entry.build(args),
+            comparing: true,
+          ),
+          withoutChild: _probed(
+            entry,
+            DemoSide.unused,
+            buildWithout(args),
+            comparing: true,
+          ),
+        );
     }
     final zoom = _ZoomPill(
       zoomed: _zoomed,
@@ -76,7 +107,7 @@ class _DetailPreviewState extends ConsumerState<DetailPreview> {
           ),
         ),
         // 比較中は上の角に「付けた」「付けない」があるので、右下に置く
-        if (spec == null)
+        if (comparing == null)
           PositionedDirectional(top: spacing.xs, end: spacing.xs, child: zoom)
         else
           PositionedDirectional(

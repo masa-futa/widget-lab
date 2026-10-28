@@ -249,12 +249,6 @@ abstract class AppLocalizations {
   /// **'付けた、{name}、{value}'**
   String detailCompareWithSemantics(String name, String value);
 
-  /// 比較の右半分の読み上げ
-  ///
-  /// In ja, this message translates to:
-  /// **'付けない'**
-  String get detailCompareWithoutSemantics;
-
   /// 比較の仕切りの読み上げ
   ///
   /// In ja, this message translates to:

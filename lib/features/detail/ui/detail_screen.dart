@@ -240,6 +240,7 @@ class _PanelAreaState extends ConsumerState<_PanelArea> {
                     null => false,
                   },
                   isDefault: state.isDefault(spec.name),
+                  comparesUse: state.entry.kind == EntryKind.behavior,
                   onToggled: (on) => notifier.propertyToggled(spec.name, on),
                   onValueChanged: (value) =>
                       notifier.propertyValueChanged(spec.name, value),

@@ -6,15 +6,16 @@ import 'package:widget_lab/core/theme/nimi_spacing.dart';
 import 'package:widget_lab/features/detail/ui/widgets/preview_card.dart';
 import 'package:widget_lab/l10n/gen/app_localizations.dart';
 
-/// 比較中のプレビュー。「付けた」と「付けない」を同じ位置に重ね、
-/// 仕切りの左に「付けた」、右に「付けない」を見せる。
+/// 比較中のプレビュー。「付けた」と「付けない」（見た目を持たない Widget は「使った」と
+/// 「使わない」）を同じ位置に重ね、仕切りの左に前者、右に後者を見せる。
 ///
 /// 仕切りの位置は画面の中だけの一時的な状態なので、ここに持つ（比較をやめると捨てて、
 /// 次は中央から）。
 class ComparePreview extends StatefulWidget {
   const ComparePreview({
-    required this.propertyName,
-    required this.valueLabel,
+    required this.withLabel,
+    required this.withoutLabel,
+    required this.withSemanticsLabel,
     required this.withChild,
     required this.withoutChild,
     this.scale = 1,
@@ -24,11 +25,12 @@ class ComparePreview extends StatefulWidget {
   /// 仕切りのつまみ（テストでドラッグする）。
   static const dividerKey = Key('compareDivider');
 
-  /// 比べているプロパティ。読み上げに使う。
-  final String propertyName;
+  /// 左上・右上のラベル（「付けた」「付けない」など）。右の読み上げにも使う。
+  final String withLabel;
+  final String withoutLabel;
 
-  /// 「付けた」側の値の表示。読み上げに使う。
-  final String valueLabel;
+  /// 左の読み上げ（「付けた、color、瑠璃」など）。
+  final String withSemanticsLabel;
   final Widget withChild;
   final Widget withoutChild;
 
@@ -68,10 +70,7 @@ class _ComparePreviewState extends State<ComparePreview> {
               child: Semantics(
                 container: true,
                 explicitChildNodes: true,
-                label: l10n.detailCompareWithSemantics(
-                  widget.propertyName,
-                  widget.valueLabel,
-                ),
+                label: widget.withSemanticsLabel,
                 child: ClipRect(
                   clipper: _SideClipper(fraction: _fraction, left: true),
                   child: PreviewCard(
@@ -85,7 +84,7 @@ class _ComparePreviewState extends State<ComparePreview> {
               child: Semantics(
                 container: true,
                 explicitChildNodes: true,
-                label: l10n.detailCompareWithoutSemantics,
+                label: widget.withoutLabel,
                 child: ClipRect(
                   clipper: _SideClipper(fraction: _fraction, left: false),
                   child: PreviewCard(
@@ -98,18 +97,12 @@ class _ComparePreviewState extends State<ComparePreview> {
             PositionedDirectional(
               top: spacing.xs,
               start: spacing.xs,
-              child: _SideLabel(
-                icon: Icons.check,
-                label: l10n.detailCompareWith,
-              ),
+              child: _SideLabel(icon: Icons.check, label: widget.withLabel),
             ),
             PositionedDirectional(
               top: spacing.xs,
               end: spacing.xs,
-              child: _SideLabel(
-                icon: Icons.remove,
-                label: l10n.detailCompareWithout,
-              ),
+              child: _SideLabel(icon: Icons.remove, label: widget.withoutLabel),
             ),
             Positioned(
               left: x - _Divider.touchWidth / 2,

@@ -81,10 +81,14 @@ class DetailNotifier extends _$DetailNotifier {
     ref.read(probeProvider(entryId).notifier).logCleared();
   }
 
-  /// 今のコードをクリップボードに書く。書けなければ `false`。
-  Future<bool> copyTapped() => ref
+  /// 今のコード（[without] なら使わない側のコード）をクリップボードに書く。
+  /// 書けなければ `false`。
+  Future<bool> copyTapped({bool without = false}) => ref
       .read(clipboardClientProvider)
-      .setText(const CodeGenerator().generate(state.entry, state.settings));
+      .setText(
+        (without ? state.entry.codeWithout : null) ??
+            const CodeGenerator().generate(state.entry, state.settings),
+      );
 
   /// 公式ドキュメントを外部のブラウザで開く。開けなければ `false`。
   Future<bool> openDocsTapped() =>

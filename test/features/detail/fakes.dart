@@ -147,3 +147,20 @@ final behaviorEntry = WidgetEntry(
       RebuildCounter(label: '読む子', builder: (context) => const Text('中身')),
   codeName: 'Behavior',
 );
+
+/// 使わない側のコード（codeWithout）を持つ、見た目を持たない Widget。
+final behaviorWithCodeEntry = WidgetEntry(
+  id: 'behaviorCode',
+  name: 'BehaviorCode',
+  genreIds: const ['styling'],
+  summary: '',
+  description: '',
+  docUrl: Uri.parse('https://api.flutter.dev/'),
+  kind: EntryKind.behavior,
+  properties: behaviorEntry.properties,
+  build: behaviorEntry.build,
+  buildWithout: behaviorEntry.buildWithout,
+  codeName: 'BehaviorCode',
+  codeWithout:
+      'class Plain extends StatefulWidget {\n  // listen して setState\n}',
+);

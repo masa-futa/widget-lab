@@ -108,9 +108,6 @@ class AppLocalizationsJa extends AppLocalizations {
   }
 
   @override
-  String get detailCompareWithoutSemantics => '付けない';
-
-  @override
   String get detailCompareDivider => '比較の仕切り';
 
   @override

@@ -700,4 +700,93 @@ void main() {
       expect(find.text('build 0 回'), findsOneWidget);
     });
   });
+
+  group('比べる（見た目を持たない Widget）', () {
+    Future<void> pumpBehavior(
+      WidgetTester tester, [
+      String id = 'behavior',
+    ]) async {
+      await pumpDetail(
+        tester,
+        id,
+        repository: FakeCatalogRepository([
+          behaviorEntry,
+          behaviorWithCodeEntry,
+        ]),
+      );
+      await tester.pumpAndSettle();
+    }
+
+    testWidgets('TC-75: 「使わない場合と比べる」で左に「使った」右に「使わない」、左右で別に数える', (tester) async {
+      await pumpBehavior(tester);
+
+      await tester.tap(inPanel(find.text('使わない場合と比べる')));
+      await tester.pumpAndSettle();
+
+      expect(find.byType(ComparePreview), findsOneWidget);
+      expect(
+        find.descendant(
+          of: find.byType(ComparePreview),
+          matching: find.text('使った'),
+        ),
+        findsOneWidget,
+      );
+      expect(
+        find.descendant(
+          of: find.byType(ComparePreview),
+          matching: find.text('使わない'),
+        ),
+        findsOneWidget,
+      );
+      expect(inPanel(find.text('比べるのをやめる')), findsOneWidget);
+      // 左（使った）は 1 枚のときから数えて 2 回目、右（使わない）は 1 回目
+      expect(find.text('build 2 回'), findsOneWidget);
+      expect(find.text('build 1 回'), findsOneWidget);
+      // ログの帯の最新に側の札
+      expect(
+        find.descendant(
+          of: find.byType(LogStrip),
+          matching: find.textContaining('使'),
+        ),
+        findsOneWidget,
+      );
+    });
+
+    testWidgets('TC-76: 比較中に別のチップを選んでも比較が続く', (tester) async {
+      await pumpBehavior(tester);
+      await tester.tap(inPanel(find.text('使わない場合と比べる')));
+      await tester.pumpAndSettle();
+
+      await tester.tap(chip('mode'));
+      await tester.pumpAndSettle();
+
+      expect(find.byType(ComparePreview), findsOneWidget);
+      expect(inPanel(find.text('比べるのをやめる')), findsOneWidget);
+    });
+
+    testWidgets('cd-side: 使わない側のコードに切り替えると、印なしで出てコピーもそのコード', (tester) async {
+      await pumpBehavior(tester, 'behaviorCode');
+      await openCodeSheet(tester);
+
+      await tester.tap(
+        find.descendant(
+          of: find.byType(SegmentedButton<bool>),
+          matching: find.text('使わない'),
+        ),
+      );
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('コードをコピー'));
+      await tester.pump();
+
+      expect(find.textContaining('class Plain'), findsOneWidget);
+      expect(clipboard.written, [behaviorWithCodeEntry.codeWithout]);
+    });
+
+    testWidgets('cd-side: 使わない側のコードがなければ切り替えを出さない', (tester) async {
+      await pumpBehavior(tester);
+      await openCodeSheet(tester);
+
+      expect(find.byType(SegmentedButton<bool>), findsNothing);
+    });
+  });
 }
