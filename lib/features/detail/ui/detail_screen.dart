@@ -12,6 +12,7 @@ import 'package:widget_lab/features/detail/ui/widgets/detail_preview.dart';
 import 'package:widget_lab/features/detail/ui/widgets/detail_sheet.dart';
 import 'package:widget_lab/features/detail/ui/widgets/editor_panel.dart';
 import 'package:widget_lab/features/detail/ui/widgets/property_chips.dart';
+import 'package:widget_lab/features/detail/view_model/comparing.dart';
 import 'package:widget_lab/features/detail/view_model/detail_notifier.dart';
 import 'package:widget_lab/l10n/gen/app_localizations.dart';
 
@@ -210,7 +211,11 @@ class _PanelAreaState extends ConsumerState<_PanelArea> {
                   key: ValueKey(spec.name),
                   spec: spec,
                   setting: state.settings[spec.name] ?? spec.initialSetting,
-                  isComparing: state.comparing == spec.name,
+                  isComparing: switch (state.comparing) {
+                    ComparingProperty(:final name) => name == spec.name,
+                    ComparingUse() => true,
+                    null => false,
+                  },
                   isDefault: state.isDefault(spec.name),
                   onToggled: (on) => notifier.propertyToggled(spec.name, on),
                   onValueChanged: (value) =>

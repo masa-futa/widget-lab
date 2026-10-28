@@ -10,6 +10,7 @@ import 'package:widget_lab/core/data/catalog_repository.dart';
 import 'package:widget_lab/core/data/clipboard_client.dart';
 import 'package:widget_lab/core/data/url_launcher_client.dart';
 import 'package:widget_lab/features/detail/view_model/code_generator.dart';
+import 'package:widget_lab/features/detail/view_model/comparing.dart';
 import 'package:widget_lab/features/detail/view_model/detail_notifier.dart';
 
 import '../fakes.dart';
@@ -220,11 +221,11 @@ void main() {
       notifier.compareTapped('padding');
 
       final state = container.read(detailProvider('padding'));
-      expect(state.comparing, 'padding');
+      expect(state.comparing, const ComparingProperty('padding'));
       expect(state.isModified, isTrue);
     });
 
-    test('比較中に別のプロパティを渡すと、そちらに切り替わる', () {
+    test('比較中に別のプロパティを渡しても、比較をやめる', () {
       final container = makeContainer();
       final notifier = container.read(detailProvider('padding').notifier);
 
@@ -232,7 +233,7 @@ void main() {
         ..compareTapped('padding')
         ..compareTapped('child');
 
-      expect(container.read(detailProvider('padding')).comparing, 'child');
+      expect(container.read(detailProvider('padding')).comparing, isNull);
     });
 
     test('TC-29: 同じ行の比べるを押すと比較をやめ、値はそのまま', () {
@@ -304,6 +305,61 @@ void main() {
 
       final state = container.read(detailProvider('padding'));
 
+      expect(state.settingsForSide(on: true), state.settings);
+      expect(state.settingsForSide(on: false), state.settings);
+    });
+  });
+
+  group('比べる（見た目を持たない Widget）', () {
+    ProviderContainer behaviorContainer() =>
+        makeContainer(repository: FakeCatalogRepository([behaviorEntry]));
+
+    test('比べるを押すと、Widget そのものを使った／使わないで比べる', () {
+      final container = behaviorContainer();
+      final notifier = container.read(detailProvider('behavior').notifier);
+
+      notifier.compareTapped('scale');
+
+      final state = container.read(detailProvider('behavior'));
+      expect(state.comparing, const ComparingUse());
+      expect(state.comparingSpec, isNull);
+      expect(state.isModified, isTrue);
+    });
+
+    test('TC-76: 比較中に別のチップを選んでも比較が続く', () {
+      final container = behaviorContainer();
+      final notifier = container.read(detailProvider('behavior').notifier);
+
+      notifier
+        ..compareTapped('scale')
+        ..propertySelected('mode');
+
+      final state = container.read(detailProvider('behavior'));
+      expect(state.comparing, const ComparingUse());
+      expect(state.selected, 'mode');
+    });
+
+    test('比較中にもう一度押すと比較をやめる', () {
+      final container = behaviorContainer();
+      final notifier = container.read(detailProvider('behavior').notifier);
+
+      notifier
+        ..compareTapped('scale')
+        ..propertySelected('mode')
+        ..compareTapped('mode');
+
+      expect(container.read(detailProvider('behavior')).comparing, isNull);
+    });
+
+    test('使った／使わないの 2 枚は、どちらも今の設定', () {
+      final container = behaviorContainer();
+      final notifier = container.read(detailProvider('behavior').notifier);
+
+      notifier
+        ..compareTapped('scale')
+        ..propertyToggled('scale', false);
+
+      final state = container.read(detailProvider('behavior'));
       expect(state.settingsForSide(on: true), state.settings);
       expect(state.settingsForSide(on: false), state.settings);
     });

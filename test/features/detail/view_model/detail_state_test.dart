@@ -3,6 +3,7 @@ import 'package:widget_lab/catalog/genres.dart';
 import 'package:widget_lab/catalog/layout/padding.dart';
 import 'package:widget_lab/catalog/model/control_value.dart';
 import 'package:widget_lab/catalog/model/property_setting.dart';
+import 'package:widget_lab/features/detail/view_model/comparing.dart';
 import 'package:widget_lab/features/detail/view_model/detail_state.dart';
 
 void main() {
@@ -36,14 +37,20 @@ void main() {
       ),
       isNot(initial),
     );
-    expect(initial.copyWith(comparing: () => 'padding'), isNot(initial));
+    expect(
+      initial.copyWith(comparing: () => const ComparingProperty('padding')),
+      isNot(initial),
+    );
     expect(initial.copyWith(selected: 'child'), isNot(initial));
   });
 
   test('比べているプロパティの定義を返し、比較していなければ null', () {
     expect(initial.comparingSpec, isNull);
     expect(
-      initial.copyWith(comparing: () => 'padding').comparingSpec?.name,
+      initial
+          .copyWith(comparing: () => const ComparingProperty('padding'))
+          .comparingSpec
+          ?.name,
       'padding',
     );
   });

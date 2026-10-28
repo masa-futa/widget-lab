@@ -3,6 +3,7 @@ import 'package:widget_lab/catalog/model/genre.dart';
 import 'package:widget_lab/catalog/model/property_setting.dart';
 import 'package:widget_lab/catalog/model/property_spec.dart';
 import 'package:widget_lab/catalog/model/widget_entry.dart';
+import 'package:widget_lab/features/detail/view_model/comparing.dart';
 
 /// 詳細画面の状態。プレビュー・チップ・編集パネル・比較・コードで共有する。
 final class DetailState {
@@ -31,14 +32,18 @@ final class DetailState {
   /// 編集パネルで選んでいるプロパティの名前。プロパティがなければ `null`。
   final String? selected;
 
-  /// 比べているプロパティの名前。`null` は比較していない。
-  final String? comparing;
+  /// 何を比べているか。`null` は比較していない。
+  final Comparing? comparing;
 
   /// 選んでいるプロパティの定義。
   PropertySpec? get selectedSpec => _specOf(selected);
 
-  /// 比べているプロパティの定義。比較していなければ `null`。
-  PropertySpec? get comparingSpec => _specOf(comparing);
+  /// 比べているプロパティの定義。プロパティを比べていなければ `null`
+  /// （使った／使わないの比較も `null`）。
+  PropertySpec? get comparingSpec => switch (comparing) {
+    ComparingProperty(:final name) => _specOf(name),
+    ComparingUse() || null => null,
+  };
 
   /// 最初の値から1つでも変わった、または比較中（初期状態に戻すの活性）。
   /// 選び替えただけでは変わらない。
@@ -51,9 +56,9 @@ final class DetailState {
 
   /// 比較の「付けた」（[on] が `true`）か「付けない」側の設定。
   /// 比べるプロパティだけ ON / OFF を変え、値とほかのプロパティはそのまま。
-  /// 比較していなければ今の設定。
+  /// プロパティを比べていなければ今の設定（使った／使わないは 2 枚とも同じ設定）。
   Map<String, PropertySetting> settingsForSide({required bool on}) {
-    final name = comparing;
+    final name = comparingSpec?.name;
     final setting = settings[name];
     if (name == null || setting == null) return settings;
     return {...settings, name: setting.copyWith(on: on)};
@@ -62,7 +67,7 @@ final class DetailState {
   DetailState copyWith({
     Map<String, PropertySetting>? settings,
     String? selected,
-    String? Function()? comparing,
+    Comparing? Function()? comparing,
   }) => DetailState(
     entry: entry,
     genres: genres,

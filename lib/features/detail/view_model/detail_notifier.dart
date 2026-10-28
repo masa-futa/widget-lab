@@ -3,10 +3,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart'
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:widget_lab/catalog/model/control_value.dart';
 import 'package:widget_lab/catalog/model/property_setting.dart';
+import 'package:widget_lab/catalog/model/widget_entry.dart';
 import 'package:widget_lab/core/data/catalog_repository.dart';
 import 'package:widget_lab/core/data/clipboard_client.dart';
 import 'package:widget_lab/core/data/url_launcher_client.dart';
 import 'package:widget_lab/features/detail/view_model/code_generator.dart';
+import 'package:widget_lab/features/detail/view_model/comparing.dart';
 import 'package:widget_lab/features/detail/view_model/detail_state.dart';
 
 part 'detail_notifier.g.dart';
@@ -27,9 +29,14 @@ class DetailNotifier extends _$DetailNotifier {
     return DetailState.initial(entry, genres);
   }
 
-  /// 編集パネルの中身を [name] に切り替え、比較をやめる。
+  /// 編集パネルの中身を [name] に切り替える。プロパティの比較はやめ、
+  /// 使った／使わないの比較は続ける（値の変化を左右で見られるように）。
   void propertySelected(String name) {
-    state = state.copyWith(selected: name, comparing: () => null);
+    final comparing = state.comparing;
+    state = state.copyWith(
+      selected: name,
+      comparing: () => comparing is ComparingUse ? comparing : null,
+    );
   }
 
   /// 必須のプロパティは変えない。
@@ -51,10 +58,15 @@ class DetailNotifier extends _$DetailNotifier {
     _update(name, (_) => initial);
   }
 
-  /// 比較中のプロパティなら比較をやめ、それ以外ならそのプロパティを比べる。
+  /// 比較中ならやめる。そうでなければ、見た目を持つ Widget は [name] のプロパティを、
+  /// 持たない Widget は Widget そのものを比べる。
   void compareTapped(String name) {
     state = state.copyWith(
-      comparing: () => state.comparing == name ? null : name,
+      comparing: () => switch ((state.comparing, state.entry.kind)) {
+        (Comparing(), _) => null,
+        (null, EntryKind.visual) => ComparingProperty(name),
+        (null, EntryKind.behavior) => const ComparingUse(),
+      },
     );
   }
 

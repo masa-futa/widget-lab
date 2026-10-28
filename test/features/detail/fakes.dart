@@ -5,6 +5,7 @@ import 'package:widget_lab/catalog/basics/text.dart';
 import 'package:widget_lab/catalog/genres.dart';
 import 'package:widget_lab/catalog/layout/padding.dart';
 import 'package:widget_lab/catalog/model/genre.dart';
+import 'package:widget_lab/catalog/model/choice.dart';
 import 'package:widget_lab/catalog/model/property_control.dart';
 import 'package:widget_lab/catalog/model/property_spec.dart';
 import 'package:widget_lab/catalog/model/widget_entry.dart';
@@ -102,4 +103,44 @@ final noPropertyEntry = WidgetEntry(
   properties: const [],
   build: (args) => const SizedBox(),
   codeName: 'None',
+);
+
+/// 見た目を持たない Widget。2 つのプロパティを持ち、使わない側は中の木だけ。
+final behaviorEntry = WidgetEntry(
+  id: 'behavior',
+  name: 'Behavior',
+  genreIds: const ['styling'],
+  summary: '',
+  description: '',
+  docUrl: Uri.parse('https://api.flutter.dev/'),
+  kind: EntryKind.behavior,
+  properties: [
+    PropertySpec(
+      name: 'scale',
+      typeLabel: 'double',
+      description: '',
+      control: SliderControl(
+        min: 1,
+        max: 2,
+        divisions: 10,
+        initialValue: 1,
+        resolve: (v) => v,
+        code: (v) => '$v',
+      ),
+    ),
+    const PropertySpec(
+      name: 'mode',
+      typeLabel: 'Brightness',
+      description: '',
+      control: ChoiceControl(
+        choices: [
+          Choice('light', Brightness.light, 'Brightness.light'),
+          Choice('dark', Brightness.dark, 'Brightness.dark'),
+        ],
+      ),
+    ),
+  ],
+  build: (args) => const SizedBox(),
+  buildWithout: (args) => const SizedBox(),
+  codeName: 'Behavior',
 );
