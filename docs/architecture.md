@@ -7,12 +7,17 @@ lib/
   main.dart                 ProviderScope でアプリを包んで起動する
   app.dart                  MaterialApp（テーマ・l10n・最初の画面）
   core/
-    theme/                  Material 3 のテーマと ThemeExtension（AppSpacing）
+    theme/                  Material 3 のテーマと ThemeExtension（土台の NimiColors・NimiSpacing・NimiRadius・NimiTextStyles）
+    data/                   両方の機能が使う CatalogRepository と、OS の機能の包み（ClipboardClient・UrlLauncherClient）
   l10n/
     app_ja.arb              UI の文言
     gen/                    gen-l10n の生成物（コミットする）
   catalog/
-    <ジャンル>/             収録する Widget の定義（プロパティ・説明文・デモの組み立て）
+    model/                  収録データの型（WidgetEntry・PropertySpec・PropertyControl など）
+    genres.dart             公式カタログのジャンルと順番
+    manifest.dart           公式カタログに載る Widget 名の一覧（抜けの確認用）
+    catalog.dart            全件の一覧
+    <ジャンル>/             1 Widget = 1 ファイルの収録データ（プロパティ・説明文・組み立ての関数）
   features/
     catalog/{ui,view_model,data}   ジャンル別の一覧と検索
     detail/{ui,view_model,data}    詳細（プレビュー・操作パネル・比較・コード）
@@ -23,7 +28,8 @@ test/
 
 ## 依存の向き
 ui → view_model → data（Repository）。逆向きと、機能をまたぐ直接の参照は禁止（共通のものは lib/core/ に置く）。
-`lib/catalog/` は収録データで、features の data（Repository）だけが読む。ui から直接読まない。
+`lib/catalog/` は収録データで、`lib/core/data/` の CatalogRepository だけが読む。ui から直接読まない。ただし収録データの型（`lib/catalog/model/`）は、プレビューを組み立てるために ui からも使う。
+仕組みの詳細は docs/design/functions/demo-engine.md。
 
 ## 状態と依存の受け渡し
 - Provider は riverpod_generator（`@riverpod`）で、各機能の view_model / data に置く
