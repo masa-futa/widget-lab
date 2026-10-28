@@ -197,7 +197,7 @@ sequenceDiagram
 
 | 置き場所 | 部品 |
 |---|---|
-| `lib/catalog/demo/` | 収録データが使うもの: 記録の窓口 `DemoRecorder`（`recordBuild`・`log`・`comparing`・`badge(label)`。アプリの文字の倍率は `DemoRecorder.textScalerOf`）と、それを木に置く `DemoRecorderScope`（倍率が変わったときだけ札と印に知らせる）、`RebuildCounter`・`DemoScope`・`DemoFit`。見た目を持つ Widget のデモにも使う `DemoValue`（押すと値が変わる Widget の値を手元に持つ。プロパティの値が変わったら合わせる）・`DemoNavigator`（Route・Page のデモで、カードの大きさの Navigator に積む。アプリの Navigator に積むと詳細画面ごと覆うため） |
+| `lib/catalog/demo/` | 収録データが使うもの: 記録の窓口 `DemoRecorder`（`recordBuild`・`log`・`comparing`・`badge(label)`。アプリの文字の倍率は `DemoRecorder.textScalerOf`）と、それを木に置く `DemoRecorderScope`（倍率が変わったときだけ札と印に知らせる）、`RebuildCounter`・`DemoScope`・`DemoFit`。見た目を持つ Widget のデモにも使う `DemoValue`（押すと値が変わる Widget の値を手元に持つ。プロパティの値が変わったら合わせる）・`DemoNavigator`（Route・Page のデモで、カードの大きさの Navigator に積む。アプリの Navigator に積むと詳細画面ごと覆うため）。見た目を持つ Widget のデモの子 `DemoTile`（番号つきの色の箱。コードでは `Tile(n)`）と、繰り返し使う選択肢・スライダーの写し方（`demo_choices.dart`） |
 | `lib/features/detail/ui/probe/` | 窓口の実装 `DemoProbe`（Riverpod につなぐ）・回数の印 `RebuildBadge`・ログの帯 `LogStrip`・ログのシート `LogSheet` |
 
 - `DemoProbe`: 左右のカードの根に置き、自分を `DemoRecorder` として `DemoRecorderScope` に置く（`side`: `DemoSide.used` / `unused`、`comparing`）。子は `DemoRecorder.of(context)` で引く（`getInheritedWidgetOfExactType` で依存を作らないので、DemoProbe 側の変化で子が組み直されることはない）。窓口の外（見本・全件のテスト）では何もしない窓口が返る
@@ -342,6 +342,7 @@ Provider の名前は riverpod_generator が付けるもので、クラス名か
 | `MediaQuery`（styling） | `textScaler`（1.0〜2.0 のスライダー）・`platformBrightness`（light / dark） | `MediaQuery(data: 親の値.copyWith(…))` の下に「倍率を読む子」（`MediaQuery.textScalerOf`。「倍率 1.5」）・「明るさを読む子」（`platformBrightnessOf`。「dark」）・「読まない子」 | 倍率を変えると倍率を読む子だけ build が増える（読んだ項目ごとに依存が付く） | 包みを外す。子はアプリの MediaQuery を読むので、値を変えても届かず回数は増えない |
 | `StreamBuilder`（async） | `stream`（3 回流して終わる / 途中でエラー / 何も流さない）・`initialData`（ON は 0） | 「最初から流す」のボタン（デモの部品）、builder の中の子（状態と値）、builder の外の子。値は 1 秒おき | ログに `waiting` → `active: 1` … → `done: 3`（閉じても最後の値を持つ）。builder の外の子は 1 回のまま | 手書き（`codeWithout` あり）。StatefulWidget で `listen` して `setState`。値が来るたびに builder の外の子も build が増える |
 | `NotificationListener`（scrolling） | 受ける型（`ScrollNotification` / `ScrollUpdateNotification` / `OverscrollNotification`）・`onNotification` の戻り値（false / true） | 外の聞き手（デモの部品。ログに「外:」）の下に `NotificationListener`（ログに「内:」）、その下に 20 行の `ListView`（回数の印つき） | スクロールで「内: ScrollUpdateNotification ×6」。ListView は 1 回のまま（通知では組み直さない）。true にすると「外:」が止まる | 包みを外す。「内:」は出ず「外:」だけ出る（聞き手がいなくても通知は上へ伝わる） |
+| `LayoutBuilder`（layout） | `builder`（幅 160 / 240 / 320 未満で縦に並べる。必須） | `LayoutBuilder` の builder の中に、広ければ横・狭ければ縦に 2 つの箱を並べる子（回数の印つき）。builder が呼ばれるたびに「builder: maxWidth 300」 | 比べると、狭い側のカードだけ縦に並び替わる（置かれた場所の広さで組み分ける） | 手書き（`codeWithout` あり）。`MediaQuery.sizeOf` の画面の幅で組み分けるので、カードが狭くても横のまま |
 
 デモの部品（ボタン・外の聞き手）は収録データのファイルの中に書き、コードには出さない。Stream と時刻は、テストで `fakeAsync` で進められるように組む。
 
