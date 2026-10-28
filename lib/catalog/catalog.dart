@@ -31,8 +31,13 @@ import 'package:widget_lab/catalog/animation/size_transition.dart';
 import 'package:widget_lab/catalog/animation/slide_transition.dart';
 import 'package:widget_lab/catalog/animation/sliver_fade_transition.dart';
 import 'package:widget_lab/catalog/async/stream_builder.dart';
+import 'package:widget_lab/catalog/basics/column.dart';
 import 'package:widget_lab/catalog/basics/container.dart';
+import 'package:widget_lab/catalog/basics/elevated_button.dart';
+import 'package:widget_lab/catalog/basics/flutter_logo.dart';
+import 'package:widget_lab/catalog/basics/placeholder.dart';
 import 'package:widget_lab/catalog/basics/row.dart';
+import 'package:widget_lab/catalog/basics/scaffold.dart';
 import 'package:widget_lab/catalog/basics/text.dart';
 import 'package:widget_lab/catalog/cupertino/cupertino_action_sheet.dart';
 import 'package:widget_lab/catalog/cupertino/cupertino_action_sheet_action.dart';
@@ -348,4 +353,9 @@ final allEntries = <WidgetEntry>[
   formEntry,
   formFieldEntry,
   keyboardListenerEntry,
+  columnEntry,
+  elevatedButtonEntry,
+  flutterLogoEntry,
+  placeholderEntry,
+  scaffoldEntry,
 ];
