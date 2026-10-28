@@ -94,13 +94,13 @@ abstract class AppLocalizations {
   /// A list of this localizations delegate's supported locales.
   static const List<Locale> supportedLocales = <Locale>[Locale('ja')];
 
-  /// アプリ名。一覧画面の AppBar にも出す
+  /// アプリ名。ホーム画面の AppBar にも出す
   ///
   /// In ja, this message translates to:
   /// **'Widget Lab'**
   String get appTitle;
 
-  /// 一覧画面の検索欄のプレースホルダー
+  /// ホーム画面の検索欄のプレースホルダー
   ///
   /// In ja, this message translates to:
   /// **'Widget 名で検索'**
@@ -118,11 +118,82 @@ abstract class AppLocalizations {
   /// **'「{query}」に一致する Widget はありません'**
   String catalogEmpty(String query);
 
-  /// ジャンルの見出しの読み上げ
+  /// ホームの段の見出し（Cupertino・Material design）
   ///
   /// In ja, this message translates to:
-  /// **'{genre}、{count} 件'**
-  String catalogSectionLabel(String genre, int count);
+  /// **'デザインシステム'**
+  String get catalogGroupDesignSystem;
+
+  /// ホームの段の見出し（残りのジャンル）
+  ///
+  /// In ja, this message translates to:
+  /// **'基本の Widget'**
+  String get catalogGroupBase;
+
+  /// ジャンルのタイルの件数の数字のあとに添える単位
+  ///
+  /// In ja, this message translates to:
+  /// **'件'**
+  String get catalogCountUnit;
+
+  /// タイルの代表の名前と、検索の結果のジャンル名をつなぐ記号
+  ///
+  /// In ja, this message translates to:
+  /// **'・'**
+  String get catalogNameSeparator;
+
+  /// タイルの代表の名前に入りきらない Widget があるとき
+  ///
+  /// In ja, this message translates to:
+  /// **'{examples}…'**
+  String catalogExamplesMore(String examples);
+
+  /// 読み上げで名前をつなぐ記号
+  ///
+  /// In ja, this message translates to:
+  /// **'、'**
+  String get catalogReadSeparator;
+
+  /// ジャンルのタイルの読み上げ
+  ///
+  /// In ja, this message translates to:
+  /// **'{genre}、{count} 件、{examples}'**
+  String catalogTileSemantics(String genre, int count, String examples);
+
+  /// 代表の名前に入りきらない Widget があるジャンルのタイルの読み上げ
+  ///
+  /// In ja, this message translates to:
+  /// **'{genre}、{count} 件、{examples} など'**
+  String catalogTileSemanticsMore(String genre, int count, String examples);
+
+  /// ジャンル画面の件数と一言の説明
+  ///
+  /// In ja, this message translates to:
+  /// **'{count} 件・{description}'**
+  String catalogGenreIntro(int count, String description);
+
+  /// 見本つきの行のプロパティ数の印
+  ///
+  /// In ja, this message translates to:
+  /// **'{count} プロパティ'**
+  String catalogPropertyCount(int count);
+
+  /// 見本つきの行の読み上げ
+  ///
+  /// In ja, this message translates to:
+  /// **'{name}、{summary}、{count} プロパティ'**
+  String catalogEntrySemantics(String name, String summary, int count);
+
+  /// 検索の結果の行の読み上げ（載っているジャンルを添える）
+  ///
+  /// In ja, this message translates to:
+  /// **'{name}、{summary}、{count} プロパティ、{genres}'**
+  String catalogEntrySemanticsWithGenres(
+    String name,
+    String summary,
+    int count,
+    String genres,
+  );
 
   /// 詳細画面のタブ（プロパティの操作）
   ///

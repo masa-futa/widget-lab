@@ -29,7 +29,12 @@ class FakeCatalogRepository implements CatalogRepository {
 }
 
 /// 一覧のテストに要る項目だけを持つ収録データ。
-WidgetEntry fakeEntry(String name, List<String> genreIds) => WidgetEntry(
+WidgetEntry fakeEntry(
+  String name,
+  List<String> genreIds, {
+  DemoBuilder? build,
+  EntryKind kind = EntryKind.visual,
+}) => WidgetEntry(
   id: name.toLowerCase(),
   name: name,
   genreIds: genreIds,
@@ -37,6 +42,7 @@ WidgetEntry fakeEntry(String name, List<String> genreIds) => WidgetEntry(
   description: '',
   docUrl: Uri.parse('https://api.flutter.dev/'),
   properties: const [],
-  build: (args) => const SizedBox(),
+  build: build ?? (args) => const SizedBox(),
   codeName: name,
+  kind: kind,
 );

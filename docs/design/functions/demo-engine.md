@@ -25,6 +25,8 @@ classDiagram
     class Genre {
         +String id
         +String name
+        +GenreGroupKind group
+        +String description
     }
     class WidgetEntry {
         +String id
@@ -213,6 +215,7 @@ Provider の名前は riverpod_generator が付けるもので、クラス名か
 | `catalogRepositoryProvider` | Provider（`keepAlive`） | `CatalogRepository`（同梱データを返す。同期） | アプリの間ずっと |
 | `catalogProvider` | Notifier（`CatalogNotifier`） | `CatalogState` | ホーム画面の間（最初の画面なのでアプリの間ずっと） |
 | `genreEntriesProvider(genreId)` | Provider（family・autoDispose） | `List<WidgetEntry>`（そのジャンルの Widget。収録データの順） | ジャンル画面の間 |
+| `genreProvider(genreId)` | Provider（family・autoDispose） | `Genre`（ジャンル画面の題と一言の説明。ない ID は `StateError`） | ジャンル画面の間 |
 | `detailProvider(entryId)`（`DetailNotifier`） | Notifier（family・autoDispose） | `DetailState` | 詳細画面の間。戻ると捨てる（cb_dtl の確認・調整事項 1） |
 | `detailCodeProvider(entryId)` | Provider（family・autoDispose） | `List<CodeLine>`（`DetailState` から作る。全文の文字列は行をつなぐ） | 同上 |
 | `probeNotifierProvider(entryId)` | Notifier（family・autoDispose） | `ProbeState` | 同上 |
@@ -224,7 +227,7 @@ Provider の名前は riverpod_generator が付けるもので、クラス名か
 |---|---|---|---|
 | `query` | `String` | `''` | 検索の入力（前後の空白を除いたもの） |
 | `groups` | `List<GenreGroup>` | 2 段 | 段（`GenreGroupKind.designSystem` / `base`）と、その中のタイル（`GenreTile`: `genre`・`count`・`examples`（収録の順の最初の 3 件の名前））。収録が 0 件のジャンルは入れず、空の段も入れない |
-| `results` | `List<SearchResult>` | 空 | 検索の結果（`SearchResult`: `entry`・`genres`）。名前に `query` を含む Widget を、重ねずに名前の ABC 順で |
+| `results` | `List<SearchResult>` | 空 | 検索の結果（`SearchResult`: `entry`・`genres`）。名前に `query` を含む Widget を、重ねずに名前の ABC 順（大文字・小文字を区別しない）で |
 
 `isSearching`（`query` が空でない）と `isEmpty`（検索中で `results` が空）は State から求める。読み込み中・エラーは同梱データなので持たない。
 
@@ -234,7 +237,7 @@ Provider の名前は riverpod_generator が付けるもので、クラス名か
 
 ### 見本（ジャンル画面・検索の結果の行）
 
-見本は絵を用意せず、その Widget を `entry.build(DemoArgs(entry, entry.initialSettings()))` で組み立て、64×64 の枠に `FittedBox(fit: BoxFit.scaleDown)` で縮めて置く。`IgnorePointer` と `ExcludeSemantics` で包み、押せず読み上げない。組み立てが例外を出したら、その見本だけ空の枠にする。見た目を持たない Widget の見本は PR 5/5 で決める。
+見本は絵を用意せず、その Widget を `entry.build(DemoArgs(entry, entry.initialSettings()))` で組み立て、64×64 の枠に `FittedBox(fit: BoxFit.scaleDown)` で縮めて置く。`IgnorePointer`・`ExcludeSemantics`・`ExcludeFocus`・`TickerMode(enabled: false)` で包み、押せず・読み上げず・フォーカスを取らず・動かない（最初の見た目で止める）。縮める前は 240×240 を上限に組み立てる（広がる Widget も枠に収めるため）。`entry.build` が例外を出したら、その見本だけ空の枠にする（全件の見本の組み立てはテストで確かめる）。見本は一覧に何行も並び、詳細へ進むと詳細側にも同じ Widget が出るので、`Hero`・`GlobalKey`・`autofocus` のように木の中で一意であることを前提にする Widget を収録するときは、見本を見た目を持たない Widget と同じ扱い（頭文字）にする。見た目を持たない Widget の見本は PR 5/5 で決める。
 
 ### DetailState
 

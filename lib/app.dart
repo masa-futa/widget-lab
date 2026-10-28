@@ -20,7 +20,8 @@ class WidgetLabApp extends StatelessWidget {
   }
 }
 
-/// 一覧の行から詳細へ進む（一覧 → 詳細の1段だけ。docs/architecture.md の遷移）。
+/// ジャンル画面の行・ホームの検索の結果から詳細へ進む（docs/architecture.md の遷移）。
+/// ホームからジャンル画面へは、同じ機能の中なので CatalogScreen が開く。
 void _openDetail(BuildContext context, String entryId) {
   Navigator.of(context).push(
     MaterialPageRoute<void>(builder: (_) => DetailScreen(entryId: entryId)),

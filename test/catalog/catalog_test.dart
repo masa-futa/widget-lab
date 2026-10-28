@@ -4,11 +4,13 @@ import 'package:widget_lab/catalog/catalog.dart';
 import 'package:widget_lab/catalog/genres.dart';
 import 'package:widget_lab/catalog/manifest.dart';
 import 'package:widget_lab/catalog/model/control_value.dart';
+import 'package:widget_lab/catalog/model/genre.dart';
 import 'package:widget_lab/catalog/model/demo_args.dart';
 import 'package:widget_lab/catalog/model/property_control.dart';
 import 'package:widget_lab/catalog/model/property_setting.dart';
 import 'package:widget_lab/catalog/model/widget_entry.dart';
 import 'package:widget_lab/core/theme/app_theme.dart';
+import 'package:widget_lab/features/catalog/ui/widgets/entry_sample.dart';
 import 'package:widget_lab/features/detail/ui/widgets/preview_card.dart';
 
 /// プレビューのカードの大きさ。小さいスマートフォン（360×640）で、
@@ -212,6 +214,40 @@ void main() {
           await _expectBuilds(tester, entry, settings);
         }
       });
+    }
+  });
+
+  group('ジャンルの定義', () {
+    test('Cupertino と Material design はデザインシステムの段、残りは基本の段', () {
+      for (final genre in allGenres) {
+        expect(
+          genre.group,
+          ['cupertino', 'material'].contains(genre.id)
+              ? GenreGroupKind.designSystem
+              : GenreGroupKind.base,
+          reason: genre.id,
+        );
+      }
+    });
+
+    test('全ジャンルに一言の説明がある', () {
+      for (final genre in allGenres) {
+        expect(genre.description, isNotEmpty, reason: genre.id);
+      }
+    });
+  });
+
+  testWidgets('TC-69: 全件の見本が、最初の値で例外を出さずに組み立つ', (tester) async {
+    for (final entry in allEntries) {
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: AppTheme.light(),
+          home: Scaffold(
+            body: Center(child: EntrySample(entry: entry)),
+          ),
+        ),
+      );
+      expect(tester.takeException(), isNull, reason: entry.id);
     }
   });
 }
