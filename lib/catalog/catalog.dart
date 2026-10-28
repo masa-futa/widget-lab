@@ -30,6 +30,10 @@ import 'package:widget_lab/catalog/animation/scale_transition.dart';
 import 'package:widget_lab/catalog/animation/size_transition.dart';
 import 'package:widget_lab/catalog/animation/slide_transition.dart';
 import 'package:widget_lab/catalog/animation/sliver_fade_transition.dart';
+import 'package:widget_lab/catalog/assets/asset_bundle.dart';
+import 'package:widget_lab/catalog/assets/icon.dart';
+import 'package:widget_lab/catalog/assets/image.dart';
+import 'package:widget_lab/catalog/assets/raw_image.dart';
 import 'package:widget_lab/catalog/async/future_builder.dart';
 import 'package:widget_lab/catalog/async/stream_builder.dart';
 import 'package:widget_lab/catalog/basics/column.dart';
@@ -315,6 +319,10 @@ final allEntries = <WidgetEntry>[
   themeEntry,
   defaultTextStyleEntry,
   richTextEntry,
+  assetBundleEntry,
+  iconEntry,
+  imageEntry,
+  rawImageEntry,
   futureBuilderEntry,
   streamBuilderEntry,
   notificationListenerEntry,
