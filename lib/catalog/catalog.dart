@@ -3,6 +3,10 @@ import 'package:widget_lab/catalog/basics/container.dart';
 import 'package:widget_lab/catalog/basics/row.dart';
 import 'package:widget_lab/catalog/basics/text.dart';
 import 'package:widget_lab/catalog/layout/padding.dart';
+import 'package:widget_lab/catalog/material/common_buttons.dart';
+import 'package:widget_lab/catalog/material/app_bar.dart';
+import 'package:widget_lab/catalog/material/navigation_bar.dart';
+import 'package:widget_lab/catalog/material/date_picker.dart';
 import 'package:widget_lab/catalog/model/widget_entry.dart';
 import 'package:widget_lab/catalog/scrolling/notification_listener.dart';
 import 'package:widget_lab/catalog/styling/media_query.dart';
@@ -18,4 +22,8 @@ final allEntries = <WidgetEntry>[
   mediaQueryEntry,
   streamBuilderEntry,
   notificationListenerEntry,
+  commonButtonsEntry,
+  appBarEntry,
+  navigationBarEntry,
+  datePickerEntry,
 ];
