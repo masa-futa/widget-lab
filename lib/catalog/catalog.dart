@@ -1,3 +1,15 @@
+import 'package:widget_lab/catalog/animation/align_transition.dart';
+import 'package:widget_lab/catalog/animation/decorated_box_transition.dart';
+import 'package:widget_lab/catalog/animation/default_text_style_transition.dart';
+import 'package:widget_lab/catalog/animation/fade_transition.dart';
+import 'package:widget_lab/catalog/animation/matrix_transition.dart';
+import 'package:widget_lab/catalog/animation/positioned_transition.dart';
+import 'package:widget_lab/catalog/animation/relative_positioned_transition.dart';
+import 'package:widget_lab/catalog/animation/rotation_transition.dart';
+import 'package:widget_lab/catalog/animation/scale_transition.dart';
+import 'package:widget_lab/catalog/animation/size_transition.dart';
+import 'package:widget_lab/catalog/animation/slide_transition.dart';
+import 'package:widget_lab/catalog/animation/sliver_fade_transition.dart';
 import 'package:widget_lab/catalog/async/stream_builder.dart';
 import 'package:widget_lab/catalog/basics/container.dart';
 import 'package:widget_lab/catalog/basics/row.dart';
@@ -26,4 +38,16 @@ final allEntries = <WidgetEntry>[
   appBarEntry,
   navigationBarEntry,
   datePickerEntry,
+  alignTransitionEntry,
+  decoratedBoxTransitionEntry,
+  defaultTextStyleTransitionEntry,
+  fadeTransitionEntry,
+  matrixTransitionEntry,
+  positionedTransitionEntry,
+  relativePositionedTransitionEntry,
+  rotationTransitionEntry,
+  scaleTransitionEntry,
+  sizeTransitionEntry,
+  slideTransitionEntry,
+  sliverFadeTransitionEntry,
 ];
