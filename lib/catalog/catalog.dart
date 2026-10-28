@@ -1,3 +1,4 @@
+import 'package:widget_lab/catalog/animation/align_transition.dart';
 import 'package:widget_lab/catalog/animation/animated_align.dart';
 import 'package:widget_lab/catalog/animation/animated_container.dart';
 import 'package:widget_lab/catalog/animation/animated_cross_fade.dart';
@@ -8,7 +9,18 @@ import 'package:widget_lab/catalog/animation/animated_physical_model.dart';
 import 'package:widget_lab/catalog/animation/animated_positioned.dart';
 import 'package:widget_lab/catalog/animation/animated_scale.dart';
 import 'package:widget_lab/catalog/animation/animated_size.dart';
+import 'package:widget_lab/catalog/animation/decorated_box_transition.dart';
+import 'package:widget_lab/catalog/animation/default_text_style_transition.dart';
+import 'package:widget_lab/catalog/animation/fade_transition.dart';
 import 'package:widget_lab/catalog/animation/implicitly_animated_widget.dart';
+import 'package:widget_lab/catalog/animation/matrix_transition.dart';
+import 'package:widget_lab/catalog/animation/positioned_transition.dart';
+import 'package:widget_lab/catalog/animation/relative_positioned_transition.dart';
+import 'package:widget_lab/catalog/animation/rotation_transition.dart';
+import 'package:widget_lab/catalog/animation/scale_transition.dart';
+import 'package:widget_lab/catalog/animation/size_transition.dart';
+import 'package:widget_lab/catalog/animation/slide_transition.dart';
+import 'package:widget_lab/catalog/animation/sliver_fade_transition.dart';
 import 'package:widget_lab/catalog/async/stream_builder.dart';
 import 'package:widget_lab/catalog/basics/container.dart';
 import 'package:widget_lab/catalog/basics/row.dart';
@@ -218,4 +230,16 @@ final allEntries = <WidgetEntry>[
   animatedScaleEntry,
   animatedSizeEntry,
   implicitlyAnimatedWidgetEntry,
+  alignTransitionEntry,
+  decoratedBoxTransitionEntry,
+  defaultTextStyleTransitionEntry,
+  fadeTransitionEntry,
+  matrixTransitionEntry,
+  positionedTransitionEntry,
+  relativePositionedTransitionEntry,
+  rotationTransitionEntry,
+  scaleTransitionEntry,
+  sizeTransitionEntry,
+  slideTransitionEntry,
+  sliverFadeTransitionEntry,
 ];
