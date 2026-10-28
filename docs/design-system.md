@@ -111,7 +111,7 @@ code は土台にない。コードの表示に等幅の書体が要るため足
 最初に要るもの。部品は Material 3 のものを土台の値でテーマにする。
 
 - [ ] App Bar（Material 3 の `AppBar`。題は title2）
-- [ ] 検索欄（`SearchBar` か `TextField`。地は surface、角丸 md）
+- [ ] 検索欄（`TextField`。地は surface、角丸 md）
 - [ ] 一覧の行（ジャンルの見出し＋Widget 名と一行の要約）
 - [ ] プレビューのカード（地は surface、角丸 lg、影なし。収録する Widget をそのまま置く）
 - [ ] 操作パネルの行（プロパティ名・型・説明＋ON/OFF のスイッチ＋値の操作部品: スライダー・選択・色のパレット）

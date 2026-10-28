@@ -203,7 +203,7 @@ Snackbar は一度だけ出す知らせなので State に持たず、メソッ�
 | Provider | 種類 | 持つもの | 寿命 |
 |---|---|---|---|
 | `catalogRepositoryProvider` | Provider（`keepAlive`） | `CatalogRepository`（同梱データを返す。同期） | アプリの間ずっと |
-| `catalogNotifierProvider` | Notifier | `CatalogState` | 一覧画面の間 |
+| `catalogProvider` | Notifier（`CatalogNotifier`） | `CatalogState` | 一覧画面の間 |
 | `detailNotifierProvider(entryId)` | Notifier（family・autoDispose） | `DetailState` | 詳細画面の間。戻ると捨てる（cb_dtl の確認・調整事項 1） |
 | `detailCodeProvider(entryId)` | Provider（family・autoDispose） | コードの文字列（`DetailState` から作る） | 同上 |
 | `probeNotifierProvider(entryId)` | Notifier（family・autoDispose） | `ProbeState` | 同上 |
