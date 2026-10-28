@@ -1,3 +1,6 @@
+import 'package:widget_lab/catalog/accessibility/exclude_semantics.dart';
+import 'package:widget_lab/catalog/accessibility/merge_semantics.dart';
+import 'package:widget_lab/catalog/accessibility/semantics.dart';
 import 'package:widget_lab/catalog/animation/align_transition.dart';
 import 'package:widget_lab/catalog/animation/animated_align.dart';
 import 'package:widget_lab/catalog/animation/animated_builder.dart';
@@ -234,6 +237,9 @@ final allEntries = <WidgetEntry>[
   cupertinoThemeEntry,
   cupertinoThumbPainterEntry,
   cupertinoTimerPickerEntry,
+  excludeSemanticsEntry,
+  mergeSemanticsEntry,
+  semanticsEntry,
   containerEntry,
   rowEntry,
   textEntry,
