@@ -129,7 +129,7 @@ final class ProbeLog {
 
 /// 見た目を持たない Widget の build の回数とログ。
 final class ProbeState {
-  const ProbeState({required this.counts, required this.logs});
+  const ProbeState({required this.counts, required this.logs, this.epoch = 0});
 
   static const empty = ProbeState(counts: {}, logs: []);
 
@@ -139,20 +139,26 @@ final class ProbeState {
   /// 新しい順。
   final List<ProbeLog> logs;
 
+  /// 計測をやり直した回数。プレビューはこれを key にしてデモの木を組み直す。
+  final int epoch;
+
   int countOf(ProbeKey key) => counts[key] ?? 0;
 
   @override
   bool operator ==(Object other) =>
       other is ProbeState &&
       mapEquals(other.counts, counts) &&
-      listEquals(other.logs, logs);
+      listEquals(other.logs, logs) &&
+      other.epoch == epoch;
 
   @override
   int get hashCode => Object.hash(
     Object.hashAllUnordered(counts.entries.map((e) => (e.key, e.value))),
     Object.hashAll(logs),
+    epoch,
   );
 
   @override
-  String toString() => 'ProbeState(counts: $counts, logs: ${logs.length})';
+  String toString() =>
+      'ProbeState(counts: $counts, logs: ${logs.length}, epoch: $epoch)';
 }

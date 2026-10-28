@@ -48,7 +48,7 @@ class _CounterFrame extends StatelessWidget {
     final spacing = NimiSpacing.of(context);
     final name = Text(
       label,
-      textScaler: recorder.appTextScaler,
+      textScaler: DemoRecorder.textScalerOf(context),
       style: theme.textTheme.bodyMedium,
     );
     final badge = recorder.badge(label);

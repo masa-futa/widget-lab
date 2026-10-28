@@ -48,11 +48,22 @@ class ProbeNotifier extends _$ProbeNotifier {
     state = ProbeState(
       counts: counts,
       logs: [...added.reversed, ...state.logs].take(maxLogs).toList(),
+      epoch: state.epoch,
     );
   }
 
-  /// ログと回数を空にする。
+  /// ログと回数を空にする（木は組み直さないので、回数は次に組み直されるまで 0）。
   void logCleared() {
-    state = ProbeState.empty;
+    state = ProbeState(counts: const {}, logs: const [], epoch: state.epoch);
+  }
+
+  /// 計測をやり直す（比較の開始・終了と初期状態に戻す）。ログと回数を空にし、
+  /// [ProbeState.epoch] を進めてデモの木を組み直させる（どの子も 1 回目から数える）。
+  void restarted() {
+    state = ProbeState(
+      counts: const {},
+      logs: const [],
+      epoch: state.epoch + 1,
+    );
   }
 }

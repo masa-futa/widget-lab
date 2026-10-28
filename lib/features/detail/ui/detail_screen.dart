@@ -3,9 +3,9 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gap/gap.dart';
+import 'package:widget_lab/catalog/model/widget_entry.dart';
 import 'package:widget_lab/core/theme/nimi_radius.dart';
 import 'package:widget_lab/core/theme/nimi_spacing.dart';
-import 'package:widget_lab/catalog/model/widget_entry.dart';
 import 'package:widget_lab/features/detail/ui/probe/log_sheet.dart';
 import 'package:widget_lab/features/detail/ui/probe/log_strip.dart';
 import 'package:widget_lab/features/detail/ui/widgets/about_sheet.dart';
@@ -52,7 +52,7 @@ class DetailScreen extends ConsumerWidget {
     final hasProperties = ref.watch(
       provider.select((s) => s.entry.properties.isNotEmpty),
     );
-    final hasLogs = ref.watch(
+    final showsLogStrip = ref.watch(
       provider.select((s) => s.entry.kind == EntryKind.behavior),
     );
     final spacing = NimiSpacing.of(context);
@@ -67,7 +67,7 @@ class DetailScreen extends ConsumerWidget {
                   textScaler.scale(_chipsHeight) +
                   spacing.xs * 3
             : spacing.xs) +
-        (hasLogs ? textScaler.scale(LogStrip.height) + spacing.xs : 0);
+        (showsLogStrip ? textScaler.scale(LogStrip.height) + spacing.xs : 0);
     return Scaffold(
       appBar: AppBar(
         title: Text(name),
@@ -119,7 +119,7 @@ class DetailScreen extends ConsumerWidget {
                       child: _SelectedCodeStrip(entryId: entryId),
                     ),
                   ],
-                  if (hasLogs) ...[
+                  if (showsLogStrip) ...[
                     Gap(spacing.xs),
                     Padding(
                       padding: EdgeInsets.symmetric(horizontal: spacing.md),

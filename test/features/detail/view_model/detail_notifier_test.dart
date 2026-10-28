@@ -385,7 +385,7 @@ void main() {
     expect(state.isModified, isFalse);
   });
 
-  test('TC-73: 初期状態に戻すと、build の回数とログも空になる', () {
+  test('TC-73: 初期状態に戻すと、build の回数とログを空にして計測をやり直す', () {
     final container = makeContainer(
       repository: FakeCatalogRepository([behaviorEntry]),
     );
@@ -400,10 +400,26 @@ void main() {
 
     expect(container.read(probe).counts, isEmpty);
     expect(container.read(probe).logs, isEmpty);
+    expect(container.read(probe).epoch, 1);
     expect(
       container.read(detailProvider('behavior')).settings,
       behaviorEntry.initialSettings(),
     );
+  });
+
+  test('見た目を持たない Widget は、比べ始め・やめるたびに計測をやり直す', () {
+    final container = makeContainer(
+      repository: FakeCatalogRepository([behaviorEntry]),
+    );
+    final probe = probeProvider('behavior');
+    container.listen(probe, (_, _) {});
+    final notifier = container.read(detailProvider('behavior').notifier);
+
+    notifier.compareTapped('scale');
+    expect(container.read(probe).epoch, 1);
+
+    notifier.compareDismissed();
+    expect(container.read(probe).epoch, 2);
   });
 
   group('コード', () {

@@ -91,6 +91,18 @@ void main() {
     semantics.dispose();
   });
 
+  testWidgets('最初の組み立て（0 から 1）では光らない', (tester) async {
+    await pumpBadge(tester);
+    final scheme = Theme.of(tester.element(find.byType(RebuildBadge)))
+        .colorScheme;
+
+    build(1);
+    await tester.pump();
+
+    expect(find.text('build 1 回'), findsOneWidget);
+    expect(badgeColor(tester), isNot(scheme.primary));
+  });
+
   testWidgets('回数が 0 に戻っても光らない', (tester) async {
     build(2);
     await pumpBadge(tester);

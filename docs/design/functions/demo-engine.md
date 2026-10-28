@@ -196,12 +196,12 @@ sequenceDiagram
 
 | 置き場所 | 部品 |
 |---|---|
-| `lib/catalog/demo/` | 収録データが使うもの: 記録の窓口 `DemoRecorder`（`recordBuild`・`log`・`comparing`・`appTextScaler`・`badge(label)`）と、それを木に置く `DemoRecorderScope`、`RebuildCounter`・`DemoScope`・`DemoFit` |
+| `lib/catalog/demo/` | 収録データが使うもの: 記録の窓口 `DemoRecorder`（`recordBuild`・`log`・`comparing`・`badge(label)`。アプリの文字の倍率は `DemoRecorder.textScalerOf`）と、それを木に置く `DemoRecorderScope`（倍率が変わったときだけ札と印に知らせる）、`RebuildCounter`・`DemoScope`・`DemoFit` |
 | `lib/features/detail/ui/probe/` | 窓口の実装 `DemoProbe`（Riverpod につなぐ）・回数の印 `RebuildBadge`・ログの帯 `LogStrip`・ログのシート `LogSheet` |
 
 - `DemoProbe`: 左右のカードの根に置き、自分を `DemoRecorder` として `DemoRecorderScope` に置く（`side`: `DemoSide.used` / `unused`、`comparing`）。子は `DemoRecorder.of(context)` で引く（`getInheritedWidgetOfExactType` で依存を作らないので、DemoProbe 側の変化で子が組み直されることはない）。窓口の外（見本・全件のテスト）では何もしない窓口が返る
 - 貯めて後で渡す: build の最中に Provider を書き換えると Riverpod が例外を出すので、DemoProbe が出来事を貯め、`addPostFrameCallback` でまとめて ProbeNotifier に渡す（フレームの外で起きたときのために `ensureVisualUpdate` も呼ぶ）。同じフレームの同じ（側・文）の `log` の出来事は 1 件にまとめて回数を持たせる（ログに「×6」）。build の記録は毎回「n 回目」が違う文になるのでまとめない
-- `RebuildCounter(label, builder)`: 自分の build のたびに記録してから `builder(context)` を呼ぶ。builder は RebuildCounter の context で `MediaQuery.of` などを読むので、依存が RebuildCounter に付き、「誰が組み直されたか」がそのまま数になる。記録のたびに「{label}を build（{n} 回目）」のログも出す（n は ProbeNotifier が数える）。名前の札と回数の印はアプリの文字の倍率（`appTextScaler`）で描き、デモが変えた倍率を受けない。幅が 200 未満なら印を名前の下に置く
+- `RebuildCounter(label, builder)`: 自分の build のたびに記録してから `builder(context)` を呼ぶ。builder は RebuildCounter の context で `MediaQuery.of` などを読むので、依存が RebuildCounter に付き、「誰が組み直されたか」がそのまま数になる。記録のたびに「{label}を build（{n} 回目）」のログも出す（n は ProbeNotifier が数える）。名前の札と回数の印はアプリの文字の倍率（`DemoRecorder.textScalerOf`。札と印の Widget から読むので、倍率が変わっても数えている子は組み直さない）で描き、デモが変えた倍率を受けない。幅が 200 未満なら印を名前の下に置く
 - 回数の印（pv-rbld）は RebuildCounter の上に重ねる別の小さな ConsumerWidget で、ProbeNotifier の自分の回数だけを `select` で見る。印が書き変わっても RebuildCounter と builder は組み直さない（数えるたびに印が変わり、また数える、の繰り返しを防ぐ）
 - ログの帯（lg）とシート（lgs）は ProbeNotifier を見る。比較中は `side` で分けて数え、ログに側の札を付ける
 - 比較中は `ComparePreview(fitToSide: true)` で、左右の木をそれぞれの側の幅に収め、側のラベルの下に置く（重ねて切るだけだと木の右側が隠れるため）
@@ -280,6 +280,7 @@ Provider の名前は riverpod_generator が付けるもので、クラス名か
 | プロパティ | 型 | 初期値 | 内容 |
 |---|---|---|---|
 | `counts` | `Map<ProbeKey, int>` | 空 | `ProbeKey(side, label)` ごとの build の回数（最初の組み立ても数える） |
+| `epoch` | `int` | 0 | 計測をやり直した回数（`restarted` で 1 進む）。プレビューのデモの木の key |
 | `logs` | `List<ProbeLog>` | 空 | `ProbeLog`: `time`・`side`・`comparing`・`message`・`repeat`（同じフレームにまとめた数。1 なら「×」を出さない）。新しい順、最大 50 件。あふれたら古いものから消す |
 
 `side` は比較していないときも `used` で記録する。ログの札は、比較中に起きた行だけに出す（`comparing`）。`message` は sealed の `ProbeMessage`: `BuildMessage(label, count)`（文は View が arb の「{label}を build（{count} 回目）」で作る。view_model に文言を置かないため）か `TextMessage(text)`（収録データが `log` に渡した文）。ProbeNotifier が受け取る出来事は sealed の `ProbeEvent`: `BuildEvent(side, label, comparing)`・`LogEvent(side, text, comparing, repeat)`。
@@ -296,11 +297,12 @@ Provider の名前は riverpod_generator が付けるもので、クラス名か
 | cb_dtl | `propertyDefaultTapped(String name)` | ユーザー | `settings[name]` を最初の値に戻す |
 | cb_dtl | `compareTapped(String name)` | ユーザー | 比較中なら `null`。そうでなければ、見た目を持つ Widget は `ComparingProperty(name)`（View は `selected` を渡す）、見た目を持たない Widget は `ComparingUse()` |
 | cb_dtl | `compareDismissed()` | ユーザー | `comparing = null` |
-| cb_dtl | `resetTapped()` | ユーザー | `settings` と `selected` を最初の値、`comparing = null`。ProbeState も空にする |
+| cb_dtl | `resetTapped()` | ユーザー | `settings` と `selected` を最初の値、`comparing = null`。見た目を持たない Widget は計測をやり直す（`ProbeNotifier.restarted`） |
 | cb_dtl | `copyTapped({bool without = false})` → `Future<bool>` | ユーザー＋副作用の結果 | 変化なし。成功したかを返す。`without` なら `codeWithout` をコピーする（コードのシートで「使わない」を選んでいるとき） |
 | cb_dtl | `openDocsTapped()` → `Future<bool>` | ユーザー＋副作用の結果 | 変化なし。開けたかを返す |
 | cb_dtl | `ProbeNotifier.recorded(List<ProbeEvent>)` | 副作用の結果 | `counts` と `logs` を更新 |
-| cb_dtl | `ProbeNotifier.logCleared()` | ユーザー | `counts` と `logs` を空 |
+| cb_dtl | `ProbeNotifier.logCleared()` | ユーザー | `counts` と `logs` を空（木は組み直さないので、回数は次に組み直されるまで 0） |
+| cb_dtl | `ProbeNotifier.restarted()` | ユーザー（比較の開始・終了・初期状態に戻す） | `counts` と `logs` を空にし、`epoch` を進める。プレビューは `epoch` を DemoProbe の key にしてデモの木を組み直すので、どの子も 1 回目から数える（開いたときと同じ見え方。左右を同じ出発点から比べられる） |
 
 ## 共通の処理と状態
 

@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:widget_lab/catalog/demo/demo_recorder.dart';
 import 'package:widget_lab/core/theme/nimi_colors.dart';
 import 'package:widget_lab/core/theme/nimi_radius.dart';
 import 'package:widget_lab/core/theme/nimi_spacing.dart';
@@ -15,7 +16,6 @@ class RebuildBadge extends ConsumerStatefulWidget {
   const RebuildBadge({
     required this.entryId,
     required this.probeKey,
-    this.textScaler = TextScaler.noScaling,
     super.key,
   });
 
@@ -24,9 +24,6 @@ class RebuildBadge extends ConsumerStatefulWidget {
 
   final String entryId;
   final ProbeKey probeKey;
-
-  /// アプリの文字の倍率（デモが変えた倍率ではなく）。
-  final TextScaler textScaler;
 
   @override
   ConsumerState<RebuildBadge> createState() => _RebuildBadgeState();
@@ -49,9 +46,11 @@ class _RebuildBadgeState extends ConsumerState<RebuildBadge> {
   Widget build(BuildContext context) {
     final provider = probeProvider(widget.entryId)
         .select((s) => s.countOf(widget.probeKey));
+    final reduceMotion = MediaQuery.disableAnimationsOf(context);
     ref.listen(provider, (previous, next) {
-      if (next <= (previous ?? 0)) return;
-      if (MediaQuery.disableAnimationsOf(context)) return;
+      // 最初の組み立て（0 → 1）と、減ったとき（ログを消す）は光らせない
+      final before = previous ?? 0;
+      if (before == 0 || next <= before || reduceMotion) return;
       _timer?.cancel();
       _timer = Timer(_flash, () {
         if (mounted) setState(() {});
@@ -79,7 +78,8 @@ class _RebuildBadgeState extends ConsumerState<RebuildBadge> {
         ),
         child: Text(
           l10n.probeBuildCount(count),
-          textScaler: widget.textScaler,
+          // デモが変えた倍率ではなく、アプリの倍率で描く
+          textScaler: DemoRecorder.textScalerOf(context),
           style: theme.textTheme.labelSmall?.copyWith(
             color: _flashing ? scheme.onPrimary : scheme.onSurfaceVariant,
           ),

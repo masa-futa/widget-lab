@@ -69,16 +69,18 @@ class DetailNotifier extends _$DetailNotifier {
         (null, EntryKind.behavior) => const ComparingUse(),
       },
     );
+    _restartProbe();
   }
 
   void compareDismissed() {
     state = state.copyWith(comparing: () => null);
+    _restartProbe();
   }
 
-  /// 設定・選択・比較を最初に戻し、build の回数とログも空にする。
+  /// 設定・選択・比較を最初に戻す。見た目を持たない Widget は計測もやり直す。
   void resetTapped() {
     state = DetailState.initial(state.entry, state.genres);
-    ref.read(probeProvider(entryId).notifier).logCleared();
+    _restartProbe();
   }
 
   /// 今のコード（[without] なら使わない側のコード）をクリップボードに書く。
@@ -93,6 +95,12 @@ class DetailNotifier extends _$DetailNotifier {
   /// 公式ドキュメントを外部のブラウザで開く。開けなければ `false`。
   Future<bool> openDocsTapped() =>
       ref.read(urlLauncherClientProvider).open(state.entry.docUrl);
+
+  /// 見た目を持たない Widget の build の回数とログを空にして、デモの木を組み直させる。
+  void _restartProbe() {
+    if (state.entry.kind != EntryKind.behavior) return;
+    ref.read(probeProvider(entryId).notifier).restarted();
+  }
 
   void _update(
     String name,

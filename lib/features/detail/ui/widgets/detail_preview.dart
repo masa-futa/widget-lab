@@ -10,6 +10,7 @@ import 'package:widget_lab/features/detail/ui/widgets/compare_preview.dart';
 import 'package:widget_lab/features/detail/ui/widgets/preview_card.dart';
 import 'package:widget_lab/features/detail/view_model/comparing.dart';
 import 'package:widget_lab/features/detail/view_model/detail_notifier.dart';
+import 'package:widget_lab/features/detail/view_model/probe_notifier.dart';
 import 'package:widget_lab/features/detail/view_model/probe_state.dart';
 import 'package:widget_lab/features/detail/view_model/value_label.dart';
 import 'package:widget_lab/l10n/gen/app_localizations.dart';
@@ -34,6 +35,10 @@ class _DetailPreviewState extends ConsumerState<DetailPreview> {
     final state = ref.watch(detailProvider(widget.entryId));
     final entry = state.entry;
     final comparing = state.comparing;
+    // 計測をやり直したら（比較の開始・終了・初期状態に戻す）、デモの木を組み直す
+    final epoch = entry.kind == EntryKind.behavior
+        ? ref.watch(probeProvider(entry.id).select((s) => s.epoch))
+        : 0;
     final spacing = NimiSpacing.of(context);
     final l10n = AppLocalizations.of(context);
     final scale = _zoomed ? 2.0 : 1.0;
@@ -47,6 +52,7 @@ class _DetailPreviewState extends ConsumerState<DetailPreview> {
             entry,
             DemoSide.used,
             entry.build(DemoArgs(entry, state.settings)),
+            epoch: epoch,
           ),
         );
       case ComparingProperty():
@@ -83,12 +89,14 @@ class _DetailPreviewState extends ConsumerState<DetailPreview> {
             DemoSide.used,
             entry.build(args),
             comparing: true,
+            epoch: epoch,
           ),
           withoutChild: _probed(
             entry,
             DemoSide.unused,
             buildWithout(args),
             comparing: true,
+            epoch: epoch,
           ),
         );
     }
@@ -126,10 +134,12 @@ Widget _probed(
   WidgetEntry entry,
   DemoSide side,
   Widget child, {
+  required int epoch,
   bool comparing = false,
 }) => switch (entry.kind) {
   EntryKind.visual => child,
   EntryKind.behavior => DemoProbe(
+    key: ValueKey(epoch),
     entryId: entry.id,
     side: side,
     comparing: comparing,

@@ -179,4 +179,45 @@ void main() {
     expect(tester.takeException(), isNull);
     expect(find.text('中身'), findsOneWidget);
   });
+
+  testWidgets('アプリの文字の倍率が変わると、名前の札と回数の印もその倍率で描き直す', (tester) async {
+    final scale = ValueNotifier(1.0);
+    addTearDown(scale.dispose);
+    await pumpPart(
+      tester,
+      UncontrolledProviderScope(
+        container: container,
+        child: ValueListenableBuilder(
+          valueListenable: scale,
+          builder: (context, value, child) => MediaQuery(
+            data: MediaQuery.of(context)
+                .copyWith(textScaler: TextScaler.linear(value)),
+            child: child!,
+          ),
+          child: DemoProbe(
+            entryId: _entryId,
+            side: DemoSide.used,
+            child: RebuildCounter(
+              label: '読まない子',
+              builder: (context) => const SizedBox(),
+            ),
+          ),
+        ),
+      ),
+    );
+
+    scale.value = 2;
+    await tester.pumpAndSettle();
+
+    expect(
+      tester.widget<Text>(find.text('読まない子')).textScaler,
+      const TextScaler.linear(2),
+    );
+    expect(
+      tester.widget<Text>(find.text('build 1 回')).textScaler,
+      const TextScaler.linear(2),
+    );
+    // 札と印だけを描き直し、数えている子は組み直さない
+    expect(probe().countOf(const ProbeKey(DemoSide.used, '読まない子')), 1);
+  });
 }

@@ -740,9 +740,8 @@ void main() {
         findsOneWidget,
       );
       expect(inPanel(find.text('比べるのをやめる')), findsOneWidget);
-      // 左（使った）は 1 枚のときから数えて 2 回目、右（使わない）は 1 回目
-      expect(find.text('build 2 回'), findsOneWidget);
-      expect(find.text('build 1 回'), findsOneWidget);
+      // 比べ始めると計測をやり直し、左右とも 1 回目から数える
+      expect(find.text('build 1 回'), findsNWidgets(2));
       // ログの帯の最新に側の札
       expect(
         find.descendant(
@@ -843,8 +842,8 @@ void main() {
 
       await setSlider(tester, 1.5);
 
-      expect(usedBefore, '倍率を読む子、build 2 回');
-      expect(badgeOf(tester, '倍率を読む子'), '倍率を読む子、build 3 回');
+      expect(usedBefore, '倍率を読む子、build 1 回');
+      expect(badgeOf(tester, '倍率を読む子'), '倍率を読む子、build 2 回');
       expect(unusedBefore, '倍率を読む子、build 1 回');
       expect(badgeOf(tester, '倍率を読む子', nth: 1), '倍率を読む子、build 1 回');
       expect(
@@ -865,6 +864,68 @@ void main() {
       expect(badgeOf(tester, '倍率を読む子'), '倍率を読む子、build 1 回');
       // ON にしただけの light は親と同じ値なので知らせが来ず、dark で 1 回増える
       expect(badgeOf(tester, '明るさを読む子'), '明るさを読む子、build 2 回');
+    });
+  });
+
+  group('計測のやり直し', () {
+    Future<void> pumpMediaQuery(WidgetTester tester) async {
+      await pumpDetail(
+        tester,
+        'mediaQuery',
+        repository: FakeCatalogRepository([mediaQueryEntry]),
+      );
+      await tester.pumpAndSettle();
+    }
+
+    int logCount(WidgetTester tester) => int.parse(
+      tester
+          .widgetList<Text>(
+            find.descendant(
+              of: find.byType(LogStrip),
+              matching: find.textContaining(' 件'),
+            ),
+          )
+          .single
+          .data!
+          .split(' ')
+          .first,
+    );
+
+    testWidgets('TC-73: 初期状態に戻すと、開いたときと同じ（どの子も 1 回・その分のログだけ）', (tester) async {
+      await pumpMediaQuery(tester);
+      tester.widget<Slider>(find.byType(Slider)).onChanged?.call(1.5);
+      await tester.pumpAndSettle();
+      expect(find.text('build 2 回'), findsOneWidget);
+
+      await tester.tap(find.byTooltip('初期状態に戻す'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('build 1 回'), findsNWidgets(3));
+      expect(find.text('build 2 回'), findsNothing);
+      expect(logCount(tester), 3);
+    });
+
+    testWidgets('比べるのをやめても、計測をやり直す', (tester) async {
+      await pumpMediaQuery(tester);
+      await tester.tap(find.text('使わない場合と比べる'));
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.text('比べるのをやめる'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('build 1 回'), findsNWidgets(3));
+      expect(logCount(tester), 3);
+    });
+
+    testWidgets('「ログを消す」は計測をやり直さず、回数を 0 にする', (tester) async {
+      await pumpMediaQuery(tester);
+      await tester.tap(find.byType(LogStrip));
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.text('ログを消す'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('build 0 回'), findsNWidgets(3));
     });
   });
 }

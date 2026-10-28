@@ -36,7 +36,7 @@ class DemoScope extends StatelessWidget {
               label,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
-              textScaler: recorder.appTextScaler,
+              textScaler: DemoRecorder.textScalerOf(context),
               style: theme.textTheme.labelMedium?.copyWith(
                 fontFamily: 'monospace',
                 color: theme.colorScheme.onSurfaceVariant,

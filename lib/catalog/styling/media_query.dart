@@ -1,12 +1,12 @@
 import 'package:flutter/widgets.dart';
+import 'package:widget_lab/catalog/demo/demo_scope.dart';
+import 'package:widget_lab/catalog/demo/rebuild_counter.dart';
 import 'package:widget_lab/catalog/model/choice.dart';
 import 'package:widget_lab/catalog/model/code_nest.dart';
 import 'package:widget_lab/catalog/model/demo_args.dart';
 import 'package:widget_lab/catalog/model/property_control.dart';
 import 'package:widget_lab/catalog/model/property_spec.dart';
 import 'package:widget_lab/catalog/model/widget_entry.dart';
-import 'package:widget_lab/catalog/demo/demo_scope.dart';
-import 'package:widget_lab/catalog/demo/rebuild_counter.dart';
 
 final mediaQueryEntry = WidgetEntry(
   id: 'mediaQuery',

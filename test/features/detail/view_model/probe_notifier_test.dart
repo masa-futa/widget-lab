@@ -99,6 +99,26 @@ void main() {
     expect(logs.last.message, const TextMessage('1'));
   });
 
+  test('計測をやり直すと空になり、組み直しの合図（epoch）が進む', () {
+    final container = makeContainer();
+    final notifier = notifierOf(container);
+    notifier.recorded(const [BuildEvent(side: DemoSide.used, label: '読む子')]);
+
+    notifier.restarted();
+
+    expect(read(container).counts, isEmpty);
+    expect(read(container).logs, isEmpty);
+    expect(read(container).epoch, 1);
+  });
+
+  test('ログを消しても、組み直しの合図は進まない', () {
+    final container = makeContainer();
+
+    notifierOf(container).logCleared();
+
+    expect(read(container).epoch, 0);
+  });
+
   test('TC-37: ログを消すと回数も 0 になり、次の build は 1 から数える', () {
     final container = makeContainer();
     final notifier = notifierOf(container);

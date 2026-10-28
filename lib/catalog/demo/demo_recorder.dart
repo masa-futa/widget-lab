@@ -11,6 +11,15 @@ abstract interface class DemoRecorder {
       context.getInheritedWidgetOfExactType<DemoRecorderScope>()?.recorder ??
       const _NoRecorder();
 
+  /// アプリの文字の倍率。デモが文字の倍率を変えても、アプリの部品（名前の札・回数の印）は
+  /// これで描く。依存を作るので、数える子ではなく札や印の Widget から呼ぶ（倍率が変わると
+  /// 札と印だけが描き直される）。窓口の外では倍率をかけない。
+  static TextScaler textScalerOf(BuildContext context) =>
+      context
+          .dependOnInheritedWidgetOfExactType<DemoRecorderScope>()
+          ?.textScaler ??
+      TextScaler.noScaling;
+
   /// [label] の子が build された。
   void recordBuild(String label);
 
@@ -20,26 +29,28 @@ abstract interface class DemoRecorder {
   /// 比較中（左右のカードの片方）。
   bool get comparing;
 
-  /// デモが文字の倍率を変えても、アプリの部品（名前の札・回数の印）はアプリの倍率で描く。
-  TextScaler get appTextScaler;
-
   /// [label] の子の回数の印。窓口の外では `null`。
   Widget? badge(String label);
 }
 
-/// [recorder] をデモの木に置く。
+/// [recorder] とアプリの文字の倍率をデモの木に置く。
 class DemoRecorderScope extends InheritedWidget {
   const DemoRecorderScope({
     required this.recorder,
+    required this.textScaler,
     required super.child,
     super.key,
   });
 
   final DemoRecorder recorder;
 
-  // 子は依存を作らずに引くので、知らせる相手はいない
+  /// アプリの文字の倍率（[DemoRecorder.textScalerOf]）。
+  final TextScaler textScaler;
+
+  // 窓口（recorder）は依存を作らずに引くので、知らせるのは倍率の変化だけ
   @override
-  bool updateShouldNotify(DemoRecorderScope oldWidget) => false;
+  bool updateShouldNotify(DemoRecorderScope oldWidget) =>
+      oldWidget.textScaler != textScaler;
 }
 
 final class _NoRecorder implements DemoRecorder {
@@ -53,9 +64,6 @@ final class _NoRecorder implements DemoRecorder {
 
   @override
   bool get comparing => false;
-
-  @override
-  TextScaler get appTextScaler => TextScaler.noScaling;
 
   @override
   Widget? badge(String label) => null;

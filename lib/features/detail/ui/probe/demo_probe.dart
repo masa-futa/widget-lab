@@ -37,13 +37,9 @@ class DemoProbe extends ConsumerStatefulWidget {
 class _DemoProbeState extends ConsumerState<DemoProbe> implements DemoRecorder {
   final _pending = <ProbeEvent>[];
   bool _scheduled = false;
-  TextScaler _appTextScaler = TextScaler.noScaling;
 
   @override
   bool get comparing => widget.comparing;
-
-  @override
-  TextScaler get appTextScaler => _appTextScaler;
 
   @override
   void recordBuild(String label) =>
@@ -57,7 +53,6 @@ class _DemoProbeState extends ConsumerState<DemoProbe> implements DemoRecorder {
   Widget badge(String label) => RebuildBadge(
     entryId: widget.entryId,
     probeKey: ProbeKey(widget.side, label),
-    textScaler: _appTextScaler,
   );
 
   void _add(ProbeEvent event) {
@@ -78,7 +73,9 @@ class _DemoProbeState extends ConsumerState<DemoProbe> implements DemoRecorder {
     ref.read(probeProvider(widget.entryId).notifier).recorded(events);
   }
 
-  /// 同じ（側・文）の出来事を、最初に起きた位置に 1 件にまとめる。build の記録はまとめない。
+  /// 同じ（側・文）の出来事を、最初に起きた位置に 1 件にまとめる。build の記録は毎回
+  /// 「n 回目」が違う文になるのでまとめない（`repeat` を持つのは LogEvent だけ）。
+  /// 同じ DemoProbe の出来事なので、まとめても側と comparing は変わらない。
   static List<ProbeEvent> _merged(List<ProbeEvent> events) {
     final merged = <ProbeEvent>[];
     final logIndex = <(DemoSide, String), int>{};
@@ -109,7 +106,10 @@ class _DemoProbeState extends ConsumerState<DemoProbe> implements DemoRecorder {
   Widget build(BuildContext context) {
     // 回数の印やログの帯が見ていなくても、記録を捨てないように持ち続ける
     ref.listen(probeProvider(widget.entryId), (_, _) {});
-    _appTextScaler = MediaQuery.textScalerOf(context);
-    return DemoRecorderScope(recorder: this, child: widget.child);
+    return DemoRecorderScope(
+      recorder: this,
+      textScaler: MediaQuery.textScalerOf(context),
+      child: widget.child,
+    );
   }
 }
