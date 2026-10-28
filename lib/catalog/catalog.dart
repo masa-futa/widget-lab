@@ -30,6 +30,7 @@ import 'package:widget_lab/catalog/animation/scale_transition.dart';
 import 'package:widget_lab/catalog/animation/size_transition.dart';
 import 'package:widget_lab/catalog/animation/slide_transition.dart';
 import 'package:widget_lab/catalog/animation/sliver_fade_transition.dart';
+import 'package:widget_lab/catalog/async/future_builder.dart';
 import 'package:widget_lab/catalog/async/stream_builder.dart';
 import 'package:widget_lab/catalog/basics/column.dart';
 import 'package:widget_lab/catalog/basics/container.dart';
@@ -308,6 +309,7 @@ final allEntries = <WidgetEntry>[
   opacityEntry,
   rotatedBoxEntry,
   mediaQueryEntry,
+  futureBuilderEntry,
   streamBuilderEntry,
   notificationListenerEntry,
   commonButtonsEntry,
