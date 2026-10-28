@@ -343,6 +343,7 @@ Provider の名前は riverpod_generator が付けるもので、クラス名か
 | `StreamBuilder`（async） | `stream`（3 回流して終わる / 途中でエラー / 何も流さない）・`initialData`（ON は 0） | 「最初から流す」のボタン（デモの部品）、builder の中の子（状態と値）、builder の外の子。値は 1 秒おき | ログに `waiting` → `active: 1` … → `done: 3`（閉じても最後の値を持つ）。builder の外の子は 1 回のまま | 手書き（`codeWithout` あり）。StatefulWidget で `listen` して `setState`。値が来るたびに builder の外の子も build が増える |
 | `NotificationListener`（scrolling） | 受ける型（`ScrollNotification` / `ScrollUpdateNotification` / `OverscrollNotification`）・`onNotification` の戻り値（false / true） | 外の聞き手（デモの部品。ログに「外:」）の下に `NotificationListener`（ログに「内:」）、その下に 20 行の `ListView`（回数の印つき） | スクロールで「内: ScrollUpdateNotification ×6」。ListView は 1 回のまま（通知では組み直さない）。true にすると「外:」が止まる | 包みを外す。「内:」は出ず「外:」だけ出る（聞き手がいなくても通知は上へ伝わる） |
 | `LayoutBuilder`（layout） | `builder`（幅 160 / 240 / 320 未満で縦に並べる。必須） | `LayoutBuilder` の builder の中に、広ければ横・狭ければ縦に 2 つの箱を並べる子（回数の印つき）。builder が呼ばれるたびに「builder: maxWidth 300」 | 比べると、狭い側のカードだけ縦に並び替わる（置かれた場所の広さで組み分ける） | 手書き（`codeWithout` あり）。`MediaQuery.sizeOf` の画面の幅で組み分けるので、カードが狭くても横のまま |
+| `Theme`（styling） | `colorScheme`（瑠璃・紅・若竹の色から作る）・`textTheme`（bodyMedium を 20 / 12）。どちらも `Theme.of(context).copyWith(…)` の中 | `Theme(data: 親の値.copyWith(…))` の下に「色を読む子」（`colorScheme.primary` の箱）・「文字を読む子」（`textTheme.bodyMedium`）・「読まない子」 | 色だけ変えても、`Theme.of` で読んだ子は文字の子も組み直される（MediaQuery と違い項目ごとに分かれない）。読まない子は 1 回のまま | 包みを外す。子はアプリの Theme を読むので、値を変えても届かず回数は増えない |
 
 デモの部品（ボタン・外の聞き手）は収録データのファイルの中に書き、コードには出さない。Stream と時刻は、テストで `fakeAsync` で進められるように組む。
 

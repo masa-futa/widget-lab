@@ -32,12 +32,14 @@ final class FakeRecorder implements DemoRecorder {
 }
 
 /// [demo] をプレビューのカードと同じ大きさ（[size]）に置いて表示し、記録の窓口を返す。
+/// [recorder] を渡すと、その窓口に記録を足す（同じ木を値を変えて組み直すとき）。
 Future<FakeRecorder> pumpDemo(
   WidgetTester tester,
   Widget demo, {
   Size size = const Size(328, 240),
+  FakeRecorder? recorder,
 }) async {
-  final recorder = FakeRecorder();
+  recorder ??= FakeRecorder();
   await tester.pumpWidget(
     MaterialApp(
       theme: AppTheme.light(),
