@@ -122,7 +122,8 @@ code は土台にない。コードの表示に等幅の書体が要るため足
 - [ ] コードの全文のシート（行番号、変えた行は accent-container の地と accent の線、コピーのボタン）
 - [ ] 説明のシート（ジャンル・説明・公式ドキュメントを開く）
 - [ ] Snackbar（コピーしたことを知らせる）
-- [ ] 見た目を持たない Widget の可視化（再ビルドの回数・ログ。形は ui-spec で決める）
+- [ ] 見た目を持たない Widget の可視化（子ごとの「build n 回」の印は surface-muted の地で増えた瞬間だけ accent に光る、ログの帯とシート。形は cb_dtl の pv-rbld・lg・lgs）
+- [ ] 見た目を持たない Widget の見本（`account_tree` の outlined を ink-secondary で）
 
 ## 未決事項
 - Murecho をアプリに同梱する方法（使う字に絞るか。見出しは Widget 名の英字が多く、日本語はジャンル名・節の見出しくらい）
