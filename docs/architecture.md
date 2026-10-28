@@ -39,5 +39,6 @@ ui → view_model → data（Repository）。逆向きと、機能をまたぐ�
 
 ## 遷移
 標準の Navigator（`Navigator.push` と `MaterialPageRoute`）。一覧 → 詳細の1段だけ。
+一覧（`CatalogScreen`）は行を押したことを `onEntryTapped(context, entryId)` で知らせるだけで、詳細画面を直接参照しない（機能をまたぐ参照の禁止）。`DetailScreen` への `Navigator.push` は、両方を組み立てる `lib/app.dart` が渡す。
 
 決めた理由は docs/adr/ の最初の ADR（ADR-0001-project-structure-and-conventions.md）

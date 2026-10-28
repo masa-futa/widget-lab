@@ -22,7 +22,10 @@ final _repository = FakeCatalogRepository(
   ],
 );
 
-Future<void> _pumpCatalog(WidgetTester tester) async {
+Future<void> _pumpCatalog(
+  WidgetTester tester, {
+  void Function(BuildContext context, String entryId)? onEntryTapped,
+}) async {
   await tester.pumpWidget(
     ProviderScope(
       overrides: [catalogRepositoryProvider.overrideWithValue(_repository)],
@@ -30,7 +33,7 @@ Future<void> _pumpCatalog(WidgetTester tester) async {
         theme: AppTheme.light(),
         localizationsDelegates: AppLocalizations.localizationsDelegates,
         supportedLocales: AppLocalizations.supportedLocales,
-        home: const CatalogScreen(),
+        home: CatalogScreen(onEntryTapped: onEntryTapped ?? (_, _) {}),
       ),
     ),
   );
@@ -260,5 +263,15 @@ void main() {
       isSemantics(label: 'basicsWidget1\nbasicsWidget1 の要約', isButton: true),
     );
     handle.dispose();
+  });
+
+  testWidgets('TC-15: 行を押すと、その Widget の ID を知らせる', (tester) async {
+    String? tapped;
+    await _pumpCatalog(tester, onEntryTapped: (_, entryId) => tapped = entryId);
+    await _search(tester, 'pad');
+
+    await tester.tap(find.widgetWithText(ListTile, 'SliverPadding').first);
+
+    expect(tapped, 'sliverpadding');
   });
 }
