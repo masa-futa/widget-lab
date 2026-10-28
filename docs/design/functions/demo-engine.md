@@ -2,19 +2,19 @@
 
 > **要約**
 > - 結論: Widget 1つを「プロパティの定義の一覧＋組み立ての関数」のデータ（`WidgetEntry`）で表し、操作パネル・プレビュー・比較・コードを全部そこから作る
-> - 影響: 一覧画面（ca_lst）と詳細画面（cb_dtl）のすべて。Widget を1つ足すときは `lib/catalog/<ジャンル>/` に1ファイル足すだけにする
+> - 影響: ホーム画面（ca_lst）・ジャンル画面（cc_gnr）・詳細画面（cb_dtl）のすべて。Widget を1つ足すときは `lib/catalog/<ジャンル>/` に1ファイル足すだけにする
 > - お願い: 「収録データの型」と「状態と依存」の節の確認。この型を ADR-0002 に残すかの判断
 
 ## 概要
 
-PRD の「デモの組み立て」の要件（プロパティの定義のデータから組み立て、1つ足す手間を小さくする）を満たす仕組み。起動時に同梱の収録データを読み、一覧画面はそれを並べ、詳細画面はその1件からプレビュー・操作パネル・比較・コードを作る。通信も保存もしない。
+PRD の「デモの組み立て」の要件（プロパティの定義のデータから組み立て、1つ足す手間を小さくする）を満たす仕組み。起動時に同梱の収録データを読み、ホーム画面はジャンルのタイルと検索の結果を、ジャンル画面はそのジャンルの見本つきの行を並べ、詳細画面はその1件からプレビュー・チップ・編集パネル・比較・コードを作る。通信も保存もしない。
 
 ## 種別と条件
 
 | 種別 | 発生する条件 | 利用者に見えること |
 |---|---|---|
 | 見た目を持つ Widget（`visual`） | 収録データの `kind` が `visual` | プレビューに Widget の見た目。比較は「付けた／付けない」 |
-| 見た目を持たない Widget（`behavior`） | 収録データの `kind` が `behavior`（`InheritedWidget`・`Builder` など） | プレビューにデモの木と再ビルドの回数、操作タブにログ。比較は「使った／使わない」 |
+| 見た目を持たない Widget（`behavior`） | 収録データの `kind` が `behavior`（`InheritedWidget`・`Builder` など） | プレビューにデモの木と再ビルドの回数とログ（置き場所は PR 5/5 で決める）。比較は「使った／使わない」 |
 
 ## 収録データの型
 
@@ -110,24 +110,28 @@ classDiagram
 
 ## 処理の流れ
 
-### 1. 一覧を開く・検索する
+### 1. ホームを開く・検索する・ジャンルを開く
 
 ```mermaid
 sequenceDiagram
-    participant V as CatalogScreen
+    participant V as CatalogScreen（ホーム）
     participant N as CatalogNotifier
     participant R as CatalogRepository
+    participant G as GenreScreen
     V->>N: build（最初の表示）
     N->>R: genres() / entries()
     R-->>N: 同梱の収録データ
-    N-->>V: CatalogState（全ジャンル）
+    N-->>V: CatalogState（ジャンルのタイル）
     V->>N: queryChanged(入力)
-    N->>N: 名前に入力を含む Widget に絞る
-    N-->>V: CatalogState（絞った結果 / 0 件）
-    V->>V: 行のタップで Navigator.push(DetailScreen(entryId))
+    N->>N: 名前に入力を含む Widget を探す（重なりなし・ABC 順）
+    N-->>V: CatalogState（結果の行 / 0 件）
+    V->>G: タイルのタップで Navigator.push(GenreScreen(genreId))
+    G->>R: genreEntriesProvider(genreId)
+    R-->>G: そのジャンルの Widget（収録データの順）
+    G->>G: 行のタップで onEntryTapped(context, entryId)
 ```
 
-### 2. 詳細でプロパティを変える
+### 2. 詳細でプロパティを選んで変える
 
 ```mermaid
 sequenceDiagram
@@ -135,12 +139,14 @@ sequenceDiagram
     participant N as DetailNotifier（entryId ごと）
     participant C as CodeGenerator
     V->>N: build（entryId）
-    N-->>V: DetailState（全プロパティが最初の値）
-    V->>N: propertyToggled(name, on) / propertyValueChanged(name, value)
-    N-->>V: DetailState（values を更新）
+    N-->>V: DetailState（全プロパティが最初の値、selected = 最初の ON のプロパティ）
+    V->>N: propertySelected(name)
+    N-->>V: DetailState（selected = name、comparing = null）
+    V->>N: propertyToggled / propertyValueChanged / propertyDefaultTapped
+    N-->>V: DetailState（settings を更新）
     V->>V: entry.build(DemoArgs(entry, settings)) でプレビューを組み立て直す
-    V->>C: detailCodeProvider（values から）
-    C-->>V: コードの文字列
+    V->>C: detailCodeProvider（settings から）
+    C-->>V: コードの行（帯は selected の行、全文は全部）
 ```
 
 ### 3. 比べる
@@ -149,15 +155,15 @@ sequenceDiagram
 sequenceDiagram
     participant V as DetailScreen
     participant N as DetailNotifier
-    V->>N: compareTapped(name)
-    N-->>V: DetailState（comparing = name）
-    V->>V: 上: values で name を ON にして組み立て
-    V->>V: 下: values で name を OFF にして組み立て
-    V->>N: compareTapped(同じ name) / compareDismissed()
+    V->>N: compareTapped(selected)
+    N-->>V: DetailState（comparing = selected）
+    V->>V: 付けた側は comparing を ON、付けない側は OFF で組み立てる
+    V->>V: 2 枚を同じ位置に重ね、仕切りの左右で切り抜く
+    V->>N: compareTapped(同じ name) / propertySelected(別の name) / resetTapped()
     N-->>V: DetailState（comparing = null）
 ```
 
-「付けた」側は、そのプロパティが今 OFF でも、覚えている値（なければ `control.initial`）で ON にする。比べるプロパティ以外の値は 2 枚とも同じ。
+比べる対象は編集パネルで選んでいるプロパティ。「付けた」側は、そのプロパティが今 OFF でも、覚えている値（なければ `control.initial`）で ON にする。比べるプロパティ以外の値は 2 枚とも同じ。仕切りの位置は画面の中だけの一時的な状態（StatefulWidget）。
 
 ### 4. 見た目を持たない Widget の可視化
 
@@ -205,9 +211,10 @@ Provider の名前は riverpod_generator が付けるもので、クラス名か
 | Provider | 種類 | 持つもの | 寿命 |
 |---|---|---|---|
 | `catalogRepositoryProvider` | Provider（`keepAlive`） | `CatalogRepository`（同梱データを返す。同期） | アプリの間ずっと |
-| `catalogProvider` | Notifier（`CatalogNotifier`） | `CatalogState` | 一覧画面の間 |
+| `catalogProvider` | Notifier（`CatalogNotifier`） | `CatalogState` | ホーム画面の間（最初の画面なのでアプリの間ずっと） |
+| `genreEntriesProvider(genreId)` | Provider（family・autoDispose） | `List<WidgetEntry>`（そのジャンルの Widget。収録データの順） | ジャンル画面の間 |
 | `detailProvider(entryId)`（`DetailNotifier`） | Notifier（family・autoDispose） | `DetailState` | 詳細画面の間。戻ると捨てる（cb_dtl の確認・調整事項 1） |
-| `detailCodeProvider(entryId)` | Provider（family・autoDispose） | コードの文字列（`DetailState` から作る） | 同上 |
+| `detailCodeProvider(entryId)` | Provider（family・autoDispose） | `List<CodeLine>`（`DetailState` から作る。全文の文字列は行をつなぐ） | 同上 |
 | `probeNotifierProvider(entryId)` | Notifier（family・autoDispose） | `ProbeState` | 同上 |
 | `clipboardClientProvider`・`urlLauncherClientProvider` | Provider | OS の機能の薄い包み（テストで差し替える） | アプリの間ずっと |
 
@@ -216,22 +223,30 @@ Provider の名前は riverpod_generator が付けるもので、クラス名か
 | プロパティ | 型 | 初期値 | 内容 |
 |---|---|---|---|
 | `query` | `String` | `''` | 検索の入力（前後の空白を除いたもの） |
-| `sections` | `List<CatalogSection>` | 全ジャンル | ジャンルと、その中の Widget（絞った結果）。0 件のジャンルは入れない |
+| `groups` | `List<GenreGroup>` | 2 段 | 段（`GenreGroupKind.designSystem` / `base`）と、その中のタイル（`GenreTile`: `genre`・`count`・`examples`（収録の順の最初の 3 件の名前））。収録が 0 件のジャンルは入れず、空の段も入れない |
+| `results` | `List<SearchResult>` | 空 | 検索の結果（`SearchResult`: `entry`・`genres`）。名前に `query` を含む Widget を、重ねずに名前の ABC 順で |
 
-`isEmpty`（`query` があり `sections` が空）は State から求める。読み込み中・エラーは同梱データなので持たない。
+`isSearching`（`query` が空でない）と `isEmpty`（検索中で `results` が空）は State から求める。読み込み中・エラーは同梱データなので持たない。
 
-検索の入力は ①（画面の中だけの一時的な状態）に近いが、絞った結果をチップ・見出し・行・空状態の4か所で使い、絞り込みはロジックなので Notifier に置く（coding-convention の例外。入力のたびに渡す。件数が数百なので、1文字ごとに絞り直しても待ちは出ない）。
+検索の入力は ①（画面の中だけの一時的な状態）に近いが、結果はロジックで作るので Notifier に置く（coding-convention の例外。入力のたびに渡す。件数が数百なので、1文字ごとに探し直しても待ちは出ない）。
+
+`Genre` に `group`（`GenreGroupKind`）と `description`（ジャンル画面の一言）を足す。値は `genres.dart` に書く。
+
+### 見本（ジャンル画面・検索の結果の行）
+
+見本は絵を用意せず、その Widget を `entry.build(DemoArgs(entry, entry.initialSettings()))` で組み立て、64×64 の枠に `FittedBox(fit: BoxFit.scaleDown)` で縮めて置く。`IgnorePointer` と `ExcludeSemantics` で包み、押せず読み上げない。組み立てが例外を出したら、その見本だけ空の枠にする。見た目を持たない Widget の見本は PR 5/5 で決める。
 
 ### DetailState
 
 | プロパティ | 型 | 初期値 | 内容 |
 |---|---|---|---|
 | `entry` | `WidgetEntry` | 受け取った ID の収録データ | |
-| `genres` | `List<Genre>` | `entry.genreIds` の順のジャンル | 説明タブのチップ（ds-genr）に名前を出すため |
+| `genres` | `List<Genre>` | `entry.genreIds` の順のジャンル | 説明のシートのジャンル（ds-genr）に名前を出すため |
 | `settings` | `Map<String, PropertySetting>` | 各プロパティの `initiallyOn` と `control.initial` | `PropertySetting(on: bool, value: ControlValue)`。OFF にしても `value` は覚えておく |
-| `comparing` | `String?` | `null` | 比べているプロパティの名前。`null` は比較していない |
+| `selected` | `String?` | 最初の ON のプロパティ（なければ最初のプロパティ。プロパティがなければ `null`） | 編集パネルで選んでいるプロパティの名前 |
+| `comparing` | `String?` | `null` | 比べているプロパティの名前（`selected` と同じか `null`）。`null` は比較していない |
 
-`isModified`（最初の値から1つでも変わった、または比較中）は State から求める（ab-rset の活性）。比較の2枚の設定は `settingsForSide(on:)` が、比べているプロパティの定義は `comparingSpec` が返す。値の短い表示（スライダーの `16.0`・選択肢の名前など。操作パネルと比較のカードの読み上げで使う）は `valueLabel(control, value)`（`lib/features/detail/view_model/value_label.dart`）。
+`isModified`（最初の値から1つでも変わった、または比較中）は State から求める（ab-rset の活性。`selected` の変化は数えない）。`isDefault(name)`（そのプロパティが最初の値のまま）は ed-dflt の活性に使う。拡大（×1 / ×2）と比較の仕切りの位置は、画面の中だけの一時的な状態なので StatefulWidget に持つ。比較の2枚の設定は `settingsForSide(on:)` が、比べているプロパティの定義は `comparingSpec` が返す。値の短い表示（スライダーの `16.0`・選択肢の名前など。操作パネルと比較のカードの読み上げで使う）は `valueLabel(control, value)`（`lib/features/detail/view_model/value_label.dart`）。
 
 ない ID で開くと `build` が `StateError` を出す（一覧は同じ収録データから作るので起きない。一覧へ戻す処理は作らない）。
 
@@ -246,13 +261,15 @@ Provider の名前は riverpod_generator が付けるもので、クラス名か
 
 | 画面 | メソッド | 分類 | 状態の変化 |
 |---|---|---|---|
-| ca_lst | `queryChanged(String)` | ユーザー | `query` と `sections` を更新 |
-| ca_lst | `queryCleared()` | ユーザー | `query` を空、`sections` を全件 |
+| ca_lst | `queryChanged(String)` | ユーザー | `query` と `results` を更新 |
+| ca_lst | `queryCleared()` | ユーザー | `query` を空、`results` を空 |
+| cb_dtl | `propertySelected(String name)` | ユーザー | `selected = name`、`comparing = null` |
 | cb_dtl | `propertyToggled(String name, bool on)` | ユーザー | `settings[name].on`。required は変えない |
 | cb_dtl | `propertyValueChanged(String name, ControlValue value)` | ユーザー | `settings[name].value`。OFF のときは呼ばれない（View で非活性） |
-| cb_dtl | `compareTapped(String name)` | ユーザー | `comparing` が `name` なら `null`、それ以外なら `name` |
+| cb_dtl | `propertyDefaultTapped(String name)` | ユーザー | `settings[name]` を最初の値に戻す |
+| cb_dtl | `compareTapped(String name)` | ユーザー | `comparing` が `name` なら `null`、それ以外なら `name`（View は `selected` を渡す） |
 | cb_dtl | `compareDismissed()` | ユーザー | `comparing = null` |
-| cb_dtl | `resetTapped()` | ユーザー | `settings` を最初の値、`comparing = null`。ProbeState も空にする |
+| cb_dtl | `resetTapped()` | ユーザー | `settings` と `selected` を最初の値、`comparing = null`。ProbeState も空にする |
 | cb_dtl | `copyTapped()` → `Future<bool>` | ユーザー＋副作用の結果 | 変化なし。成功したかを返す |
 | cb_dtl | `openDocsTapped()` → `Future<bool>` | ユーザー＋副作用の結果 | 変化なし。開けたかを返す |
 | cb_dtl | `ProbeNotifier.recorded(List<ProbeEvent>)` | 副作用の結果 | `counts` と `logs` を更新 |
@@ -272,6 +289,11 @@ Provider の名前は riverpod_generator が付けるもので、クラス名か
 3. `)` で閉じる。プロパティが1つもなければ `Padding()` のように1行にする
    - 位置で渡す引数も 1 行ずつ書く（`Text(` の次の行に `'こんにちは',`）
 4. 値の文字列は `control.code` に任せる（`Color(0xFF1E50A2)`・`'こんにちは'` のように、そのまま貼れる Dart の式にする）
+
+行ごとに扱えるよう、`CodeGenerator.lines(entry, settings)` は `List<CodeLine>` を返す（`CodeLine`: `text`・`property`（その行のプロパティ名。`Padding(` と `)` は `null`）・`changed`）。`generate` は `lines` の `text` を改行でつないだもの。
+
+- `changed` は、そのプロパティの行が「最初の値で作ったときの行」と違う（値が変わった、または最初は OFF で書かれていなかった）とき `true`。全文のシートで印を付ける
+- コードの帯は `property == selected` の行を出す。そのプロパティが OFF で行がないときは「// {名前} は指定なし（既定値）」を出す（帯の文言。`CodeLine` には入れない）
 
 ## エラーと例外
 
@@ -297,7 +319,9 @@ Provider の名前は riverpod_generator が付けるもので、クラス名か
 - 収録データ: 全件の組み立てが、全部 OFF・全部 ON（required は常に ON）・各 Choice のどれでも例外を出さない。組み立ては実物のプレビューのカード（`PreviewCard`）に入れ、1 枚のときと比較中の小さいカードの大きさで行う
 - 収録データ: ID が重ならない。全件が1つ以上のジャンルに入っている。ジャンルの ID が `genres.dart` にある
 - 収録データ: `manifest.dart` にない Widget を収録していない。収録の抜けを数える（全部揃うまでは数を出すだけ。揃ったら全件を求めるテストにする）
-- 検索: 部分一致・大文字小文字の区別なし・前後の空白の無視・0 件
+- 検索: 部分一致・大文字小文字の区別なし・前後の空白の無視・0 件・複数のジャンルに載る Widget を重ねない・名前の ABC 順
+- ホーム: 収録が 0 件のジャンルのタイルを出さない。件数と代表の名前（最初の 3 件）
+- 詳細 v2: 最初の選択（最初の ON）、選び替えで比較をやめる、既定に戻す、コードの行の `changed`
 - DetailNotifier: ON/OFF、値の変更、OFF にしても値を覚えている、required は OFF にできない、比較の開始・切り替え・やめる、初期状態に戻す
 - 比較: 「付けた」側は OFF のプロパティでも覚えている値で組み立てる
 - コード生成: ON だけを書く、positional が先、プロパティなし、値の式（数値・enum・色・文字）

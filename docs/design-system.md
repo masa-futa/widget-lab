@@ -108,15 +108,19 @@ code は土台にない。コードの表示に等幅の書体が要るため足
 | full | 9999 | ボタン・チップ（ピル形） |
 
 ## コンポーネント一覧
-最初に要るもの。部品は Material 3 のものを土台の値でテーマにする。
+最初に要るもの。部品は Material 3 のものを土台の値でテーマにする。見た目は Figma（https://www.figma.com/design/W9DAjjGAmMzNhnCQu0BLo7/Widget-Lab?node-id=3-2。変数はこの文書と同じ名前と値）。2026-10-28 に一覧を2段、詳細を v2 にした（ADR-0004）。
 
 - [ ] App Bar（Material 3 の `AppBar`。題は title2）
 - [ ] 検索欄（`TextField`。地は surface、角丸 md）
-- [ ] 一覧の行（ジャンルの見出し＋Widget 名と一行の要約）
-- [ ] プレビューのカード（地は surface、角丸 lg、影なし。収録する Widget をそのまま置く）
-- [ ] 操作パネルの行（プロパティ名・型・説明＋ON/OFF のスイッチ＋値の操作部品: スライダー・選択・色のパレット）
-- [ ] 比較の表示（上下2枚のプレビュー＋「付けた」「付けない」のラベル。境目は outline-variant）
-- [ ] コードの表示（地は surface-muted、角丸 md、code の文字、コピーのボタン）
+- [ ] ジャンルのタイル（地は surface、角丸 lg。件数は title2 の accent、ジャンル名は headline、代表の名前は footnote の ink-secondary）
+- [ ] 見本つきの行（見本 64×64・地は surface・角丸 md、名前・一行の要約・プロパティ数の印。区切り線は outline-variant）
+- [ ] プレビューのカード（地は surface に outline-variant の方眼、角丸 lg、影なし。拡大のピル ×1 / ×2）
+- [ ] コードの帯（地は surface-muted、角丸 md、code の文字。変えた行は左に accent の線）
+- [ ] プロパティのチップ（選択中は accent、指定中は accent-container、既定は outline の枠。高さ 40・押せる範囲 48）
+- [ ] 編集パネル（地は surface、上の角丸 lg。型ごとの操作: 太いスライダーと値の吹き出し・セグメント・ドロップダウン・Alignment の 3×3・大きな色見本・入力欄）
+- [ ] 比較の表示（左右の分割と accent の仕切り＋「付けた」「付けない」のラベル）
+- [ ] コードの全文のシート（行番号、変えた行は accent-container の地と accent の線、コピーのボタン）
+- [ ] 説明のシート（ジャンル・説明・公式ドキュメントを開く）
 - [ ] Snackbar（コピーしたことを知らせる）
 - [ ] 見た目を持たない Widget の可視化（再ビルドの回数・ログ。形は ui-spec で決める）
 
