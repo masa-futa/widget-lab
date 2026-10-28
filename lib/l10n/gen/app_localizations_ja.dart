@@ -108,9 +108,6 @@ class AppLocalizationsJa extends AppLocalizations {
   }
 
   @override
-  String get detailCompareWithoutSemantics => '付けない';
-
-  @override
   String get detailCompareDivider => '比較の仕切り';
 
   @override
@@ -177,4 +174,52 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get detailOpenDocsFailed => 'ブラウザを開けませんでした';
+
+  @override
+  String get detailCompareUse => '使わない場合と比べる';
+
+  @override
+  String get probeSideUsed => '使った';
+
+  @override
+  String get probeSideUnused => '使わない';
+
+  @override
+  String probeBuildCount(int count) {
+    return 'build $count 回';
+  }
+
+  @override
+  String probeBuildCountSemantics(String label, int count) {
+    return '$label、build $count 回';
+  }
+
+  @override
+  String probeLogBuild(String label, int count) {
+    return '$labelを build（$count 回目）';
+  }
+
+  @override
+  String probeLogRepeat(String text, int count) {
+    return '$text ×$count';
+  }
+
+  @override
+  String probeLogCount(int count) {
+    return '$count 件';
+  }
+
+  @override
+  String get probeLogEmpty => 'まだ何も起きていません';
+
+  @override
+  String get probeLogTitle => 'ログ';
+
+  @override
+  String get probeLogClear => 'ログを消す';
+
+  @override
+  String probeLogSemantics(int count, String latest) {
+    return 'ログ、$count 件、最新: $latest';
+  }
 }

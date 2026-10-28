@@ -2,11 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:widget_lab/catalog/basics/container.dart';
+import 'package:widget_lab/catalog/styling/media_query.dart';
 import 'package:widget_lab/core/data/catalog_repository.dart';
 import 'package:widget_lab/core/data/clipboard_client.dart';
 import 'package:widget_lab/core/data/url_launcher_client.dart';
 import 'package:widget_lab/core/theme/app_theme.dart';
 import 'package:widget_lab/features/detail/ui/detail_screen.dart';
+import 'package:widget_lab/features/detail/ui/probe/log_sheet.dart';
+import 'package:widget_lab/features/detail/ui/probe/log_strip.dart';
 import 'package:widget_lab/features/detail/ui/widgets/code_strip.dart';
 import 'package:widget_lab/features/detail/ui/widgets/compare_preview.dart';
 import 'package:widget_lab/features/detail/ui/widgets/editor_panel.dart';
@@ -628,6 +631,301 @@ void main() {
         tester.getSize(find.byKey(DetailScreen.panelAreaKey)).height,
         greaterThanOrEqualTo(96),
       );
+    });
+  });
+
+  group('ログの帯（見た目を持たない Widget）', () {
+    Future<void> pumpBehavior(WidgetTester tester) async {
+      await pumpDetail(
+        tester,
+        'behavior',
+        repository: FakeCatalogRepository([behaviorEntry]),
+      );
+      await tester.pumpAndSettle();
+    }
+
+    testWidgets('TC-74: 最初の組み立てのログと件数を出し、押すとシートに全件', (tester) async {
+      await pumpBehavior(tester);
+
+      expect(find.byType(LogStrip), findsOneWidget);
+      expect(
+        find.descendant(
+          of: find.byType(LogStrip),
+          matching: find.text('読む子を build（1 回目）'),
+        ),
+        findsOneWidget,
+      );
+      expect(find.text('build 1 回'), findsOneWidget);
+
+      await tester.tap(find.byType(LogStrip));
+      await tester.pumpAndSettle();
+
+      expect(find.byType(LogSheet), findsOneWidget);
+      expect(
+        find.descendant(
+          of: find.byType(LogSheet),
+          matching: find.text('読む子を build（1 回目）'),
+        ),
+        findsOneWidget,
+      );
+    });
+
+    testWidgets('TC-74: 見た目を持つ Widget では帯を出さない', (tester) async {
+      await pumpDetail(tester, 'padding');
+
+      expect(find.byType(LogStrip), findsNothing);
+    });
+
+    testWidgets('TC-37: シートで「ログを消す」と帯も空になり、回数の印が 0 回', (tester) async {
+      await pumpBehavior(tester);
+      await tester.tap(find.byType(LogStrip));
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.text('ログを消す'));
+      await tester.pumpAndSettle();
+
+      expect(
+        find.descendant(
+          of: find.byType(LogSheet),
+          matching: find.text('まだ何も起きていません'),
+        ),
+        findsOneWidget,
+      );
+      expect(
+        find.descendant(
+          of: find.byType(LogStrip),
+          matching: find.text('まだ何も起きていません'),
+        ),
+        findsOneWidget,
+      );
+      expect(find.text('build 0 回'), findsOneWidget);
+    });
+  });
+
+  group('比べる（見た目を持たない Widget）', () {
+    Future<void> pumpBehavior(
+      WidgetTester tester, [
+      String id = 'behavior',
+    ]) async {
+      await pumpDetail(
+        tester,
+        id,
+        repository: FakeCatalogRepository([
+          behaviorEntry,
+          behaviorWithCodeEntry,
+        ]),
+      );
+      await tester.pumpAndSettle();
+    }
+
+    testWidgets('TC-75: 「使わない場合と比べる」で左に「使った」右に「使わない」、左右で別に数える', (tester) async {
+      await pumpBehavior(tester);
+
+      await tester.tap(inPanel(find.text('使わない場合と比べる')));
+      await tester.pumpAndSettle();
+
+      expect(find.byType(ComparePreview), findsOneWidget);
+      expect(
+        find.descendant(
+          of: find.byType(ComparePreview),
+          matching: find.text('使った'),
+        ),
+        findsOneWidget,
+      );
+      expect(
+        find.descendant(
+          of: find.byType(ComparePreview),
+          matching: find.text('使わない'),
+        ),
+        findsOneWidget,
+      );
+      expect(inPanel(find.text('比べるのをやめる')), findsOneWidget);
+      // 比べ始めると計測をやり直し、左右とも 1 回目から数える
+      expect(find.text('build 1 回'), findsNWidgets(2));
+      // ログの帯の最新に側の札
+      expect(
+        find.descendant(
+          of: find.byType(LogStrip),
+          matching: find.textContaining('使'),
+        ),
+        findsOneWidget,
+      );
+    });
+
+    testWidgets('TC-76: 比較中に別のチップを選んでも比較が続く', (tester) async {
+      await pumpBehavior(tester);
+      await tester.tap(inPanel(find.text('使わない場合と比べる')));
+      await tester.pumpAndSettle();
+
+      await tester.tap(chip('mode'));
+      await tester.pumpAndSettle();
+
+      expect(find.byType(ComparePreview), findsOneWidget);
+      expect(inPanel(find.text('比べるのをやめる')), findsOneWidget);
+    });
+
+    testWidgets('cd-side: 使わない側のコードに切り替えると、印なしで出てコピーもそのコード', (tester) async {
+      await pumpBehavior(tester, 'behaviorCode');
+      await openCodeSheet(tester);
+
+      await tester.tap(
+        find.descendant(
+          of: find.byType(SegmentedButton<bool>),
+          matching: find.text('使わない'),
+        ),
+      );
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('コードをコピー'));
+      await tester.pump();
+
+      expect(find.textContaining('class Plain'), findsOneWidget);
+      expect(clipboard.written, [behaviorWithCodeEntry.codeWithout]);
+    });
+
+    testWidgets('cd-side: 使わない側のコードがなければ切り替えを出さない', (tester) async {
+      await pumpBehavior(tester);
+      await openCodeSheet(tester);
+
+      expect(find.byType(SegmentedButton<bool>), findsNothing);
+    });
+  });
+
+  group('MediaQuery', () {
+    Future<void> pumpMediaQuery(WidgetTester tester) async {
+      await pumpDetail(
+        tester,
+        'mediaQuery',
+        repository: FakeCatalogRepository([mediaQueryEntry]),
+      );
+      await tester.pumpAndSettle();
+    }
+
+    /// [label] の子の回数の印の文。[nth] は左右の何枚目か（0 が左・使った）。
+    String badgeOf(WidgetTester tester, String label, {int nth = 0}) => tester
+        .widget<Semantics>(
+          find
+              .descendant(
+                of: find.byType(DetailScreen),
+                matching: find.byWidgetPredicate(
+                  (w) =>
+                      w is Semantics &&
+                      (w.properties.label?.startsWith('$label、') ?? false),
+                ),
+              )
+              .at(nth),
+        )
+        .properties
+        .label!;
+
+    testWidgets('TC-34: 倍率を 1.5 にすると、倍率を読む子だけ build が増える', (tester) async {
+      await pumpMediaQuery(tester);
+
+      expect(badgeOf(tester, '倍率を読む子'), '倍率を読む子、build 1 回');
+      expect(badgeOf(tester, '明るさを読む子'), '明るさを読む子、build 1 回');
+      expect(badgeOf(tester, '読まない子'), '読まない子、build 1 回');
+
+      await setSlider(tester, 1.5);
+
+      expect(find.text('倍率 1.5'), findsOneWidget);
+      expect(badgeOf(tester, '倍率を読む子'), '倍率を読む子、build 2 回');
+      expect(badgeOf(tester, '明るさを読む子'), '明るさを読む子、build 1 回');
+      expect(badgeOf(tester, '読まない子'), '読まない子、build 1 回');
+      expect(stripText(tester), 'textScaler: TextScaler.linear(1.5),');
+    });
+
+    testWidgets('TC-75: 比べると、左の倍率を読む子だけ増え、右は増えない。ログに側の札', (tester) async {
+      await pumpMediaQuery(tester);
+      await tester.tap(inPanel(find.text('使わない場合と比べる')));
+      await tester.pumpAndSettle();
+      final usedBefore = badgeOf(tester, '倍率を読む子');
+      final unusedBefore = badgeOf(tester, '倍率を読む子', nth: 1);
+
+      await setSlider(tester, 1.5);
+
+      expect(usedBefore, '倍率を読む子、build 1 回');
+      expect(badgeOf(tester, '倍率を読む子'), '倍率を読む子、build 2 回');
+      expect(unusedBefore, '倍率を読む子、build 1 回');
+      expect(badgeOf(tester, '倍率を読む子', nth: 1), '倍率を読む子、build 1 回');
+      expect(
+        find.descendant(of: find.byType(LogStrip), matching: find.text('使った')),
+        findsOneWidget,
+      );
+      expect(tester.takeException(), isNull);
+    });
+
+    testWidgets('明るさを dark にすると、明るさを読む子だけ build が増える', (tester) async {
+      await pumpMediaQuery(tester);
+      await select(tester, 'platformBrightness');
+      await toggle(tester);
+      await tester.tap(inPanel(find.text('dark')));
+      await tester.pumpAndSettle();
+
+      expect(find.text('dark'), findsWidgets);
+      expect(badgeOf(tester, '倍率を読む子'), '倍率を読む子、build 1 回');
+      // ON にしただけの light は親と同じ値なので知らせが来ず、dark で 1 回増える
+      expect(badgeOf(tester, '明るさを読む子'), '明るさを読む子、build 2 回');
+    });
+  });
+
+  group('計測のやり直し', () {
+    Future<void> pumpMediaQuery(WidgetTester tester) async {
+      await pumpDetail(
+        tester,
+        'mediaQuery',
+        repository: FakeCatalogRepository([mediaQueryEntry]),
+      );
+      await tester.pumpAndSettle();
+    }
+
+    int logCount(WidgetTester tester) => int.parse(
+      tester
+          .widgetList<Text>(
+            find.descendant(
+              of: find.byType(LogStrip),
+              matching: find.textContaining(' 件'),
+            ),
+          )
+          .single
+          .data!
+          .split(' ')
+          .first,
+    );
+
+    testWidgets('TC-73: 初期状態に戻すと、開いたときと同じ（どの子も 1 回・その分のログだけ）', (tester) async {
+      await pumpMediaQuery(tester);
+      tester.widget<Slider>(find.byType(Slider)).onChanged?.call(1.5);
+      await tester.pumpAndSettle();
+      expect(find.text('build 2 回'), findsOneWidget);
+
+      await tester.tap(find.byTooltip('初期状態に戻す'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('build 1 回'), findsNWidgets(3));
+      expect(find.text('build 2 回'), findsNothing);
+      expect(logCount(tester), 3);
+    });
+
+    testWidgets('比べるのをやめても、計測をやり直す', (tester) async {
+      await pumpMediaQuery(tester);
+      await tester.tap(find.text('使わない場合と比べる'));
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.text('比べるのをやめる'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('build 1 回'), findsNWidgets(3));
+      expect(logCount(tester), 3);
+    });
+
+    testWidgets('「ログを消す」は計測をやり直さず、回数を 0 にする', (tester) async {
+      await pumpMediaQuery(tester);
+      await tester.tap(find.byType(LogStrip));
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.text('ログを消す'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('build 0 回'), findsNWidgets(3));
     });
   });
 }

@@ -41,34 +41,61 @@ class CodeGenerator {
     WidgetEntry entry,
     Map<String, PropertySetting> settings,
   ) {
-    final initial = _arguments(entry, entry.initialSettings());
-    final arguments = _arguments(entry, settings);
-    if (arguments.isEmpty) return [CodeLine(text: '${entry.codeName}()')];
+    final initial = _lines(entry, entry.initialSettings());
     return [
-      CodeLine(text: '${entry.codeName}('),
-      for (final (name, text) in arguments)
+      for (final (property, text) in _lines(entry, settings))
         CodeLine(
-          text: '  $text,',
-          property: name,
-          changed: !initial.contains((name, text)),
+          text: text,
+          property: property,
+          changed: property != null && !initial.contains((property, text)),
         ),
-      const CodeLine(text: ')'),
     ];
   }
 
-  /// ON のプロパティの（名前, 引数の書き方）。位置で渡す引数を先に書く。
-  List<(String, String)> _arguments(
+  /// （その行のプロパティ名, 行の文字）の一覧。
+  ///
+  /// 型引数を最初の行に書き、位置で渡す引数・入れ子の式・名前つきの引数・固定の引数の順に
+  /// 1 行ずつ書く。引数が 1 つもなければ 1 行にする。
+  List<(String?, String)> _lines(
     WidgetEntry entry,
     Map<String, PropertySetting> settings,
   ) {
     final on = entry.properties.where((spec) => spec.isOnIn(settings));
-    return [
+    final typeSpec = on
+        .where((spec) => spec.arg == PropertyArg.typeArgument)
+        .firstOrNull;
+    final head = typeSpec == null
+        ? entry.codeName
+        : '${entry.codeName}<${_value(typeSpec, settings)}>';
+    final arguments = <(String?, String)>[
       for (final spec in on)
         if (spec.arg == PropertyArg.positional)
-          (spec.name, _value(spec, settings)),
+          (spec.name, '  ${_value(spec, settings)},'),
+      ..._nested(entry, on, settings),
       for (final spec in on)
         if (spec.arg == PropertyArg.named)
-          (spec.name, '${spec.name}: ${_value(spec, settings)}'),
+          (spec.name, '  ${spec.name}: ${_value(spec, settings)},'),
+      for (final argument in entry.codeArguments) (null, '  $argument,'),
+    ];
+    if (arguments.isEmpty) return [(typeSpec?.name, '$head()')];
+    return [(typeSpec?.name, '$head('), ...arguments, (null, ')')];
+  }
+
+  /// 入れ子の式。中のプロパティ（ON のもの）を 1 行ずつ、なければもとの式だけを 1 行で。
+  List<(String?, String)> _nested(
+    WidgetEntry entry,
+    Iterable<PropertySpec> on,
+    Map<String, PropertySetting> settings,
+  ) {
+    final nest = entry.codeNest;
+    if (nest == null) return const [];
+    final inner = on.where((spec) => spec.arg == PropertyArg.nested);
+    if (inner.isEmpty) return [(null, '  ${nest.name}: ${nest.receiver},')];
+    return [
+      (null, '  ${nest.name}: ${nest.receiver}.${nest.method}('),
+      for (final spec in inner)
+        (spec.name, '    ${spec.name}: ${_value(spec, settings)},'),
+      (null, '  ),'),
     ];
   }
 

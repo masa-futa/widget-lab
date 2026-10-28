@@ -6,34 +6,41 @@ import 'package:widget_lab/core/theme/nimi_spacing.dart';
 import 'package:widget_lab/features/detail/ui/widgets/preview_card.dart';
 import 'package:widget_lab/l10n/gen/app_localizations.dart';
 
-/// 比較中のプレビュー。「付けた」と「付けない」を同じ位置に重ね、
-/// 仕切りの左に「付けた」、右に「付けない」を見せる。
+/// 比較中のプレビュー。「付けた」と「付けない」（見た目を持たない Widget は「使った」と
+/// 「使わない」）を同じ位置に重ね、仕切りの左に前者、右に後者を見せる。
 ///
 /// 仕切りの位置は画面の中だけの一時的な状態なので、ここに持つ（比較をやめると捨てて、
 /// 次は中央から）。
 class ComparePreview extends StatefulWidget {
   const ComparePreview({
-    required this.propertyName,
-    required this.valueLabel,
+    required this.withLabel,
+    required this.withoutLabel,
+    required this.withSemanticsLabel,
     required this.withChild,
     required this.withoutChild,
     this.scale = 1,
+    this.fitToSide = false,
     super.key,
   });
 
   /// 仕切りのつまみ（テストでドラッグする）。
   static const dividerKey = Key('compareDivider');
 
-  /// 比べているプロパティ。読み上げに使う。
-  final String propertyName;
+  /// 左上・右上のラベル（「付けた」「付けない」など）。右の読み上げにも使う。
+  final String withLabel;
+  final String withoutLabel;
 
-  /// 「付けた」側の値の表示。読み上げに使う。
-  final String valueLabel;
+  /// 左の読み上げ（「付けた、color、瑠璃」など）。
+  final String withSemanticsLabel;
   final Widget withChild;
   final Widget withoutChild;
 
   /// 2 枚にかける見た目の倍率。
   final double scale;
+
+  /// それぞれの子を自分の側（仕切りの左か右）の幅に収め、側のラベルの下に置く。
+  /// 見た目を持たない Widget のデモの木を、左右とも全部見せるため。
+  final bool fitToSide;
 
   @override
   State<ComparePreview> createState() => _ComparePreviewState();
@@ -60,7 +67,29 @@ class _ComparePreviewState extends State<ComparePreview> {
     return LayoutBuilder(
       builder: (context, constraints) {
         final width = constraints.maxWidth;
+        final height = constraints.maxHeight;
         final x = width * _fraction;
+        // 側のラベル（上の余白・文字・上下の余白）の下から置く
+        final labelSpace =
+            spacing.xs * 2 + MediaQuery.textScalerOf(context).scale(24);
+        Widget side(Widget child, {required bool left}) {
+          if (!widget.fitToSide) return child;
+          return SizedBox(
+            width: width,
+            height: height,
+            child: Padding(
+              padding: EdgeInsets.only(top: labelSpace),
+              child: Align(
+                alignment: left ? Alignment.centerLeft : Alignment.centerRight,
+                child: SizedBox(
+                  width: left ? x : width - x,
+                  child: Center(child: child),
+                ),
+              ),
+            ),
+          );
+        }
+
         return Stack(
           children: [
             Positioned.fill(
@@ -68,15 +97,12 @@ class _ComparePreviewState extends State<ComparePreview> {
               child: Semantics(
                 container: true,
                 explicitChildNodes: true,
-                label: l10n.detailCompareWithSemantics(
-                  widget.propertyName,
-                  widget.valueLabel,
-                ),
+                label: widget.withSemanticsLabel,
                 child: ClipRect(
                   clipper: _SideClipper(fraction: _fraction, left: true),
                   child: PreviewCard(
                     scale: widget.scale,
-                    child: widget.withChild,
+                    child: side(widget.withChild, left: true),
                   ),
                 ),
               ),
@@ -85,12 +111,12 @@ class _ComparePreviewState extends State<ComparePreview> {
               child: Semantics(
                 container: true,
                 explicitChildNodes: true,
-                label: l10n.detailCompareWithoutSemantics,
+                label: widget.withoutLabel,
                 child: ClipRect(
                   clipper: _SideClipper(fraction: _fraction, left: false),
                   child: PreviewCard(
                     scale: widget.scale,
-                    child: widget.withoutChild,
+                    child: side(widget.withoutChild, left: false),
                   ),
                 ),
               ),
@@ -98,18 +124,12 @@ class _ComparePreviewState extends State<ComparePreview> {
             PositionedDirectional(
               top: spacing.xs,
               start: spacing.xs,
-              child: _SideLabel(
-                icon: Icons.check,
-                label: l10n.detailCompareWith,
-              ),
+              child: _SideLabel(icon: Icons.check, label: widget.withLabel),
             ),
             PositionedDirectional(
               top: spacing.xs,
               end: spacing.xs,
-              child: _SideLabel(
-                icon: Icons.remove,
-                label: l10n.detailCompareWithout,
-              ),
+              child: _SideLabel(icon: Icons.remove, label: widget.withoutLabel),
             ),
             Positioned(
               left: x - _Divider.touchWidth / 2,

@@ -3,8 +3,11 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gap/gap.dart';
+import 'package:widget_lab/catalog/model/widget_entry.dart';
 import 'package:widget_lab/core/theme/nimi_radius.dart';
 import 'package:widget_lab/core/theme/nimi_spacing.dart';
+import 'package:widget_lab/features/detail/ui/probe/log_sheet.dart';
+import 'package:widget_lab/features/detail/ui/probe/log_strip.dart';
 import 'package:widget_lab/features/detail/ui/widgets/about_sheet.dart';
 import 'package:widget_lab/features/detail/ui/widgets/code_sheet.dart';
 import 'package:widget_lab/features/detail/ui/widgets/code_strip.dart';
@@ -12,6 +15,7 @@ import 'package:widget_lab/features/detail/ui/widgets/detail_preview.dart';
 import 'package:widget_lab/features/detail/ui/widgets/detail_sheet.dart';
 import 'package:widget_lab/features/detail/ui/widgets/editor_panel.dart';
 import 'package:widget_lab/features/detail/ui/widgets/property_chips.dart';
+import 'package:widget_lab/features/detail/view_model/comparing.dart';
 import 'package:widget_lab/features/detail/view_model/detail_notifier.dart';
 import 'package:widget_lab/l10n/gen/app_localizations.dart';
 
@@ -48,17 +52,22 @@ class DetailScreen extends ConsumerWidget {
     final hasProperties = ref.watch(
       provider.select((s) => s.entry.properties.isNotEmpty),
     );
+    final showsLogStrip = ref.watch(
+      provider.select((s) => s.entry.kind == EntryKind.behavior),
+    );
     final spacing = NimiSpacing.of(context);
     // キーボードが出たら、入力欄が隠れないようにプレビューを縮める
     final screenHeight = MediaQuery.sizeOf(context).height;
     final keyboardShown = MediaQuery.viewInsetsOf(context).bottom > 0;
     final preferredHeight = screenHeight * (keyboardShown ? 0.2 : 0.35);
     final textScaler = MediaQuery.textScalerOf(context);
-    final middleHeight = hasProperties
-        ? textScaler.scale(_stripHeight) +
-              textScaler.scale(_chipsHeight) +
-              spacing.xs * 3
-        : spacing.xs;
+    final middleHeight =
+        (hasProperties
+            ? textScaler.scale(_stripHeight) +
+                  textScaler.scale(_chipsHeight) +
+                  spacing.xs * 3
+            : spacing.xs) +
+        (showsLogStrip ? textScaler.scale(LogStrip.height) + spacing.xs : 0);
     return Scaffold(
       appBar: AppBar(
         title: Text(name),
@@ -109,6 +118,21 @@ class DetailScreen extends ConsumerWidget {
                       padding: EdgeInsets.symmetric(horizontal: spacing.md),
                       child: _SelectedCodeStrip(entryId: entryId),
                     ),
+                  ],
+                  if (showsLogStrip) ...[
+                    Gap(spacing.xs),
+                    Padding(
+                      padding: EdgeInsets.symmetric(horizontal: spacing.md),
+                      child: LogStrip(
+                        entryId: entryId,
+                        onTap: () => showDetailSheet(
+                          context,
+                          (_) => LogSheet(entryId: entryId),
+                        ),
+                      ),
+                    ),
+                  ],
+                  if (hasProperties) ...[
                     Gap(spacing.xs),
                     PropertyChips(entryId: entryId),
                   ],
@@ -210,8 +234,13 @@ class _PanelAreaState extends ConsumerState<_PanelArea> {
                   key: ValueKey(spec.name),
                   spec: spec,
                   setting: state.settings[spec.name] ?? spec.initialSetting,
-                  isComparing: state.comparing == spec.name,
+                  isComparing: switch (state.comparing) {
+                    ComparingProperty(:final name) => name == spec.name,
+                    ComparingUse() => true,
+                    null => false,
+                  },
                   isDefault: state.isDefault(spec.name),
+                  comparesUse: state.entry.kind == EntryKind.behavior,
                   onToggled: (on) => notifier.propertyToggled(spec.name, on),
                   onValueChanged: (value) =>
                       notifier.propertyValueChanged(spec.name, value),

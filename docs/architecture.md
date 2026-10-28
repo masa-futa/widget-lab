@@ -14,6 +14,7 @@ lib/
     gen/                    gen-l10n の生成物（コミットする）
   catalog/
     model/                  収録データの型（WidgetEntry・PropertySpec・PropertyControl など）
+    demo/                   見た目を持たない Widget のデモの部品（RebuildCounter・DemoScope）と記録の窓口（DemoRecorder）
     genres.dart             公式カタログのジャンル（並びはリストの順）
     manifest.dart           公式カタログに載る Widget 名の一覧（抜けの確認用）
     catalog.dart            全件の一覧
@@ -28,7 +29,7 @@ test/
 
 ## 依存の向き
 ui → view_model → data（Repository）。逆向きと、機能をまたぐ直接の参照は禁止（共通のものは lib/core/ に置く）。
-`lib/catalog/` は収録データで、`lib/core/data/` の CatalogRepository だけが読む。ui から直接読まない。ただし収録データの型（`lib/catalog/model/`）は、プレビューを組み立てるために ui からも使う。
+`lib/catalog/` は収録データで、`lib/core/data/` の CatalogRepository だけが読む。ui から直接読まない。ただし収録データの型（`lib/catalog/model/`）は、プレビューを組み立てるために ui からも使う。`lib/catalog/` から `lib/features/` は参照しない。見た目を持たない Widget の記録は、`lib/catalog/demo/` の窓口（`DemoRecorder`）を詳細画面の `DemoProbe` が実装して木に置く（依存は detail → catalog の一方向）。`lib/catalog/demo/` はデモの見た目の部品なので、`lib/core/theme/` の土台の値を使ってよい。
 仕組みの詳細は docs/design/functions/demo-engine.md。
 
 ## 状態と依存の受け渡し

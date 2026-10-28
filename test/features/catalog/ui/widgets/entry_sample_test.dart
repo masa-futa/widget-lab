@@ -95,7 +95,10 @@ void main() {
     expect(tester.getSize(find.byType(EntrySample)), const Size(64, 64));
   });
 
-  testWidgets('見た目を持たない Widget の見本は、名前の頭文字', (tester) async {
+  testWidgets('TC-80: 見た目を持たない Widget の見本は account_tree のアイコンで、組み立てず読み上げない', (
+    tester,
+  ) async {
+    final semantics = tester.ensureSemantics();
     final entry = fakeEntry(
       'Builder',
       ['basics'],
@@ -104,8 +107,18 @@ void main() {
     );
     await _pumpSample(tester, entry);
 
-    expect(find.text('B'), findsOneWidget);
+    final icon = tester.widget<Icon>(find.byType(Icon));
+    expect(icon.icon, Icons.account_tree_outlined);
+    expect(icon.size, 24);
     expect(find.text('組み立てない'), findsNothing);
+    expect(
+      find.descendant(
+        of: find.byType(EntrySample),
+        matching: find.bySemanticsLabel(RegExp('.')),
+      ),
+      findsNothing,
+    );
+    semantics.dispose();
   });
 
   testWidgets('本物の収録データ（Padding）の見本が例外を出さずに組み立つ', (tester) async {

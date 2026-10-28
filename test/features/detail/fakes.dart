@@ -5,12 +5,14 @@ import 'package:widget_lab/catalog/basics/text.dart';
 import 'package:widget_lab/catalog/genres.dart';
 import 'package:widget_lab/catalog/layout/padding.dart';
 import 'package:widget_lab/catalog/model/genre.dart';
+import 'package:widget_lab/catalog/model/choice.dart';
 import 'package:widget_lab/catalog/model/property_control.dart';
 import 'package:widget_lab/catalog/model/property_spec.dart';
 import 'package:widget_lab/catalog/model/widget_entry.dart';
 import 'package:widget_lab/core/data/catalog_repository.dart';
 import 'package:widget_lab/core/data/clipboard_client.dart';
 import 'package:widget_lab/core/data/url_launcher_client.dart';
+import 'package:widget_lab/catalog/demo/rebuild_counter.dart';
 
 /// お試しの4件（か渡したもの）だけを返す Repository。ジャンルは本物。
 class FakeCatalogRepository implements CatalogRepository {
@@ -102,4 +104,63 @@ final noPropertyEntry = WidgetEntry(
   properties: const [],
   build: (args) => const SizedBox(),
   codeName: 'None',
+);
+
+/// 見た目を持たない Widget。2 つのプロパティを持ち、「読む子」を数える。使わない側も同じ木。
+final behaviorEntry = WidgetEntry(
+  id: 'behavior',
+  name: 'Behavior',
+  genreIds: const ['styling'],
+  summary: '',
+  description: '',
+  docUrl: Uri.parse('https://api.flutter.dev/'),
+  kind: EntryKind.behavior,
+  properties: [
+    PropertySpec(
+      name: 'scale',
+      typeLabel: 'double',
+      description: '',
+      control: SliderControl(
+        min: 1,
+        max: 2,
+        divisions: 10,
+        initialValue: 1,
+        resolve: (v) => v,
+        code: (v) => '$v',
+      ),
+    ),
+    const PropertySpec(
+      name: 'mode',
+      typeLabel: 'Brightness',
+      description: '',
+      control: ChoiceControl(
+        choices: [
+          Choice('light', Brightness.light, 'Brightness.light'),
+          Choice('dark', Brightness.dark, 'Brightness.dark'),
+        ],
+      ),
+    ),
+  ],
+  build: (args) =>
+      RebuildCounter(label: '読む子', builder: (context) => const Text('中身')),
+  buildWithout: (args) =>
+      RebuildCounter(label: '読む子', builder: (context) => const Text('中身')),
+  codeName: 'Behavior',
+);
+
+/// 使わない側のコード（codeWithout）を持つ、見た目を持たない Widget。
+final behaviorWithCodeEntry = WidgetEntry(
+  id: 'behaviorCode',
+  name: 'BehaviorCode',
+  genreIds: const ['styling'],
+  summary: '',
+  description: '',
+  docUrl: Uri.parse('https://api.flutter.dev/'),
+  kind: EntryKind.behavior,
+  properties: behaviorEntry.properties,
+  build: behaviorEntry.build,
+  buildWithout: behaviorEntry.buildWithout,
+  codeName: 'BehaviorCode',
+  codeWithout:
+      'class Plain extends StatefulWidget {\n  // listen して setState\n}',
 );

@@ -3,18 +3,37 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gap/gap.dart';
 import 'package:widget_lab/core/theme/nimi_spacing.dart';
 import 'package:widget_lab/features/detail/ui/widgets/code_view.dart';
+import 'package:widget_lab/features/detail/view_model/code_generator.dart';
 import 'package:widget_lab/features/detail/view_model/detail_notifier.dart';
 import 'package:widget_lab/l10n/gen/app_localizations.dart';
 
-/// コードの全文のシート。見出しと凡例・全文・コピーのボタン。
-class CodeSheet extends ConsumerWidget {
+/// コードの全文のシート。見出しと凡例・使った／使わない（cd-side）・全文・コピーのボタン。
+///
+/// どちらの側を見ているかは、シートの中だけの一時的な状態なのでここに持つ。
+class CodeSheet extends ConsumerStatefulWidget {
   const CodeSheet({required this.entryId, super.key});
 
   final String entryId;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final lines = ref.watch(detailCodeProvider(entryId));
+  ConsumerState<CodeSheet> createState() => _CodeSheetState();
+}
+
+class _CodeSheetState extends ConsumerState<CodeSheet> {
+  /// 使わない側のコードを見ている。
+  bool _without = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final entryId = widget.entryId;
+    final codeWithout = ref.watch(
+      detailProvider(entryId).select((s) => s.entry.codeWithout),
+    );
+    final without = _without && codeWithout != null;
+    // 使わない側は収録データの文字列をそのまま出す（変えた行の印は付けない）
+    final lines = without
+        ? [for (final text in codeWithout.split('\n')) CodeLine(text: text)]
+        : ref.watch(detailCodeProvider(entryId));
     final l10n = AppLocalizations.of(context);
     final theme = Theme.of(context);
     final spacing = NimiSpacing.of(context);
@@ -43,6 +62,18 @@ class CodeSheet extends ConsumerWidget {
             ),
           ],
         ),
+        if (codeWithout != null) ...[
+          Gap(spacing.sm),
+          SegmentedButton<bool>(
+            segments: [
+              ButtonSegment(value: false, label: Text(l10n.probeSideUsed)),
+              ButtonSegment(value: true, label: Text(l10n.probeSideUnused)),
+            ],
+            selected: {without},
+            onSelectionChanged: (selected) =>
+                setState(() => _without = selected.single),
+          ),
+        ],
         Gap(spacing.sm),
         CodeView(lines: lines),
         Gap(spacing.md),
@@ -50,7 +81,7 @@ class CodeSheet extends ConsumerWidget {
           onPressed: () async {
             final copied = await ref
                 .read(detailProvider(entryId).notifier)
-                .copyTapped();
+                .copyTapped(without: without);
             if (!context.mounted) return;
             ScaffoldMessenger.of(context)
               ..hideCurrentSnackBar()

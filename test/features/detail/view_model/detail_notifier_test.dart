@@ -10,7 +10,10 @@ import 'package:widget_lab/core/data/catalog_repository.dart';
 import 'package:widget_lab/core/data/clipboard_client.dart';
 import 'package:widget_lab/core/data/url_launcher_client.dart';
 import 'package:widget_lab/features/detail/view_model/code_generator.dart';
+import 'package:widget_lab/features/detail/view_model/comparing.dart';
 import 'package:widget_lab/features/detail/view_model/detail_notifier.dart';
+import 'package:widget_lab/features/detail/view_model/probe_notifier.dart';
+import 'package:widget_lab/features/detail/view_model/probe_state.dart';
 
 import '../fakes.dart';
 
@@ -220,11 +223,11 @@ void main() {
       notifier.compareTapped('padding');
 
       final state = container.read(detailProvider('padding'));
-      expect(state.comparing, 'padding');
+      expect(state.comparing, const ComparingProperty('padding'));
       expect(state.isModified, isTrue);
     });
 
-    test('比較中に別のプロパティを渡すと、そちらに切り替わる', () {
+    test('比較中に別のプロパティを渡しても、比較をやめる', () {
       final container = makeContainer();
       final notifier = container.read(detailProvider('padding').notifier);
 
@@ -232,7 +235,7 @@ void main() {
         ..compareTapped('padding')
         ..compareTapped('child');
 
-      expect(container.read(detailProvider('padding')).comparing, 'child');
+      expect(container.read(detailProvider('padding')).comparing, isNull);
     });
 
     test('TC-29: 同じ行の比べるを押すと比較をやめ、値はそのまま', () {
@@ -309,6 +312,61 @@ void main() {
     });
   });
 
+  group('比べる（見た目を持たない Widget）', () {
+    ProviderContainer behaviorContainer() =>
+        makeContainer(repository: FakeCatalogRepository([behaviorEntry]));
+
+    test('比べるを押すと、Widget そのものを使った／使わないで比べる', () {
+      final container = behaviorContainer();
+      final notifier = container.read(detailProvider('behavior').notifier);
+
+      notifier.compareTapped('scale');
+
+      final state = container.read(detailProvider('behavior'));
+      expect(state.comparing, const ComparingUse());
+      expect(state.comparingSpec, isNull);
+      expect(state.isModified, isTrue);
+    });
+
+    test('TC-76: 比較中に別のチップを選んでも比較が続く', () {
+      final container = behaviorContainer();
+      final notifier = container.read(detailProvider('behavior').notifier);
+
+      notifier
+        ..compareTapped('scale')
+        ..propertySelected('mode');
+
+      final state = container.read(detailProvider('behavior'));
+      expect(state.comparing, const ComparingUse());
+      expect(state.selected, 'mode');
+    });
+
+    test('比較中にもう一度押すと比較をやめる', () {
+      final container = behaviorContainer();
+      final notifier = container.read(detailProvider('behavior').notifier);
+
+      notifier
+        ..compareTapped('scale')
+        ..propertySelected('mode')
+        ..compareTapped('mode');
+
+      expect(container.read(detailProvider('behavior')).comparing, isNull);
+    });
+
+    test('使った／使わないの 2 枚は、どちらも今の設定', () {
+      final container = behaviorContainer();
+      final notifier = container.read(detailProvider('behavior').notifier);
+
+      notifier
+        ..compareTapped('scale')
+        ..propertyToggled('scale', false);
+
+      final state = container.read(detailProvider('behavior'));
+      expect(state.settingsForSide(on: true), state.settings);
+      expect(state.settingsForSide(on: false), state.settings);
+    });
+  });
+
   test('TC-32: 初期状態に戻すと、全プロパティが最初の値になり比較もやめる', () {
     final container = makeContainer();
     final notifier = container.read(detailProvider('container').notifier);
@@ -325,6 +383,43 @@ void main() {
     expect(state.comparing, isNull);
     expect(state.selected, 'padding');
     expect(state.isModified, isFalse);
+  });
+
+  test('TC-73: 初期状態に戻すと、build の回数とログを空にして計測をやり直す', () {
+    final container = makeContainer(
+      repository: FakeCatalogRepository([behaviorEntry]),
+    );
+    final probe = probeProvider('behavior');
+    container.listen(probe, (_, _) {});
+    container.read(probe.notifier).recorded(const [
+      BuildEvent(side: DemoSide.used, label: '読む子'),
+    ]);
+    container.read(detailProvider('behavior').notifier)
+      ..propertyValueChanged('scale', const SliderValue(1.5))
+      ..resetTapped();
+
+    expect(container.read(probe).counts, isEmpty);
+    expect(container.read(probe).logs, isEmpty);
+    expect(container.read(probe).epoch, 1);
+    expect(
+      container.read(detailProvider('behavior')).settings,
+      behaviorEntry.initialSettings(),
+    );
+  });
+
+  test('見た目を持たない Widget は、比べ始め・やめるたびに計測をやり直す', () {
+    final container = makeContainer(
+      repository: FakeCatalogRepository([behaviorEntry]),
+    );
+    final probe = probeProvider('behavior');
+    container.listen(probe, (_, _) {});
+    final notifier = container.read(detailProvider('behavior').notifier);
+
+    notifier.compareTapped('scale');
+    expect(container.read(probe).epoch, 1);
+
+    notifier.compareDismissed();
+    expect(container.read(probe).epoch, 2);
   });
 
   group('コード', () {

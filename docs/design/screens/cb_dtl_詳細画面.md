@@ -110,7 +110,7 @@ flowchart TB
     comparing -- 戻る 設定は捨てる --> back
 ```
 
-状態とイベントの型は docs/design/functions/demo-engine.md の「DetailState」「イベント」。比較中にやめたときは、値が最初と同じなら「初期状態」として扱う（`isModified` で判定）。見た目を持たない Widget は「別のチップを選ぶ」で比較をやめない（比較中のまま値を変えられる）。「初期状態に戻す」は build の回数とログも空にする。チップを選び替えるだけでは変更にしない。
+状態とイベントの型は docs/design/functions/demo-engine.md の「DetailState」「イベント」。比較中にやめたときは、値が最初と同じなら「初期状態」として扱う（`isModified` で判定）。見た目を持たない Widget は「別のチップを選ぶ」で比較をやめない（比較中のまま値を変えられる）。見た目を持たない Widget は、比較の開始・終了と「初期状態に戻す」で計測をやり直す（build の回数とログを空にしてデモの木を組み直し、どの子も「build 1 回」から数える）。チップを選び替えるだけでは変更にしない。
 
 ## 基本方針
 
@@ -160,7 +160,7 @@ flowchart TB
 | pv-with | 付けた | 比較中の左半分。左上にラベル「付けた」と✓のアイコン（caption1、地は `surface-muted`）。見た目を持たない Widget は「使った」 | 有 | 非表示 | - |
 | pv-wout | 付けない | 比較中の右半分。右上にラベル「付けない」と−のアイコン。見た目を持たない Widget は「使わない」 | 有 | 非表示 | - |
 | pv-divd | 仕切り | 比較中の左右の境目。`accent` の縦線と、つまみ（直径 32、押せる範囲 48）。ドラッグで左右に動かせる | 有 | 中央 | ユーザー入力 |
-| pv-rbld | build の回数（見た目を持たない Widget だけ） | デモの木で数える子ごとに、右上に重ねる小さな印「build 3 回」（caption1、地は `surface-muted`、角丸 `sm`）。最初の組み立ても 1 回と数える。数が増えた瞬間だけ地を `accent` に光らせる（200ms。「視差効果を減らす」が ON なら光らせない）。印が書き変わっても、数えている子は組み直さない | 有 | build 1 回 | DemoProbe（docs/design/functions/demo-engine.md） |
+| pv-rbld | build の回数（見た目を持たない Widget だけ） | デモの木で数える子ごとに、右上に重ねる小さな印「build 3 回」（caption1、地は `surface-muted`、角丸 `sm`）。最初の組み立ても 1 回と数える。数が増えた瞬間だけ地を `accent` に光らせる（200ms。最初の組み立ての 0 → 1 では光らせない。「視差効果を減らす」が ON なら光らせない）。印が書き変わっても、数えている子は組み直さない | 有 | build 1 回 | DemoProbe（docs/design/functions/demo-engine.md） |
 | pv-tree | デモの木（見た目を持たない Widget だけ） | 収録データが組むデモの木。子ごとに枠と名前の札（caption1、ink-secondary）を付け、木の形が分かるようにする。中身は Widget ごと（demo-engine.md の「見た目を持たない Widget の収録」） | 有 | 最初の値で組み立てたもの | ローカルアセット（収録データ） |
 
 #### アクション一覧

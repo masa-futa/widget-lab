@@ -198,10 +198,6 @@
       }
     }
   },
-  "detailCompareWithoutSemantics": "付けない",
-  "@detailCompareWithoutSemantics": {
-    "description": "比較の右半分の読み上げ"
-  },
   "detailCompareDivider": "比較の仕切り",
   "@detailCompareDivider": {
     "description": "比較の仕切りの読み上げ"
@@ -305,5 +301,105 @@
   "detailOpenDocsFailed": "ブラウザを開けませんでした",
   "@detailOpenDocsFailed": {
     "description": "公式ドキュメントを開けなかったときの Snackbar"
+  },
+  "detailCompareUse": "使わない場合と比べる",
+  "@detailCompareUse": {
+    "description": "見た目を持たない Widget の比べるボタン"
+  },
+  "probeSideUsed": "使った",
+  "@probeSideUsed": {
+    "description": "見た目を持たない Widget の比較の左半分・ログとコードの側"
+  },
+  "probeSideUnused": "使わない",
+  "@probeSideUnused": {
+    "description": "見た目を持たない Widget の比較の右半分・ログとコードの側"
+  },
+  "probeBuildCount": "build {count} 回",
+  "@probeBuildCount": {
+    "description": "数えている子の build の回数の印",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "3"
+      }
+    }
+  },
+  "probeBuildCountSemantics": "{label}、build {count} 回",
+  "@probeBuildCountSemantics": {
+    "description": "回数の印の読み上げ",
+    "placeholders": {
+      "label": {
+        "type": "String",
+        "example": "読む子"
+      },
+      "count": {
+        "type": "int",
+        "example": "4"
+      }
+    }
+  },
+  "probeLogBuild": "{label}を build（{count} 回目）",
+  "@probeLogBuild": {
+    "description": "build のログの文",
+    "placeholders": {
+      "label": {
+        "type": "String",
+        "example": "読む子"
+      },
+      "count": {
+        "type": "int",
+        "example": "4"
+      }
+    }
+  },
+  "probeLogRepeat": "{text} ×{count}",
+  "@probeLogRepeat": {
+    "description": "同じフレームにまとめた出来事のログの文",
+    "placeholders": {
+      "text": {
+        "type": "String",
+        "example": "ScrollUpdateNotification"
+      },
+      "count": {
+        "type": "int",
+        "example": "6"
+      }
+    }
+  },
+  "probeLogCount": "{count} 件",
+  "@probeLogCount": {
+    "description": "ログの帯の件数",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "12"
+      }
+    }
+  },
+  "probeLogEmpty": "まだ何も起きていません",
+  "@probeLogEmpty": {
+    "description": "ログが 0 件のときのログの帯とシート"
+  },
+  "probeLogTitle": "ログ",
+  "@probeLogTitle": {
+    "description": "ログのシートの見出し"
+  },
+  "probeLogClear": "ログを消す",
+  "@probeLogClear": {
+    "description": "ログのシートの、ログと回数を空にするボタン"
+  },
+  "probeLogSemantics": "ログ、{count} 件、最新: {latest}",
+  "@probeLogSemantics": {
+    "description": "ログの帯の読み上げ",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "12"
+      },
+      "latest": {
+        "type": "String",
+        "example": "読む子を build（4 回目）"
+      }
+    }
   }
 }

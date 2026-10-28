@@ -3,11 +3,14 @@ import 'package:flutter_riverpod/flutter_riverpod.dart'
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:widget_lab/catalog/model/control_value.dart';
 import 'package:widget_lab/catalog/model/property_setting.dart';
+import 'package:widget_lab/catalog/model/widget_entry.dart';
 import 'package:widget_lab/core/data/catalog_repository.dart';
 import 'package:widget_lab/core/data/clipboard_client.dart';
 import 'package:widget_lab/core/data/url_launcher_client.dart';
 import 'package:widget_lab/features/detail/view_model/code_generator.dart';
+import 'package:widget_lab/features/detail/view_model/comparing.dart';
 import 'package:widget_lab/features/detail/view_model/detail_state.dart';
+import 'package:widget_lab/features/detail/view_model/probe_notifier.dart';
 
 part 'detail_notifier.g.dart';
 
@@ -27,9 +30,14 @@ class DetailNotifier extends _$DetailNotifier {
     return DetailState.initial(entry, genres);
   }
 
-  /// 編集パネルの中身を [name] に切り替え、比較をやめる。
+  /// 編集パネルの中身を [name] に切り替える。プロパティの比較はやめ、
+  /// 使った／使わないの比較は続ける（値の変化を左右で見られるように）。
   void propertySelected(String name) {
-    state = state.copyWith(selected: name, comparing: () => null);
+    final comparing = state.comparing;
+    state = state.copyWith(
+      selected: name,
+      comparing: () => comparing is ComparingUse ? comparing : null,
+    );
   }
 
   /// 必須のプロパティは変えない。
@@ -51,29 +59,48 @@ class DetailNotifier extends _$DetailNotifier {
     _update(name, (_) => initial);
   }
 
-  /// 比較中のプロパティなら比較をやめ、それ以外ならそのプロパティを比べる。
+  /// 比較中ならやめる。そうでなければ、見た目を持つ Widget は [name] のプロパティを、
+  /// 持たない Widget は Widget そのものを比べる。
   void compareTapped(String name) {
     state = state.copyWith(
-      comparing: () => state.comparing == name ? null : name,
+      comparing: () => switch ((state.comparing, state.entry.kind)) {
+        (Comparing(), _) => null,
+        (null, EntryKind.visual) => ComparingProperty(name),
+        (null, EntryKind.behavior) => const ComparingUse(),
+      },
     );
+    _restartProbe();
   }
 
   void compareDismissed() {
     state = state.copyWith(comparing: () => null);
+    _restartProbe();
   }
 
+  /// 設定・選択・比較を最初に戻す。見た目を持たない Widget は計測もやり直す。
   void resetTapped() {
     state = DetailState.initial(state.entry, state.genres);
+    _restartProbe();
   }
 
-  /// 今のコードをクリップボードに書く。書けなければ `false`。
-  Future<bool> copyTapped() => ref
+  /// 今のコード（[without] なら使わない側のコード）をクリップボードに書く。
+  /// 書けなければ `false`。
+  Future<bool> copyTapped({bool without = false}) => ref
       .read(clipboardClientProvider)
-      .setText(const CodeGenerator().generate(state.entry, state.settings));
+      .setText(
+        (without ? state.entry.codeWithout : null) ??
+            const CodeGenerator().generate(state.entry, state.settings),
+      );
 
   /// 公式ドキュメントを外部のブラウザで開く。開けなければ `false`。
   Future<bool> openDocsTapped() =>
       ref.read(urlLauncherClientProvider).open(state.entry.docUrl);
+
+  /// 見た目を持たない Widget の build の回数とログを空にして、デモの木を組み直させる。
+  void _restartProbe() {
+    if (state.entry.kind != EntryKind.behavior) return;
+    ref.read(probeProvider(entryId).notifier).restarted();
+  }
 
   void _update(
     String name,
