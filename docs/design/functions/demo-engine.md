@@ -14,7 +14,7 @@ PRD の「デモの組み立て」の要件（プロパティの定義のデー�
 | 種別 | 発生する条件 | 利用者に見えること |
 |---|---|---|
 | 見た目を持つ Widget（`visual`） | 収録データの `kind` が `visual` | プレビューに Widget の見た目。比較は「付けた／付けない」 |
-| 見た目を持たない Widget（`behavior`） | 収録データの `kind` が `behavior`（`InheritedWidget`・`Builder` など） | プレビューにデモの木と再ビルドの回数とログ（置き場所は PR 5/5 で決める）。比較は「使った／使わない」 |
+| 見た目を持たない Widget（`behavior`） | 収録データの `kind` が `behavior`（`MediaQuery`・`StreamBuilder`・`NotificationListener` など） | プレビューにデモの木と子ごとの build の回数、コードの帯の下にログの帯（全件はシート）。比較はプロパティではなく Widget そのものを「使った／使わない」 |
 
 ## 収録データの型
 
@@ -38,7 +38,9 @@ classDiagram
         +EntryKind kind
         +List~PropertySpec~ properties
         +DemoBuilder build
+        +DemoBuilder? buildWithout
         +String codeName
+        +String? codeWithout
     }
     class PropertySpec {
         +String name
@@ -98,7 +100,8 @@ classDiagram
 - **required** のプロパティは常に ON（スイッチを出さず「必須」の印）。`initiallyOn` は開いたときの ON/OFF
 - **PropertySetting**（`on`・`value`）も `lib/catalog/model/` に置く（DemoArgs・CodeGenerator・DetailState が使う）。`WidgetEntry.initialSettings()` が開いたときの設定を、`PropertySpec.isOnIn(settings)`・`valueIn(settings)` が「必須なら常に ON」「設定がなければ OFF・最初の値」を返す
 - **DemoBuilder** は `Widget Function(DemoArgs args)`。`DemoArgs(entry, settings)` で作る。収録データにない名前を `valueOf` で読むと `ArgumentError`、値の型が合わないと `StateError`（収録データの不備を全件のテストで落とすため）。`DemoArgs` は ON のプロパティだけ値を返す（`args.valueOf<EdgeInsets>('padding')` は OFF なら `null`）。組み立ての関数は、`null` のときに Widget の既定値を渡す（Dart では引数を条件つきで省けないため。既定値は公式の API ドキュメントの値に合わせ、テストで全部 OFF の組み立てが落ちないことを確かめる）
-- `behavior` の Widget の組み立ての関数は、`DemoArgs.probe`（`DemoProbe`）を受け取り、子を `RebuildCounter(label: 'Counter', probe: …)` で包んで再ビルドを数え、`probe.log('…')` でログを出す
+- `behavior` の Widget は `buildWithout`（「使わない」側の木）を必ず持つ（全件のテストで確かめる）。既定の考え方は「包みを外す」で、中の木を返すだけの 1 行にする。包みを外すと比べる意味がなくなる Widget（builder 系）は、使わない場合のよくある書き方を手で書き、そのコードを `codeWithout` に書く（コードの全文のシートの cd-side）。`visual` の Widget は両方 `null`
+- `behavior` の組み立ての関数は、数えたい子を `RebuildCounter(label: '読む子', builder: (context) => …)` で組み、出来事は `DemoProbe.of(context).log('…')` でログに出す（「4. 見た目を持たない Widget の可視化」）
 
 置き場所:
 
@@ -165,6 +168,8 @@ sequenceDiagram
     N-->>V: DetailState（comparing = null）
 ```
 
+見た目を持たない Widget は `compareTapped` で `ComparingUse()` にし、左を `entry.build`、右を `entry.buildWithout` で組み立てる（設定は 2 枚とも同じ）。比較中に `propertySelected` が来ても比較をやめない。以下は見た目を持つ Widget の話。
+
 比べる対象は編集パネルで選んでいるプロパティ。「付けた」側は、そのプロパティが今 OFF でも、覚えている値（なければ `control.initial`）で ON にする。比べるプロパティ以外の値は 2 枚とも同じ。仕切りの位置は画面の中だけの一時的な状態（StatefulWidget）。
 
 ### 4. 見た目を持たない Widget の可視化
@@ -172,18 +177,25 @@ sequenceDiagram
 ```mermaid
 sequenceDiagram
     participant P as プレビューの子（RebuildCounter）
-    participant B as DemoProbe
+    participant B as DemoProbe（左右のカードの根）
     participant N as ProbeNotifier（entryId ごと）
     participant V as DetailScreen
-    P->>B: build のたびに recordBuild(side, label)
-    B->>B: 次のフレームまで貯める
-    B->>N: フレームの後にまとめて反映
+    P->>B: build のたびに DemoProbe.of(context).recordBuild(label)
+    P->>B: 出来事は DemoProbe.of(context).log(text)
+    B->>B: 次のフレームまで貯める（同じ出来事は ×n にまとめる）
+    B->>N: フレームの後に recorded(events) でまとめて反映
     N-->>V: ProbeState（回数とログ）
     V->>N: logCleared()
     N-->>V: ProbeState（空）
 ```
 
-build の最中に Provider を書き換えると Riverpod が例外を出すので、`DemoProbe` が回数とログを貯めて、`addPostFrameCallback` でまとめて ProbeNotifier に渡す。回数の表示（pv-rbld）とログ（op-logs）は ProbeNotifier を見る。比較中は `side`（`with` / `without`）で分けて数える。
+部品は `lib/features/detail/ui/probe/` に置く。
+
+- `DemoProbe`: 左右のカードの根に置く InheritedWidget（`side`: `DemoSide.used` / `unused`）。子は `getInheritedWidgetOfExactType` で引く（依存を作らないので、DemoProbe 側の変化で子が組み直されることはない）。DemoProbe の外（見本など）で呼ばれたら何もしない
+- 貯めて後で渡す: build の最中に Provider を書き換えると Riverpod が例外を出すので、DemoProbe が出来事を貯め、`addPostFrameCallback` でまとめて ProbeNotifier に渡す。同じフレームの同じ（側・文）の出来事は 1 件にまとめて回数を持たせる（ログに「×6」）
+- `RebuildCounter(label, builder)`: 自分の build のたびに記録してから `builder(context)` を呼ぶ。builder は RebuildCounter の context で `MediaQuery.of` などを読むので、依存が RebuildCounter に付き、「誰が組み直されたか」がそのまま数になる。記録のたびに「{label} を build（{n} 回目）」のログも出す
+- 回数の印（pv-rbld）は RebuildCounter の上に重ねる別の小さな ConsumerWidget で、ProbeNotifier の自分の回数だけを `select` で見る。印が書き変わっても RebuildCounter と builder は組み直さない（数えるたびに印が変わり、また数える、の繰り返しを防ぐ）
+- ログの帯（lg）とシート（lgs）は ProbeNotifier を見る。比較中は `side` で分けて数え、ログに側の札を付ける
 
 ### 5. コピー・公式ドキュメントを開く
 
@@ -237,7 +249,7 @@ Provider の名前は riverpod_generator が付けるもので、クラス名か
 
 ### 見本（ジャンル画面・検索の結果の行）
 
-見本は絵を用意せず、その Widget を `entry.build(DemoArgs(entry, entry.initialSettings()))` で組み立て、64×64 の枠に `FittedBox(fit: BoxFit.scaleDown)` で縮めて置く。`IgnorePointer`・`ExcludeSemantics`・`ExcludeFocus`・`TickerMode(enabled: false)` で包み、押せず・読み上げず・フォーカスを取らず・動かない（最初の見た目で止める）。縮める前は 240×240 を上限に組み立てる（広がる Widget も枠に収めるため）。`entry.build` が例外を出したら、その見本だけ空の枠にする（全件の見本の組み立てはテストで確かめる）。見本は一覧に何行も並び、詳細へ進むと詳細側にも同じ Widget が出るので、`Hero`・`GlobalKey`・`autofocus` のように木の中で一意であることを前提にする Widget を収録するときは、見本を見た目を持たない Widget と同じ扱い（頭文字）にする。見た目を持たない Widget の見本は PR 5/5 で決める。
+見本は絵を用意せず、その Widget を `entry.build(DemoArgs(entry, entry.initialSettings()))` で組み立て、64×64 の枠に `FittedBox(fit: BoxFit.scaleDown)` で縮めて置く。`IgnorePointer`・`ExcludeSemantics`・`ExcludeFocus`・`TickerMode(enabled: false)` で包み、押せず・読み上げず・フォーカスを取らず・動かない（最初の見た目で止める）。縮める前は 240×240 を上限に組み立てる（広がる Widget も枠に収めるため）。`entry.build` が例外を出したら、その見本だけ空の枠にする（全件の見本の組み立てはテストで確かめる）。見本は一覧に何行も並び、詳細へ進むと詳細側にも同じ Widget が出るので、`Hero`・`GlobalKey`・`autofocus` のように木の中で一意であることを前提にする Widget を収録するときは、見本を見た目を持たない Widget と同じ扱い（アイコン）にする。見た目を持たない Widget の見本は組み立てず、Material Symbols の `account_tree`（outlined）を ink-secondary で枠の中央に出す（どれも同じアイコン。区別は行の名前と一言の説明に任せる）。
 
 ### DetailState
 
@@ -247,7 +259,7 @@ Provider の名前は riverpod_generator が付けるもので、クラス名か
 | `genres` | `List<Genre>` | `entry.genreIds` の順のジャンル | 説明のシートのジャンル（ds-genr）に名前を出すため |
 | `settings` | `Map<String, PropertySetting>` | 各プロパティの `initiallyOn` と `control.initial` | `PropertySetting(on: bool, value: ControlValue)`。OFF にしても `value` は覚えておく |
 | `selected` | `String?` | 最初の ON のプロパティ（なければ最初のプロパティ。プロパティがなければ `null`） | 編集パネルで選んでいるプロパティの名前 |
-| `comparing` | `String?` | `null` | 比べているプロパティの名前（`selected` と同じか `null`）。`null` は比較していない |
+| `comparing` | `Comparing?` | `null` | sealed。`ComparingProperty(name)`（見た目を持つ Widget。比べているプロパティの名前で、`selected` と同じ）か `ComparingUse()`（見た目を持たない Widget。Widget そのものを使った／使わない）。`null` は比較していない |
 
 `isModified`（最初の値から1つでも変わった、または比較中）は State から求める（ab-rset の活性。`selected` の変化は数えない）。`isDefault(name)`（そのプロパティが最初の値のまま）は ed-dflt の活性に使う。拡大（×1 / ×2）と比較の仕切りの位置は、画面の中だけの一時的な状態なので StatefulWidget に持つ。比較の2枚の設定は `settingsForSide(on:)` が、比べているプロパティの定義は `comparingSpec` が返す。値の短い表示（スライダーの `16.0`・選択肢の名前など。操作パネルと比較のカードの読み上げで使う）は `valueLabel(control, value)`（`lib/features/detail/view_model/value_label.dart`）。
 
@@ -257,8 +269,10 @@ Provider の名前は riverpod_generator が付けるもので、クラス名か
 
 | プロパティ | 型 | 初期値 | 内容 |
 |---|---|---|---|
-| `counts` | `Map<ProbeKey, int>` | 空 | `ProbeKey(side, label)` ごとの再ビルドの回数 |
-| `logs` | `List<String>` | 空 | 新しい順、最大 50 件 |
+| `counts` | `Map<ProbeKey, int>` | 空 | `ProbeKey(side, label)` ごとの build の回数（最初の組み立ても数える） |
+| `logs` | `List<ProbeLog>` | 空 | `ProbeLog`: `time`・`side`・`text`・`repeat`（同じフレームにまとめた数。1 なら「×」を出さない）。新しい順、最大 50 件。あふれたら古いものから消す |
+
+`side` は比較していないときも `used` で記録する。ログの札は、比較中に起きた行だけに出す（ProbeLog に `comparing: bool` を持たせる）。
 
 ## イベント
 
@@ -266,11 +280,11 @@ Provider の名前は riverpod_generator が付けるもので、クラス名か
 |---|---|---|---|
 | ca_lst | `queryChanged(String)` | ユーザー | `query` と `results` を更新 |
 | ca_lst | `queryCleared()` | ユーザー | `query` を空、`results` を空 |
-| cb_dtl | `propertySelected(String name)` | ユーザー | `selected = name`、`comparing = null` |
+| cb_dtl | `propertySelected(String name)` | ユーザー | `selected = name`。`comparing` が `ComparingProperty` なら `null`、`ComparingUse` なら変えない |
 | cb_dtl | `propertyToggled(String name, bool on)` | ユーザー | `settings[name].on`。required は変えない |
 | cb_dtl | `propertyValueChanged(String name, ControlValue value)` | ユーザー | `settings[name].value`。OFF のときは呼ばれない（View で非活性） |
 | cb_dtl | `propertyDefaultTapped(String name)` | ユーザー | `settings[name]` を最初の値に戻す |
-| cb_dtl | `compareTapped(String name)` | ユーザー | `comparing` が `name` なら `null`、それ以外なら `name`（View は `selected` を渡す） |
+| cb_dtl | `compareTapped(String name)` | ユーザー | 比較中なら `null`。そうでなければ、見た目を持つ Widget は `ComparingProperty(name)`（View は `selected` を渡す）、見た目を持たない Widget は `ComparingUse()` |
 | cb_dtl | `compareDismissed()` | ユーザー | `comparing = null` |
 | cb_dtl | `resetTapped()` | ユーザー | `settings` と `selected` を最初の値、`comparing = null`。ProbeState も空にする |
 | cb_dtl | `copyTapped()` → `Future<bool>` | ユーザー＋副作用の結果 | 変化なし。成功したかを返す |
@@ -297,6 +311,25 @@ Provider の名前は riverpod_generator が付けるもので、クラス名か
 
 - `changed` は、そのプロパティの行が「最初の値で作ったときの行」と違う（値が変わった、または最初は OFF で書かれていなかった）とき `true`。全文のシートで印を付ける
 - コードの帯は `property == selected` の行を出す。そのプロパティが OFF で行がないときは「// {名前} は指定なし（既定値）」を出す（帯の文言。`CodeLine` には入れない）
+
+見た目を持たない Widget のために、次の 2 つの書き方を足す（データでの表し方は実装の計画で決める）。
+
+- 値をコンストラクタの引数ではなく、入れ子の式の中に書く: `MediaQuery(data: MediaQuery.of(context).copyWith(textScaler: …, platformBrightness: …), child: …)`。ON のプロパティだけを `copyWith(` の中に 1 行ずつ書き、`changed` も行ごとに付ける
+- 型引数: `NotificationListener<ScrollUpdateNotification>(`。型はプロパティの値で変わり、その行（`NotificationListener<…>(`）の `property` はそのプロパティにする
+
+`codeWithout` は収録データに書いた文字列をそのまま出す（変えた行の印は付けない）。
+
+## 見た目を持たない Widget の収録
+
+最初に入れるのは、見せ方の型ごとに 1 件（値を配る・状態が移る・出来事が伝わる）。`InheritedWidget`・`Builder` は公式カタログに載っていないので入れない（`MediaQuery` が InheritedWidget の働きを見せる）。ほかの Widget（`Theme`・`DefaultTextStyle`・`FutureBuilder`・`AnimatedBuilder`・`LayoutBuilder`・`KeyboardListener` など）は Phase 3 でジャンルごとに足す。
+
+| Widget（ジャンル） | プロパティ（チップ） | デモの木 | 見どころ | 使わない側 |
+|---|---|---|---|---|
+| `MediaQuery`（styling） | `textScaler`（1.0〜2.0 のスライダー）・`platformBrightness`（light / dark） | `MediaQuery(data: 親の値.copyWith(…))` の下に「倍率を読む子」（`MediaQuery.textScalerOf`。「倍率 1.5」）・「明るさを読む子」（`platformBrightnessOf`。「dark」）・「読まない子」 | 倍率を変えると倍率を読む子だけ build が増える（読んだ項目ごとに依存が付く） | 包みを外す。子はアプリの MediaQuery を読むので、値を変えても届かず回数は増えない |
+| `StreamBuilder`（async） | `stream`（3 回流して終わる / 途中でエラー / 何も流さない）・`initialData`（ON は 0） | 「最初から流す」のボタン（デモの部品）、builder の中の子（状態と値）、builder の外の子。値は 1 秒おき | ログに `waiting` → `active: 1` … → `done`。builder の外の子は 1 回のまま | 手書き（`codeWithout` あり）。StatefulWidget で `listen` して `setState`。値が来るたびに builder の外の子も build が増える |
+| `NotificationListener`（scrolling） | 受ける型（`ScrollNotification` / `ScrollUpdateNotification` / `OverscrollNotification`）・`onNotification` の戻り値（false / true） | 外の聞き手（デモの部品。ログに「外:」）の下に `NotificationListener`（ログに「内:」）、その下に 20 行の `ListView`（回数の印つき） | スクロールで「内: ScrollUpdateNotification ×6」。ListView は 1 回のまま（通知では組み直さない）。true にすると「外:」が止まる | 包みを外す。「内:」は出ず「外:」だけ出る（聞き手がいなくても通知は上へ伝わる） |
+
+デモの部品（ボタン・外の聞き手）は収録データのファイルの中に書き、コードには出さない。Stream と時刻は、テストで `fakeAsync` で進められるように組む。
 
 ## エラーと例外
 
@@ -328,6 +361,9 @@ Provider の名前は riverpod_generator が付けるもので、クラス名か
 - DetailNotifier: ON/OFF、値の変更、OFF にしても値を覚えている、required は OFF にできない、比較の開始・切り替え・やめる、初期状態に戻す
 - 比較: 「付けた」側は OFF のプロパティでも覚えている値で組み立てる
 - コード生成: ON だけを書く、positional が先、プロパティなし、値の式（数値・enum・色・文字）
-- 可視化: build の中で回数を数えても例外が出ない（フレームの後に反映）。ログは最大 50 件。ログを消すと回数も 0
+- 可視化: build の中で回数を数えても例外が出ない（フレームの後に反映）。ログは最大 50 件。ログを消すと回数も 0。同じフレームの同じ出来事は ×n にまとまる。回数の印が変わっても数えている子は組み直されない
+- 収録データ: `behavior` のものは全部 `buildWithout` を持ち、両側とも例外なく組み立てられる。`visual` のものは `buildWithout`・`codeWithout` が `null`
+- 比較（見た目を持たない Widget）: `ComparingUse` の間はチップを選び替えても続く。左右で別に数える
+- コード生成: 入れ子の式（`MediaQuery` の `copyWith`）と型引数（`NotificationListener<T>`）
 - コピー・リンク: 成功・失敗で Snackbar の文言が変わる（Client を fake に）
 - 画面を離れると DetailState と ProbeState が捨てられる（autoDispose）
