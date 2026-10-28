@@ -136,7 +136,7 @@ sequenceDiagram
     N-->>V: CatalogState（結果の行 / 0 件）
     V->>G: タイルのタップで Navigator.push(GenreScreen(genreId))
     G->>R: genreEntriesProvider(genreId)
-    R-->>G: そのジャンルの Widget（収録データの順）
+    R-->>G: そのジャンルの Widget（公式カタログの順。entriesOf）
     G->>G: 行のタップで onEntryTapped(context, entryId)
 ```
 
@@ -236,7 +236,7 @@ Provider の名前は riverpod_generator が付けるもので、クラス名か
 |---|---|---|---|
 | `catalogRepositoryProvider` | Provider（`keepAlive`） | `CatalogRepository`（同梱データを返す。同期） | アプリの間ずっと |
 | `catalogProvider` | Notifier（`CatalogNotifier`） | `CatalogState` | ホーム画面の間（最初の画面なのでアプリの間ずっと） |
-| `genreEntriesProvider(genreId)` | Provider（family・autoDispose） | `List<WidgetEntry>`（そのジャンルの Widget。収録データの順） | ジャンル画面の間 |
+| `genreEntriesProvider(genreId)` | Provider（family・autoDispose） | `List<WidgetEntry>`（そのジャンルの Widget。`CatalogRepository.entriesOf` が返す公式カタログの順） | ジャンル画面の間 |
 | `genreProvider(genreId)` | Provider（family・autoDispose） | `Genre`（ジャンル画面の題と一言の説明。ない ID は `StateError`） | ジャンル画面の間 |
 | `detailProvider(entryId)`（`DetailNotifier`） | Notifier（family・autoDispose） | `DetailState` | 詳細画面の間。戻ると捨てる（cb_dtl の確認・調整事項 1） |
 | `detailCodeProvider(entryId)` | Provider（family・autoDispose） | `List<CodeLine>`（`DetailState` から作る。全文の文字列は行をつなぐ） | 同上 |
@@ -249,7 +249,7 @@ Provider の名前は riverpod_generator が付けるもので、クラス名か
 | プロパティ | 型 | 初期値 | 内容 |
 |---|---|---|---|
 | `query` | `String` | `''` | 検索の入力（前後の空白を除いたもの） |
-| `groups` | `List<GenreGroup>` | 2 段 | 段（`GenreGroupKind.designSystem` / `base`）と、その中のタイル（`GenreTile`: `genre`・`count`・`examples`（収録の順の最初の 3 件の名前））。収録が 0 件のジャンルは入れず、空の段も入れない |
+| `groups` | `List<GenreGroup>` | 2 段 | 段（`GenreGroupKind.designSystem` / `base`）と、その中のタイル（`GenreTile`: `genre`・`count`・`examples`（そのジャンルの公式カタログの順の最初の 3 件の名前））。収録が 0 件のジャンルは入れず、空の段も入れない |
 | `results` | `List<SearchResult>` | 空 | 検索の結果（`SearchResult`: `entry`・`genres`）。名前に `query` を含む Widget を、重ねずに名前の ABC 順（大文字・小文字を区別しない）で |
 
 `isSearching`（`query` が空でない）と `isEmpty`（検索中で `results` が空）は State から求める。読み込み中・エラーは同梱データなので持たない。
@@ -318,6 +318,7 @@ Provider の名前は riverpod_generator が付けるもので、クラス名か
 2. `positional` のプロパティ（ON のもの）を先に、`named` のプロパティ（ON のもの・required）を収録データの順に、`name: control.code(value),` の形で1行ずつ書く（字下げは2文字）
 3. `)` で閉じる。プロパティが1つもなければ `Padding()` のように1行にする
    - 位置で渡す引数も 1 行ずつ書く（`Text(` の次の行に `'こんにちは',`）
+   - ON でも、`PropertySpec.omitIf` に当たるプロパティは書かない。ほかのプロパティとの組み合わせでプレビューに渡さないもの（例: NavigationRail は extended の間 labelType を渡せない）を、コードとそろえるため
 4. 値の文字列は `control.code` に任せる（`Color(0xFF1E50A2)`・`'こんにちは'` のように、そのまま貼れる Dart の式にする）
 
 行ごとに扱えるよう、`CodeGenerator.lines(entry, settings)` は `List<CodeLine>` を返す（`CodeLine`: `text`・`property`（その行のプロパティ名。`Padding(` と `)` は `null`）・`changed`）。`generate` は `lines` の `text` を改行でつないだもの。
