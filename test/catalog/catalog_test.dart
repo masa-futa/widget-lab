@@ -8,27 +8,41 @@ import 'package:widget_lab/catalog/model/demo_args.dart';
 import 'package:widget_lab/catalog/model/property_control.dart';
 import 'package:widget_lab/catalog/model/property_setting.dart';
 import 'package:widget_lab/catalog/model/widget_entry.dart';
+import 'package:widget_lab/core/theme/app_theme.dart';
+import 'package:widget_lab/features/detail/ui/widgets/preview_card.dart';
 
-/// プレビューのカードに近い大きさで組み立て、例外が出ないことを確かめる。
+/// プレビューのカードの大きさ。小さいスマートフォン（360×640）で、
+/// 1 枚のとき（プレビューは画面の高さの約 4 割＝256 から上下の余白 8 を引く。
+/// 幅は左右の余白 16 を引く）と、比較中の 2 枚の 1 枚（見出しとラベルを引いた残りの半分）。
+/// DetailScreen の高さの割合や DetailPreview の余白を変えたら、ここも合わせる。
+const _cardSizes = [Size(328, 240), Size(328, 64)];
+
+/// 実物のプレビューのカードに入れて組み立て、例外が出ないことを確かめる。
 Future<void> _expectBuilds(
   WidgetTester tester,
   WidgetEntry entry,
   Map<String, PropertySetting> settings,
 ) async {
-  await tester.pumpWidget(
-    MaterialApp(
-      home: Scaffold(
-        body: Center(
-          child: SizedBox(
-            width: 360,
-            height: 360,
-            child: entry.build(DemoArgs(entry, settings)),
+  for (final size in _cardSizes) {
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: AppTheme.light(),
+        home: Scaffold(
+          body: Center(
+            child: SizedBox.fromSize(
+              size: size,
+              child: PreviewCard(child: entry.build(DemoArgs(entry, settings))),
+            ),
           ),
         ),
       ),
-    ),
-  );
-  expect(tester.takeException(), isNull, reason: '${entry.id}: $settings');
+    );
+    expect(
+      tester.takeException(),
+      isNull,
+      reason: '${entry.id} ($size): $settings',
+    );
+  }
 }
 
 /// [entry] の全プロパティを [on] にした設定（値は最初の値）。
