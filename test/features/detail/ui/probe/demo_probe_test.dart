@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -25,6 +27,36 @@ class _Logger extends StatelessWidget {
     }
     return const SizedBox();
   }
+}
+
+/// 1 秒後に、フレームの外（タイマー）でログを 1 回出す。
+class _TimerLogger extends StatefulWidget {
+  const _TimerLogger();
+
+  @override
+  State<_TimerLogger> createState() => _TimerLoggerState();
+}
+
+class _TimerLoggerState extends State<_TimerLogger> {
+  late final Timer _timer;
+
+  @override
+  void initState() {
+    super.initState();
+    _timer = Timer(
+      const Duration(seconds: 1),
+      () => DemoRecorder.of(context).log('tick'),
+    );
+  }
+
+  @override
+  void dispose() {
+    _timer.cancel();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) => const SizedBox();
 }
 
 /// 倍率を読む子と読まない子。
@@ -163,6 +195,32 @@ void main() {
 
     expect(probe().countOf(const ProbeKey(DemoSide.used, '読む子')), 2);
     expect(probe().countOf(const ProbeKey(DemoSide.used, '読まない子')), 1);
+  });
+
+  testWidgets('フレームの外（タイマー）で出したログも、次のフレームで渡す', (tester) async {
+    await pumpProbe(tester, const _TimerLogger());
+    await tester.pumpAndSettle();
+    expect(probe().logs, isEmpty);
+    expect(tester.binding.hasScheduledFrame, isFalse);
+
+    // フレームを回さずに時刻だけ進めると、タイマーのログが次のフレームを予約する
+    await tester.binding.delayed(const Duration(seconds: 1));
+    expect(tester.binding.hasScheduledFrame, isTrue);
+    await tester.pump();
+
+    expect(probe().logs.single.message, const TextMessage('tick'));
+  });
+
+  testWidgets('計測をやり直した後は、前の木（消える途中）の記録を捨てる', (tester) async {
+    await pumpProbe(tester, const _TimerLogger());
+    await tester.pumpAndSettle();
+
+    // 比較の切り替えの間、前の木は AnimatedSwitcher に残ってまだ動いている
+    container.read(probeProvider(_entryId).notifier).restarted();
+    await tester.pump(const Duration(seconds: 1));
+    await tester.pump();
+
+    expect(probe().logs, isEmpty);
   });
 
   testWidgets('窓口（DemoProbe）の外で数えてもログに出しても、何も起きない', (tester) async {

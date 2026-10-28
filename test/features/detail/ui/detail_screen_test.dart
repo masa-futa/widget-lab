@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:widget_lab/catalog/async/stream_builder.dart';
 import 'package:widget_lab/catalog/basics/container.dart';
 import 'package:widget_lab/catalog/demo/rebuild_counter.dart';
 import 'package:widget_lab/catalog/scrolling/notification_listener.dart';
@@ -868,6 +869,220 @@ void main() {
       expect(badgeOf(tester, '倍率を読む子'), '倍率を読む子、build 1 回');
       // ON にしただけの light は親と同じ値なので知らせが来ず、dark で 1 回増える
       expect(badgeOf(tester, '明るさを読む子'), '明るさを読む子、build 2 回');
+    });
+  });
+
+  group('StreamBuilder', () {
+    Future<void> pumpStream(WidgetTester tester) async {
+      await pumpDetail(
+        tester,
+        'streamBuilder',
+        repository: FakeCatalogRepository([
+          streamBuilderEntry,
+          mediaQueryEntry,
+        ]),
+      );
+      await tester.pumpAndSettle();
+    }
+
+    /// 収録データが出したログの文（ProbeState は新しい順なので、反転して古い順に）。
+    /// [side] を渡せばその側だけ。
+    List<String> textLogs(WidgetTester tester, {DemoSide? side}) =>
+        ProviderScope.containerOf(tester.element(find.byType(DetailScreen)))
+            .read(probeProvider('streamBuilder'))
+            .logs
+            .reversed
+            .where((log) => side == null || log.side == side)
+            .map((log) => log.message)
+            .whereType<TextMessage>()
+            .map((message) => message.text)
+            .toList();
+
+    /// [label] の子の回数の印の文。[nth] は左右の何枚目か（0 が左・使った）。
+    String badgeOf(WidgetTester tester, String label, {int nth = 0}) => tester
+        .widget<Semantics>(
+          find
+              .descendant(
+                of: find.byType(DetailScreen),
+                matching: find.byWidgetPredicate(
+                  (w) =>
+                      w is Semantics &&
+                      (w.properties.label?.startsWith('$label、') ?? false),
+                ),
+              )
+              .at(nth),
+        )
+        .properties
+        .label!;
+
+    /// 時を 1 秒ずつ [seconds] 秒進める（値は 1 秒おきに来るので、1 つずつフレームに出す）。
+    Future<void> elapse(WidgetTester tester, int seconds) async {
+      for (var i = 0; i < seconds; i++) {
+        await tester.pump(const Duration(seconds: 1));
+      }
+      await tester.pump();
+    }
+
+    Future<void> restart(WidgetTester tester, {int nth = 0}) async {
+      await tester.tap(find.text('最初から流す').at(nth));
+      await tester.pump();
+    }
+
+    testWidgets('TC-81: 開くと流れ始め、waiting から値が順に来て閉じる', (tester) async {
+      await pumpStream(tester);
+      expect(textLogs(tester), ['waiting']);
+
+      await elapse(tester, 4);
+
+      expect(textLogs(tester), [
+        'waiting',
+        'active: 1',
+        'active: 2',
+        'active: 3',
+        'done: 3',
+      ]);
+    });
+
+    testWidgets('TC-81: 「最初から流す」で waiting から流し直し、外の子は増えない', (tester) async {
+      await pumpStream(tester);
+      await elapse(tester, 2);
+
+      await restart(tester);
+      await elapse(tester, 4);
+
+      expect(textLogs(tester).skip(3), [
+        'waiting',
+        'active: 1',
+        'active: 2',
+        'active: 3',
+        'done: 3',
+      ]);
+      expect(badgeOf(tester, '外の子'), '外の子、build 1 回');
+      expect(find.text('done: 3'), findsOneWidget);
+      expect(tester.takeException(), isNull);
+    });
+
+    testWidgets('TC-81: 比較中の「使わない」側では、値が来るたびに外の子も増える', (tester) async {
+      await pumpStream(tester);
+      await tester.tap(inPanel(find.text('使わない場合と比べる')));
+      await tester.pump();
+
+      await elapse(tester, 4);
+
+      expect(textLogs(tester, side: DemoSide.unused), [
+        'waiting',
+        'active: 1',
+        'active: 2',
+        'active: 3',
+        'done: 3',
+      ]);
+      expect(badgeOf(tester, '外の子'), '外の子、build 1 回');
+      // 最初の 1 回 + 値 3 回 + 閉じた 1 回
+      expect(badgeOf(tester, '外の子', nth: 1), '外の子、build 5 回');
+    });
+
+    testWidgets('比較中の「使わない」側も「最初から流す」で waiting から流し直す', (tester) async {
+      await pumpStream(tester);
+      await tester.tap(inPanel(find.text('使わない場合と比べる')));
+      await tester.pump();
+      await elapse(tester, 2);
+
+      await restart(tester, nth: 1);
+      await elapse(tester, 4);
+
+      expect(textLogs(tester, side: DemoSide.unused).skip(3), [
+        'waiting',
+        'active: 1',
+        'active: 2',
+        'active: 3',
+        'done: 3',
+      ]);
+    });
+
+    testWidgets('途中でエラーに選び替えると流し直し、エラーを持ったまま閉じる', (tester) async {
+      await pumpStream(tester);
+      await select(tester, 'stream');
+      final before = textLogs(tester).length;
+      await tester.tap(inPanel(find.text('途中でエラー')));
+      await tester.pump();
+
+      await elapse(tester, 3);
+
+      expect(textLogs(tester).skip(before), [
+        'waiting',
+        'active: 1',
+        'active: Exception: 途中で失敗',
+        'done: Exception: 途中で失敗',
+      ]);
+    });
+
+    testWidgets('何も流さないと waiting のまま', (tester) async {
+      await pumpStream(tester);
+      await select(tester, 'stream');
+      final before = textLogs(tester).length;
+      await tester.tap(inPanel(find.text('何も流さない')));
+      await tester.pump();
+
+      await elapse(tester, 4);
+
+      expect(textLogs(tester).skip(before), ['waiting']);
+    });
+
+    testWidgets('stream を OFF にすると none のまま', (tester) async {
+      await pumpStream(tester);
+      await select(tester, 'stream');
+      await toggle(tester);
+      final before = textLogs(tester).length;
+
+      await elapse(tester, 4);
+
+      expect(textLogs(tester).last, 'none');
+      expect(textLogs(tester).skip(before), isEmpty);
+    });
+
+    testWidgets('initialData を ON にすると、待っている間も 0 を持つ', (tester) async {
+      await pumpStream(tester);
+      await select(tester, 'initialData');
+      await toggle(tester);
+
+      expect(textLogs(tester).last, 'waiting: 0');
+      expect(stripText(tester), 'initialData: 0,');
+    });
+
+    testWidgets('TC-77: コードのシートで「使わない」を選ぶと listen する書き方が出て、コピーもそれ', (
+      tester,
+    ) async {
+      await pumpStream(tester);
+      await openCodeSheet(tester);
+
+      expect(find.textContaining('=> Status(snapshot)'), findsOneWidget);
+      await tester.tap(
+        find.descendant(
+          of: find.byType(SegmentedButton<bool>),
+          matching: find.text('使わない'),
+        ),
+      );
+      await tester.pumpAndSettle();
+      // 長いコードでボタンが下へ押し出されるので、見える位置まで送る
+      await tester.ensureVisible(find.text('コードをコピー'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('コードをコピー'));
+      await tester.pump();
+
+      expect(find.textContaining('.listen('), findsOneWidget);
+      expect(clipboard.written, [streamBuilderEntry.codeWithout]);
+    });
+
+    testWidgets('TC-77: MediaQuery では「使った／使わない」の切り替えが出ない', (tester) async {
+      await pumpDetail(
+        tester,
+        'mediaQuery',
+        repository: FakeCatalogRepository([mediaQueryEntry]),
+      );
+      await tester.pumpAndSettle();
+      await openCodeSheet(tester);
+
+      expect(find.byType(SegmentedButton<bool>), findsNothing);
     });
   });
 

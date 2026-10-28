@@ -1,3 +1,4 @@
+import 'package:widget_lab/catalog/async/stream_builder.dart';
 import 'package:widget_lab/catalog/basics/container.dart';
 import 'package:widget_lab/catalog/basics/row.dart';
 import 'package:widget_lab/catalog/basics/text.dart';
@@ -15,5 +16,6 @@ final allEntries = <WidgetEntry>[
   textEntry,
   paddingEntry,
   mediaQueryEntry,
+  streamBuilderEntry,
   notificationListenerEntry,
 ];

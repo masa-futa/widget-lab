@@ -122,11 +122,11 @@
 | TC-74 | R-13 | 見た目を持たない Widget の詳細 | ログの帯を見て、押す | 帯に最新の 1 件と「{n} 件 ›」。押すとシートに新しい順で全件、時刻つき。ログが 0 件なら帯もシートも「まだ何も起きていません」。見た目を持つ Widget では帯が出ない | 画面 | ✅ |
 | TC-75 | R-26 | MediaQuery の詳細 | 「使わない場合と比べる」を押し、textScaler を変える | 左に「使った」、右に「使わない」。比べ始めたところで計測をやり直し、左右ともどの子も「build 1 回」から。左の倍率を読む子だけ回数が増え、右は増えない。ログの行に側の札が付く | 画面 | ✅ |
 | TC-76 | R-26 | 比較中 | 別のチップを選ぶ | 見た目を持たない Widget は比較が続き、見た目を持つ Widget は比較をやめる | ロジック | ✅ |
-| TC-77 | R-26 | StreamBuilder の詳細 | コードの全文のシートで「使わない」を選ぶ | `codeWithout` のコード（StatefulWidget で listen する書き方）が出て、コピーもそのコード。MediaQuery では切り替えが出ない | 画面 | — |
+| TC-77 | R-26 | StreamBuilder の詳細 | コードの全文のシートで「使わない」を選ぶ | `codeWithout` のコード（StatefulWidget で listen する書き方）が出て、コピーもそのコード。MediaQuery では切り替えが出ない | 画面 | ✅ |
 | TC-78 | R-02 | 全件の収録データ | `kind` と `buildWithout`・`codeWithout` を調べ、両側を組み立てる | behavior は全部 `buildWithout` を持ち、両側とも例外を出さない。visual は両方 `null` | ロジック | ✅ |
 | TC-79 | R-14 | MediaQuery（textScaler 1.5）と NotificationListener（ScrollUpdateNotification） | コードの行を作る | `data: MediaQuery.of(context).copyWith(` の中に `textScaler: TextScaler.linear(1.5),` が 1 行で入り「変えた」。`NotificationListener<ScrollUpdateNotification>(` の行が型のプロパティの行になる | ロジック | ✅ |
 | TC-80 | R-25 | 見た目を持たない Widget がジャンルにある | ジャンル画面の行を見る | 見本の枠に `account_tree` のアイコンが出て、組み立てない。読み上げない | 部品 | ✅ |
-| TC-81 | R-27 | StreamBuilder の詳細（3 回流して終わる） | 「最初から流す」を押し、時を 4 秒進める | ログが waiting → active: 1 → active: 2 → active: 3 → done の順（新しい順の表示では逆）。builder の外の子は回数が増えない。比較中の「使わない」側では外の子も増える | 画面 | — |
+| TC-81 | R-27 | StreamBuilder の詳細（3 回流して終わる） | 「最初から流す」を押し、時を 4 秒進める | ログが waiting → active: 1 → active: 2 → active: 3 → done: 3 の順（新しい順の表示では逆）。builder の外の子は回数が増えない。比較中の「使わない」側では外の子も増える | 画面 | ✅ |
 | TC-82 | R-27 | NotificationListener の詳細 | リストをスクロールし、戻り値を true にしてまたスクロールする | 「内:」「外:」のログが出て、ListView の回数は 1 のまま。true の後は「外:」が出ない。「使わない」側では「外:」だけ出る | 画面 | ✅ |
 
 ## 外した観点

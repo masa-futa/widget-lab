@@ -38,6 +38,15 @@ class _DemoProbeState extends ConsumerState<DemoProbe> implements DemoRecorder {
   final _pending = <ProbeEvent>[];
   bool _scheduled = false;
 
+  /// 作られたときの計測の回（[ProbeState.epoch]）。
+  late final int _epoch;
+
+  @override
+  void initState() {
+    super.initState();
+    _epoch = ref.read(probeProvider(widget.entryId)).epoch;
+  }
+
   @override
   bool get comparing => widget.comparing;
 
@@ -70,6 +79,9 @@ class _DemoProbeState extends ConsumerState<DemoProbe> implements DemoRecorder {
     final events = _merged(_pending);
     _pending.clear();
     if (!mounted) return;
+    // 計測をやり直した後も、前の木は比較の切り替え（AnimatedSwitcher）の間だけ残って動くので、
+    // その記録は捨てる
+    if (ref.read(probeProvider(widget.entryId)).epoch != _epoch) return;
     ref.read(probeProvider(widget.entryId).notifier).recorded(events);
   }
 
