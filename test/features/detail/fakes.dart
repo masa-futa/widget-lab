@@ -1,9 +1,12 @@
+import 'package:flutter/widgets.dart';
 import 'package:widget_lab/catalog/basics/container.dart';
 import 'package:widget_lab/catalog/basics/row.dart';
 import 'package:widget_lab/catalog/basics/text.dart';
 import 'package:widget_lab/catalog/genres.dart';
 import 'package:widget_lab/catalog/layout/padding.dart';
 import 'package:widget_lab/catalog/model/genre.dart';
+import 'package:widget_lab/catalog/model/property_control.dart';
+import 'package:widget_lab/catalog/model/property_spec.dart';
 import 'package:widget_lab/catalog/model/widget_entry.dart';
 import 'package:widget_lab/core/data/catalog_repository.dart';
 import 'package:widget_lab/core/data/clipboard_client.dart';
@@ -59,3 +62,44 @@ class FakeUrlLauncherClient implements UrlLauncherClient {
     return succeeds;
   }
 }
+
+/// 最初は全部 OFF のプロパティを 2 つ持つ Widget。
+final allOffEntry = WidgetEntry(
+  id: 'allOff',
+  name: 'AllOff',
+  genreIds: const ['basics'],
+  summary: '',
+  description: '',
+  docUrl: Uri.parse('https://api.flutter.dev/'),
+  properties: const [
+    PropertySpec(
+      name: 'first',
+      typeLabel: 'bool?',
+      description: '',
+      initiallyOn: false,
+      control: SwitchControl(initialValue: true),
+    ),
+    PropertySpec(
+      name: 'second',
+      typeLabel: 'bool?',
+      description: '',
+      initiallyOn: false,
+      control: SwitchControl(initialValue: true),
+    ),
+  ],
+  build: (args) => const SizedBox(),
+  codeName: 'AllOff',
+);
+
+/// 変えられるプロパティがない Widget。
+final noPropertyEntry = WidgetEntry(
+  id: 'none',
+  name: 'None',
+  genreIds: const ['basics'],
+  summary: '',
+  description: '',
+  docUrl: Uri.parse('https://api.flutter.dev/'),
+  properties: const [],
+  build: (args) => const SizedBox(),
+  codeName: 'None',
+);

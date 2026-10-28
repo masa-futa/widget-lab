@@ -26,7 +26,7 @@ void main() {
     expect(a.hashCode, b.hashCode);
   });
 
-  test('値・比較が違えば等しくない', () {
+  test('値・選択・比較が違えば等しくない', () {
     expect(
       initial.copyWith(
         settings: {
@@ -37,6 +37,7 @@ void main() {
       isNot(initial),
     );
     expect(initial.copyWith(comparing: () => 'padding'), isNot(initial));
+    expect(initial.copyWith(selected: 'child'), isNot(initial));
   });
 
   test('比べているプロパティの定義を返し、比較していなければ null', () {

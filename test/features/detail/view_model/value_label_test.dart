@@ -48,4 +48,20 @@ void main() {
       expect(valueLabel(control, value), expected);
     });
   }
+
+  for (final (control, value, expected) in [
+    (slider, const SliderValue(16), '16'),
+    (slider, const SliderValue(109.99999999999999), '110'),
+    (slider, const SliderValue(2.5), '2.5'),
+    (color, const ChoiceValue(0), '瑠璃'),
+    (
+      const FixedControl(value: SizedBox(), source: 'FlutterLogo()'),
+      const FixedValue(),
+      'FlutterLogo',
+    ),
+  ]) {
+    test('TC-19: チップの値 ${control.runtimeType} $value → $expected', () {
+      expect(chipValueLabel(control, value), expected);
+    });
+  }
 }

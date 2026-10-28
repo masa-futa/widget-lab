@@ -152,55 +152,67 @@
       }
     }
   },
-  "detailTabOperation": "操作",
-  "@detailTabOperation": {
-    "description": "詳細画面のタブ（プロパティの操作）"
-  },
-  "detailTabDescription": "説明",
-  "@detailTabDescription": {
-    "description": "詳細画面のタブ（要約と公式ドキュメント）"
-  },
-  "detailTabCode": "コード",
-  "@detailTabCode": {
-    "description": "詳細画面のタブ（今の設定のコード）"
+  "detailAbout": "この Widget について",
+  "@detailAbout": {
+    "description": "App Bar の説明のボタン（ⓘ）のツールチップと読み上げ"
   },
   "detailReset": "初期状態に戻す",
   "@detailReset": {
-    "description": "詳細画面の AppBar のボタンのツールチップと読み上げ"
+    "description": "App Bar の初期状態に戻すボタンのツールチップと読み上げ"
   },
-  "detailCompare": "付けた／付けないを比べる",
-  "@detailCompare": {
-    "description": "操作パネルの行の「比べる」ボタンのツールチップと読み上げ"
+  "detailZoom1": "×1",
+  "@detailZoom1": {
+    "description": "プレビューの拡大のピル（等倍のとき）"
   },
-  "detailComparing": "比較中",
-  "@detailComparing": {
-    "description": "比較中の行の「比べる」ボタンの読み上げ"
+  "detailZoom2": "×2",
+  "@detailZoom2": {
+    "description": "プレビューの拡大のピル（2 倍のとき）"
+  },
+  "detailZoom1Semantics": "等倍で表示",
+  "@detailZoom1Semantics": {
+    "description": "拡大のピルの読み上げ（等倍のとき）"
+  },
+  "detailZoom2Semantics": "2 倍で表示",
+  "@detailZoom2Semantics": {
+    "description": "拡大のピルの読み上げ（2 倍のとき）"
   },
   "detailCompareWith": "付けた",
   "@detailCompareWith": {
-    "description": "比較の上のカードのラベル"
+    "description": "比較の左半分のラベル"
   },
   "detailCompareWithout": "付けない",
   "@detailCompareWithout": {
-    "description": "比較の下のカードのラベル"
+    "description": "比較の右半分のラベル"
   },
   "detailCompareWithSemantics": "付けた、{name}、{value}",
   "@detailCompareWithSemantics": {
-    "description": "比較の上のカードの読み上げ",
+    "description": "比較の左半分の読み上げ",
     "placeholders": {
       "name": {
         "type": "String",
-        "example": "padding"
+        "example": "color"
       },
       "value": {
         "type": "String",
-        "example": "16.0"
+        "example": "瑠璃"
       }
     }
   },
-  "detailCompareWithoutSemantics": "付けない、{name}",
+  "detailCompareWithoutSemantics": "付けない",
   "@detailCompareWithoutSemantics": {
-    "description": "比較の下のカードの読み上げ",
+    "description": "比較の右半分の読み上げ"
+  },
+  "detailCompareDivider": "比較の仕切り",
+  "@detailCompareDivider": {
+    "description": "比較の仕切りの読み上げ"
+  },
+  "detailCodeOpen": "全文",
+  "@detailCodeOpen": {
+    "description": "コードの帯の右端。押すとコードの全文のシートを開く"
+  },
+  "detailCodeUnset": "// {name} は指定なし（既定値）",
+  "@detailCodeUnset": {
+    "description": "選んでいるプロパティが OFF のときのコードの帯",
     "placeholders": {
       "name": {
         "type": "String",
@@ -208,19 +220,25 @@
       }
     }
   },
-  "detailComparingTarget": "{name} を比較中",
-  "@detailComparingTarget": {
-    "description": "比較しているプロパティ",
-    "placeholders": {
-      "name": {
-        "type": "String",
-        "example": "padding"
-      }
-    }
+  "detailChipDefault": "既定",
+  "@detailChipDefault": {
+    "description": "OFF のプロパティのチップの値"
   },
-  "detailCompareDismiss": "比較をやめる",
-  "@detailCompareDismiss": {
-    "description": "比較をやめる文字のボタン"
+  "detailChipSelected": "選択中",
+  "@detailChipSelected": {
+    "description": "選んでいるチップの読み上げ"
+  },
+  "detailCompare": "比べる",
+  "@detailCompare": {
+    "description": "編集パネルの比べるボタン"
+  },
+  "detailCompareStop": "比べるのをやめる",
+  "@detailCompareStop": {
+    "description": "比較中の比べるボタン"
+  },
+  "detailDefault": "既定に戻す",
+  "@detailDefault": {
+    "description": "編集パネルの、選んでいるプロパティだけを最初の値に戻すボタン"
   },
   "detailRequired": "必須",
   "@detailRequired": {
@@ -248,19 +266,19 @@
   },
   "detailNoProperties": "この Widget には変えられるプロパティがありません",
   "@detailNoProperties": {
-    "description": "操作できるプロパティがないときの操作タブ"
+    "description": "プロパティがないときの編集パネル"
   },
-  "detailOpenDocs": "公式ドキュメントを開く",
-  "@detailOpenDocs": {
-    "description": "説明タブのボタン"
+  "detailCodeTitle": "コード",
+  "@detailCodeTitle": {
+    "description": "コードの全文のシートの見出し"
   },
-  "detailOpenDocsFailed": "ブラウザを開けませんでした",
-  "@detailOpenDocsFailed": {
-    "description": "公式ドキュメントを開けなかったときの Snackbar"
+  "detailCodeLegend": "既定から変えた行",
+  "@detailCodeLegend": {
+    "description": "コードの全文のシートの凡例"
   },
   "detailCopyCode": "コードをコピー",
   "@detailCopyCode": {
-    "description": "コードタブのボタン"
+    "description": "コードの全文のシートのボタン"
   },
   "detailCopySucceeded": "コードをコピーしました",
   "@detailCopySucceeded": {
@@ -269,5 +287,23 @@
   "detailCopyFailed": "コピーできませんでした",
   "@detailCopyFailed": {
     "description": "クリップボードに書けなかったときの Snackbar"
+  },
+  "detailAboutTitle": "{name} について",
+  "@detailAboutTitle": {
+    "description": "説明のシートの見出し",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Container"
+      }
+    }
+  },
+  "detailOpenDocs": "公式ドキュメントを開く",
+  "@detailOpenDocs": {
+    "description": "説明のシートのボタン"
+  },
+  "detailOpenDocsFailed": "ブラウザを開けませんでした",
+  "@detailOpenDocsFailed": {
+    "description": "公式ドキュメントを開けなかったときの Snackbar"
   }
 }

@@ -1,3 +1,5 @@
+import 'package:flutter_riverpod/flutter_riverpod.dart'
+    show ProviderListenableSelect;
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:widget_lab/catalog/model/control_value.dart';
 import 'package:widget_lab/catalog/model/property_setting.dart';
@@ -9,7 +11,7 @@ import 'package:widget_lab/features/detail/view_model/detail_state.dart';
 
 part 'detail_notifier.g.dart';
 
-/// 1つの Widget の詳細の設定と比較。画面を離れると捨てる（autoDispose）。
+/// 1つの Widget の詳細の設定・選択・比較。画面を離れると捨てる（autoDispose）。
 @riverpod
 class DetailNotifier extends _$DetailNotifier {
   @override
@@ -25,6 +27,11 @@ class DetailNotifier extends _$DetailNotifier {
     return DetailState.initial(entry, genres);
   }
 
+  /// 編集パネルの中身を [name] に切り替え、比較をやめる。
+  void propertySelected(String name) {
+    state = state.copyWith(selected: name, comparing: () => null);
+  }
+
   /// 必須のプロパティは変えない。
   void propertyToggled(String name, bool on) {
     final spec = state.entry.properties
@@ -37,7 +44,14 @@ class DetailNotifier extends _$DetailNotifier {
   void propertyValueChanged(String name, ControlValue value) =>
       _update(name, (setting) => setting.copyWith(value: value));
 
-  /// 比較中の行なら比較をやめ、それ以外ならそのプロパティを比べる。
+  /// [name] の ON/OFF と値を最初の値に戻す。
+  void propertyDefaultTapped(String name) {
+    final initial = state.entry.initialSettings()[name];
+    if (initial == null) return;
+    _update(name, (_) => initial);
+  }
+
+  /// 比較中のプロパティなら比較をやめ、それ以外ならそのプロパティを比べる。
   void compareTapped(String name) {
     state = state.copyWith(
       comparing: () => state.comparing == name ? null : name,
@@ -53,8 +67,9 @@ class DetailNotifier extends _$DetailNotifier {
   }
 
   /// 今のコードをクリップボードに書く。書けなければ `false`。
-  Future<bool> copyTapped() =>
-      ref.read(clipboardClientProvider).setText(_codeOf(state));
+  Future<bool> copyTapped() => ref
+      .read(clipboardClientProvider)
+      .setText(const CodeGenerator().generate(state.entry, state.settings));
 
   /// 公式ドキュメントを外部のブラウザで開く。開けなければ `false`。
   Future<bool> openDocsTapped() =>
@@ -72,11 +87,12 @@ class DetailNotifier extends _$DetailNotifier {
   }
 }
 
-/// 今の設定を再現する Dart のコード。
+/// 今の設定を再現する Dart のコードの行（帯は選んでいる行、全文は全部）。
 @riverpod
-String detailCode(Ref ref, String entryId) {
-  return _codeOf(ref.watch(detailProvider(entryId)));
+List<CodeLine> detailCode(Ref ref, String entryId) {
+  // 選び替えや比較では作り直さない
+  final (entry, settings) = ref.watch(
+    detailProvider(entryId).select((s) => (s.entry, s.settings)),
+  );
+  return const CodeGenerator().lines(entry, settings);
 }
-
-String _codeOf(DetailState state) =>
-    const CodeGenerator().generate(state.entry, state.settings);

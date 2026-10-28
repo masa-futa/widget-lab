@@ -18,3 +18,20 @@ String valueLabel(PropertyControl control, ControlValue value) =>
       (FixedControl(:final source), FixedValue()) => source,
       _ => throw ArgumentError.value(value, 'value', '$control と合わない値'),
     };
+
+/// チップに出す、さらに短い値の文字。
+///
+/// スライダーは整数なら小数点を省き（例: `16`）、[FixedControl] は末尾の `()` を省く
+/// （例: `FlutterLogo`）。ほかは [valueLabel] と同じ。
+String chipValueLabel(PropertyControl control, ControlValue value) =>
+    switch ((control, value)) {
+      (SliderControl(), SliderValue()) => valueLabel(
+        control,
+        value,
+      ).replaceFirst(RegExp(r'\.0$'), ''),
+      (FixedControl(:final source), FixedValue()) => source.replaceFirst(
+        RegExp(r'\(\)$'),
+        '',
+      ),
+      _ => valueLabel(control, value),
+    };

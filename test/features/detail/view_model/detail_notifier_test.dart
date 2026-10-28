@@ -19,6 +19,7 @@ void main() {
   late FakeUrlLauncherClient launcher;
 
   ProviderContainer makeContainer({
+    FakeCatalogRepository? repository,
     bool clipboardSucceeds = true,
     bool launcherSucceeds = true,
   }) {
@@ -26,7 +27,9 @@ void main() {
     launcher = FakeUrlLauncherClient(succeeds: launcherSucceeds);
     final container = ProviderContainer(
       overrides: [
-        catalogRepositoryProvider.overrideWithValue(FakeCatalogRepository()),
+        catalogRepositoryProvider.overrideWithValue(
+          repository ?? FakeCatalogRepository(),
+        ),
         clipboardClientProvider.overrideWithValue(clipboard),
         urlLauncherClientProvider.overrideWithValue(launcher),
       ],
@@ -146,6 +149,69 @@ void main() {
     });
   });
 
+  group('選ぶ', () {
+    test('選んだプロパティに移り、変更ありにはならない', () {
+      final container = makeContainer();
+      final notifier = container.read(detailProvider('container').notifier);
+
+      notifier.propertySelected('width');
+
+      final state = container.read(detailProvider('container'));
+      expect(state.selected, 'width');
+      expect(state.selectedSpec?.name, 'width');
+      expect(state.isModified, isFalse);
+    });
+
+    test('TC-28: 比較中に child を選ぶと、比較をやめて child を選んでいる', () {
+      final container = makeContainer();
+      final notifier = container.read(detailProvider('padding').notifier);
+
+      notifier
+        ..compareTapped('padding')
+        ..propertySelected('child');
+
+      final state = container.read(detailProvider('padding'));
+      expect(state.comparing, isNull);
+      expect(state.selected, 'child');
+    });
+  });
+
+  group('既定に戻す', () {
+    test('TC-65: そのプロパティだけが最初の値に戻り、ほかはそのまま', () {
+      final container = makeContainer();
+      final notifier = container.read(detailProvider('container').notifier);
+
+      notifier
+        ..propertyValueChanged('padding', const SliderValue(32))
+        ..propertyToggled('padding', false)
+        ..propertyValueChanged('color', const ChoiceValue(3))
+        ..propertyDefaultTapped('padding');
+
+      final state = container.read(detailProvider('container'));
+      expect(
+        state.settings['padding'],
+        const PropertySetting(on: true, value: SliderValue(16)),
+      );
+      expect(state.settings['color']?.value, const ChoiceValue(3));
+    });
+
+    test('TC-65: 最初の値のままなら isDefault、変えると false', () {
+      final container = makeContainer();
+      final notifier = container.read(detailProvider('container').notifier);
+
+      expect(
+        container.read(detailProvider('container')).isDefault('padding'),
+        isTrue,
+      );
+
+      notifier.propertyValueChanged('padding', const SliderValue(32));
+
+      final state = container.read(detailProvider('container'));
+      expect(state.isDefault('padding'), isFalse);
+      expect(state.isDefault('color'), isTrue);
+    });
+  });
+
   group('比べる', () {
     test('TC-27: 比べるを押すと、そのプロパティを比較中になる', () {
       final container = makeContainer();
@@ -158,7 +224,7 @@ void main() {
       expect(state.isModified, isTrue);
     });
 
-    test('TC-28: 比較中に別の行の比べるを押すと、そちらに切り替わる', () {
+    test('比較中に別のプロパティを渡すと、そちらに切り替わる', () {
       final container = makeContainer();
       final notifier = container.read(detailProvider('padding').notifier);
 
@@ -250,12 +316,14 @@ void main() {
     notifier
       ..propertyValueChanged('padding', const SliderValue(40))
       ..propertyToggled('color', false)
+      ..propertySelected('color')
       ..compareTapped('color')
       ..resetTapped();
 
     final state = container.read(detailProvider('container'));
     expect(state.settings, containerEntry.initialSettings());
     expect(state.comparing, isNull);
+    expect(state.selected, 'padding');
     expect(state.isModified, isFalse);
   });
 
@@ -269,11 +337,11 @@ void main() {
       final state = container.read(detailProvider('padding'));
       expect(
         container.read(detailCodeProvider('padding')),
-        const CodeGenerator().generate(paddingEntry, state.settings),
+        const CodeGenerator().lines(paddingEntry, state.settings),
       );
       expect(
-        container.read(detailCodeProvider('padding')),
-        contains('EdgeInsets.all(32.0)'),
+        container.read(detailCodeProvider('padding')).map((l) => l.text),
+        contains('  padding: EdgeInsets.all(32.0),'),
       );
     });
   });
@@ -286,7 +354,12 @@ void main() {
       final copied = await notifier.copyTapped();
 
       expect(copied, isTrue);
-      expect(clipboard.written, [container.read(detailCodeProvider('text'))]);
+      expect(clipboard.written, [
+        const CodeGenerator().generate(
+          textEntry,
+          container.read(detailProvider('text')).settings,
+        ),
+      ]);
     });
 
     test('TC-43: 書けなければ false', () async {
