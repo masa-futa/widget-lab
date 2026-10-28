@@ -1,4 +1,5 @@
 import 'package:flutter/widgets.dart';
+import 'package:widget_lab/catalog/model/code_nest.dart';
 import 'package:widget_lab/catalog/model/demo_args.dart';
 import 'package:widget_lab/catalog/model/property_setting.dart';
 import 'package:widget_lab/catalog/model/property_spec.dart';
@@ -26,6 +27,8 @@ final class WidgetEntry {
     this.kind = EntryKind.visual,
     this.buildWithout,
     this.codeWithout,
+    this.codeNest,
+    this.codeArguments = const [],
   });
 
   final String id;
@@ -50,6 +53,13 @@ final class WidgetEntry {
 
   /// コードで書く名前（例: `Padding`）。
   final String codeName;
+
+  /// `PropertyArg.nested` のプロパティを書く入れ子の式。なければ `null`。
+  final CodeNest? codeNest;
+
+  /// チップに出さない、コードの最後に書く固定の引数（例: `child: const _Readers()`。
+  /// 末尾の `,` は付けない）。
+  final List<String> codeArguments;
 
   /// 使わない場合のよくある書き方（手で書いたコード）。包みを外すだけで済む Widget は `null`。
   final String? codeWithout;

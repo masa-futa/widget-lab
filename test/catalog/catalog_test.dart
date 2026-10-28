@@ -8,6 +8,7 @@ import 'package:widget_lab/catalog/model/genre.dart';
 import 'package:widget_lab/catalog/model/demo_args.dart';
 import 'package:widget_lab/catalog/model/property_control.dart';
 import 'package:widget_lab/catalog/model/property_setting.dart';
+import 'package:widget_lab/catalog/model/property_spec.dart';
 import 'package:widget_lab/catalog/model/widget_entry.dart';
 import 'package:widget_lab/core/theme/app_theme.dart';
 import 'package:widget_lab/features/catalog/ui/widgets/entry_sample.dart';
@@ -105,6 +106,23 @@ void main() {
       for (final entry in allEntries) {
         final names = entry.properties.map((p) => p.name).toList();
         expect(names.toSet(), hasLength(names.length), reason: entry.id);
+      }
+    });
+
+    test('型引数のプロパティは必須で 1 つまで、入れ子のプロパティは入れ子の式がある Widget だけ', () {
+      for (final entry in allEntries) {
+        final typeArguments = entry.properties.where(
+          (spec) => spec.arg == PropertyArg.typeArgument,
+        );
+        expect(typeArguments.length, lessThanOrEqualTo(1), reason: entry.id);
+        expect(typeArguments.every((spec) => spec.required), isTrue);
+        if (entry.codeNest == null) {
+          expect(
+            entry.properties.where((spec) => spec.arg == PropertyArg.nested),
+            isEmpty,
+            reason: entry.id,
+          );
+        }
       }
     });
 

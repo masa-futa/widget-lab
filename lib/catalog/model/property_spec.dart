@@ -9,6 +9,13 @@ enum PropertyArg {
 
   /// `Text('こんにちは')` の最初の引数
   positional,
+
+  /// 入れ子の式の中（`MediaQuery.of(context).copyWith(textScaler: …)`）。
+  /// 書き方は `WidgetEntry.codeNest`
+  nested,
+
+  /// 型引数（`NotificationListener<ScrollUpdateNotification>`）。必須にする
+  typeArgument,
 }
 
 /// 収録する Widget の1つのプロパティの定義。
