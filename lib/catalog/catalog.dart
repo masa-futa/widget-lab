@@ -109,6 +109,17 @@ import 'package:widget_lab/catalog/input/autocomplete.dart';
 import 'package:widget_lab/catalog/input/form.dart';
 import 'package:widget_lab/catalog/input/form_field.dart';
 import 'package:widget_lab/catalog/input/keyboard_listener.dart';
+import 'package:widget_lab/catalog/interaction/absorb_pointer.dart';
+import 'package:widget_lab/catalog/interaction/dismissible.dart';
+import 'package:widget_lab/catalog/interaction/drag_target.dart';
+import 'package:widget_lab/catalog/interaction/draggable.dart';
+import 'package:widget_lab/catalog/interaction/draggable_scrollable_sheet.dart';
+import 'package:widget_lab/catalog/interaction/gesture_detector.dart';
+import 'package:widget_lab/catalog/interaction/ignore_pointer.dart';
+import 'package:widget_lab/catalog/interaction/interactive_viewer.dart';
+import 'package:widget_lab/catalog/interaction/long_press_draggable.dart';
+import 'package:widget_lab/catalog/interaction/navigator.dart';
+import 'package:widget_lab/catalog/interaction/scrollable.dart';
 import 'package:widget_lab/catalog/layout/align.dart';
 import 'package:widget_lab/catalog/layout/aspect_ratio.dart';
 import 'package:widget_lab/catalog/layout/baseline.dart';
@@ -340,6 +351,17 @@ final allEntries = <WidgetEntry>[
   scrollConfigurationEntry,
   scrollbarEntry,
   singleChildScrollViewEntry,
+  absorbPointerEntry,
+  dismissibleEntry,
+  dragTargetEntry,
+  draggableEntry,
+  draggableScrollableSheetEntry,
+  gestureDetectorEntry,
+  ignorePointerEntry,
+  interactiveViewerEntry,
+  longPressDraggableEntry,
+  scrollableEntry,
+  navigatorEntry,
   commonButtonsEntry,
   appBarEntry,
   navigationBarEntry,
