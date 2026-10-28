@@ -1,3 +1,9 @@
+import 'package:widget_lab/catalog/animation/animated_builder.dart';
+import 'package:widget_lab/catalog/animation/animated_list.dart';
+import 'package:widget_lab/catalog/animation/animated_list_state.dart';
+import 'package:widget_lab/catalog/animation/animated_widget.dart';
+import 'package:widget_lab/catalog/animation/hero.dart';
+import 'package:widget_lab/catalog/animation/repeating_animation_builder.dart';
 import 'package:widget_lab/catalog/async/stream_builder.dart';
 import 'package:widget_lab/catalog/basics/container.dart';
 import 'package:widget_lab/catalog/basics/row.dart';
@@ -26,4 +32,10 @@ final allEntries = <WidgetEntry>[
   appBarEntry,
   navigationBarEntry,
   datePickerEntry,
+  animatedBuilderEntry,
+  animatedListEntry,
+  animatedListStateEntry,
+  animatedWidgetEntry,
+  heroEntry,
+  repeatingAnimationBuilderEntry,
 ];
