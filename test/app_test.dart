@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:widget_lab/app.dart';
-import 'package:widget_lab/core/theme/app_spacing.dart';
+import 'package:widget_lab/core/theme/nimi_colors.dart';
 import 'package:widget_lab/features/catalog/ui/catalog_screen.dart';
 
 void main() {
@@ -14,11 +14,11 @@ void main() {
     expect(find.text('Widget Lab'), findsOneWidget);
   });
 
-  testWidgets('ライトとダークの両方のテーマに余白のトークンがある', (tester) async {
+  testWidgets('ライトとダークの両方のテーマが土台の色の拡張を持つ', (tester) async {
     await tester.pumpWidget(const ProviderScope(child: WidgetLabApp()));
     final app = tester.widget<MaterialApp>(find.byType(MaterialApp));
 
-    expect(app.theme?.extension<AppSpacing>(), AppSpacing.standard);
-    expect(app.darkTheme?.extension<AppSpacing>(), AppSpacing.standard);
+    expect(app.theme?.extension<NimiColors>(), NimiColors.light);
+    expect(app.darkTheme?.extension<NimiColors>(), NimiColors.dark);
   });
 }
