@@ -105,6 +105,12 @@ void main() {
     handle.dispose();
   });
 
+  testWidgets('題は左に寄せる（Figma の案B）', (tester) async {
+    await _pumpGenre(tester, 'basics');
+
+    expect(tester.widget<AppBar>(find.byType(AppBar)).centerTitle, isFalse);
+  });
+
   testWidgets('長いジャンル名でも題を省略しない', (tester) async {
     tester.view.physicalSize = const Size(320, 568);
     tester.view.devicePixelRatio = 1;

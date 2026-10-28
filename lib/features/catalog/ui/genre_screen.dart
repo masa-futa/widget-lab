@@ -33,6 +33,8 @@ class GenreScreen extends ConsumerWidget {
     final spacing = NimiSpacing.of(context);
     return Scaffold(
       appBar: AppBar(
+        // iOS の既定は中央寄せだが、Figma の案B に合わせて左に寄せる。
+        centerTitle: false,
         // 長いジャンル名は省略せず縮める。
         title: FittedBox(fit: BoxFit.scaleDown, child: Text(genre.name)),
       ),
