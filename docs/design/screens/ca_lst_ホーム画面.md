@@ -150,7 +150,7 @@ flowchart TB
 | ID | 項目名 | 内容 | 状態変化の有無 | 初期表示 | データ取得元 |
 |-|-|-|-|-|-|
 | gt-head | 段の見出し | 「デザインシステム」（Cupertino・Material design）と「基本の Widget」（残りのジャンル）。footnote、ink-secondary | 無 | 表示 | ローカルアセット（`genres.dart` の区分） |
-| gt-tile | ジャンルのタイル | 2 列に並べる。上から件数（title2 の accent の数字と footnote の「件」）、ジャンル名（headline、長い名前は折り返す）、代表の Widget 名を収録の順に最大 3 件「・」でつなぐ。4 件以上あるときだけ末尾に「…」（footnote、ink-secondary、最大 2 行） | 無 | 収録のあるジャンル | ローカルアセット（収録データ） |
+| gt-tile | ジャンルのタイル | 2 列に並べる。上から件数（title2 の accent の数字と footnote の「件」）、ジャンル名（headline、長い名前は折り返す）、代表の Widget 名をそのジャンルの公式カタログの順に最大 3 件「・」でつなぐ。4 件以上あるときだけ末尾に「…」（footnote、ink-secondary、最大 2 行） | 無 | 収録のあるジャンル | ローカルアセット（収録データ） |
 
 #### アクション一覧
 

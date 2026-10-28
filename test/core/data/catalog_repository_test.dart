@@ -3,6 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:widget_lab/catalog/catalog.dart';
 import 'package:widget_lab/catalog/genres.dart';
 import 'package:widget_lab/catalog/layout/padding.dart';
+import 'package:widget_lab/catalog/manifest.dart';
 import 'package:widget_lab/core/data/catalog_repository.dart';
 
 void main() {
@@ -11,6 +12,18 @@ void main() {
 
     expect(repository.genres(), allGenres);
     expect(repository.entries(), allEntries);
+  });
+
+  test('ジャンルの Widget を、公式カタログのページの順（manifest の順）で返す', () {
+    const repository = BundledCatalogRepository();
+
+    for (final genre in allGenres) {
+      expect(
+        repository.entriesOf(genre.id).map((entry) => entry.name),
+        manifest[genre.id],
+        reason: genre.id,
+      );
+    }
   });
 
   test('ID で 1 件を返し、ない ID は null', () {

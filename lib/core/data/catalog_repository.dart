@@ -1,6 +1,7 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:widget_lab/catalog/catalog.dart';
 import 'package:widget_lab/catalog/genres.dart';
+import 'package:widget_lab/catalog/manifest.dart';
 import 'package:widget_lab/catalog/model/genre.dart';
 import 'package:widget_lab/catalog/model/widget_entry.dart';
 
@@ -12,6 +13,9 @@ abstract interface class CatalogRepository {
   List<Genre> genres();
 
   List<WidgetEntry> entries();
+
+  /// [genreId] のジャンルに入る Widget を、そのジャンルでの順に返す。
+  List<WidgetEntry> entriesOf(String genreId);
 
   /// ない ID なら `null`。
   WidgetEntry? entryById(String id);
@@ -26,6 +30,16 @@ class BundledCatalogRepository implements CatalogRepository {
 
   @override
   List<WidgetEntry> entries() => allEntries;
+
+  /// 公式カタログのページの順（manifest.dart の順）。1 つの Widget が複数のジャンルに
+  /// 入るので、allEntries の順ではジャンルごとの公式の順にできない。
+  @override
+  List<WidgetEntry> entriesOf(String genreId) {
+    final byName = {for (final entry in allEntries) entry.name: entry};
+    return [
+      for (final name in manifest[genreId] ?? const <String>[]) ?byName[name],
+    ];
+  }
 
   @override
   WidgetEntry? entryById(String id) {

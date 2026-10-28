@@ -8,12 +8,12 @@ part of 'genre_providers.dart';
 
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
-/// ジャンル画面に並べる Widget（収録データの順）。
+/// ジャンル画面に並べる Widget（公式カタログのページの順）。
 
 @ProviderFor(genreEntries)
 final genreEntriesProvider = GenreEntriesFamily._();
 
-/// ジャンル画面に並べる Widget（収録データの順）。
+/// ジャンル画面に並べる Widget（公式カタログのページの順）。
 
 final class GenreEntriesProvider
     extends
@@ -23,7 +23,7 @@ final class GenreEntriesProvider
           List<WidgetEntry>
         >
     with $Provider<List<WidgetEntry>> {
-  /// ジャンル画面に並べる Widget（収録データの順）。
+  /// ジャンル画面に並べる Widget（公式カタログのページの順）。
   GenreEntriesProvider._({
     required GenreEntriesFamily super.from,
     required String super.argument,
@@ -76,9 +76,9 @@ final class GenreEntriesProvider
   }
 }
 
-String _$genreEntriesHash() => r'251cea1840225178a59a1bd2d3f31518737655a8';
+String _$genreEntriesHash() => r'00ebe42fa10fb2c7dccfd2b4a31c232c6d4a31e2';
 
-/// ジャンル画面に並べる Widget（収録データの順）。
+/// ジャンル画面に並べる Widget（公式カタログのページの順）。
 
 final class GenreEntriesFamily extends $Family
     with $FunctionalFamilyOverride<List<WidgetEntry>, String> {
@@ -91,7 +91,7 @@ final class GenreEntriesFamily extends $Family
         isAutoDispose: true,
       );
 
-  /// ジャンル画面に並べる Widget（収録データの順）。
+  /// ジャンル画面に並べる Widget（公式カタログのページの順）。
 
   GenreEntriesProvider call(String genreId) =>
       GenreEntriesProvider._(argument: genreId, from: this);

@@ -16,7 +16,7 @@ final class GenreTile {
   /// そのジャンルに収録している Widget の数。0 のタイルは作らない。
   final int count;
 
-  /// 代表の Widget 名。収録の順の最初の 3 件まで。
+  /// 代表の Widget 名。そのジャンルでの順（公式カタログのページの順）の最初の 3 件まで。
   final List<String> examples;
 
   /// 代表の名前に入りきらない Widget がある。

@@ -43,8 +43,13 @@ void main() {
       await tester.pumpAndSettle();
     }
 
+    /// 一覧は見えている行しか組み立てないので、[finder] が見つかるまで下へ送ってから押す。
     Future<void> tap(WidgetTester tester, Finder finder) async {
-      await tester.ensureVisible(finder);
+      await tester.scrollUntilVisible(
+        finder,
+        200,
+        scrollable: find.byType(Scrollable).last,
+      );
       await tester.pumpAndSettle();
       await tester.tap(finder);
       await tester.pumpAndSettle();

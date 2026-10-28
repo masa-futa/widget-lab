@@ -60,7 +60,7 @@ class CodeGenerator {
     WidgetEntry entry,
     Map<String, PropertySetting> settings,
   ) {
-    final on = entry.properties.where((spec) => spec.isOnIn(settings));
+    final on = entry.properties.where((spec) => spec.isWrittenIn(settings));
     final typeSpec = on
         .where((spec) => spec.arg == PropertyArg.typeArgument)
         .firstOrNull;

@@ -33,20 +33,18 @@ class CatalogNotifier extends _$CatalogNotifier {
     final entries = repository.entries();
     return CatalogState(
       query: query,
-      groups: _groups(genres, entries),
+      groups: _groups(genres, repository),
       results: query.isEmpty ? const [] : _results(query, genres, entries),
     );
   }
 
   /// 段の順に、収録のあるジャンルのタイルを並べる。空の段は入れない。
-  List<GenreGroup> _groups(List<Genre> genres, List<WidgetEntry> entries) {
+  List<GenreGroup> _groups(List<Genre> genres, CatalogRepository repository) {
     final groups = <GenreGroup>[];
     for (final kind in GenreGroupKind.values) {
       final tiles = <GenreTile>[];
       for (final genre in genres.where((genre) => genre.group == kind)) {
-        final inGenre = entries
-            .where((entry) => entry.genreIds.contains(genre.id))
-            .toList();
+        final inGenre = repository.entriesOf(genre.id);
         if (inGenre.isEmpty) continue;
         tiles.add(
           GenreTile(
