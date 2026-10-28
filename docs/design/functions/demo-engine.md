@@ -346,6 +346,7 @@ Provider の名前は riverpod_generator が付けるもので、クラス名か
 | `Theme`（styling） | `colorScheme`（瑠璃・紅・若竹の色から作る）・`textTheme`（bodyMedium を 20 / 12）。どちらも `Theme.of(context).copyWith(…)` の中 | `Theme(data: 親の値.copyWith(…))` の下に「色を読む子」（`colorScheme.primary` の箱）・「文字を読む子」（`textTheme.bodyMedium`）・「読まない子」 | 色だけ変えても、`Theme.of` で読んだ子は文字の子も組み直される（MediaQuery と違い項目ごとに分かれない）。読まない子は 1 回のまま | 包みを外す。子はアプリの Theme を読むので、値を変えても届かず回数は増えない |
 | `DefaultTextStyle`（text） | `style`（大きく太く / 紅の斜体。必須）・`maxLines`・`overflow` | `DefaultTextStyle` の下に「大きさを読む子」（`DefaultTextStyle.of`）・「受ける Text」（style なし）・「受けない Text」（`inherit: false`） | style を変えると大きさを読む子だけ build が増える。受ける Text は見た目が変わるが、Text が自分で読むので包む子は組み直されない。受けない Text は変わらない | 包みを外す。子はアプリの既定の文字の見た目を受けるので、値を変えても届かない |
 | `AssetBundle`（assets） | `key`（greeting.txt / haiku.txt / ない名前。必須。`DefaultAssetBundle.of(context).loadString` の最初の引数） | `assets/demo/` のファイルを読む子（「読み込み中…」→ 読めた文）。ログに「読み込み開始」「読み込み完了: n 文字」か「読み込みに失敗」 | 読み込みは非同期なので、文を出す子は 2 回組み立てられる。ない名前は失敗する | 手書き（`codeWithout` あり）。文をコードに書いておくので、読み込まずにすぐ出る（1 回） |
+| `ScrollConfiguration`（scrolling） | `behavior`（はね返る / 端で止まる / スクロールバーなし。必須） | 端の動きを聞くデモの部品（ログに「端で止まる（OverscrollNotification）」「端を越えて動く（はね返り）」）の下に `ScrollConfiguration`、その下に 20 行の `ListView`（回数の印つき） | 端まで送ると、選んだ振る舞いで端の動きが変わる。振る舞いを変えても ListView を包む子は 1 回のまま | 包みを外す。アプリ（端末）の振る舞いのまま |
 
 デモの部品（ボタン・外の聞き手）は収録データのファイルの中に書き、コードには出さない。Stream と時刻は、テストで `fakeAsync` で進められるように組む。
 
