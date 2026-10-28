@@ -200,7 +200,7 @@ sequenceDiagram
 | `lib/features/detail/ui/probe/` | 窓口の実装 `DemoProbe`（Riverpod につなぐ）・回数の印 `RebuildBadge`・ログの帯 `LogStrip`・ログのシート `LogSheet` |
 
 - `DemoProbe`: 左右のカードの根に置き、自分を `DemoRecorder` として `DemoRecorderScope` に置く（`side`: `DemoSide.used` / `unused`、`comparing`）。子は `DemoRecorder.of(context)` で引く（`getInheritedWidgetOfExactType` で依存を作らないので、DemoProbe 側の変化で子が組み直されることはない）。窓口の外（見本・全件のテスト）では何もしない窓口が返る
-- 貯めて後で渡す: build の最中に Provider を書き換えると Riverpod が例外を出すので、DemoProbe が出来事を貯め、`addPostFrameCallback` でまとめて ProbeNotifier に渡す（フレームの外で起きたときのために `ensureVisualUpdate` も呼ぶ）。同じフレームの同じ（側・文）の `log` の出来事は 1 件にまとめて回数を持たせる（ログに「×6」）。build の記録は毎回「n 回目」が違う文になるのでまとめない
+- 貯めて後で渡す: build の最中に Provider を書き換えると Riverpod が例外を出すので、DemoProbe が出来事を貯め、`addPostFrameCallback` でまとめて ProbeNotifier に渡す（フレームの外で起きたときのために `ensureVisualUpdate` も呼ぶ）。計測をやり直した後も、前の木は比較の切り替え（`AnimatedSwitcher`）の間だけ残ってタイマーなどで記録するので、作られたときの `epoch` と今の `epoch` が違えば捨てる。同じフレームの同じ（側・文）の `log` の出来事は 1 件にまとめて回数を持たせる（ログに「×6」）。build の記録は毎回「n 回目」が違う文になるのでまとめない
 - `RebuildCounter(label, builder)`: 自分の build のたびに記録してから `builder(context)` を呼ぶ。builder は RebuildCounter の context で `MediaQuery.of` などを読むので、依存が RebuildCounter に付き、「誰が組み直されたか」がそのまま数になる。記録のたびに「{label}を build（{n} 回目）」のログも出す（n は ProbeNotifier が数える）。名前の札と回数の印はアプリの文字の倍率（`DemoRecorder.textScalerOf`。札と印の Widget から読むので、倍率が変わっても数えている子は組み直さない）で描き、デモが変えた倍率を受けない。幅が 200 未満なら印を名前の下に置く
 - 回数の印（pv-rbld）は RebuildCounter の上に重ねる別の小さな ConsumerWidget で、ProbeNotifier の自分の回数だけを `select` で見る。印が書き変わっても RebuildCounter と builder は組み直さない（数えるたびに印が変わり、また数える、の繰り返しを防ぐ）
 - ログの帯（lg）とシート（lgs）は ProbeNotifier を見る。比較中は `side` で分けて数え、ログに側の札を付ける
@@ -339,7 +339,7 @@ Provider の名前は riverpod_generator が付けるもので、クラス名か
 | Widget（ジャンル） | プロパティ（チップ） | デモの木 | 見どころ | 使わない側 |
 |---|---|---|---|---|
 | `MediaQuery`（styling） | `textScaler`（1.0〜2.0 のスライダー）・`platformBrightness`（light / dark） | `MediaQuery(data: 親の値.copyWith(…))` の下に「倍率を読む子」（`MediaQuery.textScalerOf`。「倍率 1.5」）・「明るさを読む子」（`platformBrightnessOf`。「dark」）・「読まない子」 | 倍率を変えると倍率を読む子だけ build が増える（読んだ項目ごとに依存が付く） | 包みを外す。子はアプリの MediaQuery を読むので、値を変えても届かず回数は増えない |
-| `StreamBuilder`（async） | `stream`（3 回流して終わる / 途中でエラー / 何も流さない）・`initialData`（ON は 0） | 「最初から流す」のボタン（デモの部品）、builder の中の子（状態と値）、builder の外の子。値は 1 秒おき | ログに `waiting` → `active: 1` … → `done`。builder の外の子は 1 回のまま | 手書き（`codeWithout` あり）。StatefulWidget で `listen` して `setState`。値が来るたびに builder の外の子も build が増える |
+| `StreamBuilder`（async） | `stream`（3 回流して終わる / 途中でエラー / 何も流さない）・`initialData`（ON は 0） | 「最初から流す」のボタン（デモの部品）、builder の中の子（状態と値）、builder の外の子。値は 1 秒おき | ログに `waiting` → `active: 1` … → `done: 3`（閉じても最後の値を持つ）。builder の外の子は 1 回のまま | 手書き（`codeWithout` あり）。StatefulWidget で `listen` して `setState`。値が来るたびに builder の外の子も build が増える |
 | `NotificationListener`（scrolling） | 受ける型（`ScrollNotification` / `ScrollUpdateNotification` / `OverscrollNotification`）・`onNotification` の戻り値（false / true） | 外の聞き手（デモの部品。ログに「外:」）の下に `NotificationListener`（ログに「内:」）、その下に 20 行の `ListView`（回数の印つき） | スクロールで「内: ScrollUpdateNotification ×6」。ListView は 1 回のまま（通知では組み直さない）。true にすると「外:」が止まる | 包みを外す。「内:」は出ず「外:」だけ出る（聞き手がいなくても通知は上へ伝わる） |
 
 デモの部品（ボタン・外の聞き手）は収録データのファイルの中に書き、コードには出さない。Stream と時刻は、テストで `fakeAsync` で進められるように組む。
