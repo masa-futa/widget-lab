@@ -188,7 +188,14 @@ import 'package:widget_lab/catalog/painting/decorated_box.dart';
 import 'package:widget_lab/catalog/painting/fractional_translation.dart';
 import 'package:widget_lab/catalog/painting/opacity.dart';
 import 'package:widget_lab/catalog/painting/rotated_box.dart';
+import 'package:widget_lab/catalog/scrolling/nested_scroll_view.dart';
 import 'package:widget_lab/catalog/scrolling/notification_listener.dart';
+import 'package:widget_lab/catalog/scrolling/page_view.dart';
+import 'package:widget_lab/catalog/scrolling/refresh_indicator.dart';
+import 'package:widget_lab/catalog/scrolling/reorderable_list_view.dart';
+import 'package:widget_lab/catalog/scrolling/scroll_configuration.dart';
+import 'package:widget_lab/catalog/scrolling/scrollbar.dart';
+import 'package:widget_lab/catalog/scrolling/single_child_scroll_view.dart';
 import 'package:widget_lab/catalog/styling/media_query.dart';
 import 'package:widget_lab/catalog/styling/theme.dart';
 import 'package:widget_lab/catalog/text/default_text_style.dart';
@@ -326,6 +333,13 @@ final allEntries = <WidgetEntry>[
   futureBuilderEntry,
   streamBuilderEntry,
   notificationListenerEntry,
+  nestedScrollViewEntry,
+  pageViewEntry,
+  refreshIndicatorEntry,
+  reorderableListViewEntry,
+  scrollConfigurationEntry,
+  scrollbarEntry,
+  singleChildScrollViewEntry,
   commonButtonsEntry,
   appBarEntry,
   navigationBarEntry,
