@@ -5,12 +5,10 @@ import 'package:widget_lab/core/data/catalog_repository.dart';
 
 part 'genre_providers.g.dart';
 
-/// ジャンル画面に並べる Widget（収録データの順）。
+/// ジャンル画面に並べる Widget（公式カタログのページの順）。
 @riverpod
-List<WidgetEntry> genreEntries(Ref ref, String genreId) => [
-  for (final entry in ref.watch(catalogRepositoryProvider).entries())
-    if (entry.genreIds.contains(genreId)) entry,
-];
+List<WidgetEntry> genreEntries(Ref ref, String genreId) =>
+    ref.watch(catalogRepositoryProvider).entriesOf(genreId);
 
 /// ジャンル画面の題と一言の説明に使うジャンル。
 ///

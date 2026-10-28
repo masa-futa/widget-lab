@@ -19,6 +19,13 @@ class FakeCatalogRepository implements CatalogRepository {
   @override
   List<WidgetEntry> entries() => entryList;
 
+  /// 渡した順のまま、そのジャンルに入るもの。
+  @override
+  List<WidgetEntry> entriesOf(String genreId) => [
+    for (final entry in entryList)
+      if (entry.genreIds.contains(genreId)) entry,
+  ];
+
   @override
   WidgetEntry? entryById(String id) {
     for (final entry in entryList) {

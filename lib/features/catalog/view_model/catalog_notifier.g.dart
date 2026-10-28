@@ -53,7 +53,7 @@ final class CatalogNotifierProvider
   }
 }
 
-String _$catalogNotifierHash() => r'673c5cb3dc14474220780b91e933356edb2a3132';
+String _$catalogNotifierHash() => r'49c7708754c12bc46f72a399e72f965175e251f4';
 
 /// ホームのジャンルのタイルと、検索の結果。
 ///
