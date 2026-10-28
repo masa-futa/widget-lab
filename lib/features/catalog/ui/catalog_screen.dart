@@ -2,22 +2,25 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gap/gap.dart';
 import 'package:widget_lab/catalog/model/genre.dart';
-import 'package:widget_lab/catalog/model/widget_entry.dart';
 import 'package:widget_lab/core/theme/nimi_colors.dart';
 import 'package:widget_lab/core/theme/nimi_radius.dart';
 import 'package:widget_lab/core/theme/nimi_spacing.dart';
+import 'package:widget_lab/features/catalog/ui/genre_screen.dart';
+import 'package:widget_lab/features/catalog/ui/widgets/entry_tile.dart';
+import 'package:widget_lab/features/catalog/ui/widgets/genre_card.dart';
 import 'package:widget_lab/features/catalog/view_model/catalog_notifier.dart';
 import 'package:widget_lab/features/catalog/view_model/catalog_state.dart';
 import 'package:widget_lab/l10n/gen/app_localizations.dart';
 
-/// ジャンル別の一覧画面（ca_lst）。
+/// ホーム画面（ca_lst）。検索と、ジャンルのタイル（検索中は結果の行）。
 ///
-/// 行を押したときの遷移は [onEntryTapped] で受け取る（機能をまたいで詳細画面を
-/// 直接参照しないため。組み立ては app.dart）。
+/// タイルを押すと、同じ機能のジャンル画面（cc_gnr）を開く。行を押したときの
+/// 遷移は [onEntryTapped] で受け取る（機能をまたいで詳細画面を直接参照しないため。
+/// 組み立ては app.dart）。ジャンル画面にも同じものを渡す。
 class CatalogScreen extends ConsumerStatefulWidget {
   const CatalogScreen({required this.onEntryTapped, super.key});
 
-  /// 行を押したとき。押した Widget の `WidgetEntry.id` を渡す。
+  /// 検索の結果やジャンル画面の行を押したとき。押した Widget の `WidgetEntry.id` を渡す。
   final void Function(BuildContext context, String entryId) onEntryTapped;
 
   @override
@@ -29,10 +32,8 @@ class _CatalogScreenState extends ConsumerState<CatalogScreen> {
   static const _maxContentWidth = 640.0;
 
   final _searchController = TextEditingController();
-  final _listController = ScrollController();
-
-  /// チップから飛ぶ先の見出し（ジャンルの ID ごと）。
-  final _headerKeys = <String, GlobalKey>{};
+  // タイルと結果の行は別のスクロールなので、切り替えたら先頭から出す。
+  final _listController = ScrollController(keepScrollOffset: false);
 
   @override
   void dispose() {
@@ -52,21 +53,17 @@ class _CatalogScreenState extends ConsumerState<CatalogScreen> {
     _scrollToTop();
   }
 
-  /// 絞り直した結果が画面の外に隠れないように、一覧の先頭に戻す。
+  /// 探し直した結果が画面の外に隠れないように、本文の先頭に戻す。
   void _scrollToTop() {
     if (_listController.hasClients) _listController.jumpTo(0);
   }
 
-  GlobalKey _headerKey(String genreId) =>
-      _headerKeys.putIfAbsent(genreId, GlobalKey.new);
-
-  Future<void> _scrollToGenre(String genreId) async {
-    final headerContext = _headerKeys[genreId]?.currentContext;
-    if (headerContext == null) return;
-    await Scrollable.ensureVisible(
-      headerContext,
-      duration: const Duration(milliseconds: 300),
-      curve: Curves.easeInOut,
+  void _openGenre(String genreId) {
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (_) =>
+            GenreScreen(genreId: genreId, onEntryTapped: widget.onEntryTapped),
+      ),
     );
   }
 
@@ -75,7 +72,8 @@ class _CatalogScreenState extends ConsumerState<CatalogScreen> {
     final state = ref.watch(catalogProvider);
     final spacing = NimiSpacing.of(context);
     return Scaffold(
-      appBar: AppBar(title: const _AppTitle()),
+      // iOS の既定は中央寄せだが、Figma の案B に合わせて左に寄せる。
+      appBar: AppBar(title: const _AppTitle(), centerTitle: false),
       body: Center(
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: _maxContentWidth),
@@ -89,20 +87,25 @@ class _CatalogScreenState extends ConsumerState<CatalogScreen> {
                   onCleared: _clearSearch,
                 ),
               ),
-              if (!state.isEmpty) ...[
-                Gap(spacing.xs),
-                _GenreChips(sections: state.sections, onTap: _scrollToGenre),
-              ],
+              Gap(spacing.xs),
               Expanded(
-                child: state.isEmpty
-                    ? _EmptyView(query: state.query, onCleared: _clearSearch)
-                    : _SectionList(
-                        sections: state.sections,
-                        controller: _listController,
-                        headerKey: _headerKey,
-                        onEntryTapped: (entryId) =>
-                            widget.onEntryTapped(context, entryId),
-                      ),
+                child: switch (state) {
+                  CatalogState(isEmpty: true) => _EmptyView(
+                    query: state.query,
+                    onCleared: _clearSearch,
+                  ),
+                  CatalogState(isSearching: true) => _ResultList(
+                    results: state.results,
+                    controller: _listController,
+                    onEntryTapped: (entryId) =>
+                        widget.onEntryTapped(context, entryId),
+                  ),
+                  _ => _GenreGroups(
+                    groups: state.groups,
+                    controller: _listController,
+                    onGenreTapped: _openGenre,
+                  ),
+                },
               ),
             ],
           ),
@@ -193,156 +196,129 @@ class _SearchField extends StatelessWidget {
   }
 }
 
-class _GenreChips extends StatelessWidget {
-  const _GenreChips({required this.sections, required this.onTap});
+/// ジャンルのタイルを段ごとに 2 列で並べる（gt）。
+class _GenreGroups extends StatelessWidget {
+  const _GenreGroups({
+    required this.groups,
+    required this.controller,
+    required this.onGenreTapped,
+  });
 
-  final List<CatalogSection> sections;
-  final ValueChanged<String> onTap;
+  static const _columns = 2;
+
+  final List<GenreGroup> groups;
+  final ScrollController controller;
+  final ValueChanged<String> onGenreTapped;
 
   @override
   Widget build(BuildContext context) {
     final spacing = NimiSpacing.of(context);
-    final shape = RoundedRectangleBorder(
-      borderRadius: BorderRadius.circular(NimiRadius.of(context).full),
-    );
-    final background = NimiColors.of(context).surfaceMuted;
+    // タイルは最大 14 枚なので、遅延させずに組み立てる。
     return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      padding: EdgeInsets.symmetric(horizontal: spacing.md),
-      child: Row(
-        spacing: spacing.xs,
+      controller: controller,
+      keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+      // SingleChildScrollView は ListView と違い、下の安全領域を自分で足さない。
+      padding: EdgeInsets.fromLTRB(
+        spacing.md,
+        0,
+        spacing.md,
+        spacing.lg + MediaQuery.paddingOf(context).bottom,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          for (final section in sections)
-            ActionChip(
-              label: Text(section.genre.name),
-              backgroundColor: background,
-              side: BorderSide.none,
-              shape: shape,
-              onPressed: () => onTap(section.genre.id),
-            ),
+          for (final group in groups) ...[
+            _GroupHeader(kind: group.kind),
+            for (var i = 0; i < group.tiles.length; i += _columns) ...[
+              if (i > 0) Gap(spacing.sm),
+              // 同じ行のタイルの高さをそろえる。
+              IntrinsicHeight(
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    for (var j = i; j < i + _columns; j++) ...[
+                      if (j > i) Gap(spacing.sm),
+                      Expanded(
+                        child: j < group.tiles.length
+                            ? GenreCard(
+                                tile: group.tiles[j],
+                                onTap: () =>
+                                    onGenreTapped(group.tiles[j].genre.id),
+                              )
+                            : const SizedBox.shrink(),
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+            ],
+          ],
         ],
       ),
     );
   }
 }
 
-class _SectionList extends StatelessWidget {
-  const _SectionList({
-    required this.sections,
+/// 段の見出し（gt-head）。
+class _GroupHeader extends StatelessWidget {
+  const _GroupHeader({required this.kind});
+
+  final GenreGroupKind kind;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final theme = Theme.of(context);
+    final spacing = NimiSpacing.of(context);
+    return Padding(
+      padding: EdgeInsets.only(top: spacing.sm, bottom: spacing.xs),
+      child: Semantics(
+        header: true,
+        child: Text(
+          switch (kind) {
+            GenreGroupKind.designSystem => l10n.catalogGroupDesignSystem,
+            GenreGroupKind.base => l10n.catalogGroupBase,
+          },
+          style: theme.textTheme.labelMedium?.copyWith(
+            color: theme.colorScheme.onSurfaceVariant,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// 検索の結果の行（rs-item）。名前の ABC 順。
+class _ResultList extends StatelessWidget {
+  const _ResultList({
+    required this.results,
     required this.controller,
-    required this.headerKey,
     required this.onEntryTapped,
   });
 
-  final List<CatalogSection> sections;
+  final List<SearchResult> results;
   final ScrollController controller;
-  final GlobalKey Function(String genreId) headerKey;
   final ValueChanged<String> onEntryTapped;
 
   @override
   Widget build(BuildContext context) {
-    // チップから画面の外の見出しへ飛べるように、遅延させずに全部を組み立てる。
-    return SingleChildScrollView(
+    return ListView.builder(
       controller: controller,
       keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          for (final section in sections) ...[
-            CatalogSectionHeader(
-              key: headerKey(section.genre.id),
-              genre: section.genre,
-              count: section.entries.length,
-            ),
-            for (final entry in section.entries)
-              _EntryTile(entry: entry, onTap: () => onEntryTapped(entry.id)),
-          ],
-        ],
-      ),
+      itemCount: results.length,
+      itemBuilder: (context, index) {
+        final result = results[index];
+        return EntryTile(
+          entry: result.entry,
+          genres: result.genres,
+          onTap: () => onEntryTapped(result.entry.id),
+        );
+      },
     );
   }
 }
 
-/// ジャンルの見出し（ls-head）。ジャンル名と件数。
-class CatalogSectionHeader extends StatelessWidget {
-  const CatalogSectionHeader({
-    super.key,
-    required this.genre,
-    required this.count,
-  });
-
-  final Genre genre;
-  final int count;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final spacing = NimiSpacing.of(context);
-    return Semantics(
-      header: true,
-      label: AppLocalizations.of(context)
-          .catalogSectionLabel(genre.name, count),
-      excludeSemantics: true,
-      child: Padding(
-        padding: EdgeInsets.fromLTRB(
-          spacing.md,
-          spacing.lg,
-          spacing.md,
-          spacing.xs,
-        ),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.baseline,
-          textBaseline: TextBaseline.alphabetic,
-          children: [
-            Flexible(
-              child: Text(genre.name, style: theme.textTheme.titleMedium),
-            ),
-            Gap(spacing.xs),
-            Text(
-              '$count',
-              style: theme.textTheme.labelMedium?.copyWith(
-                color: theme.colorScheme.onSurfaceVariant,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-/// Widget の行（ls-item）。名前と一行の要約。
-class _EntryTile extends StatelessWidget {
-  const _EntryTile({required this.entry, required this.onTap});
-
-  final WidgetEntry entry;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return MergeSemantics(
-      child: ListTile(
-        title: Text(entry.name),
-        titleTextStyle: theme.textTheme.titleSmall?.copyWith(
-          color: theme.colorScheme.onSurface,
-        ),
-        subtitle: Text(
-          entry.summary,
-          maxLines: 2,
-          overflow: TextOverflow.ellipsis,
-        ),
-        subtitleTextStyle: theme.textTheme.bodyMedium?.copyWith(
-          color: theme.colorScheme.onSurfaceVariant,
-        ),
-        trailing: const Icon(Icons.chevron_right),
-        onTap: onTap,
-      ),
-    );
-  }
-}
-
-/// 検索の結果が 0 件のとき（ls-empt）。
+/// 検索の結果が 0 件のとき（rs-empt）。
 class _EmptyView extends StatelessWidget {
   const _EmptyView({required this.query, required this.onCleared});
 
@@ -354,7 +330,7 @@ class _EmptyView extends StatelessWidget {
     final l10n = AppLocalizations.of(context);
     final spacing = NimiSpacing.of(context);
     return Center(
-      child: Padding(
+      child: SingleChildScrollView(
         padding: EdgeInsets.all(spacing.xl),
         child: Column(
           mainAxisSize: MainAxisSize.min,

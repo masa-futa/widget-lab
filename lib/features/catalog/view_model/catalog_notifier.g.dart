@@ -8,12 +8,24 @@ part of 'catalog_notifier.dart';
 
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
+/// ホームのジャンルのタイルと、検索の結果。
+///
+/// 検索の入力は画面の中だけの状態に近いが、結果はロジックで作るので
+/// ここで探す（docs/design/functions/demo-engine.md の CatalogState）。
 
 @ProviderFor(CatalogNotifier)
 final catalogProvider = CatalogNotifierProvider._();
 
+/// ホームのジャンルのタイルと、検索の結果。
+///
+/// 検索の入力は画面の中だけの状態に近いが、結果はロジックで作るので
+/// ここで探す（docs/design/functions/demo-engine.md の CatalogState）。
 final class CatalogNotifierProvider
     extends $NotifierProvider<CatalogNotifier, CatalogState> {
+  /// ホームのジャンルのタイルと、検索の結果。
+  ///
+  /// 検索の入力は画面の中だけの状態に近いが、結果はロジックで作るので
+  /// ここで探す（docs/design/functions/demo-engine.md の CatalogState）。
   CatalogNotifierProvider._()
     : super(
         from: null,
@@ -41,7 +53,12 @@ final class CatalogNotifierProvider
   }
 }
 
-String _$catalogNotifierHash() => r'8731ba1b7b21d88db24523c1c6096950082abcb1';
+String _$catalogNotifierHash() => r'673c5cb3dc14474220780b91e933356edb2a3132';
+
+/// ホームのジャンルのタイルと、検索の結果。
+///
+/// 検索の入力は画面の中だけの状態に近いが、結果はロジックで作るので
+/// ここで探す（docs/design/functions/demo-engine.md の CatalogState）。
 
 abstract class _$CatalogNotifier extends $Notifier<CatalogState> {
   CatalogState build();

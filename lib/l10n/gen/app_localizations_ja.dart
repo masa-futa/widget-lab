@@ -24,8 +24,58 @@ class AppLocalizationsJa extends AppLocalizations {
   }
 
   @override
-  String catalogSectionLabel(String genre, int count) {
-    return '$genre、$count 件';
+  String get catalogGroupDesignSystem => 'デザインシステム';
+
+  @override
+  String get catalogGroupBase => '基本の Widget';
+
+  @override
+  String get catalogCountUnit => '件';
+
+  @override
+  String get catalogNameSeparator => '・';
+
+  @override
+  String catalogExamplesMore(String examples) {
+    return '$examples…';
+  }
+
+  @override
+  String get catalogReadSeparator => '、';
+
+  @override
+  String catalogTileSemantics(String genre, int count, String examples) {
+    return '$genre、$count 件、$examples';
+  }
+
+  @override
+  String catalogTileSemanticsMore(String genre, int count, String examples) {
+    return '$genre、$count 件、$examples など';
+  }
+
+  @override
+  String catalogGenreIntro(int count, String description) {
+    return '$count 件・$description';
+  }
+
+  @override
+  String catalogPropertyCount(int count) {
+    return '$count プロパティ';
+  }
+
+  @override
+  String catalogEntrySemantics(String name, String summary, int count) {
+    return '$name、$summary、$count プロパティ';
+  }
+
+  @override
+  String catalogEntrySemanticsWithGenres(
+    String name,
+    String summary,
+    int count,
+    String genres,
+  ) {
+    return '$name、$summary、$count プロパティ、$genres';
   }
 
   @override

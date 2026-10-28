@@ -2,11 +2,11 @@
   "@@locale": "ja",
   "appTitle": "Widget Lab",
   "@appTitle": {
-    "description": "アプリ名。一覧画面の AppBar にも出す"
+    "description": "アプリ名。ホーム画面の AppBar にも出す"
   },
   "catalogSearchHint": "Widget 名で検索",
   "@catalogSearchHint": {
-    "description": "一覧画面の検索欄のプレースホルダー"
+    "description": "ホーム画面の検索欄のプレースホルダー"
   },
   "catalogSearchClear": "検索を消す",
   "@catalogSearchClear": {
@@ -22,9 +22,57 @@
       }
     }
   },
-  "catalogSectionLabel": "{genre}、{count} 件",
-  "@catalogSectionLabel": {
-    "description": "ジャンルの見出しの読み上げ",
+  "catalogGroupDesignSystem": "デザインシステム",
+  "@catalogGroupDesignSystem": {
+    "description": "ホームの段の見出し（Cupertino・Material design）"
+  },
+  "catalogGroupBase": "基本の Widget",
+  "@catalogGroupBase": {
+    "description": "ホームの段の見出し（残りのジャンル）"
+  },
+  "catalogCountUnit": "件",
+  "@catalogCountUnit": {
+    "description": "ジャンルのタイルの件数の数字のあとに添える単位"
+  },
+  "catalogNameSeparator": "・",
+  "@catalogNameSeparator": {
+    "description": "タイルの代表の名前と、検索の結果のジャンル名をつなぐ記号"
+  },
+  "catalogExamplesMore": "{examples}…",
+  "@catalogExamplesMore": {
+    "description": "タイルの代表の名前に入りきらない Widget があるとき",
+    "placeholders": {
+      "examples": {
+        "type": "String",
+        "example": "Container・Row・Text"
+      }
+    }
+  },
+  "catalogReadSeparator": "、",
+  "@catalogReadSeparator": {
+    "description": "読み上げで名前をつなぐ記号"
+  },
+  "catalogTileSemantics": "{genre}、{count} 件、{examples}",
+  "@catalogTileSemantics": {
+    "description": "ジャンルのタイルの読み上げ",
+    "placeholders": {
+      "genre": {
+        "type": "String",
+        "example": "Async"
+      },
+      "count": {
+        "type": "int",
+        "example": "2"
+      },
+      "examples": {
+        "type": "String",
+        "example": "FutureBuilder、StreamBuilder"
+      }
+    }
+  },
+  "catalogTileSemanticsMore": "{genre}、{count} 件、{examples} など",
+  "@catalogTileSemanticsMore": {
+    "description": "代表の名前に入りきらない Widget があるジャンルのタイルの読み上げ",
     "placeholders": {
       "genre": {
         "type": "String",
@@ -32,7 +80,75 @@
       },
       "count": {
         "type": "int",
-        "example": "30"
+        "example": "46"
+      },
+      "examples": {
+        "type": "String",
+        "example": "Align、Center、Column"
+      }
+    }
+  },
+  "catalogGenreIntro": "{count} 件・{description}",
+  "@catalogGenreIntro": {
+    "description": "ジャンル画面の件数と一言の説明",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "11"
+      },
+      "description": {
+        "type": "String",
+        "example": "アプリの骨組みになる基本の Widget"
+      }
+    }
+  },
+  "catalogPropertyCount": "{count} プロパティ",
+  "@catalogPropertyCount": {
+    "description": "見本つきの行のプロパティ数の印",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "7"
+      }
+    }
+  },
+  "catalogEntrySemantics": "{name}、{summary}、{count} プロパティ",
+  "@catalogEntrySemantics": {
+    "description": "見本つきの行の読み上げ",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Container"
+      },
+      "summary": {
+        "type": "String",
+        "example": "色・余白・大きさ・配置をまとめて指定する箱"
+      },
+      "count": {
+        "type": "int",
+        "example": "7"
+      }
+    }
+  },
+  "catalogEntrySemanticsWithGenres": "{name}、{summary}、{count} プロパティ、{genres}",
+  "@catalogEntrySemanticsWithGenres": {
+    "description": "検索の結果の行の読み上げ（載っているジャンルを添える）",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Padding"
+      },
+      "summary": {
+        "type": "String",
+        "example": "子のまわりに余白を入れる"
+      },
+      "count": {
+        "type": "int",
+        "example": "2"
+      },
+      "genres": {
+        "type": "String",
+        "example": "Layout、Styling"
       }
     }
   },
