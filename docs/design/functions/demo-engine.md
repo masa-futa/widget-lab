@@ -98,7 +98,7 @@ classDiagram
   - スライダーの値は、Slider が段ごとに返す値（`min + (max - min) * i / divisions`）の浮動小数の誤差を小数第 6 位で丸めてから写す（例: 109.99999999999999 → `110.0`）
   - 色見本は `Choice.color('瑠璃', Color(…))` で書く（コードは `colorCode` が `Color(0xFF1E50A2)` にする）。文字のコードは `dartString` が一重引用符で囲み、`\`・`'`・`$`・改行を逃がす（どちらも `lib/catalog/model/dart_code.dart`）
   - 操作部品と合わない種類の値（例: スイッチに `SliderValue`）は `ArgumentError`
-- **PropertyArg** はコードでの書き方: `named`（`padding: …`）・`positional`（`Text('こんにちは')` の最初の引数）・`nested`（`WidgetEntry.codeNest` の入れ子の式の中）・`typeArgument`（`NotificationListener<…>` の型引数。必須にし、1 Widget に 1 つまで。全件のテストで確かめる）
+- **PropertyArg** はコードでの書き方: `named`（`padding: …`）・`positional`（`Text('こんにちは')` の最初の引数）・`nested`（`WidgetEntry.codeNest` の入れ子の式の中）・`typeArgument`（`NotificationListener<…>` の型引数。必須にし、1 Widget に 1 つまで。全件のテストで確かめる。Dart では型引数を値から作れないので、選択肢の値はその型で組み立てる関数にする（例: `_listener<ScrollUpdateNotification>`））
 - **required** のプロパティは常に ON（スイッチを出さず「必須」の印）。`initiallyOn` は開いたときの ON/OFF
 - **PropertySetting**（`on`・`value`）も `lib/catalog/model/` に置く（DemoArgs・CodeGenerator・DetailState が使う）。`WidgetEntry.initialSettings()` が開いたときの設定を、`PropertySpec.isOnIn(settings)`・`valueIn(settings)` が「必須なら常に ON」「設定がなければ OFF・最初の値」を返す
 - **DemoBuilder** は `Widget Function(DemoArgs args)`。`DemoArgs(entry, settings)` で作る。収録データにない名前を `valueOf` で読むと `ArgumentError`、値の型が合わないと `StateError`（収録データの不備を全件のテストで落とすため）。`DemoArgs` は ON のプロパティだけ値を返す（`args.valueOf<EdgeInsets>('padding')` は OFF なら `null`）。組み立ての関数は、`null` のときに Widget の既定値を渡す（Dart では引数を条件つきで省けないため。既定値は公式の API ドキュメントの値に合わせ、テストで全部 OFF の組み立てが落ちないことを確かめる）
