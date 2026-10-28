@@ -5,7 +5,11 @@ import 'package:widget_lab/features/detail/ui/widgets/compare_preview.dart';
 import '../pump.dart';
 
 void main() {
-  Future<void> pumpCompare(WidgetTester tester, {double scale = 1}) => pumpPart(
+  Future<void> pumpCompare(
+    WidgetTester tester, {
+    double scale = 1,
+    bool fitToSide = false,
+  }) => pumpPart(
     tester,
     Center(
       child: SizedBox(
@@ -16,6 +20,7 @@ void main() {
           withoutLabel: '付けない',
           withSemanticsLabel: '付けた、color、瑠璃',
           scale: scale,
+          fitToSide: fitToSide,
           withChild: const Text('with'),
           withoutChild: const Text('without'),
         ),
@@ -100,5 +105,17 @@ void main() {
       );
       expect(scale.transform.getMaxScaleOnAxis(), 2);
     }
+  });
+
+  testWidgets('fitToSide: それぞれの子を自分の側の幅に収め、側のラベルの下に置く', (tester) async {
+    await pumpCompare(tester, fitToSide: true);
+    final origin = tester.getTopLeft(find.byType(ComparePreview));
+
+    final withRect = tester.getRect(find.text('with')).shift(-origin);
+    final withoutRect = tester.getRect(find.text('without')).shift(-origin);
+    expect(withRect.right, lessThanOrEqualTo(200));
+    expect(withoutRect.left, greaterThanOrEqualTo(200));
+    final labelBottom = tester.getBottomLeft(find.text('付けた')).dy - origin.dy;
+    expect(withRect.top, greaterThan(labelBottom));
   });
 }

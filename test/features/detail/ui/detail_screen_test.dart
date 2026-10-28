@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:widget_lab/catalog/basics/container.dart';
+import 'package:widget_lab/catalog/styling/media_query.dart';
 import 'package:widget_lab/core/data/catalog_repository.dart';
 import 'package:widget_lab/core/data/clipboard_client.dart';
 import 'package:widget_lab/core/data/url_launcher_client.dart';
@@ -787,6 +788,83 @@ void main() {
       await openCodeSheet(tester);
 
       expect(find.byType(SegmentedButton<bool>), findsNothing);
+    });
+  });
+
+  group('MediaQuery', () {
+    Future<void> pumpMediaQuery(WidgetTester tester) async {
+      await pumpDetail(
+        tester,
+        'mediaQuery',
+        repository: FakeCatalogRepository([mediaQueryEntry]),
+      );
+      await tester.pumpAndSettle();
+    }
+
+    /// [label] の子の回数の印の文。[nth] は左右の何枚目か（0 が左・使った）。
+    String badgeOf(WidgetTester tester, String label, {int nth = 0}) => tester
+        .widget<Semantics>(
+          find
+              .descendant(
+                of: find.byType(DetailScreen),
+                matching: find.byWidgetPredicate(
+                  (w) =>
+                      w is Semantics &&
+                      (w.properties.label?.startsWith('$label、') ?? false),
+                ),
+              )
+              .at(nth),
+        )
+        .properties
+        .label!;
+
+    testWidgets('TC-34: 倍率を 1.5 にすると、倍率を読む子だけ build が増える', (tester) async {
+      await pumpMediaQuery(tester);
+
+      expect(badgeOf(tester, '倍率を読む子'), '倍率を読む子、build 1 回');
+      expect(badgeOf(tester, '明るさを読む子'), '明るさを読む子、build 1 回');
+      expect(badgeOf(tester, '読まない子'), '読まない子、build 1 回');
+
+      await setSlider(tester, 1.5);
+
+      expect(find.text('倍率 1.5'), findsOneWidget);
+      expect(badgeOf(tester, '倍率を読む子'), '倍率を読む子、build 2 回');
+      expect(badgeOf(tester, '明るさを読む子'), '明るさを読む子、build 1 回');
+      expect(badgeOf(tester, '読まない子'), '読まない子、build 1 回');
+      expect(stripText(tester), 'textScaler: TextScaler.linear(1.5),');
+    });
+
+    testWidgets('TC-75: 比べると、左の倍率を読む子だけ増え、右は増えない。ログに側の札', (tester) async {
+      await pumpMediaQuery(tester);
+      await tester.tap(inPanel(find.text('使わない場合と比べる')));
+      await tester.pumpAndSettle();
+      final usedBefore = badgeOf(tester, '倍率を読む子');
+      final unusedBefore = badgeOf(tester, '倍率を読む子', nth: 1);
+
+      await setSlider(tester, 1.5);
+
+      expect(usedBefore, '倍率を読む子、build 2 回');
+      expect(badgeOf(tester, '倍率を読む子'), '倍率を読む子、build 3 回');
+      expect(unusedBefore, '倍率を読む子、build 1 回');
+      expect(badgeOf(tester, '倍率を読む子', nth: 1), '倍率を読む子、build 1 回');
+      expect(
+        find.descendant(of: find.byType(LogStrip), matching: find.text('使った')),
+        findsOneWidget,
+      );
+      expect(tester.takeException(), isNull);
+    });
+
+    testWidgets('明るさを dark にすると、明るさを読む子だけ build が増える', (tester) async {
+      await pumpMediaQuery(tester);
+      await select(tester, 'platformBrightness');
+      await toggle(tester);
+      await tester.tap(inPanel(find.text('dark')));
+      await tester.pumpAndSettle();
+
+      expect(find.text('dark'), findsWidgets);
+      expect(badgeOf(tester, '倍率を読む子'), '倍率を読む子、build 1 回');
+      // ON にしただけの light は親と同じ値なので知らせが来ず、dark で 1 回増える
+      expect(badgeOf(tester, '明るさを読む子'), '明るさを読む子、build 2 回');
     });
   });
 }

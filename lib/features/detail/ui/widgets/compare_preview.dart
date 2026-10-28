@@ -19,6 +19,7 @@ class ComparePreview extends StatefulWidget {
     required this.withChild,
     required this.withoutChild,
     this.scale = 1,
+    this.fitToSide = false,
     super.key,
   });
 
@@ -36,6 +37,10 @@ class ComparePreview extends StatefulWidget {
 
   /// 2 枚にかける見た目の倍率。
   final double scale;
+
+  /// それぞれの子を自分の側（仕切りの左か右）の幅に収め、側のラベルの下に置く。
+  /// 見た目を持たない Widget のデモの木を、左右とも全部見せるため。
+  final bool fitToSide;
 
   @override
   State<ComparePreview> createState() => _ComparePreviewState();
@@ -62,7 +67,29 @@ class _ComparePreviewState extends State<ComparePreview> {
     return LayoutBuilder(
       builder: (context, constraints) {
         final width = constraints.maxWidth;
+        final height = constraints.maxHeight;
         final x = width * _fraction;
+        // 側のラベル（上の余白・文字・上下の余白）の下から置く
+        final labelSpace =
+            spacing.xs * 2 + MediaQuery.textScalerOf(context).scale(24);
+        Widget side(Widget child, {required bool left}) {
+          if (!widget.fitToSide) return child;
+          return SizedBox(
+            width: width,
+            height: height,
+            child: Padding(
+              padding: EdgeInsets.only(top: labelSpace),
+              child: Align(
+                alignment: left ? Alignment.centerLeft : Alignment.centerRight,
+                child: SizedBox(
+                  width: left ? x : width - x,
+                  child: Center(child: child),
+                ),
+              ),
+            ),
+          );
+        }
+
         return Stack(
           children: [
             Positioned.fill(
@@ -75,7 +102,7 @@ class _ComparePreviewState extends State<ComparePreview> {
                   clipper: _SideClipper(fraction: _fraction, left: true),
                   child: PreviewCard(
                     scale: widget.scale,
-                    child: widget.withChild,
+                    child: side(widget.withChild, left: true),
                   ),
                 ),
               ),
@@ -89,7 +116,7 @@ class _ComparePreviewState extends State<ComparePreview> {
                   clipper: _SideClipper(fraction: _fraction, left: false),
                   child: PreviewCard(
                     scale: widget.scale,
-                    child: widget.withoutChild,
+                    child: side(widget.withoutChild, left: false),
                   ),
                 ),
               ),

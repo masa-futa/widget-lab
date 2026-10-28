@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
+import 'package:widget_lab/catalog/demo/demo_recorder.dart';
 import 'package:widget_lab/core/theme/nimi_radius.dart';
 import 'package:widget_lab/core/theme/nimi_spacing.dart';
-import 'package:widget_lab/features/detail/ui/probe/demo_probe.dart';
-import 'package:widget_lab/features/detail/ui/probe/rebuild_badge.dart';
-import 'package:widget_lab/features/detail/view_model/probe_state.dart';
 
 /// デモの木で build の回数を数える子（pv-tree の 1 つの枠）。
 ///
@@ -20,8 +18,12 @@ class RebuildCounter extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final probe = DemoProbe.of(context)..recordBuild(label);
-    return _CounterFrame(label: label, probe: probe, child: builder(context));
+    final recorder = DemoRecorder.of(context)..recordBuild(label);
+    return _CounterFrame(
+      label: label,
+      recorder: recorder,
+      child: builder(context),
+    );
   }
 }
 
@@ -29,7 +31,7 @@ class RebuildCounter extends StatelessWidget {
 class _CounterFrame extends StatelessWidget {
   const _CounterFrame({
     required this.label,
-    required this.probe,
+    required this.recorder,
     required this.child,
   });
 
@@ -37,26 +39,19 @@ class _CounterFrame extends StatelessWidget {
   static const _narrow = 200.0;
 
   final String label;
-  final DemoProbeHandle probe;
+  final DemoRecorder recorder;
   final Widget child;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final spacing = NimiSpacing.of(context);
-    final entryId = probe.entryId;
     final name = Text(
       label,
-      textScaler: probe.appTextScaler,
+      textScaler: recorder.appTextScaler,
       style: theme.textTheme.bodyMedium,
     );
-    final badge = entryId == null
-        ? null
-        : RebuildBadge(
-            entryId: entryId,
-            probeKey: ProbeKey(probe.side, label),
-            textScaler: probe.appTextScaler,
-          );
+    final badge = recorder.badge(label);
     return Container(
       padding: EdgeInsets.symmetric(
         horizontal: spacing.sm,

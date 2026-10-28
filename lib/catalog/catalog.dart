@@ -3,6 +3,7 @@ import 'package:widget_lab/catalog/basics/row.dart';
 import 'package:widget_lab/catalog/basics/text.dart';
 import 'package:widget_lab/catalog/layout/padding.dart';
 import 'package:widget_lab/catalog/model/widget_entry.dart';
+import 'package:widget_lab/catalog/styling/media_query.dart';
 
 /// 収録する全 Widget。ファイルは最初のジャンルのディレクトリに置く。
 ///
@@ -12,4 +13,5 @@ final allEntries = <WidgetEntry>[
   rowEntry,
   textEntry,
   paddingEntry,
+  mediaQueryEntry,
 ];

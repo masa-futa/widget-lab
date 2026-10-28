@@ -54,12 +54,11 @@ class EntrySample extends StatelessWidget {
   Widget _content(BuildContext context) {
     final theme = Theme.of(context);
     if (entry.kind == EntryKind.behavior) {
-      // 見た目を持たない Widget の見本は後の段で決める。それまでは頭文字。
-      return Text(
-        entry.name.characters.first,
-        style: theme.textTheme.titleLarge?.copyWith(
-          color: theme.colorScheme.onSurfaceVariant,
-        ),
+      // 見た目を持たない Widget は組み立てず、どれも同じアイコン（区別は行の名前と説明で）
+      return Icon(
+        Icons.account_tree_outlined,
+        size: 24,
+        color: theme.colorScheme.onSurfaceVariant,
       );
     }
     final Widget demo;

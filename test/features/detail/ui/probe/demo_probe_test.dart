@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:widget_lab/catalog/demo/demo_recorder.dart';
 import 'package:widget_lab/features/detail/ui/probe/demo_probe.dart';
-import 'package:widget_lab/features/detail/ui/probe/rebuild_counter.dart';
+import 'package:widget_lab/catalog/demo/rebuild_counter.dart';
 import 'package:widget_lab/features/detail/view_model/probe_notifier.dart';
 import 'package:widget_lab/features/detail/view_model/probe_state.dart';
 
@@ -20,7 +21,7 @@ class _Logger extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     for (var i = 0; i < times; i++) {
-      DemoProbe.of(context).log(text);
+      DemoRecorder.of(context).log(text);
     }
     return const SizedBox();
   }
@@ -164,7 +165,7 @@ void main() {
     expect(probe().countOf(const ProbeKey(DemoSide.used, '読まない子')), 1);
   });
 
-  testWidgets('DemoProbe の外で数えてもログに出しても、何も起きない', (tester) async {
+  testWidgets('窓口（DemoProbe）の外で数えてもログに出しても、何も起きない', (tester) async {
     await pumpPart(
       tester,
       Column(

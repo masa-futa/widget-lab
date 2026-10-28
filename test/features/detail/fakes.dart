@@ -12,7 +12,7 @@ import 'package:widget_lab/catalog/model/widget_entry.dart';
 import 'package:widget_lab/core/data/catalog_repository.dart';
 import 'package:widget_lab/core/data/clipboard_client.dart';
 import 'package:widget_lab/core/data/url_launcher_client.dart';
-import 'package:widget_lab/features/detail/ui/probe/rebuild_counter.dart';
+import 'package:widget_lab/catalog/demo/rebuild_counter.dart';
 
 /// お試しの4件（か渡したもの）だけを返す Repository。ジャンルは本物。
 class FakeCatalogRepository implements CatalogRepository {

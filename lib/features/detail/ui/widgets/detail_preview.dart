@@ -77,6 +77,7 @@ class _DetailPreviewState extends ConsumerState<DetailPreview> {
           withoutLabel: l10n.probeSideUnused,
           withSemanticsLabel: l10n.probeSideUsed,
           scale: scale,
+          fitToSide: true,
           withChild: _probed(
             entry,
             DemoSide.used,
