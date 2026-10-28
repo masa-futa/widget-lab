@@ -374,6 +374,78 @@ abstract class AppLocalizations {
   /// In ja, this message translates to:
   /// **'ブラウザを開けませんでした'**
   String get detailOpenDocsFailed;
+
+  /// 見た目を持たない Widget の比べるボタン
+  ///
+  /// In ja, this message translates to:
+  /// **'使わない場合と比べる'**
+  String get detailCompareUse;
+
+  /// 見た目を持たない Widget の比較の左半分・ログとコードの側
+  ///
+  /// In ja, this message translates to:
+  /// **'使った'**
+  String get probeSideUsed;
+
+  /// 見た目を持たない Widget の比較の右半分・ログとコードの側
+  ///
+  /// In ja, this message translates to:
+  /// **'使わない'**
+  String get probeSideUnused;
+
+  /// 数えている子の build の回数の印
+  ///
+  /// In ja, this message translates to:
+  /// **'build {count} 回'**
+  String probeBuildCount(int count);
+
+  /// 回数の印の読み上げ
+  ///
+  /// In ja, this message translates to:
+  /// **'{label}、build {count} 回'**
+  String probeBuildCountSemantics(String label, int count);
+
+  /// build のログの文
+  ///
+  /// In ja, this message translates to:
+  /// **'{label}を build（{count} 回目）'**
+  String probeLogBuild(String label, int count);
+
+  /// 同じフレームにまとめた出来事のログの文
+  ///
+  /// In ja, this message translates to:
+  /// **'{text} ×{count}'**
+  String probeLogRepeat(String text, int count);
+
+  /// ログの帯の件数
+  ///
+  /// In ja, this message translates to:
+  /// **'{count} 件'**
+  String probeLogCount(int count);
+
+  /// ログが 0 件のときのログの帯とシート
+  ///
+  /// In ja, this message translates to:
+  /// **'まだ何も起きていません'**
+  String get probeLogEmpty;
+
+  /// ログのシートの見出し
+  ///
+  /// In ja, this message translates to:
+  /// **'ログ'**
+  String get probeLogTitle;
+
+  /// ログのシートの、ログと回数を空にするボタン
+  ///
+  /// In ja, this message translates to:
+  /// **'ログを消す'**
+  String get probeLogClear;
+
+  /// ログの帯の読み上げ
+  ///
+  /// In ja, this message translates to:
+  /// **'ログ、{count} 件、最新: {latest}'**
+  String probeLogSemantics(int count, String latest);
 }
 
 class _AppLocalizationsDelegate
