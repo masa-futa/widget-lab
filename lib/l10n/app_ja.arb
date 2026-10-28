@@ -1,0 +1,7 @@
+{
+  "@@locale": "ja",
+  "appTitle": "Widget Lab",
+  "@appTitle": {
+    "description": "アプリ名。一覧画面の AppBar にも出す"
+  }
+}
