@@ -20,11 +20,14 @@ import 'package:widget_lab/features/detail/ui/widgets/preview_card.dart';
 const _cardSizes = [Size(328, 240), Size(328, 64)];
 
 /// 実物のプレビューのカードに入れて組み立て、例外が出ないことを確かめる。
+/// [build] を渡せば、`entry.build` の代わりにそれで組み立てる（使わない側）。
 Future<void> _expectBuilds(
   WidgetTester tester,
   WidgetEntry entry,
-  Map<String, PropertySetting> settings,
-) async {
+  Map<String, PropertySetting> settings, {
+  DemoBuilder? build,
+}) async {
+  final builder = build ?? entry.build;
   for (final size in _cardSizes) {
     await tester.pumpWidget(
       MaterialApp(
@@ -33,7 +36,7 @@ Future<void> _expectBuilds(
           body: Center(
             child: SizedBox.fromSize(
               size: size,
-              child: PreviewCard(child: entry.build(DemoArgs(entry, settings))),
+              child: PreviewCard(child: builder(DemoArgs(entry, settings))),
             ),
           ),
         ),
@@ -248,6 +251,41 @@ void main() {
         ),
       );
       expect(tester.takeException(), isNull, reason: entry.id);
+    }
+  });
+
+  group('TC-78: 見た目を持たない Widget の使わない側', () {
+    test(
+      'behavior は buildWithout を持ち、visual は buildWithout も codeWithout も持たない',
+      () {
+        for (final entry in allEntries) {
+          switch (entry.kind) {
+            case EntryKind.behavior:
+              expect(entry.buildWithout, isNotNull, reason: entry.id);
+            case EntryKind.visual:
+              expect(entry.buildWithout, isNull, reason: entry.id);
+              expect(entry.codeWithout, isNull, reason: entry.id);
+          }
+        }
+      },
+    );
+
+    for (final entry in allEntries) {
+      final buildWithout = entry.buildWithout;
+      if (buildWithout == null) continue;
+      testWidgets('${entry.id} の使わない側を、全部 OFF・全部 ON・各選択肢の値で組み立てられる', (
+        tester,
+      ) async {
+        await _expectBuilds(
+          tester,
+          entry,
+          _all(entry, on: false),
+          build: buildWithout,
+        );
+        for (final settings in [_all(entry, on: true), ..._variations(entry)]) {
+          await _expectBuilds(tester, entry, settings, build: buildWithout);
+        }
+      });
     }
   });
 }

@@ -24,6 +24,8 @@ final class WidgetEntry {
     required this.build,
     required this.codeName,
     this.kind = EntryKind.visual,
+    this.buildWithout,
+    this.codeWithout,
   });
 
   final String id;
@@ -42,8 +44,15 @@ final class WidgetEntry {
   final List<PropertySpec> properties;
   final DemoBuilder build;
 
+  /// 比較の「使わない」側の木。[kind] が behavior なら必ず持ち、visual なら `null`。
+  /// 既定は包みを外して中の木を返すだけにする。
+  final DemoBuilder? buildWithout;
+
   /// コードで書く名前（例: `Padding`）。
   final String codeName;
+
+  /// 使わない場合のよくある書き方（手で書いたコード）。包みを外すだけで済む Widget は `null`。
+  final String? codeWithout;
 
   /// 開いたときの、全プロパティの設定。
   Map<String, PropertySetting> initialSettings() => {
