@@ -202,7 +202,7 @@ sequenceDiagram
 
 - `DemoProbe`: 左右のカードの根に置き、自分を `DemoRecorder` として `DemoRecorderScope` に置く（`side`: `DemoSide.used` / `unused`、`comparing`）。子は `DemoRecorder.of(context)` で引く（`getInheritedWidgetOfExactType` で依存を作らないので、DemoProbe 側の変化で子が組み直されることはない）。窓口の外（見本・全件のテスト）では何もしない窓口が返る
 - 貯めて後で渡す: build の最中に Provider を書き換えると Riverpod が例外を出すので、DemoProbe が出来事を貯め、`addPostFrameCallback` でまとめて ProbeNotifier に渡す（フレームの外で起きたときのために `ensureVisualUpdate` も呼ぶ）。計測をやり直した後も、前の木は比較の切り替え（`AnimatedSwitcher`）の間だけ残ってタイマーなどで記録するので、作られたときの `epoch` と今の `epoch` が違えば捨てる。同じフレームの同じ（側・文）の `log` の出来事は 1 件にまとめて回数を持たせる（ログに「×6」）。build の記録は毎回「n 回目」が違う文になるのでまとめない
-- `RebuildCounter(label, builder)`: 自分の build のたびに記録してから `builder(context)` を呼ぶ。builder は RebuildCounter の context で `MediaQuery.of` などを読むので、依存が RebuildCounter に付き、「誰が組み直されたか」がそのまま数になる。記録のたびに「{label}を build（{n} 回目）」のログも出す（n は ProbeNotifier が数える）。名前の札と回数の印はアプリの文字の倍率（`DemoRecorder.textScalerOf`。札と印の Widget から読むので、倍率が変わっても数えている子は組み直さない）で描き、デモが変えた倍率を受けない。幅が 200 未満なら印を名前の下に置く
+- `RebuildCounter(label, builder)`: 自分の build のたびに記録してから `builder(context)` を呼ぶ。builder は RebuildCounter の context で `MediaQuery.of` などを読むので、依存が RebuildCounter に付き、「誰が組み直されたか」がそのまま数になる。記録のたびに「{label}を build（{n} 回目）」のログも出す（n は ProbeNotifier が数える）。名前の札と回数の印はアプリの文字の倍率（`DemoRecorder.textScalerOf`。札と印の Widget から読むので、倍率が変わっても数えている子は組み直さない）で描き、デモが変えた倍率を受けない。幅が 200 未満なら印を名前の下に置く。札はデモが変えた文字の見た目（`DefaultTextStyle`）も受けない
 - 回数の印（pv-rbld）は RebuildCounter の上に重ねる別の小さな ConsumerWidget で、ProbeNotifier の自分の回数だけを `select` で見る。印が書き変わっても RebuildCounter と builder は組み直さない（数えるたびに印が変わり、また数える、の繰り返しを防ぐ）
 - ログの帯（lg）とシート（lgs）は ProbeNotifier を見る。比較中は `side` で分けて数え、ログに側の札を付ける
 - 比較中は `ComparePreview(fitToSide: true)` で、左右の木をそれぞれの側の幅に収め、側のラベルの下に置く（重ねて切るだけだと木の右側が隠れるため）
@@ -344,6 +344,7 @@ Provider の名前は riverpod_generator が付けるもので、クラス名か
 | `NotificationListener`（scrolling） | 受ける型（`ScrollNotification` / `ScrollUpdateNotification` / `OverscrollNotification`）・`onNotification` の戻り値（false / true） | 外の聞き手（デモの部品。ログに「外:」）の下に `NotificationListener`（ログに「内:」）、その下に 20 行の `ListView`（回数の印つき） | スクロールで「内: ScrollUpdateNotification ×6」。ListView は 1 回のまま（通知では組み直さない）。true にすると「外:」が止まる | 包みを外す。「内:」は出ず「外:」だけ出る（聞き手がいなくても通知は上へ伝わる） |
 | `LayoutBuilder`（layout） | `builder`（幅 160 / 240 / 320 未満で縦に並べる。必須） | `LayoutBuilder` の builder の中に、広ければ横・狭ければ縦に 2 つの箱を並べる子（回数の印つき）。builder が呼ばれるたびに「builder: maxWidth 300」 | 比べると、狭い側のカードだけ縦に並び替わる（置かれた場所の広さで組み分ける） | 手書き（`codeWithout` あり）。`MediaQuery.sizeOf` の画面の幅で組み分けるので、カードが狭くても横のまま |
 | `Theme`（styling） | `colorScheme`（瑠璃・紅・若竹の色から作る）・`textTheme`（bodyMedium を 20 / 12）。どちらも `Theme.of(context).copyWith(…)` の中 | `Theme(data: 親の値.copyWith(…))` の下に「色を読む子」（`colorScheme.primary` の箱）・「文字を読む子」（`textTheme.bodyMedium`）・「読まない子」 | 色だけ変えても、`Theme.of` で読んだ子は文字の子も組み直される（MediaQuery と違い項目ごとに分かれない）。読まない子は 1 回のまま | 包みを外す。子はアプリの Theme を読むので、値を変えても届かず回数は増えない |
+| `DefaultTextStyle`（text） | `style`（大きく太く / 紅の斜体。必須）・`maxLines`・`overflow` | `DefaultTextStyle` の下に「大きさを読む子」（`DefaultTextStyle.of`）・「受ける Text」（style なし）・「受けない Text」（`inherit: false`） | style を変えると大きさを読む子だけ build が増える。受ける Text は見た目が変わるが、Text が自分で読むので包む子は組み直されない。受けない Text は変わらない | 包みを外す。子はアプリの既定の文字の見た目を受けるので、値を変えても届かない |
 
 デモの部品（ボタン・外の聞き手）は収録データのファイルの中に書き、コードには出さない。Stream と時刻は、テストで `fakeAsync` で進められるように組む。
 

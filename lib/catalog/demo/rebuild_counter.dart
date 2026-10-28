@@ -46,10 +46,10 @@ class _CounterFrame extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final spacing = NimiSpacing.of(context);
-    final name = Text(
-      label,
-      textScaler: DemoRecorder.textScalerOf(context),
-      style: theme.textTheme.bodyMedium,
+    // 札は、デモが変えた文字の見た目（DefaultTextStyle の大きさ・行数など）も受けない
+    final name = DefaultTextStyle(
+      style: theme.textTheme.bodyMedium ?? const TextStyle(),
+      child: Text(label, textScaler: DemoRecorder.textScalerOf(context)),
     );
     final badge = recorder.badge(label);
     return Container(

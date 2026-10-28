@@ -187,6 +187,8 @@ import 'package:widget_lab/catalog/painting/rotated_box.dart';
 import 'package:widget_lab/catalog/scrolling/notification_listener.dart';
 import 'package:widget_lab/catalog/styling/media_query.dart';
 import 'package:widget_lab/catalog/styling/theme.dart';
+import 'package:widget_lab/catalog/text/default_text_style.dart';
+import 'package:widget_lab/catalog/text/rich_text.dart';
 
 /// 収録する全 Widget。ファイルは最初のジャンルのディレクトリに置く。
 ///
@@ -311,6 +313,8 @@ final allEntries = <WidgetEntry>[
   rotatedBoxEntry,
   mediaQueryEntry,
   themeEntry,
+  defaultTextStyleEntry,
+  richTextEntry,
   futureBuilderEntry,
   streamBuilderEntry,
   notificationListenerEntry,
