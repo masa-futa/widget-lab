@@ -48,4 +48,25 @@ void main() {
     final context = tester.element(find.byType(PreviewCard));
     expect(material.color, Theme.of(context).colorScheme.surfaceContainer);
   });
+
+  testWidgets('TC-67: 拡大を渡すと、子を 2 倍で描く', (tester) async {
+    await pumpPart(
+      tester,
+      const PreviewCard(scale: 2, child: SizedBox(width: 24, height: 24)),
+    );
+
+    final transform = tester.widget<Transform>(
+      find.ancestor(
+        of: find.byKey(PreviewCard.boundsKey),
+        matching: find.byType(Transform),
+      ),
+    );
+    expect(transform.transform.getMaxScaleOnAxis(), 2);
+  });
+
+  testWidgets('地に方眼を描く', (tester) async {
+    await pumpPart(tester, const PreviewCard(child: SizedBox()));
+
+    expect(find.byKey(PreviewCard.gridKey), findsOneWidget);
+  });
 }

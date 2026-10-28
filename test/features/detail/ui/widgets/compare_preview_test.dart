@@ -5,60 +5,99 @@ import 'package:widget_lab/features/detail/ui/widgets/compare_preview.dart';
 import '../pump.dart';
 
 void main() {
-  testWidgets('TC-50: 上に「付けた」と✓、下に「付けない」と−を、文言とアイコンで出す', (tester) async {
-    await pumpPart(
-      tester,
-      const ComparePreview(
-        propertyName: 'padding',
-        valueLabel: '16.0',
-        withChild: Text('上の中身'),
-        withoutChild: Text('下の中身'),
+  Future<void> pumpCompare(WidgetTester tester, {double scale = 1}) => pumpPart(
+    tester,
+    Center(
+      child: SizedBox(
+        width: 400,
+        height: 300,
+        child: ComparePreview(
+          propertyName: 'color',
+          valueLabel: '瑠璃',
+          scale: scale,
+          withChild: const Text('with'),
+          withoutChild: const Text('without'),
+        ),
       ),
-    );
+    ),
+  );
 
-    final withLabel = tester.getTopLeft(find.text('付けた'));
-    final withoutLabel = tester.getTopLeft(find.text('付けない'));
-    expect(withLabel.dy, lessThan(withoutLabel.dy));
-    expect(tester.getTopLeft(find.text('上の中身')).dy, lessThan(withoutLabel.dy));
-    expect(
-      tester.getTopLeft(find.text('下の中身')).dy,
-      greaterThan(withoutLabel.dy),
-    );
+  /// 仕切りの位置（ComparePreview の左端からの x）。
+  double dividerX(WidgetTester tester) =>
+      tester.getCenter(find.byKey(ComparePreview.dividerKey)).dx -
+      tester.getTopLeft(find.byType(ComparePreview)).dx;
+
+  testWidgets('TC-50: 左に「付けた」と✓、右に「付けない」と−、仕切りが中央に出る', (tester) async {
+    await pumpCompare(tester);
+
+    expect(find.text('付けた'), findsOneWidget);
+    expect(find.text('付けない'), findsOneWidget);
     expect(find.byIcon(Icons.check), findsOneWidget);
     expect(find.byIcon(Icons.remove), findsOneWidget);
-  });
-
-  testWidgets('TC-50: 2 枚は同じ高さ', (tester) async {
-    await pumpPart(
-      tester,
-      const ComparePreview(
-        propertyName: 'padding',
-        valueLabel: '16.0',
-        withChild: SizedBox.shrink(key: Key('with')),
-        withoutChild: SizedBox.shrink(key: Key('without')),
-      ),
-    );
-
-    final cards = find.byKey(const Key('compareCard'));
-    expect(cards, findsNWidgets(2));
+    expect(find.text('with'), findsOneWidget);
+    expect(find.text('without'), findsOneWidget);
+    expect(dividerX(tester), closeTo(200, 1));
     expect(
-      tester.getSize(cards.first).height,
-      tester.getSize(cards.last).height,
+      tester.getCenter(find.text('付けた')).dx,
+      lessThan(tester.getCenter(find.text('付けない')).dx),
     );
   });
 
-  testWidgets('TC-50: カードを「付けた、padding、16.0」「付けない、padding」と読む', (tester) async {
-    await pumpPart(
-      tester,
-      const ComparePreview(
-        propertyName: 'padding',
-        valueLabel: '16.0',
-        withChild: SizedBox.shrink(),
-        withoutChild: SizedBox.shrink(),
-      ),
-    );
+  testWidgets('TC-50: 2 枚を「付けた、color、瑠璃」「付けない」と読み上げる', (tester) async {
+    final semantics = tester.ensureSemantics();
+    await pumpCompare(tester);
 
-    expect(find.bySemanticsLabel('付けた、padding、16.0'), findsOneWidget);
-    expect(find.bySemanticsLabel('付けない、padding'), findsOneWidget);
+    expect(find.bySemanticsLabel('付けた、color、瑠璃'), findsOneWidget);
+    expect(find.bySemanticsLabel('付けない'), findsOneWidget);
+    semantics.dispose();
+  });
+
+  testWidgets('TC-68: 仕切りをドラッグすると動き、幅の 10〜90% で止まる', (tester) async {
+    await pumpCompare(tester);
+
+    await tester.drag(
+      find.byKey(ComparePreview.dividerKey),
+      const Offset(80, 0),
+    );
+    await tester.pump();
+    expect(dividerX(tester), closeTo(280, 1));
+
+    await tester.drag(
+      find.byKey(ComparePreview.dividerKey),
+      const Offset(-1000, 0),
+    );
+    await tester.pump();
+    expect(dividerX(tester), closeTo(40, 1));
+
+    await tester.drag(
+      find.byKey(ComparePreview.dividerKey),
+      const Offset(1000, 0),
+    );
+    await tester.pump();
+    expect(dividerX(tester), closeTo(360, 1));
+  });
+
+  testWidgets('TC-68: 読み上げの調整操作で 10% ずつ動く', (tester) async {
+    final semantics = tester.ensureSemantics();
+    await pumpCompare(tester);
+    tester.semantics.increase(find.semantics.byLabel('比較の仕切り'));
+    await tester.pump();
+
+    expect(dividerX(tester), closeTo(240, 1));
+    expect(tester.getSemantics(find.bySemanticsLabel('比較の仕切り')).value, '60%');
+    semantics.dispose();
+  });
+
+  testWidgets('TC-67: 拡大を渡すと 2 枚とも同じ倍率で描く', (tester) async {
+    await pumpCompare(tester, scale: 2);
+
+    for (final text in ['with', 'without']) {
+      final scale = tester.widget<Transform>(
+        find
+            .ancestor(of: find.text(text), matching: find.byType(Transform))
+            .first,
+      );
+      expect(scale.transform.getMaxScaleOnAxis(), 2);
+    }
   });
 }

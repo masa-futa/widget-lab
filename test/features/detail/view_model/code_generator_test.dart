@@ -159,4 +159,53 @@ void main() {
       expect(generator.generate(textEntry, settings), "Text(\n  'It\\'s',\n)");
     });
   });
+
+  group('行ごと', () {
+    test('TC-38: 行の文字をつなぐと generate と同じで、行にプロパティ名が付く', () {
+      final settings = paddingEntry.initialSettings();
+
+      final lines = generator.lines(paddingEntry, settings);
+
+      expect(
+        lines.map((l) => l.text).join('\n'),
+        generator.generate(paddingEntry, settings),
+      );
+      expect(lines.map((l) => l.property), [null, 'padding', 'child', null]);
+    });
+
+    test('TC-40: プロパティが全部 OFF なら 1 行で、プロパティ名なし', () {
+      final lines = generator.lines(paddingEntry, _allOff(paddingEntry));
+
+      expect(lines, [const CodeLine(text: 'Padding()')]);
+    });
+
+    test('TC-64: 値を変えた行と、最初は OFF で書かれていなかった行が「変えた」', () {
+      final settings = {
+        ...containerEntry.initialSettings(),
+        'padding': const PropertySetting(on: true, value: SliderValue(24)),
+        'width': const PropertySetting(on: true, value: SliderValue(200)),
+      };
+
+      final changed = {
+        for (final line in generator.lines(containerEntry, settings))
+          ?line.property: line.changed,
+      };
+
+      expect(changed, {
+        'padding': true,
+        'color': false,
+        'width': true,
+        'child': false,
+      });
+    });
+
+    test('TC-64: 開いたときの設定では、どの行も「変えていない」', () {
+      final lines = generator.lines(
+        containerEntry,
+        containerEntry.initialSettings(),
+      );
+
+      expect(lines.where((l) => l.changed), isEmpty);
+    });
+  });
 }

@@ -124,77 +124,113 @@ abstract class AppLocalizations {
   /// **'{genre}、{count} 件'**
   String catalogSectionLabel(String genre, int count);
 
-  /// 詳細画面のタブ（プロパティの操作）
+  /// App Bar の説明のボタン（ⓘ）のツールチップと読み上げ
   ///
   /// In ja, this message translates to:
-  /// **'操作'**
-  String get detailTabOperation;
+  /// **'この Widget について'**
+  String get detailAbout;
 
-  /// 詳細画面のタブ（要約と公式ドキュメント）
-  ///
-  /// In ja, this message translates to:
-  /// **'説明'**
-  String get detailTabDescription;
-
-  /// 詳細画面のタブ（今の設定のコード）
-  ///
-  /// In ja, this message translates to:
-  /// **'コード'**
-  String get detailTabCode;
-
-  /// 詳細画面の AppBar のボタンのツールチップと読み上げ
+  /// App Bar の初期状態に戻すボタンのツールチップと読み上げ
   ///
   /// In ja, this message translates to:
   /// **'初期状態に戻す'**
   String get detailReset;
 
-  /// 操作パネルの行の「比べる」ボタンのツールチップと読み上げ
+  /// プレビューの拡大のピル（等倍のとき）
   ///
   /// In ja, this message translates to:
-  /// **'付けた／付けないを比べる'**
-  String get detailCompare;
+  /// **'×1'**
+  String get detailZoom1;
 
-  /// 比較中の行の「比べる」ボタンの読み上げ
+  /// プレビューの拡大のピル（2 倍のとき）
   ///
   /// In ja, this message translates to:
-  /// **'比較中'**
-  String get detailComparing;
+  /// **'×2'**
+  String get detailZoom2;
 
-  /// 比較の上のカードのラベル
+  /// 拡大のピルの読み上げ（等倍のとき）
+  ///
+  /// In ja, this message translates to:
+  /// **'等倍で表示'**
+  String get detailZoom1Semantics;
+
+  /// 拡大のピルの読み上げ（2 倍のとき）
+  ///
+  /// In ja, this message translates to:
+  /// **'2 倍で表示'**
+  String get detailZoom2Semantics;
+
+  /// 比較の左半分のラベル
   ///
   /// In ja, this message translates to:
   /// **'付けた'**
   String get detailCompareWith;
 
-  /// 比較の下のカードのラベル
+  /// 比較の右半分のラベル
   ///
   /// In ja, this message translates to:
   /// **'付けない'**
   String get detailCompareWithout;
 
-  /// 比較の上のカードの読み上げ
+  /// 比較の左半分の読み上げ
   ///
   /// In ja, this message translates to:
   /// **'付けた、{name}、{value}'**
   String detailCompareWithSemantics(String name, String value);
 
-  /// 比較の下のカードの読み上げ
+  /// 比較の右半分の読み上げ
   ///
   /// In ja, this message translates to:
-  /// **'付けない、{name}'**
-  String detailCompareWithoutSemantics(String name);
+  /// **'付けない'**
+  String get detailCompareWithoutSemantics;
 
-  /// 比較しているプロパティ
+  /// 比較の仕切りの読み上げ
   ///
   /// In ja, this message translates to:
-  /// **'{name} を比較中'**
-  String detailComparingTarget(String name);
+  /// **'比較の仕切り'**
+  String get detailCompareDivider;
 
-  /// 比較をやめる文字のボタン
+  /// コードの帯の右端。押すとコードの全文のシートを開く
   ///
   /// In ja, this message translates to:
-  /// **'比較をやめる'**
-  String get detailCompareDismiss;
+  /// **'全文'**
+  String get detailCodeOpen;
+
+  /// 選んでいるプロパティが OFF のときのコードの帯
+  ///
+  /// In ja, this message translates to:
+  /// **'// {name} は指定なし（既定値）'**
+  String detailCodeUnset(String name);
+
+  /// OFF のプロパティのチップの値
+  ///
+  /// In ja, this message translates to:
+  /// **'既定'**
+  String get detailChipDefault;
+
+  /// 選んでいるチップの読み上げ
+  ///
+  /// In ja, this message translates to:
+  /// **'選択中'**
+  String get detailChipSelected;
+
+  /// 編集パネルの比べるボタン
+  ///
+  /// In ja, this message translates to:
+  /// **'比べる'**
+  String get detailCompare;
+
+  /// 比較中の比べるボタン
+  ///
+  /// In ja, this message translates to:
+  /// **'比べるのをやめる'**
+  String get detailCompareStop;
+
+  /// 編集パネルの、選んでいるプロパティだけを最初の値に戻すボタン
+  ///
+  /// In ja, this message translates to:
+  /// **'既定に戻す'**
+  String get detailDefault;
 
   /// 必須のプロパティの印（スイッチの代わり）
   ///
@@ -214,25 +250,25 @@ abstract class AppLocalizations {
   /// **'{name} の値'**
   String detailValueLabel(String name);
 
-  /// 操作できるプロパティがないときの操作タブ
+  /// プロパティがないときの編集パネル
   ///
   /// In ja, this message translates to:
   /// **'この Widget には変えられるプロパティがありません'**
   String get detailNoProperties;
 
-  /// 説明タブのボタン
+  /// コードの全文のシートの見出し
   ///
   /// In ja, this message translates to:
-  /// **'公式ドキュメントを開く'**
-  String get detailOpenDocs;
+  /// **'コード'**
+  String get detailCodeTitle;
 
-  /// 公式ドキュメントを開けなかったときの Snackbar
+  /// コードの全文のシートの凡例
   ///
   /// In ja, this message translates to:
-  /// **'ブラウザを開けませんでした'**
-  String get detailOpenDocsFailed;
+  /// **'既定から変えた行'**
+  String get detailCodeLegend;
 
-  /// コードタブのボタン
+  /// コードの全文のシートのボタン
   ///
   /// In ja, this message translates to:
   /// **'コードをコピー'**
@@ -249,6 +285,24 @@ abstract class AppLocalizations {
   /// In ja, this message translates to:
   /// **'コピーできませんでした'**
   String get detailCopyFailed;
+
+  /// 説明のシートの見出し
+  ///
+  /// In ja, this message translates to:
+  /// **'{name} について'**
+  String detailAboutTitle(String name);
+
+  /// 説明のシートのボタン
+  ///
+  /// In ja, this message translates to:
+  /// **'公式ドキュメントを開く'**
+  String get detailOpenDocs;
+
+  /// 公式ドキュメントを開けなかったときの Snackbar
+  ///
+  /// In ja, this message translates to:
+  /// **'ブラウザを開けませんでした'**
+  String get detailOpenDocsFailed;
 }
 
 class _AppLocalizationsDelegate

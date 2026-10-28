@@ -29,22 +29,22 @@ class AppLocalizationsJa extends AppLocalizations {
   }
 
   @override
-  String get detailTabOperation => '操作';
-
-  @override
-  String get detailTabDescription => '説明';
-
-  @override
-  String get detailTabCode => 'コード';
+  String get detailAbout => 'この Widget について';
 
   @override
   String get detailReset => '初期状態に戻す';
 
   @override
-  String get detailCompare => '付けた／付けないを比べる';
+  String get detailZoom1 => '×1';
 
   @override
-  String get detailComparing => '比較中';
+  String get detailZoom2 => '×2';
+
+  @override
+  String get detailZoom1Semantics => '等倍で表示';
+
+  @override
+  String get detailZoom2Semantics => '2 倍で表示';
 
   @override
   String get detailCompareWith => '付けた';
@@ -58,17 +58,33 @@ class AppLocalizationsJa extends AppLocalizations {
   }
 
   @override
-  String detailCompareWithoutSemantics(String name) {
-    return '付けない、$name';
+  String get detailCompareWithoutSemantics => '付けない';
+
+  @override
+  String get detailCompareDivider => '比較の仕切り';
+
+  @override
+  String get detailCodeOpen => '全文';
+
+  @override
+  String detailCodeUnset(String name) {
+    return '// $name は指定なし（既定値）';
   }
 
   @override
-  String detailComparingTarget(String name) {
-    return '$name を比較中';
-  }
+  String get detailChipDefault => '既定';
 
   @override
-  String get detailCompareDismiss => '比較をやめる';
+  String get detailChipSelected => '選択中';
+
+  @override
+  String get detailCompare => '比べる';
+
+  @override
+  String get detailCompareStop => '比べるのをやめる';
+
+  @override
+  String get detailDefault => '既定に戻す';
 
   @override
   String get detailRequired => '必須';
@@ -87,10 +103,10 @@ class AppLocalizationsJa extends AppLocalizations {
   String get detailNoProperties => 'この Widget には変えられるプロパティがありません';
 
   @override
-  String get detailOpenDocs => '公式ドキュメントを開く';
+  String get detailCodeTitle => 'コード';
 
   @override
-  String get detailOpenDocsFailed => 'ブラウザを開けませんでした';
+  String get detailCodeLegend => '既定から変えた行';
 
   @override
   String get detailCopyCode => 'コードをコピー';
@@ -100,4 +116,15 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get detailCopyFailed => 'コピーできませんでした';
+
+  @override
+  String detailAboutTitle(String name) {
+    return '$name について';
+  }
+
+  @override
+  String get detailOpenDocs => '公式ドキュメントを開く';
+
+  @override
+  String get detailOpenDocsFailed => 'ブラウザを開けませんでした';
 }

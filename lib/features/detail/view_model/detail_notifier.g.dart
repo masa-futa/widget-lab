@@ -8,15 +8,15 @@ part of 'detail_notifier.dart';
 
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
-/// 1つの Widget の詳細の設定と比較。画面を離れると捨てる（autoDispose）。
+/// 1つの Widget の詳細の設定・選択・比較。画面を離れると捨てる（autoDispose）。
 
 @ProviderFor(DetailNotifier)
 final detailProvider = DetailNotifierFamily._();
 
-/// 1つの Widget の詳細の設定と比較。画面を離れると捨てる（autoDispose）。
+/// 1つの Widget の詳細の設定・選択・比較。画面を離れると捨てる（autoDispose）。
 final class DetailNotifierProvider
     extends $NotifierProvider<DetailNotifier, DetailState> {
-  /// 1つの Widget の詳細の設定と比較。画面を離れると捨てる（autoDispose）。
+  /// 1つの Widget の詳細の設定・選択・比較。画面を離れると捨てる（autoDispose）。
   DetailNotifierProvider._({
     required DetailNotifierFamily super.from,
     required String super.argument,
@@ -61,9 +61,9 @@ final class DetailNotifierProvider
   }
 }
 
-String _$detailNotifierHash() => r'dd7af6e8e0c43ca79ed318cceec2cec70d9f4f91';
+String _$detailNotifierHash() => r'e20d9d642373d393c991b25893d48eaa90e91bf6';
 
-/// 1つの Widget の詳細の設定と比較。画面を離れると捨てる（autoDispose）。
+/// 1つの Widget の詳細の設定・選択・比較。画面を離れると捨てる（autoDispose）。
 
 final class DetailNotifierFamily extends $Family
     with
@@ -83,7 +83,7 @@ final class DetailNotifierFamily extends $Family
         isAutoDispose: true,
       );
 
-  /// 1つの Widget の詳細の設定と比較。画面を離れると捨てる（autoDispose）。
+  /// 1つの Widget の詳細の設定・選択・比較。画面を離れると捨てる（autoDispose）。
 
   DetailNotifierProvider call(String entryId) =>
       DetailNotifierProvider._(argument: entryId, from: this);
@@ -92,7 +92,7 @@ final class DetailNotifierFamily extends $Family
   String toString() => r'detailProvider';
 }
 
-/// 1つの Widget の詳細の設定と比較。画面を離れると捨てる（autoDispose）。
+/// 1つの Widget の詳細の設定・選択・比較。画面を離れると捨てる（autoDispose）。
 
 abstract class _$DetailNotifier extends $Notifier<DetailState> {
   late final _$args = ref.$arg as String;
@@ -115,17 +115,17 @@ abstract class _$DetailNotifier extends $Notifier<DetailState> {
   }
 }
 
-/// 今の設定を再現する Dart のコード。
+/// 今の設定を再現する Dart のコードの行（帯は選んでいる行、全文は全部）。
 
 @ProviderFor(detailCode)
 final detailCodeProvider = DetailCodeFamily._();
 
-/// 今の設定を再現する Dart のコード。
+/// 今の設定を再現する Dart のコードの行（帯は選んでいる行、全文は全部）。
 
 final class DetailCodeProvider
-    extends $FunctionalProvider<String, String, String>
-    with $Provider<String> {
-  /// 今の設定を再現する Dart のコード。
+    extends $FunctionalProvider<List<CodeLine>, List<CodeLine>, List<CodeLine>>
+    with $Provider<List<CodeLine>> {
+  /// 今の設定を再現する Dart のコードの行（帯は選んでいる行、全文は全部）。
   DetailCodeProvider._({
     required DetailCodeFamily super.from,
     required String super.argument,
@@ -149,20 +149,20 @@ final class DetailCodeProvider
 
   @$internal
   @override
-  $ProviderElement<String> $createElement($ProviderPointer pointer) =>
+  $ProviderElement<List<CodeLine>> $createElement($ProviderPointer pointer) =>
       $ProviderElement(pointer);
 
   @override
-  String create(Ref ref) {
+  List<CodeLine> create(Ref ref) {
     final argument = this.argument as String;
     return detailCode(ref, argument);
   }
 
   /// {@macro riverpod.override_with_value}
-  Override overrideWithValue(String value) {
+  Override overrideWithValue(List<CodeLine> value) {
     return $ProviderOverride(
       origin: this,
-      providerOverride: $SyncValueProvider<String>(value),
+      providerOverride: $SyncValueProvider<List<CodeLine>>(value),
     );
   }
 
@@ -177,12 +177,12 @@ final class DetailCodeProvider
   }
 }
 
-String _$detailCodeHash() => r'422fb654399a505b52178ea6b60ead81349bce87';
+String _$detailCodeHash() => r'c365fab7d23f41bd09604a2831ae13903bc6b477';
 
-/// 今の設定を再現する Dart のコード。
+/// 今の設定を再現する Dart のコードの行（帯は選んでいる行、全文は全部）。
 
 final class DetailCodeFamily extends $Family
-    with $FunctionalFamilyOverride<String, String> {
+    with $FunctionalFamilyOverride<List<CodeLine>, String> {
   DetailCodeFamily._()
     : super(
         retry: null,
@@ -192,7 +192,7 @@ final class DetailCodeFamily extends $Family
         isAutoDispose: true,
       );
 
-  /// 今の設定を再現する Dart のコード。
+  /// 今の設定を再現する Dart のコードの行（帯は選んでいる行、全文は全部）。
 
   DetailCodeProvider call(String entryId) =>
       DetailCodeProvider._(argument: entryId, from: this);
