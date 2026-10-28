@@ -44,7 +44,7 @@ final segmentedButtonEntry = WidgetEntry(
         choices: [
           Choice('日', {'day'}, "{'day'}"),
           Choice('週', {'week'}, "{'week'}"),
-          Choice('日と月', {'day', 'month'}, "{'day', 'month'}"),
+          Choice('月', {'month'}, "{'month'}"),
         ],
       ),
     ),
@@ -80,8 +80,7 @@ Widget _build(DemoArgs args) {
   final multi = args.valueOf<bool>('multiSelectionEnabled') ?? false;
   return SegmentedButton<String>(
     segments: args.valueOf<List<ButtonSegment<String>>>('segments') ?? const [],
-    // 1 つしか選べないのに 2 つ渡すと assert で落ちるので、そのときは最初の 1 つだけにする
-    selected: multi ? selected : {selected.first},
+    selected: selected,
     onSelectionChanged: args.valueOf<ValueChanged<Set<String>>>(
       'onSelectionChanged',
     ),
