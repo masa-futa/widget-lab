@@ -1343,6 +1343,16 @@ void main() {
       expect(find.widgetWithText(PropertyChip, 'padding'), findsNothing);
     });
 
+    testWidgets('読み上げの操作で仲間のタブを押せる', (tester) async {
+      final handle = tester.ensureSemantics();
+      await pumpDetail(tester, 'container');
+      tester.semantics.tap(find.semantics.byLabel('大きさ、ON が 0 件'));
+      await tester.pumpAndSettle();
+      expect(find.widgetWithText(PropertyChip, 'width'), findsOneWidget);
+      expect(find.widgetWithText(PropertyChip, 'padding'), findsNothing);
+      handle.dispose();
+    });
+
     testWidgets('requires の相手が OFF のチップは薄い', (tester) async {
       await pumpDetail(tester, 'container');
       await tester.tap(find.text('変形'));

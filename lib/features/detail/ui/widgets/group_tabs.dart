@@ -25,7 +25,7 @@ class GroupTabs extends ConsumerWidget {
     final spacing = NimiSpacing.of(context);
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
-      padding: EdgeInsets.symmetric(horizontal: spacing.sm),
+      padding: EdgeInsets.symmetric(horizontal: spacing.md),
       child: Row(
         children: [
           for (final group in state.entry.groups)
@@ -89,6 +89,7 @@ class _Tab extends StatelessWidget {
           ? label
           : AppLocalizations.of(context).detailTabOnCount(label, count),
       excludeSemantics: true,
+      onTap: onTap,
       child: Material(
         type: MaterialType.transparency,
         child: InkWell(
