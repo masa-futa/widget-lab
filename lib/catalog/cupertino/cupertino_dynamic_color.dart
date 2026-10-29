@@ -2,7 +2,9 @@ import 'package:flutter/cupertino.dart';
 import 'package:widget_lab/catalog/model/choice.dart';
 import 'package:widget_lab/catalog/model/demo_args.dart';
 import 'package:widget_lab/catalog/model/property_control.dart';
+import 'package:widget_lab/catalog/model/property_group.dart';
 import 'package:widget_lab/catalog/model/property_spec.dart';
+import 'package:widget_lab/catalog/model/reference_arg.dart';
 import 'package:widget_lab/catalog/model/widget_entry.dart';
 
 final cupertinoDynamicColorEntry = WidgetEntry(
@@ -20,6 +22,8 @@ final cupertinoDynamicColorEntry = WidgetEntry(
   properties: [
     PropertySpec(
       name: 'color',
+      group: PropertyGroup.paint,
+      pairsWith: const ['darkColor'],
       typeLabel: 'Color',
       description: '明るいときの色',
       required: true,
@@ -27,10 +31,19 @@ final cupertinoDynamicColorEntry = WidgetEntry(
     ),
     PropertySpec(
       name: 'darkColor',
+      group: PropertyGroup.paint,
+      pairsWith: const ['color'],
       typeLabel: 'Color',
       description: '暗いときの色',
       required: true,
       control: ColorControl(palette: _palette, initialIndex: 1),
+    ),
+  ],
+  references: const [
+    ReferenceArg(
+      name: 'debugLabel',
+      typeLabel: 'String?',
+      description: 'デバッグの表示で色を見分ける名前。見た目は変わらない',
     ),
   ],
   build: _build,
