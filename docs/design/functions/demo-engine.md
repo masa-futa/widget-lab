@@ -303,8 +303,11 @@ Provider の名前は riverpod_generator が付けるもので、クラス名か
 | `genres` | `List<Genre>` | `entry.genreIds` の順のジャンル | 説明のシートのジャンル（ds-genr）に名前を出すため |
 | `settings` | `Map<String, PropertySetting>` | 各プロパティの `initiallyOn` と `control.initial` | `PropertySetting(on: bool, value: ControlValue)`。OFF にしても `value` は覚えておく |
 | `selectedChild` | `String?` | `null` | 入れ子のプロパティで選んでいる子の名前 |
-| `selectedGroup` | `PropertyGroup?`（getter） | 選んでいるプロパティの仲間 | 開いているタブ。`showsReferences` が `true` のときは補足のタブ |
-| `showsReferences` | `bool` | `false` | 補足のタブを開いているか |
+| `showsReferences` | `bool` | `false` | 補足を選んでいるか |
+| `pickerItems` | `List<PickerItem>`（getter） | 選ぶ欄の送る順 | sealed の `PickerProperty(spec)` / `PickerReferences()`。仲間のないもの → 仲間の語彙の順（中は収録の順）→ 補足（あるとき）。一覧のシートの並びと同じ |
+| `pickerIndex` | `int`（getter） | 選ぶ欄の今の位置 | 補足を選んでいれば補足の位置、そうでなければ `selected` の位置。どこでもなければ `-1`（プロパティのない Widget） |
+| `hasPrevious` / `hasNext` | `bool`（getter） | 前後に送れるか | ‹ › の活性。先頭では `hasPrevious`、最後では `hasNext` が `false` |
+| `onCount` | `int`（getter） | ON のプロパティの数 | 一覧のシートの「指定中」 |
 | `notice` | `ExclusionNotice?` | `null` | 同時に使えない組の知らせ（ON にした側・OFF にした側）。3 秒で `noticeDismissed` |
 | `selected` | `String?` | 最初の ON のプロパティ（なければ最初のプロパティ。プロパティがなければ `null`） | 編集パネルで選んでいるプロパティの名前 |
 | `comparing` | `Comparing?` | `null` | sealed。`ComparingProperty(name, child: 子)`（見た目を持つ Widget。比べているプロパティの名前（`selected` と同じ）と、入れ子のプロパティで子を選んでいるときはその子（`selectedChild`。それ以外は `null`））か `ComparingUse()`（見た目を持たない Widget。Widget そのものを使った／使わない）。`null` は比較していない |
@@ -330,7 +333,8 @@ Provider の名前は riverpod_generator が付けるもので、クラス名か
 | ca_lst | `queryChanged(String)` | ユーザー | `query` と `results` を更新 |
 | ca_lst | `queryCleared()` | ユーザー | `query` を空、`results` を空 |
 | cb_dtl | `propertySelected(String name)` | ユーザー | `selected = name`。`comparing` が `ComparingProperty` なら `null`、`ComparingUse` なら変えない |
-| cb_dtl | `groupSelected(PropertyGroup?)` | ユーザー | そのタブの最初の ON のチップ（なければ先頭）を `selected`、`showsReferences = false`、比較をやめる。`null` は仲間を付けていないプロパティの組（仲間を決めていない収録の「プロパティ」のタブ） |
+| cb_dtl | `previousTapped()` | ユーザー | 選ぶ欄の ‹。`pickerItems` で 1 つ前のプロパティ（または補足）を選ぶ（`propertySelected` / `referencesSelected` と同じ変化）。先頭なら何もしない |
+| cb_dtl | `nextTapped()` | ユーザー | 選ぶ欄の ›。1 つ後ろを選ぶ。最後なら何もしない |
 | cb_dtl | `referencesSelected()` | ユーザー | `showsReferences = true`（補足のタブ） |
 | cb_dtl | `childSelected(String)` / `childToggled` / `childValueChanged` | ユーザー | 入れ子の子の選択・ON/OFF・値 |
 | cb_dtl | `noticeDismissed()` | 副作用の結果（3 秒） | `notice = null`。ほかのプロパティを選んでも消える |
