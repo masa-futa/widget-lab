@@ -1,7 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:widget_lab/catalog/model/demo_args.dart';
 import 'package:widget_lab/catalog/model/property_control.dart';
+import 'package:widget_lab/catalog/model/property_group.dart';
 import 'package:widget_lab/catalog/model/property_spec.dart';
+import 'package:widget_lab/catalog/model/reference_arg.dart';
 import 'package:widget_lab/catalog/model/widget_entry.dart';
 
 final cupertinoPageTransitionEntry = WidgetEntry(
@@ -19,6 +21,7 @@ final cupertinoPageTransitionEntry = WidgetEntry(
   properties: [
     PropertySpec(
       name: 'primaryRouteAnimation',
+      group: PropertyGroup.behavior,
       typeLabel: 'Animation<double>',
       description: 'この画面が出てくる進み具合。0 で右の外、1 で元の位置',
       required: true,
@@ -26,6 +29,7 @@ final cupertinoPageTransitionEntry = WidgetEntry(
     ),
     PropertySpec(
       name: 'secondaryRouteAnimation',
+      group: PropertyGroup.behavior,
       typeLabel: 'Animation<double>',
       description: '上に次の画面が来る進み具合。進むと左へ少しずれる',
       required: true,
@@ -33,6 +37,7 @@ final cupertinoPageTransitionEntry = WidgetEntry(
     ),
     const PropertySpec(
       name: 'linearTransition',
+      group: PropertyGroup.behavior,
       typeLabel: 'bool',
       description: 'true なら進み具合をそのまま位置にする。false なら iOS の曲線で緩急をつける',
       required: true,
@@ -40,10 +45,18 @@ final cupertinoPageTransitionEntry = WidgetEntry(
     ),
     const PropertySpec(
       name: 'child',
+      group: PropertyGroup.content,
       typeLabel: 'Widget',
       description: '動かす画面',
       required: true,
       control: FixedControl(value: _Page(), source: 'const NextPage()'),
+    ),
+  ],
+  references: const [
+    ReferenceArg(
+      name: 'key',
+      typeLabel: 'Key?',
+      description: 'Widget を見分ける印。並べ替えたときや、状態を引き継ぐときに使う',
     ),
   ],
   build: _build,

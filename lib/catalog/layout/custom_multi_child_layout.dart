@@ -3,7 +3,9 @@ import 'package:widget_lab/catalog/demo/demo_tile.dart';
 import 'package:widget_lab/catalog/model/choice.dart';
 import 'package:widget_lab/catalog/model/demo_args.dart';
 import 'package:widget_lab/catalog/model/property_control.dart';
+import 'package:widget_lab/catalog/model/property_group.dart';
 import 'package:widget_lab/catalog/model/property_spec.dart';
+import 'package:widget_lab/catalog/model/reference_arg.dart';
 import 'package:widget_lab/catalog/model/widget_entry.dart';
 
 final customMultiChildLayoutEntry = WidgetEntry(
@@ -21,6 +23,7 @@ final customMultiChildLayoutEntry = WidgetEntry(
   properties: [
     PropertySpec(
       name: 'delegate',
+      group: PropertyGroup.layout,
       typeLabel: 'MultiChildLayoutDelegate',
       description: '子の大きさと位置の決め方',
       required: true,
@@ -33,6 +36,7 @@ final customMultiChildLayoutEntry = WidgetEntry(
     ),
     PropertySpec(
       name: 'children',
+      group: PropertyGroup.content,
       typeLabel: 'List<Widget>',
       description: 'LayoutId で id（1〜3）を付けた子',
       control: FixedControl(
@@ -46,6 +50,13 @@ final customMultiChildLayoutEntry = WidgetEntry(
             '[LayoutId(id: 1, child: Tile(1)), LayoutId(id: 2, child: Tile(2)), '
             'LayoutId(id: 3, child: Tile(3))]',
       ),
+    ),
+  ],
+  references: const [
+    ReferenceArg(
+      name: 'key',
+      typeLabel: 'Key?',
+      description: 'Widget を見分ける印。並べ替えたときや、状態を引き継ぐときに使う',
     ),
   ],
   build: _build,

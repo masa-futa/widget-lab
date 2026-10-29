@@ -1,8 +1,10 @@
 import 'package:flutter/widgets.dart';
+import 'package:widget_lab/catalog/animation/shared_specs.dart';
 import 'package:widget_lab/catalog/animation/transition_curves.dart';
 import 'package:widget_lab/catalog/demo/demo_animation.dart';
 import 'package:widget_lab/catalog/model/demo_args.dart';
 import 'package:widget_lab/catalog/model/property_control.dart';
+import 'package:widget_lab/catalog/model/property_group.dart';
 import 'package:widget_lab/catalog/model/property_spec.dart';
 import 'package:widget_lab/catalog/model/widget_entry.dart';
 
@@ -20,6 +22,7 @@ final rotationTransitionEntry = WidgetEntry(
   properties: [
     PropertySpec(
       name: 'turns',
+      group: PropertyGroup.transform,
       typeLabel: 'Animation<double>',
       description: '回転の数の Animation。ここでは 0 → 1（1 回転）を曲線を選んで動かす',
       required: true,
@@ -27,13 +30,16 @@ final rotationTransitionEntry = WidgetEntry(
     ),
     PropertySpec(
       name: 'alignment',
+      group: PropertyGroup.transform,
       typeLabel: 'Alignment',
       description: '回転の中心。topLeft なら左上を軸に回る',
       initiallyOn: false,
       control: ChoiceControl(initialIndex: 1, choices: pivotChoices()),
     ),
+    filterQualitySpec(),
     const PropertySpec(
       name: 'child',
+      group: PropertyGroup.content,
       typeLabel: 'Widget?',
       description: '回して描く Widget',
       control: FixedControl(
@@ -42,6 +48,7 @@ final rotationTransitionEntry = WidgetEntry(
       ),
     ),
   ],
+  references: const [keyReference],
   build: _build,
   codeName: 'RotationTransition',
 );
@@ -50,6 +57,7 @@ Widget _build(DemoArgs args) => DemoAnimation(
   builder: (context, controller) => RotationTransition(
     turns: (args.valueOf<AnimationOf<double>>('turns') ?? linearOf)(controller),
     alignment: args.valueOf<Alignment>('alignment') ?? Alignment.center,
+    filterQuality: args.valueOf<FilterQuality>('filterQuality'),
     child: args.valueOf<Widget>('child'),
   ),
 );

@@ -1,7 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:widget_lab/catalog/model/demo_args.dart';
 import 'package:widget_lab/catalog/model/property_control.dart';
+import 'package:widget_lab/catalog/model/property_group.dart';
 import 'package:widget_lab/catalog/model/property_spec.dart';
+import 'package:widget_lab/catalog/model/reference_arg.dart';
 import 'package:widget_lab/catalog/model/widget_entry.dart';
 
 final cupertinoTextSelectionToolbarButtonEntry = WidgetEntry(
@@ -19,6 +21,7 @@ final cupertinoTextSelectionToolbarButtonEntry = WidgetEntry(
   properties: const [
     PropertySpec(
       name: 'text',
+      group: PropertyGroup.content,
       typeLabel: 'String',
       description: 'ボタンの文字',
       required: true,
@@ -26,9 +29,17 @@ final cupertinoTextSelectionToolbarButtonEntry = WidgetEntry(
     ),
     PropertySpec(
       name: 'onPressed',
+      group: PropertyGroup.behavior,
       typeLabel: 'VoidCallback?',
       description: '押したときに呼ばれる。null なら押せない見た目になる',
       control: FixedControl(value: _pressed, source: '() {}'),
+    ),
+  ],
+  references: const [
+    ReferenceArg(
+      name: 'key',
+      typeLabel: 'Key?',
+      description: 'Widget を見分ける印。並べ替えたときや、状態を引き継ぐときに使う',
     ),
   ],
   build: _build,

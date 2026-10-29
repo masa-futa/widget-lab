@@ -1,8 +1,10 @@
 import 'package:flutter/widgets.dart';
 import 'package:widget_lab/catalog/animation/implicit_animation_specs.dart';
+import 'package:widget_lab/catalog/animation/shared_specs.dart';
 import 'package:widget_lab/catalog/model/choice.dart';
 import 'package:widget_lab/catalog/model/demo_args.dart';
 import 'package:widget_lab/catalog/model/property_control.dart';
+import 'package:widget_lab/catalog/model/property_group.dart';
 import 'package:widget_lab/catalog/model/property_spec.dart';
 import 'package:widget_lab/catalog/model/widget_entry.dart';
 
@@ -20,6 +22,7 @@ final animatedScaleEntry = WidgetEntry(
   properties: [
     PropertySpec(
       name: 'scale',
+      group: PropertyGroup.transform,
       typeLabel: 'double',
       description: '倍率。1 でそのまま、2 で 2 倍',
       required: true,
@@ -36,6 +39,7 @@ final animatedScaleEntry = WidgetEntry(
     curveSpec,
     PropertySpec(
       name: 'alignment',
+      group: PropertyGroup.transform,
       typeLabel: 'Alignment',
       description: '拡大・縮小の中心。指定しないと真ん中（Alignment.center）',
       initiallyOn: false,
@@ -50,8 +54,10 @@ final animatedScaleEntry = WidgetEntry(
         ],
       ),
     ),
+    filterQualitySpec(),
     const PropertySpec(
       name: 'child',
+      group: PropertyGroup.content,
       typeLabel: 'Widget?',
       description: '大きさを変える Widget',
       control: FixedControl(
@@ -60,6 +66,7 @@ final animatedScaleEntry = WidgetEntry(
       ),
     ),
   ],
+  references: const [keyReference, onEndReference],
   build: _build,
   codeName: 'AnimatedScale',
 );
@@ -69,5 +76,6 @@ Widget _build(DemoArgs args) => AnimatedScale(
   duration: durationOf(args),
   curve: curveOf(args),
   alignment: args.valueOf<Alignment>('alignment') ?? Alignment.center,
+  filterQuality: args.valueOf<FilterQuality>('filterQuality'),
   child: args.valueOf<Widget>('child'),
 );

@@ -2,7 +2,9 @@ import 'package:flutter/cupertino.dart';
 import 'package:widget_lab/catalog/demo/demo_scope.dart';
 import 'package:widget_lab/catalog/model/demo_args.dart';
 import 'package:widget_lab/catalog/model/property_control.dart';
+import 'package:widget_lab/catalog/model/property_group.dart';
 import 'package:widget_lab/catalog/model/property_spec.dart';
+import 'package:widget_lab/catalog/model/reference_arg.dart';
 import 'package:widget_lab/catalog/model/widget_entry.dart';
 
 final cupertinoActionSheetEntry = WidgetEntry(
@@ -20,12 +22,14 @@ final cupertinoActionSheetEntry = WidgetEntry(
   properties: const [
     PropertySpec(
       name: 'title',
+      group: PropertyGroup.content,
       typeLabel: 'Widget?',
       description: '上に出す題',
       control: FixedControl(value: Text('写真'), source: "Text('写真')"),
     ),
     PropertySpec(
       name: 'message',
+      group: PropertyGroup.content,
       typeLabel: 'Widget?',
       description: '題の下に出す説明',
       initiallyOn: false,
@@ -36,6 +40,7 @@ final cupertinoActionSheetEntry = WidgetEntry(
     ),
     PropertySpec(
       name: 'actions',
+      group: PropertyGroup.content,
       typeLabel: 'List<Widget>?',
       description: '選択肢のボタン。ふつうは CupertinoActionSheetAction を並べる',
       required: true,
@@ -50,12 +55,30 @@ final cupertinoActionSheetEntry = WidgetEntry(
     ),
     PropertySpec(
       name: 'cancelButton',
+      group: PropertyGroup.content,
       typeLabel: 'Widget?',
       description: '選択肢と離して下に置く、取り消しのボタン',
       control: FixedControl(
         value: _cancel,
         source: "CupertinoActionSheetAction(onPressed: () {}, child: Text('キャンセル'))",
       ),
+    ),
+  ],
+  references: const [
+    ReferenceArg(
+      name: 'key',
+      typeLabel: 'Key?',
+      description: 'Widget を見分ける印。並べ替えたときや、状態を引き継ぐときに使う',
+    ),
+    ReferenceArg(
+      name: 'messageScrollController',
+      typeLabel: 'ScrollController?',
+      description: 'message の部分のスクロールを外から動かす・読むときに渡す。渡さないと中で作る',
+    ),
+    ReferenceArg(
+      name: 'actionScrollController',
+      typeLabel: 'ScrollController?',
+      description: 'actions の部分のスクロールを外から動かす・読むときに渡す。渡さないと中で作る',
     ),
   ],
   build: _build,

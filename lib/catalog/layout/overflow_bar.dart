@@ -4,7 +4,9 @@ import 'package:widget_lab/catalog/demo/demo_tile.dart';
 import 'package:widget_lab/catalog/model/choice.dart';
 import 'package:widget_lab/catalog/model/demo_args.dart';
 import 'package:widget_lab/catalog/model/property_control.dart';
+import 'package:widget_lab/catalog/model/property_group.dart';
 import 'package:widget_lab/catalog/model/property_spec.dart';
+import 'package:widget_lab/catalog/model/reference_arg.dart';
 import 'package:widget_lab/catalog/model/widget_entry.dart';
 
 final overflowBarEntry = WidgetEntry(
@@ -21,6 +23,7 @@ final overflowBarEntry = WidgetEntry(
   properties: const [
     PropertySpec(
       name: 'spacing',
+      group: PropertyGroup.spacing,
       typeLabel: 'double',
       description: '横に並べたときの、子と子のあいだ。既定は 0',
       control: SliderControl(
@@ -34,6 +37,7 @@ final overflowBarEntry = WidgetEntry(
     ),
     PropertySpec(
       name: 'alignment',
+      group: PropertyGroup.layout,
       typeLabel: 'MainAxisAlignment?',
       description: '横に並べたときの並べ方。既定は start',
       initiallyOn: false,
@@ -57,6 +61,7 @@ final overflowBarEntry = WidgetEntry(
     ),
     PropertySpec(
       name: 'overflowSpacing',
+      group: PropertyGroup.spacing,
       typeLabel: 'double',
       description: '縦に積んだときの、子と子のあいだ。既定は 0',
       initiallyOn: false,
@@ -71,6 +76,7 @@ final overflowBarEntry = WidgetEntry(
     ),
     PropertySpec(
       name: 'overflowAlignment',
+      group: PropertyGroup.layout,
       typeLabel: 'OverflowBarAlignment',
       description: '縦に積んだときの揃え方。既定は start',
       initiallyOn: false,
@@ -92,7 +98,36 @@ final overflowBarEntry = WidgetEntry(
       ),
     ),
     PropertySpec(
+      name: 'overflowDirection',
+      group: PropertyGroup.layout,
+      typeLabel: 'VerticalDirection',
+      description: '縦に積んだときの並びの向き。up にすると最後の子が一番上になる。既定は down',
+      initiallyOn: false,
+      control: ChoiceControl(
+        initialIndex: 1,
+        choices: [
+          Choice('down', VerticalDirection.down, 'VerticalDirection.down'),
+          Choice('up', VerticalDirection.up, 'VerticalDirection.up'),
+        ],
+      ),
+    ),
+    PropertySpec(
+      name: 'textDirection',
+      group: PropertyGroup.layout,
+      typeLabel: 'TextDirection?',
+      description: '横に並べる向き。rtl にすると右から並べ、縦に積んだときの start も右になる',
+      initiallyOn: false,
+      control: ChoiceControl(
+        initialIndex: 1,
+        choices: [
+          Choice('ltr', TextDirection.ltr, 'TextDirection.ltr'),
+          Choice('rtl', TextDirection.rtl, 'TextDirection.rtl'),
+        ],
+      ),
+    ),
+    PropertySpec(
       name: 'children',
+      group: PropertyGroup.content,
       typeLabel: 'List<Widget>',
       description: '並べる子（幅 64・88・112）',
       control: FixedControl(
@@ -103,6 +138,13 @@ final overflowBarEntry = WidgetEntry(
         ],
         source: '[Tile(1), Tile(2), Tile(3)]',
       ),
+    ),
+  ],
+  references: const [
+    ReferenceArg(
+      name: 'key',
+      typeLabel: 'Key?',
+      description: 'Widget を見分ける印。並べ替えたときや、状態を引き継ぐときに使う',
     ),
   ],
   build: _build,
@@ -116,5 +158,10 @@ Widget _build(DemoArgs args) => OverflowBar(
   overflowAlignment:
       args.valueOf<OverflowBarAlignment>('overflowAlignment') ??
       OverflowBarAlignment.start,
+  // Flutter の既定値（down）。OFF のときも省いたコードと同じ挙動にそろえる。
+  overflowDirection:
+      args.valueOf<VerticalDirection>('overflowDirection') ??
+      VerticalDirection.down,
+  textDirection: args.valueOf<TextDirection>('textDirection'),
   children: args.valueOf<List<Widget>>('children') ?? const [],
 );

@@ -3,7 +3,9 @@ import 'package:widget_lab/catalog/demo/demo_choices.dart';
 import 'package:widget_lab/catalog/demo/demo_tile.dart';
 import 'package:widget_lab/catalog/model/demo_args.dart';
 import 'package:widget_lab/catalog/model/property_control.dart';
+import 'package:widget_lab/catalog/model/property_group.dart';
 import 'package:widget_lab/catalog/model/property_spec.dart';
+import 'package:widget_lab/catalog/model/reference_arg.dart';
 import 'package:widget_lab/catalog/model/widget_entry.dart';
 
 final expandedEntry = WidgetEntry(
@@ -21,6 +23,7 @@ final expandedEntry = WidgetEntry(
   properties: const [
     PropertySpec(
       name: 'flex',
+      group: PropertyGroup.size,
       typeLabel: 'int',
       description: '残りの長さを分ける比。右の子（1）と比べてこの倍の長さになる',
       control: SliderControl(
@@ -34,10 +37,18 @@ final expandedEntry = WidgetEntry(
     ),
     PropertySpec(
       name: 'child',
+      group: PropertyGroup.content,
       typeLabel: 'Widget',
       description: '残りの長さに広げる Widget',
       required: true,
       control: FixedControl(value: DemoTile(1, height: 40), source: 'Tile(1)'),
+    ),
+  ],
+  references: const [
+    ReferenceArg(
+      name: 'key',
+      typeLabel: 'Key?',
+      description: 'Widget を見分ける印。並べ替えたときや、状態を引き継ぐときに使う',
     ),
   ],
   build: _build,

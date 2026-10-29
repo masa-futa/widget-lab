@@ -3,7 +3,9 @@ import 'package:widget_lab/catalog/model/choice.dart';
 import 'package:widget_lab/catalog/model/dart_code.dart';
 import 'package:widget_lab/catalog/model/demo_args.dart';
 import 'package:widget_lab/catalog/model/property_control.dart';
+import 'package:widget_lab/catalog/model/property_group.dart';
 import 'package:widget_lab/catalog/model/property_spec.dart';
+import 'package:widget_lab/catalog/model/reference_arg.dart';
 import 'package:widget_lab/catalog/model/widget_entry.dart';
 
 /// 公式カタログの「Menu」のカード。クラス名ではないので、ボタンなどに付けて
@@ -24,6 +26,7 @@ final menuEntry = WidgetEntry(
   properties: [
     const PropertySpec(
       name: 'menuChildren',
+      group: PropertyGroup.content,
       typeLabel: 'List<Widget>',
       description: '開いたときに並べる項目。ふつうは MenuItemButton',
       required: true,
@@ -53,6 +56,7 @@ final menuEntry = WidgetEntry(
     ),
     const PropertySpec(
       name: 'builder',
+      group: PropertyGroup.content,
       typeLabel: 'MenuAnchorChildBuilder?',
       description: 'メニューを付ける Widget を作る。渡された controller の open・close で開き閉じする',
       required: true,
@@ -66,6 +70,7 @@ final menuEntry = WidgetEntry(
     ),
     PropertySpec(
       name: 'style',
+      group: PropertyGroup.paint,
       typeLabel: 'MenuStyle?',
       description: '開いた面の見た目。ここでは地の色だけを変える',
       initiallyOn: false,
@@ -87,6 +92,7 @@ final menuEntry = WidgetEntry(
     ),
     PropertySpec(
       name: 'alignmentOffset',
+      group: PropertyGroup.layout,
       typeLabel: 'Offset?',
       description: '開く面の位置をずらす量。ここでは横にずらす',
       initiallyOn: false,
@@ -98,6 +104,100 @@ final menuEntry = WidgetEntry(
         resolve: (v) => Offset(v, 0),
         code: (v) => 'Offset($v, 0)',
       ),
+    ),
+    PropertySpec(
+      name: 'clipBehavior',
+      group: PropertyGroup.transform,
+      typeLabel: 'Clip',
+      description: '開いた面の形で中身を切り抜くか。指定しないと hardEdge',
+      initiallyOn: false,
+      control: ChoiceControl(
+        choices: [
+          for (final clip in Clip.values)
+            Choice(clip.name, clip, 'Clip.${clip.name}'),
+        ],
+      ),
+    ),
+    const PropertySpec(
+      name: 'consumeOutsideTap',
+      group: PropertyGroup.behavior,
+      typeLabel: 'bool',
+      description: '開いた面の外を押して閉じるとき、その押した操作を下の Widget に届けないか。指定しないと届ける',
+      initiallyOn: false,
+      control: SwitchControl(initialValue: true),
+    ),
+    const PropertySpec(
+      name: 'crossAxisUnconstrained',
+      group: PropertyGroup.size,
+      typeLabel: 'bool',
+      description: '開いた面を、横幅の制約に縛られない本来の大きさで描くか。指定しないと true',
+      initiallyOn: false,
+      control: SwitchControl(initialValue: false),
+    ),
+    const PropertySpec(
+      name: 'animated',
+      group: PropertyGroup.behavior,
+      typeLabel: 'bool',
+      description: '開き閉じに動きを付けるか。指定しないとすぐ開き、すぐ閉じる',
+      initiallyOn: false,
+      control: SwitchControl(initialValue: true),
+    ),
+  ],
+  references: const [
+    ReferenceArg(
+      name: 'key',
+      typeLabel: 'Key?',
+      description: 'Widget を見分ける印。並べ替えたときや、状態を引き継ぐときに使う',
+    ),
+    ReferenceArg(
+      name: 'controller',
+      typeLabel: 'MenuController?',
+      description: 'ほかの Widget からメニューを開き閉じするための操作役。指定しないと中で作り、builder に渡す',
+    ),
+    ReferenceArg(
+      name: 'childFocusNode',
+      typeLabel: 'FocusNode?',
+      description: 'メニューを開く Widget のフォーカス。キーボードの矢印でメニューから戻るときに使う',
+    ),
+    ReferenceArg(
+      name: 'reservedPadding',
+      typeLabel: 'EdgeInsetsGeometry?',
+      description: '画面の安全な領域の端と、開いた面との間に空ける余白。指定しないと 8。画面の端に近いときだけ効く',
+    ),
+    ReferenceArg(
+      name: 'layerLink',
+      typeLabel: 'LayerLink?',
+      description: 'キーボードが出るなどで付け先が動いたとき、開いた面を付いて行かせるためのつなぎ',
+    ),
+    ReferenceArg(
+      name: 'anchorTapClosesMenu',
+      typeLabel: 'bool',
+      description: '非推奨。consumeOutsideTap を使う。付け先を押したときにメニューを閉じるか',
+    ),
+    ReferenceArg(
+      name: 'onOpen',
+      typeLabel: 'VoidCallback?',
+      description: 'メニューが開き始めたときに呼ばれる',
+    ),
+    ReferenceArg(
+      name: 'onClose',
+      typeLabel: 'VoidCallback?',
+      description: 'メニューが閉じ終わったときに呼ばれる',
+    ),
+    ReferenceArg(
+      name: 'useRootOverlay',
+      typeLabel: 'bool',
+      description: '開いた面を、いちばん外側の Overlay に描くか。指定しないと近くの Overlay に描く',
+    ),
+    ReferenceArg(
+      name: 'onAnimationStatusChanged',
+      typeLabel: 'ValueChanged<AnimationStatus>?',
+      description: '開き閉じの動きの段階（開いている途中・閉じている途中など）が変わったときに呼ばれる',
+    ),
+    ReferenceArg(
+      name: 'child',
+      typeLabel: 'Widget?',
+      description: 'builder に渡す Widget。開き閉じで変わらない部分をここに置くと作り直さずに済む',
     ),
   ],
   build: _build,
@@ -120,4 +220,8 @@ Widget _build(DemoArgs args) => MenuAnchor(
   builder: args.valueOf<MenuAnchorChildBuilder>('builder'),
   style: args.valueOf<MenuStyle>('style'),
   alignmentOffset: args.valueOf<Offset>('alignmentOffset') ?? Offset.zero,
+  clipBehavior: args.valueOf<Clip>('clipBehavior') ?? Clip.hardEdge,
+  consumeOutsideTap: args.valueOf<bool>('consumeOutsideTap') ?? false,
+  crossAxisUnconstrained: args.valueOf<bool>('crossAxisUnconstrained') ?? true,
+  animated: args.valueOf<bool>('animated') ?? false,
 );

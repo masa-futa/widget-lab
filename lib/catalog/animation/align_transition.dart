@@ -1,10 +1,12 @@
 import 'package:flutter/widgets.dart';
+import 'package:widget_lab/catalog/animation/shared_specs.dart';
 import 'package:widget_lab/catalog/animation/transition_curves.dart';
 import 'package:widget_lab/catalog/demo/demo_animation.dart';
 import 'package:widget_lab/catalog/demo/demo_stage.dart';
 import 'package:widget_lab/catalog/model/choice.dart';
 import 'package:widget_lab/catalog/model/demo_args.dart';
 import 'package:widget_lab/catalog/model/property_control.dart';
+import 'package:widget_lab/catalog/model/property_group.dart';
 import 'package:widget_lab/catalog/model/property_spec.dart';
 import 'package:widget_lab/catalog/model/widget_entry.dart';
 
@@ -23,6 +25,7 @@ final alignTransitionEntry = WidgetEntry(
   properties: [
     PropertySpec(
       name: 'alignment',
+      group: PropertyGroup.layout,
       typeLabel: 'Animation<AlignmentGeometry>',
       description: '位置の Animation。ここでは Alignment.centerLeft から行き先へ動かす',
       required: true,
@@ -46,6 +49,7 @@ final alignTransitionEntry = WidgetEntry(
     ),
     PropertySpec(
       name: 'widthFactor',
+      group: PropertyGroup.size,
       typeLabel: 'double?',
       description: '幅を子の幅の何倍にするか。指定しないと親の幅いっぱい',
       initiallyOn: false,
@@ -60,6 +64,7 @@ final alignTransitionEntry = WidgetEntry(
     ),
     PropertySpec(
       name: 'heightFactor',
+      group: PropertyGroup.size,
       typeLabel: 'double?',
       description: '高さを子の高さの何倍にするか。指定しないと親の高さいっぱい',
       initiallyOn: false,
@@ -74,6 +79,7 @@ final alignTransitionEntry = WidgetEntry(
     ),
     const PropertySpec(
       name: 'child',
+      group: PropertyGroup.content,
       typeLabel: 'Widget',
       description: '動かす Widget',
       required: true,
@@ -83,6 +89,7 @@ final alignTransitionEntry = WidgetEntry(
       ),
     ),
   ],
+  references: const [keyReference],
   build: _build,
   codeName: 'AlignTransition',
 );

@@ -2,7 +2,9 @@ import 'package:flutter/cupertino.dart';
 import 'package:widget_lab/catalog/model/choice.dart';
 import 'package:widget_lab/catalog/model/demo_args.dart';
 import 'package:widget_lab/catalog/model/property_control.dart';
+import 'package:widget_lab/catalog/model/property_group.dart';
 import 'package:widget_lab/catalog/model/property_spec.dart';
+import 'package:widget_lab/catalog/model/reference_arg.dart';
 import 'package:widget_lab/catalog/model/widget_entry.dart';
 
 final cupertinoPageScaffoldEntry = WidgetEntry(
@@ -20,6 +22,7 @@ final cupertinoPageScaffoldEntry = WidgetEntry(
   properties: [
     const PropertySpec(
       name: 'navigationBar',
+      group: PropertyGroup.content,
       typeLabel: 'ObstructingPreferredSizeWidget?',
       description: '上に置くバー。ふつうは CupertinoNavigationBar',
       control: FixedControl(
@@ -29,6 +32,7 @@ final cupertinoPageScaffoldEntry = WidgetEntry(
     ),
     PropertySpec(
       name: 'backgroundColor',
+      group: PropertyGroup.paint,
       typeLabel: 'Color?',
       description: '画面の地の色。指定しないとテーマの scaffoldBackgroundColor',
       initiallyOn: false,
@@ -45,6 +49,7 @@ final cupertinoPageScaffoldEntry = WidgetEntry(
     ),
     const PropertySpec(
       name: 'child',
+      group: PropertyGroup.content,
       typeLabel: 'Widget',
       description: '画面の中身',
       required: true,
@@ -52,6 +57,18 @@ final cupertinoPageScaffoldEntry = WidgetEntry(
         value: Center(child: Text('中身')),
         source: "Center(child: Text('中身'))",
       ),
+    ),
+  ],
+  references: const [
+    ReferenceArg(
+      name: 'key',
+      typeLabel: 'Key?',
+      description: 'Widget を見分ける印。並べ替えたときや、状態を引き継ぐときに使う',
+    ),
+    ReferenceArg(
+      name: 'resizeToAvoidBottomInset',
+      typeLabel: 'bool',
+      description: 'キーボードが出たとき、中身をその分だけ縮めて隠れないようにするか',
     ),
   ],
   build: _build,
