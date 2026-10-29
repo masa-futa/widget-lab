@@ -146,7 +146,7 @@ void main() {
     expect(inPanel(find.text('padding')), findsOneWidget);
     expect(stripText(tester), 'padding: EdgeInsets.all(16.0),');
     // チップは収録データの順に全部
-    expect(find.byType(PropertyChip), findsNWidgets(7));
+    expect(find.byType(PropertyChip), findsNWidgets(14));
   });
 
   testWidgets('TC-17: padding を OFF にすると余白がなくなり、チップが「既定」、帯が指定なし', (
