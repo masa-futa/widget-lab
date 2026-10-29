@@ -196,10 +196,10 @@ final containerEntry = WidgetEntry(
     const PropertySpec(
       name: 'isAntiAlias',
       typeLabel: 'bool',
-      description: '切り抜きの縁をなめらかにするか',
+      description: 'color で塗るときに、縁をなめらかにするか',
       initiallyOn: false,
       group: PropertyGroup.paint,
-      requires: 'clipBehavior',
+      requires: 'color',
       control: SwitchControl(initialValue: false),
     ),
     PropertySpec(

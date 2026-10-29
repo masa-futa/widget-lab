@@ -59,6 +59,10 @@ void main() {
     expect(spec('width').group, PropertyGroup.size);
     expect(spec('color').excludes, ['decoration']);
     expect(spec('transformAlignment').requires, 'transform');
+    // isAntiAlias は color の塗りにだけ効く（ColoredBox に渡る）
+    expect(spec('isAntiAlias').requires, 'color');
+    expect(spec('isAntiAlias').group, PropertyGroup.paint);
+    expect(spec('isAntiAlias').description, contains('color'));
     expect(containerEntry.references.map((r) => r.name), ['key']);
   });
 
