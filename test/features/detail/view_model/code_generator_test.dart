@@ -424,4 +424,105 @@ void main() {
       );
     });
   });
+
+  group('TC-83: 入れ子のプロパティ（decoration の中）', () {
+    final entry = WidgetEntry(
+      id: 'box',
+      name: 'Box',
+      genreIds: const ['basics'],
+      summary: '',
+      description: '',
+      docUrl: Uri.parse('https://api.flutter.dev/'),
+      properties: [
+        PropertySpec(
+          name: 'decoration',
+          typeLabel: 'Decoration?',
+          description: '',
+          control: NestedControl(
+            typeName: 'BoxDecoration',
+            children: [
+              PropertySpec(
+                name: 'color',
+                typeLabel: 'Color?',
+                description: '',
+                control: ColorControl(
+                  palette: [Choice.color('若竹', const Color(0xFF68BE8D))],
+                ),
+              ),
+              PropertySpec(
+                name: 'borderRadius',
+                typeLabel: 'BorderRadiusGeometry?',
+                description: '',
+                initiallyOn: false,
+                control: SliderControl(
+                  min: 0,
+                  max: 24,
+                  divisions: 4,
+                  initialValue: 12,
+                  resolve: BorderRadius.circular,
+                  code: (v) => 'BorderRadius.circular($v)',
+                ),
+              ),
+            ],
+            build: (values) => BoxDecoration(
+              color: values['color'] as Color?,
+              borderRadius: values['borderRadius'] as BorderRadius?,
+            ),
+          ),
+        ),
+      ],
+      build: (args) => const SizedBox(),
+      codeName: 'Box',
+    );
+
+    test('ON の子を 1 行ずつ字下げして書く', () {
+      expect(const CodeGenerator().lines(entry, entry.initialSettings()), [
+        const CodeLine(text: 'Box('),
+        const CodeLine(
+          text: '  decoration: BoxDecoration(',
+          property: 'decoration',
+        ),
+        const CodeLine(
+          text: '    color: Color(0xFF68BE8D),',
+          property: 'decoration.color',
+        ),
+        const CodeLine(text: '  ),', property: 'decoration'),
+        const CodeLine(text: ')'),
+      ]);
+    });
+
+    test('ON の子がなければ const の空の式を 1 行', () {
+      final control = entry.properties.single.control as NestedControl;
+      final settings = {
+        'decoration': PropertySetting(
+          on: true,
+          value: control.initial.copyWithChild(
+            'color',
+            control.initial.settings['color']!.copyWith(on: false),
+          ),
+        ),
+      };
+      expect(
+        const CodeGenerator().generate(entry, settings),
+        'Box(\n  decoration: const BoxDecoration(),\n)',
+      );
+    });
+
+    test('子を ON にした行は changed', () {
+      final control = entry.properties.single.control as NestedControl;
+      final settings = {
+        'decoration': PropertySetting(
+          on: true,
+          value: control.initial.copyWithChild(
+            'borderRadius',
+            control.initial.settings['borderRadius']!.copyWith(on: true),
+          ),
+        ),
+      };
+      final line = const CodeGenerator()
+          .lines(entry, settings)
+          .singleWhere((l) => l.property == 'decoration.borderRadius');
+      expect(line.changed, isTrue);
+    });
+  });
 }
