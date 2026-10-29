@@ -54,7 +54,6 @@ class DetailScreen extends ConsumerWidget {
     final hasProperties = ref.watch(
       provider.select((s) => s.entry.properties.isNotEmpty),
     );
-    final showsTabs = ref.watch(provider.select((s) => s.showsTabs));
     final showsLogStrip = ref.watch(
       provider.select((s) => s.entry.kind == EntryKind.behavior),
     );
@@ -62,6 +61,9 @@ class DetailScreen extends ConsumerWidget {
     // キーボードが出たら、入力欄が隠れないようにプレビューを縮める
     final screenHeight = MediaQuery.sizeOf(context).height;
     final keyboardShown = MediaQuery.viewInsetsOf(context).bottom > 0;
+    // キーボードが出ている間（文字の入力中）は、仲間のタブを隠して編集パネルの高さを残す
+    final showsTabs =
+        ref.watch(provider.select((s) => s.showsTabs)) && !keyboardShown;
     final preferredHeight = screenHeight * (keyboardShown ? 0.2 : 0.35);
     final textScaler = MediaQuery.textScalerOf(context);
     final middleHeight =
