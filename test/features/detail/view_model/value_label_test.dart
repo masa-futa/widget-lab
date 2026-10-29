@@ -64,4 +64,45 @@ void main() {
       expect(chipValueLabel(control, value), expected);
     });
   }
+
+  for (final (control, value, expected) in [
+    (
+      const FixedControl(
+        value: SizedBox(),
+        source: 'OverflowBox(maxWidth: 120, maxHeight: 56, child: Tile(1))',
+      ),
+      const FixedValue(),
+      'OverflowBox',
+    ),
+    (
+      const FixedControl(
+        value: SizedBox(),
+        source: '[BoxShadow(blurRadius: 12, color: Color(0x40000000), offset: Offset(0, 4))]',
+      ),
+      const FixedValue(),
+      '[BoxShadow]',
+    ),
+    (
+      const FixedControl(value: SizedBox(), source: 'Color(0x40000000)'),
+      const FixedValue(),
+      'Color(0x40000000)',
+    ),
+    (
+      const FixedControl(
+        value: SizedBox(),
+        source: 'EdgeInsets.symmetric(horizontal: 24, vertical: 12)',
+      ),
+      const FixedValue(),
+      'EdgeInsets.symmetric',
+    ),
+    (
+      const FixedControl(value: SizedBox(), source: "'とても長い文字の値で、型の名前が取れないもの'"),
+      const FixedValue(),
+      "'とても長い文字の値で、型の名前が取れないもの'",
+    ),
+  ]) {
+    test('TC-93: 長い書き方は型の名前だけ $expected', () {
+      expect(chipValueLabel(control, value), expected);
+    });
+  }
 }
