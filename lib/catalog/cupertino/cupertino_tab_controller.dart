@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:widget_lab/catalog/model/choice.dart';
 import 'package:widget_lab/catalog/model/demo_args.dart';
 import 'package:widget_lab/catalog/model/property_control.dart';
+import 'package:widget_lab/catalog/model/property_group.dart';
 import 'package:widget_lab/catalog/model/property_spec.dart';
 import 'package:widget_lab/catalog/model/widget_entry.dart';
 
@@ -20,6 +21,7 @@ final cupertinoTabControllerEntry = WidgetEntry(
   properties: const [
     PropertySpec(
       name: 'initialIndex',
+      group: PropertyGroup.behavior,
       typeLabel: 'int',
       description: '最初に選んでいるタブの番号。変えると controller を作り直す',
       control: ChoiceControl(

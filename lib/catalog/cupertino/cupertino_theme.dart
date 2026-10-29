@@ -6,7 +6,9 @@ import 'package:widget_lab/catalog/model/code_nest.dart';
 import 'package:widget_lab/catalog/model/demo_args.dart';
 import 'package:widget_lab/catalog/model/dart_code.dart';
 import 'package:widget_lab/catalog/model/property_control.dart';
+import 'package:widget_lab/catalog/model/property_group.dart';
 import 'package:widget_lab/catalog/model/property_spec.dart';
+import 'package:widget_lab/catalog/model/reference_arg.dart';
 import 'package:widget_lab/catalog/model/widget_entry.dart';
 
 final cupertinoThemeEntry = WidgetEntry(
@@ -25,6 +27,7 @@ final cupertinoThemeEntry = WidgetEntry(
   properties: [
     PropertySpec(
       name: 'primaryColor',
+      group: PropertyGroup.paint,
       typeLabel: 'Color?',
       description: '主な色。ボタンの文字やスイッチなどに使われる',
       arg: PropertyArg.nested,
@@ -46,6 +49,7 @@ final cupertinoThemeEntry = WidgetEntry(
     ),
     const PropertySpec(
       name: 'brightness',
+      group: PropertyGroup.paint,
       typeLabel: 'Brightness?',
       description: '明るさ。dark にすると CupertinoColors の動的な色が暗い側になる',
       arg: PropertyArg.nested,
@@ -56,6 +60,23 @@ final cupertinoThemeEntry = WidgetEntry(
           Choice('dark', Brightness.dark, 'Brightness.dark'),
         ],
       ),
+    ),
+  ],
+  references: const [
+    ReferenceArg(
+      name: 'key',
+      typeLabel: 'Key?',
+      description: 'Widget を見分ける印。並べ替えたときや、状態を引き継ぐときに使う',
+    ),
+    ReferenceArg(
+      name: 'data',
+      typeLabel: 'CupertinoThemeData',
+      description: '配る値。ここではプロパティの値を、親の値の copyWith で写して渡す',
+    ),
+    ReferenceArg(
+      name: 'child',
+      typeLabel: 'Widget',
+      description: 'テーマを受け取る子孫の木',
     ),
   ],
   build: _build,
