@@ -24,5 +24,12 @@ void main() {
     expect(built.magnificationScale, defaults.magnificationScale);
     expect(built.borderSide, defaults.borderSide);
     expect(built.size, defaults.size);
+    expect(
+      built.additionalFocalPointOffset,
+      defaults.additionalFocalPointOffset,
+    );
+    expect(built.borderRadius, defaults.borderRadius);
+    expect(built.shadows, defaults.shadows);
+    expect(built.clipBehavior, defaults.clipBehavior);
   });
 }

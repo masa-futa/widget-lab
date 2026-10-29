@@ -30,5 +30,6 @@ void main() {
             as CupertinoModalPopupRoute<void>;
     expect(route.barrierDismissible, isTrue);
     expect(route.barrierColor, kCupertinoModalBarrierColor);
+    expect(route.filter, isNull);
   });
 }
