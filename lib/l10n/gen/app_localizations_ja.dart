@@ -257,4 +257,21 @@ class AppLocalizationsJa extends AppLocalizations {
   String detailTabOnCount(String group, int count) {
     return '$group、ON が $count 件';
   }
+
+  @override
+  String get detailRelationPairs => 'と組で使うことが多い';
+
+  @override
+  String get detailRelationRequires => 'が ON のときだけ効く';
+
+  @override
+  String get detailRelationRequiresOff => '（今は OFF）';
+
+  @override
+  String get detailRelationExcludes => 'と同時には使えない';
+
+  @override
+  String detailExclusionNotice(String on, String off) {
+    return '$on と同時には使えないので、$off を OFF にしました';
+  }
 }

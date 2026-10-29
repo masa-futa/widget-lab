@@ -506,6 +506,36 @@ abstract class AppLocalizations {
   /// In ja, this message translates to:
   /// **'{group}、ON が {count} 件'**
   String detailTabOnCount(String group, int count);
+
+  /// 関係の行。前に相手のプロパティ名のリンク
+  ///
+  /// In ja, this message translates to:
+  /// **'と組で使うことが多い'**
+  String get detailRelationPairs;
+
+  /// 関係の行。前に相手のプロパティ名のリンク
+  ///
+  /// In ja, this message translates to:
+  /// **'が ON のときだけ効く'**
+  String get detailRelationRequires;
+
+  /// 関係の行。相手が OFF のときに後ろに足す
+  ///
+  /// In ja, this message translates to:
+  /// **'（今は OFF）'**
+  String get detailRelationRequiresOff;
+
+  /// 関係の行。前に相手のプロパティ名のリンク
+  ///
+  /// In ja, this message translates to:
+  /// **'と同時には使えない'**
+  String get detailRelationExcludes;
+
+  /// 同時に使えない相手を OFF にした知らせ
+  ///
+  /// In ja, this message translates to:
+  /// **'{on} と同時には使えないので、{off} を OFF にしました'**
+  String detailExclusionNotice(String on, String off);
 }
 
 class _AppLocalizationsDelegate

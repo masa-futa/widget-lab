@@ -1377,4 +1377,38 @@ void main() {
       expect(normalOpacity.opacity, 1);
     });
   });
+
+  group('関係の行（TC-85）', () {
+    testWidgets('組で使う相手を押すと、相手のタブとチップに移る', (tester) async {
+      await pumpDetail(tester, 'container');
+      await select(tester, 'width');
+      expect(find.text('と組で使うことが多い'), findsOneWidget);
+      await tester.tap(find.widgetWithText(TextButton, 'height'));
+      await tester.pumpAndSettle();
+      final selected = tester.widget<PropertyChip>(
+        find.widgetWithText(PropertyChip, 'height'),
+      );
+      expect(selected.selected, isTrue);
+    });
+
+    testWidgets('requires の相手が OFF なら「今は OFF」', (tester) async {
+      await pumpDetail(tester, 'container');
+      await select(tester, 'transformAlignment');
+      expect(find.text('が ON のときだけ効く（今は OFF）'), findsOneWidget);
+    });
+
+    testWidgets('同時に使えない組の知らせが出て、3 秒で消える', (tester) async {
+      await pumpDetail(tester, 'container');
+      await select(tester, 'decoration');
+      await tester.tap(find.bySemanticsLabel('decoration を付ける'));
+      await tester.pumpAndSettle();
+      expect(
+        find.text('decoration と同時には使えないので、color を OFF にしました'),
+        findsOneWidget,
+      );
+      await tester.pump(const Duration(seconds: 3));
+      await tester.pumpAndSettle();
+      expect(find.textContaining('同時には使えないので'), findsNothing);
+    });
+  });
 }

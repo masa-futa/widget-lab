@@ -251,6 +251,10 @@ class _PanelAreaState extends ConsumerState<_PanelArea> {
                   onCompareTapped: () => notifier.compareTapped(spec.name),
                   onDefaultTapped: () =>
                       notifier.propertyDefaultTapped(spec.name),
+                  effective: state.isEffective(spec.name),
+                  notice: state.notice,
+                  onRelationTapped: notifier.propertySelected,
+                  onNoticeDismissed: notifier.noticeDismissed,
                 ),
               ),
             ),

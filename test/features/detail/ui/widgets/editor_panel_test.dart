@@ -43,6 +43,8 @@ void main() {
         onValueChanged: onValueChanged ?? (_) {},
         onCompareTapped: onCompareTapped ?? () {},
         onDefaultTapped: onDefaultTapped ?? () {},
+        onRelationTapped: (_) {},
+        onNoticeDismissed: () {},
       ),
     ),
   );
