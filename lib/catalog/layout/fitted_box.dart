@@ -4,7 +4,9 @@ import 'package:widget_lab/catalog/demo/demo_tile.dart';
 import 'package:widget_lab/catalog/model/choice.dart';
 import 'package:widget_lab/catalog/model/demo_args.dart';
 import 'package:widget_lab/catalog/model/property_control.dart';
+import 'package:widget_lab/catalog/model/property_group.dart';
 import 'package:widget_lab/catalog/model/property_spec.dart';
+import 'package:widget_lab/catalog/model/reference_arg.dart';
 import 'package:widget_lab/catalog/model/widget_entry.dart';
 
 final fittedBoxEntry = WidgetEntry(
@@ -21,6 +23,7 @@ final fittedBoxEntry = WidgetEntry(
   properties: const [
     PropertySpec(
       name: 'fit',
+      group: PropertyGroup.size,
       typeLabel: 'BoxFit',
       description: '合わせ方。contain は比を保って収める、fill は比を崩して埋める',
       control: ChoiceControl(
@@ -38,6 +41,7 @@ final fittedBoxEntry = WidgetEntry(
     ),
     PropertySpec(
       name: 'alignment',
+      group: PropertyGroup.layout,
       typeLabel: 'AlignmentGeometry',
       description: '余った所・はみ出した所をどちらに寄せるか。既定は center',
       initiallyOn: false,
@@ -45,6 +49,7 @@ final fittedBoxEntry = WidgetEntry(
     ),
     PropertySpec(
       name: 'clipBehavior',
+      group: PropertyGroup.transform,
       typeLabel: 'Clip',
       description: '枠からはみ出した所を切るか。既定は none（切らない）',
       initiallyOn: false,
@@ -58,12 +63,20 @@ final fittedBoxEntry = WidgetEntry(
     ),
     PropertySpec(
       name: 'child',
+      group: PropertyGroup.content,
       typeLabel: 'Widget?',
       description: '拡大・縮小する Widget（80×24）',
       control: FixedControl(
         value: DemoTile(1, width: 80, height: 24),
         source: 'Tile(1)',
       ),
+    ),
+  ],
+  references: const [
+    ReferenceArg(
+      name: 'key',
+      typeLabel: 'Key?',
+      description: 'Widget を見分ける印。並べ替えたときや、状態を引き継ぐときに使う',
     ),
   ],
   build: _build,
