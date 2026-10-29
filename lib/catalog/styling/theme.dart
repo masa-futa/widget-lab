@@ -7,7 +7,9 @@ import 'package:widget_lab/catalog/model/code_nest.dart';
 import 'package:widget_lab/catalog/model/dart_code.dart';
 import 'package:widget_lab/catalog/model/demo_args.dart';
 import 'package:widget_lab/catalog/model/property_control.dart';
+import 'package:widget_lab/catalog/model/property_group.dart';
 import 'package:widget_lab/catalog/model/property_spec.dart';
+import 'package:widget_lab/catalog/model/reference_arg.dart';
 import 'package:widget_lab/catalog/model/widget_entry.dart';
 
 final themeEntry = WidgetEntry(
@@ -27,6 +29,7 @@ final themeEntry = WidgetEntry(
   properties: [
     PropertySpec(
       name: 'colorScheme',
+      group: PropertyGroup.paint,
       typeLabel: 'ColorScheme',
       description: '色の組。Theme.of で読んだ子は、色を読んでいなくても組み直されます。',
       arg: PropertyArg.nested,
@@ -44,6 +47,7 @@ final themeEntry = WidgetEntry(
     ),
     const PropertySpec(
       name: 'textTheme',
+      group: PropertyGroup.text,
       typeLabel: 'TextTheme',
       description: '文字の組。ここでは bodyMedium の大きさだけを変えます。',
       arg: PropertyArg.nested,
@@ -62,6 +66,23 @@ final themeEntry = WidgetEntry(
           ),
         ],
       ),
+    ),
+  ],
+  references: const [
+    ReferenceArg(
+      name: 'key',
+      typeLabel: 'Key?',
+      description: 'Widget を見分ける印。並べ替えたときや、状態を引き継ぐときに使う',
+    ),
+    ReferenceArg(
+      name: 'data',
+      typeLabel: 'ThemeData',
+      description: '子孫に配るテーマ。ここでは Theme.of(context).copyWith で、上の項目だけを変える',
+    ),
+    ReferenceArg(
+      name: 'child',
+      typeLabel: 'Widget',
+      description: 'テーマを受け取る子孫。ここでは Theme.of で読む子の組（コードでは const Readers()）',
     ),
   ],
   build: _build,
