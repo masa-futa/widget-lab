@@ -119,4 +119,16 @@ void main() {
     expect(find.byType(PropertyListSheet), findsNothing);
     expect(container.read(detailProvider('relation')).showsReferences, isTrue);
   });
+
+  testWidgets('文字を 2 倍にしても、長い名前の行がはみ出さない', (tester) async {
+    tester.platformDispatcher.textScaleFactorTestValue = 2;
+    addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+    await openSheet(tester);
+    await tester.scrollUntilVisible(
+      inSheet(find.text('transformAlignment')),
+      100,
+      scrollable: sheetScroll,
+    );
+    expect(tester.takeException(), isNull);
+  });
 }

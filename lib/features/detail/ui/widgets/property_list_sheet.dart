@@ -210,7 +210,15 @@ class _Row extends StatelessWidget {
                       color: on ? scheme.primary : scheme.outline,
                     ),
                     Gap(spacing.xs),
-                    Text(name, style: theme.textTheme.titleSmall),
+                    Flexible(
+                      flex: 2,
+                      child: Text(
+                        name,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: theme.textTheme.titleSmall,
+                      ),
+                    ),
                     Gap(spacing.sm),
                     Expanded(
                       child: Text(
