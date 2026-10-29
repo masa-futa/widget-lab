@@ -8,6 +8,7 @@ import '../demo_pump.dart';
 
 void main() {
   DemoArgs argsWith({required bool absorbing}) => DemoArgs(absorbPointerEntry, {
+    ...absorbPointerEntry.initialSettings(),
     'absorbing': PropertySetting(on: true, value: SwitchValue(absorbing)),
   });
 

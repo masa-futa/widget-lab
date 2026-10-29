@@ -1,8 +1,10 @@
 import 'package:flutter/widgets.dart';
 import 'package:widget_lab/catalog/animation/implicit_animation_specs.dart';
+import 'package:widget_lab/catalog/animation/shared_specs.dart';
 import 'package:widget_lab/catalog/model/choice.dart';
 import 'package:widget_lab/catalog/model/demo_args.dart';
 import 'package:widget_lab/catalog/model/property_control.dart';
+import 'package:widget_lab/catalog/model/property_group.dart';
 import 'package:widget_lab/catalog/model/property_spec.dart';
 import 'package:widget_lab/catalog/model/widget_entry.dart';
 
@@ -20,6 +22,7 @@ final animatedSizeEntry = WidgetEntry(
   properties: [
     const PropertySpec(
       name: 'child',
+      group: PropertyGroup.content,
       typeLabel: 'Widget?',
       description: '大きさの変わる子。ここでは大きさの違う 2 つの箱から選ぶ',
       control: ChoiceControl(
@@ -50,7 +53,31 @@ final animatedSizeEntry = WidgetEntry(
     durationSpec,
     curveSpec,
     PropertySpec(
+      name: 'reverseDuration',
+      typeLabel: 'Duration?',
+      description: '小さくなるときにかける時間。指定しないと duration と同じ',
+      initiallyOn: false,
+      group: PropertyGroup.behavior,
+      control: SliderControl(
+        min: 100,
+        max: 2000,
+        divisions: 19,
+        initialValue: 1500,
+        resolve: (v) => Duration(milliseconds: v.round()),
+        code: (v) => 'Duration(milliseconds: ${v.round()})',
+      ),
+    ),
+    PropertySpec(
+      name: 'clipBehavior',
+      typeLabel: 'Clip',
+      description: '伸び縮みの途中で、外枠からはみ出す子を切るか。指定しないと Clip.hardEdge',
+      initiallyOn: false,
+      group: PropertyGroup.transform,
+      control: ChoiceControl(choices: clipChoices()),
+    ),
+    PropertySpec(
       name: 'alignment',
+      group: PropertyGroup.layout,
       typeLabel: 'AlignmentGeometry',
       description: '伸び縮みの途中で、子を外枠のどこに寄せるか。指定しないと真ん中',
       initiallyOn: false,
@@ -66,6 +93,7 @@ final animatedSizeEntry = WidgetEntry(
       ),
     ),
   ],
+  references: const [keyReference, onEndReference],
   build: _build,
   codeName: 'AnimatedSize',
 );
@@ -73,6 +101,8 @@ final animatedSizeEntry = WidgetEntry(
 Widget _build(DemoArgs args) => AnimatedSize(
   duration: durationOf(args),
   curve: curveOf(args),
+  reverseDuration: args.valueOf<Duration>('reverseDuration'),
+  clipBehavior: args.valueOf<Clip>('clipBehavior') ?? Clip.hardEdge,
   alignment: args.valueOf<AlignmentGeometry>('alignment') ?? Alignment.center,
   child: args.valueOf<Widget>('child'),
 );

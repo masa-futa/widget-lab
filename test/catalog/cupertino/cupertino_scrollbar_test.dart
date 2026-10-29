@@ -23,5 +23,15 @@ void main() {
     expect(built.thumbVisibility, isFalse);
     expect(built.thickness, CupertinoScrollbar.defaultThickness);
     expect(built.radius, CupertinoScrollbar.defaultRadius);
+    expect(
+      built.thicknessWhileDragging,
+      CupertinoScrollbar.defaultThicknessWhileDragging,
+    );
+    expect(
+      built.radiusWhileDragging,
+      CupertinoScrollbar.defaultRadiusWhileDragging,
+    );
+    expect(built.scrollbarOrientation, isNull);
+    expect(built.mainAxisMargin, 3);
   });
 }

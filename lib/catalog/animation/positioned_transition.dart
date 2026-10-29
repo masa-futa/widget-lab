@@ -1,10 +1,12 @@
 import 'package:flutter/widgets.dart';
+import 'package:widget_lab/catalog/animation/shared_specs.dart';
 import 'package:widget_lab/catalog/animation/transition_curves.dart';
 import 'package:widget_lab/catalog/demo/demo_animation.dart';
 import 'package:widget_lab/catalog/demo/demo_stage.dart';
 import 'package:widget_lab/catalog/model/choice.dart';
 import 'package:widget_lab/catalog/model/demo_args.dart';
 import 'package:widget_lab/catalog/model/property_control.dart';
+import 'package:widget_lab/catalog/model/property_group.dart';
 import 'package:widget_lab/catalog/model/property_spec.dart';
 import 'package:widget_lab/catalog/model/widget_entry.dart';
 
@@ -26,6 +28,7 @@ final positionedTransitionEntry = WidgetEntry(
   properties: [
     PropertySpec(
       name: 'rect',
+      group: PropertyGroup.layout,
       typeLabel: 'Animation<RelativeRect>',
       description:
           '位置の Animation。ここでは RelativeRect.fromLTRB(0, 0, 160, 80) から動かす',
@@ -57,12 +60,14 @@ final positionedTransitionEntry = WidgetEntry(
     ),
     const PropertySpec(
       name: 'child',
+      group: PropertyGroup.content,
       typeLabel: 'Widget',
       description: '動かす Widget。rect の大きさに広げられる',
       required: true,
       control: FixedControl(value: FlutterLogo(), source: 'FlutterLogo()'),
     ),
   ],
+  references: const [keyReference],
   build: _build,
   codeName: 'PositionedTransition',
 );

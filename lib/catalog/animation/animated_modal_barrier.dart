@@ -1,10 +1,13 @@
 import 'package:flutter/widgets.dart';
+import 'package:widget_lab/catalog/animation/shared_specs.dart';
 import 'package:widget_lab/catalog/demo/demo_animation.dart';
 import 'package:widget_lab/catalog/model/choice.dart';
 import 'package:widget_lab/catalog/model/dart_code.dart';
 import 'package:widget_lab/catalog/model/demo_args.dart';
 import 'package:widget_lab/catalog/model/property_control.dart';
+import 'package:widget_lab/catalog/model/property_group.dart';
 import 'package:widget_lab/catalog/model/property_spec.dart';
+import 'package:widget_lab/catalog/model/reference_arg.dart';
 import 'package:widget_lab/catalog/model/widget_entry.dart';
 
 /// 幕の色を、透明から選んだ色へ動かす Animation を作る関数。
@@ -28,6 +31,7 @@ final animatedModalBarrierEntry = WidgetEntry(
   properties: [
     PropertySpec(
       name: 'color',
+      group: PropertyGroup.paint,
       typeLabel: 'Animation<Color?>',
       description: '幕の色の Animation。ここでは透明と選んだ色の間を行き来する',
       required: true,
@@ -49,6 +53,7 @@ final animatedModalBarrierEntry = WidgetEntry(
     ),
     const PropertySpec(
       name: 'dismissible',
+      group: PropertyGroup.behavior,
       typeLabel: 'bool',
       description: '幕を押したときに onDismiss を呼ぶか。false なら押しても何も起きない',
       initiallyOn: false,
@@ -56,12 +61,36 @@ final animatedModalBarrierEntry = WidgetEntry(
     ),
     const PropertySpec(
       name: 'onDismiss',
+      group: PropertyGroup.behavior,
       typeLabel: 'VoidCallback?',
       description:
           '幕を押したときに呼ばれる。指定しないと Navigator.maybePop で画面を閉じるので、'
           'ここでは詳細画面が閉じないように必ず渡す',
       required: true,
       control: FixedControl(value: _noop, source: '() {}'),
+    ),
+  ],
+  references: const [
+    keyReference,
+    ReferenceArg(
+      name: 'semanticsLabel',
+      typeLabel: 'String?',
+      description: '読み上げで幕を伝える言葉。見た目は変わらない',
+    ),
+    ReferenceArg(
+      name: 'barrierSemanticsDismissible',
+      typeLabel: 'bool?',
+      description: '読み上げで、幕を押して閉じられると伝えるか。見た目は変わらない',
+    ),
+    ReferenceArg(
+      name: 'clipDetailsNotifier',
+      typeLabel: 'ValueNotifier<EdgeInsets>?',
+      description: '読み上げの対象にする幕の範囲を、端から狭める量。見た目は変わらない',
+    ),
+    ReferenceArg(
+      name: 'semanticsOnTapHint',
+      typeLabel: 'String?',
+      description: '読み上げで、幕を押すと何が起きるかを伝える言葉。見た目は変わらない',
     ),
   ],
   build: _build,

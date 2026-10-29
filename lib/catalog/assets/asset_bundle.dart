@@ -5,6 +5,7 @@ import 'package:widget_lab/catalog/demo/rebuild_counter.dart';
 import 'package:widget_lab/catalog/model/choice.dart';
 import 'package:widget_lab/catalog/model/demo_args.dart';
 import 'package:widget_lab/catalog/model/property_control.dart';
+import 'package:widget_lab/catalog/model/property_group.dart';
 import 'package:widget_lab/catalog/model/property_spec.dart';
 import 'package:widget_lab/catalog/model/widget_entry.dart';
 
@@ -32,6 +33,7 @@ final assetBundleEntry = WidgetEntry(
   properties: [
     PropertySpec(
       name: 'key',
+      group: PropertyGroup.content,
       typeLabel: 'String',
       description: '読むアセットの名前。ない名前だと読み込みに失敗します。',
       required: true,

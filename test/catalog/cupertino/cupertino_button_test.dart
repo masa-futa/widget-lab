@@ -17,6 +17,12 @@ void main() {
     expect(built.color, defaults.color);
     expect(built.pressedOpacity, defaults.pressedOpacity);
     expect(built.borderRadius, defaults.borderRadius);
+    expect(built.padding, defaults.padding);
+    expect(built.foregroundColor, defaults.foregroundColor);
+    expect(built.disabledColor, defaults.disabledColor);
+    expect(built.minimumSize, defaults.minimumSize);
+    expect(built.alignment, defaults.alignment);
+    expect(built.onLongPress, isNull);
     expect(built.onPressed, isNull);
   });
 }

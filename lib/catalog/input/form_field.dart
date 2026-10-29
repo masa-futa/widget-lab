@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:widget_lab/catalog/model/choice.dart';
 import 'package:widget_lab/catalog/model/demo_args.dart';
 import 'package:widget_lab/catalog/model/property_control.dart';
+import 'package:widget_lab/catalog/model/property_group.dart';
 import 'package:widget_lab/catalog/model/property_spec.dart';
+import 'package:widget_lab/catalog/model/reference_arg.dart';
 import 'package:widget_lab/catalog/model/widget_entry.dart';
 
 typedef _Validator = String? Function(int? value);
@@ -22,6 +24,7 @@ final formFieldEntry = WidgetEntry(
   properties: [
     PropertySpec(
       name: 'initialValue',
+      group: PropertyGroup.content,
       typeLabel: 'T?',
       description: '最初の値（星の数）',
       control: SliderControl(
@@ -35,6 +38,7 @@ final formFieldEntry = WidgetEntry(
     ),
     const PropertySpec(
       name: 'validator',
+      group: PropertyGroup.behavior,
       typeLabel: 'FormFieldValidator<T>?',
       description: '値を調べ、エラーの文を返す（問題なければ null）。ここでは星が 0 ならエラー',
       control: FixedControl(
@@ -44,6 +48,7 @@ final formFieldEntry = WidgetEntry(
     ),
     PropertySpec(
       name: 'autovalidateMode',
+      group: PropertyGroup.behavior,
       typeLabel: 'AutovalidateMode?',
       description: 'いつ検証するか。always なら最初からエラーが出る。既定は disabled',
       control: ChoiceControl(
@@ -56,10 +61,57 @@ final formFieldEntry = WidgetEntry(
     ),
     const PropertySpec(
       name: 'enabled',
+      group: PropertyGroup.behavior,
       typeLabel: 'bool',
       description: 'false にすると押せず、検証もしない',
       initiallyOn: false,
       control: SwitchControl(initialValue: false),
+    ),
+    const PropertySpec(
+      name: 'forceErrorText',
+      group: PropertyGroup.content,
+      typeLabel: 'String?',
+      description: '検証にかかわらず出すエラーの文。サーバーで断られたときなどに使う。指定すると validator は呼ばれない',
+      initiallyOn: false,
+      control: TextControl(initialValue: '使えない値です', maxLength: 16),
+    ),
+    const PropertySpec(
+      name: 'errorBuilder',
+      group: PropertyGroup.content,
+      typeLabel: 'FormFieldErrorBuilder?',
+      description: 'エラーの文の出し方を組み立てる関数。ここでは builder の中で受け取って、印を付けて出す',
+      initiallyOn: false,
+      control: FixedControl(
+        value: _errorWithMark,
+        source: "(context, errorText) => Text('※ \$errorText')",
+      ),
+    ),
+  ],
+  references: const [
+    ReferenceArg(
+      name: 'key',
+      typeLabel: 'Key?',
+      description: 'Widget を見分ける印。並べ替えたときや、状態を引き継ぐときに使う',
+    ),
+    ReferenceArg(
+      name: 'builder',
+      typeLabel: 'FormFieldBuilder<T>',
+      description: '入力部品を組み立てる関数。FormFieldState から値とエラーを読む。ここでは星を並べる部品',
+    ),
+    ReferenceArg(
+      name: 'onSaved',
+      typeLabel: 'FormFieldSetter<T>?',
+      description: 'Form の save() で呼ばれ、今の値を受け取る',
+    ),
+    ReferenceArg(
+      name: 'onReset',
+      typeLabel: 'VoidCallback?',
+      description: 'Form の reset() で最初の値に戻ったときに呼ばれる',
+    ),
+    ReferenceArg(
+      name: 'restorationId',
+      typeLabel: 'String?',
+      description: 'アプリが閉じられて戻ったときに、値を復元するための名前',
     ),
   ],
   build: _build,
@@ -68,6 +120,12 @@ final formFieldEntry = WidgetEntry(
 );
 
 String? _atLeastOne(int? value) => (value ?? 0) == 0 ? '星を 1 つ以上' : null;
+
+Widget _errorWithMark(BuildContext context, String errorText) => Text(
+  '※ $errorText',
+  style: Theme.of(context).textTheme.bodySmall
+      ?.copyWith(color: Theme.of(context).colorScheme.error),
+);
 
 Widget _build(DemoArgs args) {
   final initialValue = args.valueOf<int>('initialValue');
@@ -78,7 +136,13 @@ Widget _build(DemoArgs args) {
     validator: args.valueOf<_Validator>('validator'),
     autovalidateMode: args.valueOf<AutovalidateMode>('autovalidateMode'),
     enabled: args.valueOf<bool>('enabled') ?? true,
-    builder: (field) => _Stars(field: field),
+    forceErrorText: args.valueOf<String>('forceErrorText'),
+    errorBuilder: args.valueOf<FormFieldErrorBuilder>('errorBuilder'),
+    // エラーの文が出ると高さが増えるので、低いカードでは縮めて収める
+    builder: (field) => FittedBox(
+      fit: BoxFit.scaleDown,
+      child: _Stars(field: field),
+    ),
   );
 }
 
@@ -108,7 +172,10 @@ class _Stars extends StatelessWidget {
               ),
           ],
         ),
-        if (errorText != null)
+        // errorBuilder があればそれで出す（FormField はエラーの出し方を builder に任せる）
+        if (errorText != null && field.widget.errorBuilder != null)
+          field.widget.errorBuilder!(context, errorText)
+        else if (errorText != null)
           Text(
             errorText,
             style: theme.textTheme.bodySmall?.copyWith(

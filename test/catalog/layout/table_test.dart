@@ -12,6 +12,8 @@ void main() {
     expect(built.border, isNull);
     expect(built.defaultColumnWidth, isA<FlexColumnWidth>());
     expect(built.defaultVerticalAlignment, TableCellVerticalAlignment.top);
+    expect(built.columnWidths, isNull);
+    expect(built.textDirection, isNull);
     expect(built.children, isEmpty);
   });
 }

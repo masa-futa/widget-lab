@@ -3,7 +3,9 @@ import 'package:widget_lab/catalog/demo/demo_scope.dart';
 import 'package:widget_lab/catalog/demo/semantics_readout.dart';
 import 'package:widget_lab/catalog/model/demo_args.dart';
 import 'package:widget_lab/catalog/model/property_control.dart';
+import 'package:widget_lab/catalog/model/property_group.dart';
 import 'package:widget_lab/catalog/model/property_spec.dart';
+import 'package:widget_lab/catalog/model/reference_arg.dart';
 import 'package:widget_lab/catalog/model/widget_entry.dart';
 
 final excludeSemanticsEntry = WidgetEntry(
@@ -22,10 +24,23 @@ final excludeSemanticsEntry = WidgetEntry(
   properties: const [
     PropertySpec(
       name: 'excluding',
+      group: PropertyGroup.behavior,
       typeLabel: 'bool',
       description: 'false にすると外さない（条件で切り替えるときに使う）',
       initiallyOn: false,
       control: SwitchControl(initialValue: false),
+    ),
+  ],
+  references: const [
+    ReferenceArg(
+      name: 'key',
+      typeLabel: 'Key?',
+      description: 'Widget を見分ける印。並べ替えたときや、状態を引き継ぐときに使う',
+    ),
+    ReferenceArg(
+      name: 'child',
+      typeLabel: 'Widget?',
+      description: '読み上げから外す子孫。ここでは星のアイコンと文の組（コードでは const Badge()）',
     ),
   ],
   build: _build,

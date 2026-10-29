@@ -2,7 +2,9 @@ import 'package:flutter/widgets.dart';
 import 'package:widget_lab/catalog/model/choice.dart';
 import 'package:widget_lab/catalog/model/demo_args.dart';
 import 'package:widget_lab/catalog/model/property_control.dart';
+import 'package:widget_lab/catalog/model/property_group.dart';
 import 'package:widget_lab/catalog/model/property_spec.dart';
+import 'package:widget_lab/catalog/model/reference_arg.dart';
 import 'package:widget_lab/catalog/model/widget_entry.dart';
 
 final columnEntry = WidgetEntry(
@@ -19,6 +21,7 @@ final columnEntry = WidgetEntry(
   properties: const [
     PropertySpec(
       name: 'mainAxisAlignment',
+      group: PropertyGroup.layout,
       typeLabel: 'MainAxisAlignment',
       description: '縦の並べ方。余った高さをどこに置くか',
       control: ChoiceControl(
@@ -50,6 +53,7 @@ final columnEntry = WidgetEntry(
     ),
     PropertySpec(
       name: 'mainAxisSize',
+      group: PropertyGroup.size,
       typeLabel: 'MainAxisSize',
       description: '縦の広さ。max は使える高さいっぱい、min は子の高さの合計',
       initiallyOn: false,
@@ -62,6 +66,7 @@ final columnEntry = WidgetEntry(
     ),
     PropertySpec(
       name: 'crossAxisAlignment',
+      group: PropertyGroup.layout,
       typeLabel: 'CrossAxisAlignment',
       description: '横の揃え方。stretch は子を横いっぱいに伸ばす',
       initiallyOn: false,
@@ -85,6 +90,7 @@ final columnEntry = WidgetEntry(
     ),
     PropertySpec(
       name: 'spacing',
+      group: PropertyGroup.spacing,
       typeLabel: 'double',
       description: '子と子のあいだの高さ',
       initiallyOn: false,
@@ -99,7 +105,34 @@ final columnEntry = WidgetEntry(
       ),
     ),
     PropertySpec(
+      name: 'textDirection',
+      group: PropertyGroup.layout,
+      typeLabel: 'TextDirection?',
+      description: '横の左右の向き。rtl にすると crossAxisAlignment の start と end が入れ替わる',
+      initiallyOn: false,
+      control: ChoiceControl(
+        choices: [
+          Choice('rtl', TextDirection.rtl, 'TextDirection.rtl'),
+          Choice('ltr', TextDirection.ltr, 'TextDirection.ltr'),
+        ],
+      ),
+    ),
+    PropertySpec(
+      name: 'verticalDirection',
+      group: PropertyGroup.layout,
+      typeLabel: 'VerticalDirection',
+      description: '子を並べる向き。up にすると下から上へ並び、start と end が入れ替わる',
+      initiallyOn: false,
+      control: ChoiceControl(
+        choices: [
+          Choice('up', VerticalDirection.up, 'VerticalDirection.up'),
+          Choice('down', VerticalDirection.down, 'VerticalDirection.down'),
+        ],
+      ),
+    ),
+    PropertySpec(
       name: 'children',
+      group: PropertyGroup.content,
       typeLabel: 'List<Widget>',
       description: '縦に並べる Widget',
       control: FixedControl(
@@ -112,6 +145,20 @@ final columnEntry = WidgetEntry(
             '[FlutterLogo(size: 16), FlutterLogo(size: 16), '
             'FlutterLogo(size: 16)]',
       ),
+    ),
+  ],
+  references: const [
+    ReferenceArg(
+      name: 'key',
+      typeLabel: 'Key?',
+      description: 'Widget を見分ける印。並べ替えたときや、状態を引き継ぐときに使う',
+    ),
+    ReferenceArg(
+      name: 'textBaseline',
+      typeLabel: 'TextBaseline?',
+      description:
+          'crossAxisAlignment を baseline にしたときに揃える文字の基準線。'
+          'この見本の子（ロゴ）は基準線を持たないので違いが出ない',
     ),
   ],
   build: _build,
@@ -130,6 +177,10 @@ Widget _build(DemoArgs args) => Column(
   crossAxisAlignment:
       args.valueOf<CrossAxisAlignment>('crossAxisAlignment') ??
       CrossAxisAlignment.center,
+  textDirection: args.valueOf<TextDirection>('textDirection'),
+  verticalDirection:
+      args.valueOf<VerticalDirection>('verticalDirection') ??
+      VerticalDirection.down,
   spacing: args.valueOf<double>('spacing') ?? 0,
   children: args.valueOf<List<Widget>>('children') ?? const [],
 );

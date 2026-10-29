@@ -27,6 +27,7 @@ void main() {
             as CupertinoPage<void>;
     expect(page.title, isNull);
     expect(page.fullscreenDialog, isFalse);
+    expect(page.canPop, isTrue);
   });
 
   testWidgets('戻るボタンで戻ると 2 枚目が外れ、もう一度開ける', (tester) async {

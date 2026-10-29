@@ -28,6 +28,12 @@ void main() {
     expect(built.squeeze, defaults.squeeze);
     expect(built.useMagnifier, defaults.useMagnifier);
     expect(built.magnification, defaults.magnification);
+    expect(built.offAxisFraction, defaults.offAxisFraction);
+    expect(built.backgroundColor, defaults.backgroundColor);
+    expect(
+      built.selectionOverlay,
+      isA<CupertinoPickerDefaultSelectionOverlay>(),
+    );
     expect(built.childDelegate, isA<ListWheelChildListDelegate>());
   });
 }

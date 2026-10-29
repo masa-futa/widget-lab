@@ -5,7 +5,9 @@ import 'package:widget_lab/catalog/demo/demo_scope.dart';
 import 'package:widget_lab/catalog/demo/rebuild_counter.dart';
 import 'package:widget_lab/catalog/model/demo_args.dart';
 import 'package:widget_lab/catalog/model/property_control.dart';
+import 'package:widget_lab/catalog/model/property_group.dart';
 import 'package:widget_lab/catalog/model/property_spec.dart';
+import 'package:widget_lab/catalog/model/reference_arg.dart';
 import 'package:widget_lab/catalog/model/widget_entry.dart';
 
 final keyboardListenerEntry = WidgetEntry(
@@ -25,6 +27,7 @@ final keyboardListenerEntry = WidgetEntry(
   properties: const [
     PropertySpec(
       name: 'focusNode',
+      group: PropertyGroup.behavior,
       typeLabel: 'FocusNode',
       description: 'キーを受けるためのフォーカス。State に持ち、dispose で捨てる',
       required: true,
@@ -32,21 +35,42 @@ final keyboardListenerEntry = WidgetEntry(
     ),
     PropertySpec(
       name: 'autofocus',
+      group: PropertyGroup.behavior,
       typeLabel: 'bool',
       description: '開いたときに自分でフォーカスを取るか。false なら枠を押すとフォーカスを取る',
       control: SwitchControl(initialValue: true),
     ),
     PropertySpec(
       name: 'onKeyEvent',
+      group: PropertyGroup.behavior,
       typeLabel: 'ValueChanged<KeyEvent>?',
       description: 'キーの出来事が来たときに呼ばれる。ここではログに出す',
       control: FixedControl(value: true, source: '(event) => log(event)'),
+    ),
+    PropertySpec(
+      name: 'child',
+      group: PropertyGroup.content,
+      typeLabel: 'Widget',
+      description: 'キーを受ける間に描く Widget。ここでは押してほしいキーの案内',
+      required: true,
+      control: FixedControl(value: _KeyPad(), source: 'const KeyPad()'),
+    ),
+  ],
+  references: const [
+    ReferenceArg(
+      name: 'key',
+      typeLabel: 'Key?',
+      description: 'Widget を見分ける印。並べ替えたときや、状態を引き継ぐときに使う',
+    ),
+    ReferenceArg(
+      name: 'includeSemantics',
+      typeLabel: 'bool',
+      description: '読み上げの情報にフォーカスの状態を含めるか。既定は true',
     ),
   ],
   build: _build,
   buildWithout: _buildWithout,
   codeName: 'KeyboardListener',
-  codeArguments: const ['child: const KeyPad()'],
 );
 
 Widget _build(DemoArgs args) {

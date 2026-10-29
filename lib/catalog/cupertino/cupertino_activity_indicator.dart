@@ -2,7 +2,9 @@ import 'package:flutter/cupertino.dart';
 import 'package:widget_lab/catalog/model/choice.dart';
 import 'package:widget_lab/catalog/model/demo_args.dart';
 import 'package:widget_lab/catalog/model/property_control.dart';
+import 'package:widget_lab/catalog/model/property_group.dart';
 import 'package:widget_lab/catalog/model/property_spec.dart';
+import 'package:widget_lab/catalog/model/reference_arg.dart';
 import 'package:widget_lab/catalog/model/widget_entry.dart';
 
 final cupertinoActivityIndicatorEntry = WidgetEntry(
@@ -20,6 +22,7 @@ final cupertinoActivityIndicatorEntry = WidgetEntry(
   properties: [
     PropertySpec(
       name: 'color',
+      group: PropertyGroup.paint,
       typeLabel: 'Color?',
       description: '線の色。指定しないと灰色',
       initiallyOn: false,
@@ -41,6 +44,7 @@ final cupertinoActivityIndicatorEntry = WidgetEntry(
     ),
     const PropertySpec(
       name: 'animating',
+      group: PropertyGroup.behavior,
       typeLabel: 'bool',
       description: '回すか。false なら止まる',
       initiallyOn: false,
@@ -48,6 +52,7 @@ final cupertinoActivityIndicatorEntry = WidgetEntry(
     ),
     PropertySpec(
       name: 'radius',
+      group: PropertyGroup.size,
       typeLabel: 'double',
       description: '印の半径',
       control: SliderControl(
@@ -58,6 +63,13 @@ final cupertinoActivityIndicatorEntry = WidgetEntry(
         resolve: (v) => v,
         code: (v) => '$v',
       ),
+    ),
+  ],
+  references: const [
+    ReferenceArg(
+      name: 'key',
+      typeLabel: 'Key?',
+      description: 'Widget を見分ける印。並べ替えたときや、状態を引き継ぐときに使う',
     ),
   ],
   build: _build,

@@ -5,7 +5,9 @@ import 'package:widget_lab/catalog/demo/demo_value.dart';
 import 'package:widget_lab/catalog/model/choice.dart';
 import 'package:widget_lab/catalog/model/demo_args.dart';
 import 'package:widget_lab/catalog/model/property_control.dart';
+import 'package:widget_lab/catalog/model/property_group.dart';
 import 'package:widget_lab/catalog/model/property_spec.dart';
+import 'package:widget_lab/catalog/model/reference_arg.dart';
 import 'package:widget_lab/catalog/model/widget_entry.dart';
 
 final dragTargetEntry = WidgetEntry(
@@ -24,7 +26,8 @@ final dragTargetEntry = WidgetEntry(
   properties: const [
     PropertySpec(
       name: 'onWillAcceptWithDetails',
-      typeLabel: 'DragTargetWillAccept<T>?',
+      group: PropertyGroup.behavior,
+      typeLabel: 'DragTargetWillAcceptWithDetails<T>?',
       description: '重なった値を受けるか。断ると枠が赤くなる。指定しないと全部受ける',
       control: ChoiceControl(
         choices: [
@@ -35,6 +38,7 @@ final dragTargetEntry = WidgetEntry(
     ),
     PropertySpec(
       name: 'onAcceptWithDetails',
+      group: PropertyGroup.behavior,
       typeLabel: 'DragTargetAcceptWithDetails<T>?',
       description: '離したときに値を受け取る。指定しないと、重ねても何も起きない',
       control: FixedControl(
@@ -44,6 +48,7 @@ final dragTargetEntry = WidgetEntry(
     ),
     PropertySpec(
       name: 'builder',
+      group: PropertyGroup.content,
       typeLabel: 'DragTargetBuilder<T>',
       description: '見た目を作る関数。重なっている間は色を変える',
       required: true,
@@ -53,6 +58,38 @@ final dragTargetEntry = WidgetEntry(
             '(context, candidateData, rejectedData) =>\n'
             '      DropArea(highlighted: candidateData.isNotEmpty)',
       ),
+    ),
+  ],
+  references: const [
+    ReferenceArg(
+      name: 'key',
+      typeLabel: 'Key?',
+      description: 'Widget を見分ける印。並べ替えたときや、状態を引き継ぐときに使う',
+    ),
+    ReferenceArg(
+      name: 'onWillAccept',
+      typeLabel: 'DragTargetWillAccept<T>?',
+      description: '非推奨。代わりに onWillAcceptWithDetails を使う',
+    ),
+    ReferenceArg(
+      name: 'onAccept',
+      typeLabel: 'DragTargetAccept<T>?',
+      description: '非推奨。代わりに onAcceptWithDetails を使う',
+    ),
+    ReferenceArg(
+      name: 'onLeave',
+      typeLabel: 'DragTargetLeave<T>?',
+      description: '重なっていた値が、落とされずに離れていったときに呼ばれる',
+    ),
+    ReferenceArg(
+      name: 'onMove',
+      typeLabel: 'DragTargetMove<T>?',
+      description: '値を重ねたまま動かしている間、動くたびに呼ばれる',
+    ),
+    ReferenceArg(
+      name: 'hitTestBehavior',
+      typeLabel: 'HitTestBehavior',
+      description: '値が重なったかを決める当たり判定のしかた。見本の受け取る場所は全面を塗っているので違いは出ない',
     ),
   ],
   build: _build,

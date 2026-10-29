@@ -1,12 +1,15 @@
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
+import 'package:widget_lab/catalog/animation/shared_specs.dart';
 import 'package:widget_lab/catalog/demo/demo_recorder.dart';
 import 'package:widget_lab/catalog/demo/demo_scope.dart';
 import 'package:widget_lab/catalog/demo/rebuild_counter.dart';
 import 'package:widget_lab/catalog/model/demo_args.dart';
 import 'package:widget_lab/catalog/model/property_control.dart';
+import 'package:widget_lab/catalog/model/property_group.dart';
 import 'package:widget_lab/catalog/model/property_spec.dart';
+import 'package:widget_lab/catalog/model/reference_arg.dart';
 import 'package:widget_lab/catalog/model/widget_entry.dart';
 
 final animatedBuilderEntry = WidgetEntry(
@@ -25,6 +28,7 @@ final animatedBuilderEntry = WidgetEntry(
   properties: const [
     PropertySpec(
       name: 'animation',
+      group: PropertyGroup.behavior,
       typeLabel: 'Listenable',
       description: '聞く Listenable。ここでは「動かす」で 1 回転する AnimationController',
       required: true,
@@ -32,11 +36,20 @@ final animatedBuilderEntry = WidgetEntry(
     ),
     PropertySpec(
       name: 'child',
+      group: PropertyGroup.content,
       typeLabel: 'Widget?',
       description:
           'builder に渡す、動かない部分。OFF にすると builder の中で作るので、'
           '毎フレーム組み直されます。',
       control: FixedControl(value: _Logo(), source: 'const Logo()'),
+    ),
+  ],
+  references: const [
+    keyReference,
+    ReferenceArg(
+      name: 'builder',
+      typeLabel: 'TransitionBuilder',
+      description: 'animation が知らせるたびに呼ばれ、動く部分を組み立てる関数。ここでは子を回す',
     ),
   ],
   build: _build,

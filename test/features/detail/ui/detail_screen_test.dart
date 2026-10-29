@@ -468,9 +468,10 @@ void main() {
 
   testWidgets('初期状態に戻すと、画面の外の最初のチップを見える位置まで送る', (tester) async {
     await pumpDetail(tester, 'text');
-    await select(tester, 'overflow');
+    // 文字のタブの最後のチップまで送り、タブの最初のチップを画面の外に出す
+    await select(tester, 'textScaler');
     await toggle(tester);
-    expect(tester.getRect(chip('data')).right, lessThan(0));
+    expect(tester.getRect(chip('style')).right, lessThan(0));
 
     await tester.tap(find.byTooltip('初期状態に戻す'));
     await tester.pumpAndSettle();
