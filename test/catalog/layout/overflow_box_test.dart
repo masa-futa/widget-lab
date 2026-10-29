@@ -9,6 +9,8 @@ void main() {
     await pumpEntry(tester, overflowBoxEntry);
     final built = demoWidget<OverflowBox>(tester);
 
+    expect(built.minWidth, isNull);
+    expect(built.minHeight, isNull);
     expect(built.maxWidth, isNull);
     expect(built.maxHeight, isNull);
     expect(built.alignment, Alignment.center);

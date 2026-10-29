@@ -1,7 +1,9 @@
 import 'package:flutter/widgets.dart';
 import 'package:widget_lab/catalog/model/demo_args.dart';
 import 'package:widget_lab/catalog/model/property_control.dart';
+import 'package:widget_lab/catalog/model/property_group.dart';
 import 'package:widget_lab/catalog/model/property_spec.dart';
+import 'package:widget_lab/catalog/model/reference_arg.dart';
 import 'package:widget_lab/catalog/model/widget_entry.dart';
 
 final paddingEntry = WidgetEntry(
@@ -16,6 +18,7 @@ final paddingEntry = WidgetEntry(
   properties: [
     PropertySpec(
       name: 'padding',
+      group: PropertyGroup.spacing,
       typeLabel: 'EdgeInsetsGeometry',
       description: '子のまわりに入れる余白。ここでは四辺に同じ幅を入れる',
       control: SliderControl(
@@ -29,9 +32,17 @@ final paddingEntry = WidgetEntry(
     ),
     const PropertySpec(
       name: 'child',
+      group: PropertyGroup.content,
       typeLabel: 'Widget?',
       description: '余白の内側に置く Widget',
       control: FixedControl(value: FlutterLogo(), source: 'FlutterLogo()'),
+    ),
+  ],
+  references: const [
+    ReferenceArg(
+      name: 'key',
+      typeLabel: 'Key?',
+      description: 'Widget を見分ける印。並べ替えたときや、状態を引き継ぐときに使う',
     ),
   ],
   build: _build,
