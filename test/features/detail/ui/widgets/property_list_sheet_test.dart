@@ -131,4 +131,23 @@ void main() {
     );
     expect(tester.takeException(), isNull);
   });
+
+  testWidgets('名前が短い行でも、値は行の右端までを使って右に寄る', (tester) async {
+    await openSheet(tester);
+    // 選んでいない短い名前の行（✓ が付かない）
+    final row = find.ancestor(
+      of: inSheet(find.text('color')),
+      matching: find.byType(InkWell),
+    );
+    final texts = find.descendant(of: row, matching: find.byType(Text));
+    final value = texts.last;
+    final rowRight = tester.getTopRight(row).dx;
+    final valueRight = tester.getTopRight(value).dx;
+    // 行の左右の余白（NimiSpacing.xs）だけ内側。値の枠が 1/3 の幅に収まっていないこと
+    expect(rowRight - valueRight, lessThanOrEqualTo(12));
+    expect(
+      tester.getSize(value).width,
+      greaterThan(tester.getSize(row).width / 3),
+    );
+  });
 }

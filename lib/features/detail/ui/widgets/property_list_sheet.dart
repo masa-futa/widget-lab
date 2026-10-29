@@ -170,6 +170,9 @@ class _Row extends StatelessWidget {
   final bool selected;
   final VoidCallback onTap;
 
+  /// 名前が行の中で取れる幅の上限（残りは値のために空ける）。
+  static const _nameMaxWidthFraction = 0.6;
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
@@ -202,40 +205,47 @@ class _Row extends StatelessWidget {
               constraints: const BoxConstraints(minHeight: 48),
               child: Padding(
                 padding: EdgeInsets.symmetric(horizontal: spacing.xs),
-                child: Row(
-                  children: [
-                    Icon(
-                      on ? Icons.circle : Icons.circle_outlined,
-                      size: 10,
-                      color: on ? scheme.primary : scheme.outline,
-                    ),
-                    Gap(spacing.xs),
-                    Flexible(
-                      flex: 2,
-                      child: Text(
-                        name,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: theme.textTheme.titleSmall,
+                // 名前は先に場所を取り、収まるうちは全部見せる。広がりすぎたら省いて、
+                // 残りは値が右端まで使う
+                child: LayoutBuilder(
+                  builder: (context, constraints) => Row(
+                    children: [
+                      Icon(
+                        on ? Icons.circle : Icons.circle_outlined,
+                        size: 10,
+                        color: on ? scheme.primary : scheme.outline,
                       ),
-                    ),
-                    Gap(spacing.sm),
-                    Expanded(
-                      child: Text(
-                        value,
-                        textAlign: TextAlign.end,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: theme.textTheme.bodySmall?.copyWith(
-                          color: scheme.onSurfaceVariant,
+                      Gap(spacing.xs),
+                      ConstrainedBox(
+                        constraints: BoxConstraints(
+                          maxWidth:
+                              constraints.maxWidth * _nameMaxWidthFraction,
+                        ),
+                        child: Text(
+                          name,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: theme.textTheme.titleSmall,
                         ),
                       ),
-                    ),
-                    if (selected) ...[
-                      Gap(spacing.xs),
-                      Icon(Icons.check, size: 18, color: scheme.primary),
+                      Gap(spacing.sm),
+                      Expanded(
+                        child: Text(
+                          value,
+                          textAlign: TextAlign.end,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: theme.textTheme.bodySmall?.copyWith(
+                            color: scheme.onSurfaceVariant,
+                          ),
+                        ),
+                      ),
+                      if (selected) ...[
+                        Gap(spacing.xs),
+                        Icon(Icons.check, size: 18, color: scheme.primary),
+                      ],
                     ],
-                  ],
+                  ),
                 ),
               ),
             ),
