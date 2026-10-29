@@ -641,6 +641,20 @@ void main() {
       );
     });
 
+    testWidgets('仲間のタブがある Container を低い画面で開いても、はみ出さず編集パネルが残る', (tester) async {
+      await pumpDetail(tester, 'container');
+      // 874×402 の横向き
+      tester.view.physicalSize = const Size(2622, 1206);
+      await tester.pumpAndSettle();
+
+      expect(tester.takeException(), isNull);
+      expect(find.byType(GroupTabs), findsOneWidget);
+      expect(
+        tester.getSize(find.byKey(DetailScreen.panelAreaKey)).height,
+        greaterThanOrEqualTo(96),
+      );
+    });
+
     testWidgets('横向きでキーボードを出し比較しても、はみ出さず編集パネルが残る', (tester) async {
       await pumpDetail(tester, 'text');
       await tester.tap(inPanel(find.text('比べる')));
@@ -1337,6 +1351,20 @@ void main() {
         find.widgetWithText(PropertyChip, 'transformAlignment'),
       );
       expect(chip.dimmed, isTrue);
+      final dimmedOpacity = tester.widget<Opacity>(
+        find.descendant(
+          of: find.widgetWithText(PropertyChip, 'transformAlignment'),
+          matching: find.byType(Opacity),
+        ),
+      );
+      expect(dimmedOpacity.opacity, 0.5);
+      final normalOpacity = tester.widget<Opacity>(
+        find.descendant(
+          of: find.widgetWithText(PropertyChip, 'transform'),
+          matching: find.byType(Opacity),
+        ),
+      );
+      expect(normalOpacity.opacity, 1);
     });
   });
 }

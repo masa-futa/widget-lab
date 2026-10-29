@@ -13,6 +13,9 @@ class GroupTabs extends ConsumerWidget {
 
   final String entryId;
 
+  /// タブの行の高さ（押せる範囲の最小）。
+  static const height = 48.0;
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final provider = detailProvider(entryId);
@@ -86,48 +89,60 @@ class _Tab extends StatelessWidget {
           ? label
           : AppLocalizations.of(context).detailTabOnCount(label, count),
       excludeSemantics: true,
-      child: InkWell(
-        onTap: onTap,
-        child: Container(
-          constraints: const BoxConstraints(minHeight: 48),
-          padding: EdgeInsets.symmetric(horizontal: spacing.xs),
-          decoration: BoxDecoration(
-            border: Border(
-              bottom: BorderSide(
-                color: selected ? scheme.primary : Colors.transparent,
-                width: 2,
-              ),
+      child: Material(
+        type: MaterialType.transparency,
+        child: InkWell(
+          onTap: onTap,
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(
+              minWidth: 48,
+              minHeight: GroupTabs.height,
             ),
-          ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                label,
-                style: theme.textTheme.bodyMedium?.copyWith(
-                  color: selected ? scheme.onSurface : scheme.onSurfaceVariant,
-                  fontWeight: selected ? FontWeight.w600 : null,
+            child: Ink(
+              decoration: BoxDecoration(
+                border: Border(
+                  bottom: BorderSide(
+                    color: selected ? scheme.primary : Colors.transparent,
+                    width: 2,
+                  ),
                 ),
               ),
-              if (count != null && count > 0) ...[
-                Gap(spacing.xxs),
-                DecoratedBox(
-                  decoration: ShapeDecoration(
-                    color: scheme.primaryContainer,
-                    shape: const StadiumBorder(),
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 6),
-                    child: Text(
-                      '$count',
-                      style: theme.textTheme.labelSmall?.copyWith(
-                        color: scheme.onPrimaryContainer,
+              child: Padding(
+                padding: EdgeInsets.symmetric(horizontal: spacing.xs),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      label,
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                        color: selected
+                            ? scheme.onSurface
+                            : scheme.onSurfaceVariant,
+                        fontWeight: selected ? FontWeight.w600 : null,
                       ),
                     ),
-                  ),
+                    if (count != null && count > 0) ...[
+                      Gap(spacing.xxs),
+                      DecoratedBox(
+                        decoration: ShapeDecoration(
+                          color: scheme.primaryContainer,
+                          shape: const StadiumBorder(),
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 6),
+                          child: Text(
+                            '$count',
+                            style: theme.textTheme.labelSmall?.copyWith(
+                              color: scheme.onPrimaryContainer,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ],
                 ),
-              ],
-            ],
+              ),
+            ),
           ),
         ),
       ),

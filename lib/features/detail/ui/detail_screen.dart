@@ -67,7 +67,8 @@ class DetailScreen extends ConsumerWidget {
         (hasProperties
             ? textScaler.scale(_stripHeight) +
                   textScaler.scale(_chipsHeight) +
-                  spacing.xs * 3
+                  spacing.xs * 3 +
+                  (showsTabs ? textScaler.scale(GroupTabs.height) : 0)
             : spacing.xs) +
         (showsLogStrip ? textScaler.scale(LogStrip.height) + spacing.xs : 0);
     return Scaffold(

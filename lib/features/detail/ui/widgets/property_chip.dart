@@ -57,48 +57,51 @@ class PropertyChip extends StatelessWidget {
       selected: selected,
       excludeSemantics: true,
       onTap: onTap,
-      child: Material(
-        type: MaterialType.transparency,
-        // 押せる範囲は高さ 48、見た目は 40 のピル
-        child: InkWell(
-          customBorder: const StadiumBorder(),
-          onTap: onTap,
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(minHeight: 48),
-            child: Center(
-              widthFactor: 1,
-              heightFactor: 1,
-              child: Ink(
-                decoration: ShapeDecoration(
-                  color: background,
-                  shape: StadiumBorder(
-                    side: background == null
-                        ? BorderSide(color: scheme.outline)
-                        : BorderSide.none,
+      child: Opacity(
+        opacity: dimmed ? 0.5 : 1,
+        child: Material(
+          type: MaterialType.transparency,
+          // 押せる範囲は高さ 48、見た目は 40 のピル
+          child: InkWell(
+            customBorder: const StadiumBorder(),
+            onTap: onTap,
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(minHeight: 48),
+              child: Center(
+                widthFactor: 1,
+                heightFactor: 1,
+                child: Ink(
+                  decoration: ShapeDecoration(
+                    color: background,
+                    shape: StadiumBorder(
+                      side: background == null
+                          ? BorderSide(color: scheme.outline)
+                          : BorderSide.none,
+                    ),
                   ),
-                ),
-                child: ConstrainedBox(
-                  // 文字を大きくしたときは中身に合わせて高くする
-                  constraints: const BoxConstraints(minHeight: _height),
-                  child: Padding(
-                    padding: EdgeInsets.symmetric(horizontal: spacing.sm),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          name,
-                          style: theme.textTheme.titleSmall?.copyWith(
-                            color: foreground,
+                  child: ConstrainedBox(
+                    // 文字を大きくしたときは中身に合わせて高くする
+                    constraints: const BoxConstraints(minHeight: _height),
+                    child: Padding(
+                      padding: EdgeInsets.symmetric(horizontal: spacing.sm),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            name,
+                            style: theme.textTheme.titleSmall?.copyWith(
+                              color: foreground,
+                            ),
                           ),
-                        ),
-                        Gap(spacing.xxs),
-                        Text(
-                          shownValue,
-                          style: theme.textTheme.labelMedium?.copyWith(
-                            color: secondary,
+                          Gap(spacing.xxs),
+                          Text(
+                            shownValue,
+                            style: theme.textTheme.labelMedium?.copyWith(
+                              color: secondary,
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ),
                 ),
