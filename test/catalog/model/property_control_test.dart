@@ -4,6 +4,7 @@ import 'package:widget_lab/catalog/model/choice.dart';
 import 'package:widget_lab/catalog/model/control_value.dart';
 import 'package:widget_lab/catalog/model/dart_code.dart';
 import 'package:widget_lab/catalog/model/property_control.dart';
+import 'package:widget_lab/catalog/model/property_spec.dart';
 
 void main() {
   group('TC-41: 値の式が、そのまま貼れる Dart の式になる', () {
@@ -111,6 +112,73 @@ void main() {
       expect(dartString(r'a\b'), r"'a\\b'");
       expect(dartString(r'$x'), r"'\$x'");
       expect(dartString('1\n2\t3'), r"'1\n2\t3'");
+    });
+  });
+
+  group('NestedControl', () {
+    final control = NestedControl(
+      typeName: 'BoxDecoration',
+      children: const [
+        PropertySpec(
+          name: 'color',
+          typeLabel: 'Color?',
+          description: '',
+          control: ColorControl(
+            palette: [Choice('若竹', Color(0xFF68BE8D), 'Color(0xFF68BE8D)')],
+          ),
+        ),
+        PropertySpec(
+          name: 'shape',
+          typeLabel: 'BoxShape',
+          description: '',
+          initiallyOn: false,
+          control: ChoiceControl(
+            choices: [Choice('circle', BoxShape.circle, 'BoxShape.circle')],
+          ),
+        ),
+      ],
+      build: (values) => BoxDecoration(
+        color: values['color'] as Color?,
+        shape: values['shape'] as BoxShape? ?? BoxShape.rectangle,
+      ),
+    );
+
+    test('最初の値は子の最初の設定', () {
+      final initial = control.initial;
+      expect(initial.settings['color']!.on, isTrue);
+      expect(initial.settings['shape']!.on, isFalse);
+    });
+
+    test('ON の子の値だけで組み立てる', () {
+      expect(
+        control.resolve(control.initial),
+        const BoxDecoration(color: Color(0xFF68BE8D)),
+      );
+    });
+
+    test('ON の子を 1 行に書く', () {
+      expect(
+        control.code(control.initial),
+        'BoxDecoration(color: Color(0xFF68BE8D))',
+      );
+    });
+
+    test('ON の子がなければ const の空の式', () {
+      final off = control.initial.copyWithChild(
+        'color',
+        control.initial.settings['color']!.copyWith(on: false),
+      );
+      expect(control.code(off), 'const BoxDecoration()');
+    });
+
+    test('NestedValue は中身で比べる', () {
+      expect(
+        control.initial,
+        control.initial.copyWithChild(
+          'color',
+          control.initial.settings['color']!,
+        ),
+      );
     });
   });
 }

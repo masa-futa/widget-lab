@@ -77,6 +77,7 @@ List<Map<String, PropertySetting>> _variations(WidgetEntry entry) {
         SwitchControl() => const [SwitchValue(true), SwitchValue(false)],
         TextControl() => const [TextValue(''), TextValue("It's")],
         FixedControl() => const [FixedValue()],
+        NestedControl() => [spec.control.initial],
       })
         {...base, spec.name: PropertySetting(on: true, value: value)},
   ];
@@ -139,7 +140,7 @@ void main() {
               expect(initialIndex, inInclusiveRange(0, palette.length - 1));
             case TextControl(:final initialValue, :final maxLength):
               expect(initialValue.length, lessThanOrEqualTo(maxLength));
-            case SwitchControl() || FixedControl():
+            case SwitchControl() || FixedControl() || NestedControl():
               break;
           }
         }

@@ -83,4 +83,10 @@ final class PropertySpec {
   /// [settings] のもとでの値。設定がなければ最初の値。
   ControlValue valueIn(Map<String, PropertySetting> settings) =>
       settings[name]?.value ?? control.initial;
+
+  /// 入れ子の中身。入れ子のプロパティでなければ空。
+  List<PropertySpec> get children => switch (control) {
+    NestedControl(:final children) => children,
+    _ => const [],
+  };
 }

@@ -16,6 +16,7 @@ String valueLabel(PropertyControl control, ControlValue value) =>
       (SwitchControl(), SwitchValue(:final value)) => '$value',
       (TextControl(), TextValue(:final value)) => value,
       (FixedControl(:final source), FixedValue()) => source,
+      (NestedControl(:final typeName), NestedValue()) => typeName,
       _ => throw ArgumentError.value(value, 'value', '$control と合わない値'),
     };
 
