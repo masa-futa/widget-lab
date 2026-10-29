@@ -1,9 +1,11 @@
 import 'package:flutter/widgets.dart';
+import 'package:widget_lab/catalog/animation/shared_specs.dart';
 import 'package:widget_lab/catalog/animation/transition_curves.dart';
 import 'package:widget_lab/catalog/demo/demo_animation.dart';
 import 'package:widget_lab/catalog/model/choice.dart';
 import 'package:widget_lab/catalog/model/demo_args.dart';
 import 'package:widget_lab/catalog/model/property_control.dart';
+import 'package:widget_lab/catalog/model/property_group.dart';
 import 'package:widget_lab/catalog/model/property_spec.dart';
 import 'package:widget_lab/catalog/model/widget_entry.dart';
 
@@ -22,6 +24,7 @@ final slideTransitionEntry = WidgetEntry(
   properties: [
     PropertySpec(
       name: 'position',
+      group: PropertyGroup.transform,
       typeLabel: 'Animation<Offset>',
       description: 'ずらす量の Animation。ここでは Offset.zero から行き先へ動かす',
       required: true,
@@ -44,13 +47,28 @@ final slideTransitionEntry = WidgetEntry(
     ),
     const PropertySpec(
       name: 'transformHitTests',
+      group: PropertyGroup.behavior,
       typeLabel: 'bool',
       description: '押せる範囲もずらすか。false だと、見た目だけ動いて押せる範囲は元の場所に残る',
       initiallyOn: false,
       control: SwitchControl(initialValue: false),
     ),
+    PropertySpec(
+      name: 'textDirection',
+      typeLabel: 'TextDirection?',
+      description: '横にずらす向きの基準。rtl にすると Offset の横の向きが逆になる',
+      initiallyOn: false,
+      group: PropertyGroup.layout,
+      control: ChoiceControl(
+        choices: [
+          for (final value in TextDirection.values)
+            Choice(value.name, value, 'TextDirection.${value.name}'),
+        ],
+      ),
+    ),
     const PropertySpec(
       name: 'child',
+      group: PropertyGroup.content,
       typeLabel: 'Widget?',
       description: 'ずらして描く Widget',
       control: FixedControl(
@@ -59,6 +77,7 @@ final slideTransitionEntry = WidgetEntry(
       ),
     ),
   ],
+  references: const [keyReference],
   build: _build,
   codeName: 'SlideTransition',
 );
@@ -69,6 +88,7 @@ Widget _build(DemoArgs args) => DemoAnimation(
       controller,
     ),
     transformHitTests: args.valueOf<bool>('transformHitTests') ?? true,
+    textDirection: args.valueOf<TextDirection>('textDirection'),
     child: args.valueOf<Widget>('child'),
   ),
 );

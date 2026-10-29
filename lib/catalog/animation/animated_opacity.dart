@@ -1,8 +1,11 @@
 import 'package:flutter/widgets.dart';
 import 'package:widget_lab/catalog/animation/implicit_animation_specs.dart';
+import 'package:widget_lab/catalog/animation/shared_specs.dart';
 import 'package:widget_lab/catalog/model/demo_args.dart';
 import 'package:widget_lab/catalog/model/property_control.dart';
+import 'package:widget_lab/catalog/model/property_group.dart';
 import 'package:widget_lab/catalog/model/property_spec.dart';
+import 'package:widget_lab/catalog/model/reference_arg.dart';
 import 'package:widget_lab/catalog/model/widget_entry.dart';
 
 final animatedOpacityEntry = WidgetEntry(
@@ -19,6 +22,7 @@ final animatedOpacityEntry = WidgetEntry(
   properties: [
     PropertySpec(
       name: 'opacity',
+      group: PropertyGroup.paint,
       typeLabel: 'double',
       description: '不透明度。0 で見えず、1 でそのまま',
       required: true,
@@ -35,12 +39,22 @@ final animatedOpacityEntry = WidgetEntry(
     curveSpec,
     const PropertySpec(
       name: 'child',
+      group: PropertyGroup.content,
       typeLabel: 'Widget?',
       description: '濃さを変える Widget',
       control: FixedControl(
         value: FlutterLogo(size: 80),
         source: 'FlutterLogo(size: 80)',
       ),
+    ),
+  ],
+  references: const [
+    keyReference,
+    onEndReference,
+    ReferenceArg(
+      name: 'alwaysIncludeSemantics',
+      typeLabel: 'bool',
+      description: '透明（0）のときも読み上げの対象に残すか。見た目は変わらない',
     ),
   ],
   build: _build,

@@ -1,11 +1,13 @@
 import 'dart:math' as math;
 
 import 'package:flutter/widgets.dart';
+import 'package:widget_lab/catalog/animation/shared_specs.dart';
 import 'package:widget_lab/catalog/animation/transition_curves.dart';
 import 'package:widget_lab/catalog/demo/demo_animation.dart';
 import 'package:widget_lab/catalog/model/choice.dart';
 import 'package:widget_lab/catalog/model/demo_args.dart';
 import 'package:widget_lab/catalog/model/property_control.dart';
+import 'package:widget_lab/catalog/model/property_group.dart';
 import 'package:widget_lab/catalog/model/property_spec.dart';
 import 'package:widget_lab/catalog/model/widget_entry.dart';
 
@@ -25,6 +27,7 @@ final matrixTransitionEntry = WidgetEntry(
   properties: [
     PropertySpec(
       name: 'animation',
+      group: PropertyGroup.transform,
       typeLabel: 'Animation<double>',
       description: 'onTransform に渡す値の Animation。ここでは 0 → 1 を曲線を選んで動かす',
       required: true,
@@ -32,6 +35,7 @@ final matrixTransitionEntry = WidgetEntry(
     ),
     const PropertySpec(
       name: 'onTransform',
+      group: PropertyGroup.transform,
       typeLabel: 'Matrix4 Function(double)',
       description: 'animation の値から、子にかける行列を作る関数',
       required: true,
@@ -54,13 +58,16 @@ final matrixTransitionEntry = WidgetEntry(
     ),
     PropertySpec(
       name: 'alignment',
+      group: PropertyGroup.transform,
       typeLabel: 'Alignment',
       description: '変形の中心。topLeft なら左上を止めたまま変形する',
       initiallyOn: false,
       control: ChoiceControl(initialIndex: 1, choices: pivotChoices()),
     ),
+    filterQualitySpec(),
     const PropertySpec(
       name: 'child',
+      group: PropertyGroup.content,
       typeLabel: 'Widget?',
       description: '変形して描く Widget',
       control: FixedControl(
@@ -69,6 +76,7 @@ final matrixTransitionEntry = WidgetEntry(
       ),
     ),
   ],
+  references: const [keyReference],
   build: _build,
   codeName: 'MatrixTransition',
 );
@@ -90,6 +98,7 @@ Widget _build(DemoArgs args) => DemoAnimation(
     onTransform:
         args.valueOf<Matrix4 Function(double)>('onTransform') ?? _rotateY,
     alignment: args.valueOf<Alignment>('alignment') ?? Alignment.center,
+    filterQuality: args.valueOf<FilterQuality>('filterQuality'),
     child: args.valueOf<Widget>('child'),
   ),
 );
