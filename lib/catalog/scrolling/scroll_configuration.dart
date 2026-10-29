@@ -6,7 +6,9 @@ import 'package:widget_lab/catalog/demo/rebuild_counter.dart';
 import 'package:widget_lab/catalog/model/choice.dart';
 import 'package:widget_lab/catalog/model/demo_args.dart';
 import 'package:widget_lab/catalog/model/property_control.dart';
+import 'package:widget_lab/catalog/model/property_group.dart';
 import 'package:widget_lab/catalog/model/property_spec.dart';
+import 'package:widget_lab/catalog/model/reference_arg.dart';
 import 'package:widget_lab/catalog/model/widget_entry.dart';
 
 final scrollConfigurationEntry = WidgetEntry(
@@ -25,6 +27,7 @@ final scrollConfigurationEntry = WidgetEntry(
   properties: [
     PropertySpec(
       name: 'behavior',
+      group: PropertyGroup.behavior,
       typeLabel: 'ScrollBehavior',
       description: '配る振る舞い。リストを端まで送って、ログで端の動きを比べられます。',
       required: true,
@@ -56,21 +59,35 @@ final scrollConfigurationEntry = WidgetEntry(
         ],
       ),
     ),
+    const PropertySpec(
+      name: 'child',
+      group: PropertyGroup.content,
+      typeLabel: 'Widget',
+      description: '振る舞いを受けるスクロールを含む Widget（20 行の ListView）',
+      required: true,
+      control: FixedControl(value: _Rows(), source: 'const Rows()'),
+    ),
+  ],
+  references: const [
+    ReferenceArg(
+      name: 'key',
+      typeLabel: 'Key?',
+      description: 'Widget を見分ける印。並べ替えたときや、状態を引き継ぐときに使う',
+    ),
   ],
   build: _build,
   buildWithout: _buildWithout,
   codeName: 'ScrollConfiguration',
-  codeArguments: const ['child: const Rows()'],
 );
 
 Widget _build(DemoArgs args) =>
-    // 必須のプロパティなので、常に値がある
+    // どれも必須のプロパティなので、常に値がある
     _EdgeLogger(
       child: DemoScope(
         label: 'ScrollConfiguration(…)',
         child: ScrollConfiguration(
           behavior: args.valueOf<ScrollBehavior>('behavior')!,
-          child: const _Rows(),
+          child: args.valueOf<Widget>('child')!,
         ),
       ),
     );
