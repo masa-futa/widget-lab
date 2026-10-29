@@ -43,6 +43,7 @@ classDiagram
         +String? codeWithout
         +CodeNest? codeNest
         +List~String~ codeArguments
+        +List~ReferenceArg~ references
     }
     class PropertySpec {
         +String name
@@ -52,6 +53,26 @@ classDiagram
         +bool initiallyOn
         +PropertyArg arg
         +PropertyControl control
+        +PropertyGroup group
+        +List~String~ pairsWith
+        +String? requires
+        +List~String~ excludes
+    }
+    class PropertyGroup {
+        <<enumeration>>
+        size
+        spacing
+        layout
+        paint
+        transform
+        text
+        behavior
+        content
+    }
+    class ReferenceArg {
+        +String name
+        +String typeLabel
+        +String description
     }
     class PropertyControl {
         <<sealed>>
@@ -78,7 +99,13 @@ classDiagram
         +Object value
         +String source
     }
+    class NestedControl {
+        +List~PropertySpec~ children
+    }
     WidgetEntry "1" --> "*" PropertySpec
+    WidgetEntry "1" --> "*" ReferenceArg
+    PropertySpec --> PropertyGroup
+    NestedControl --> "*" PropertySpec : children
     WidgetEntry "*" --> "1..*" Genre
     PropertySpec --> PropertyControl
     PropertyControl <|-- SliderControl
@@ -87,6 +114,7 @@ classDiagram
     PropertyControl <|-- ColorControl
     PropertyControl <|-- TextControl
     PropertyControl <|-- FixedControl
+    PropertyControl <|-- NestedControl
 ```
 
 - **PropertyControl** は「画面の操作部品」と「Dart の値への写し方」と「コードの書き方」を1つにまとめたもの。操作部品が扱う値（`ControlValue`: `SliderValue(double)`・`SwitchValue(bool)`・`ChoiceValue(int)`・`TextValue(String)`・`FixedValue`）は少数に絞り、`resolve` で Widget に渡す値（例: `16.0` → `EdgeInsets.all(16)`）に、`code` でコードの文字列（`EdgeInsets.all(16.0)`）に写す
@@ -98,6 +126,11 @@ classDiagram
   - スライダーの値は、Slider が段ごとに返す値（`min + (max - min) * i / divisions`）の浮動小数の誤差を小数第 6 位で丸めてから写す（例: 109.99999999999999 → `110.0`）
   - 色見本は `Choice.color('瑠璃', Color(…))` で書く（コードは `colorCode` が `Color(0xFF1E50A2)` にする）。文字のコードは `dartString` が一重引用符で囲み、`\`・`'`・`$`・改行を逃がす（どちらも `lib/catalog/model/dart_code.dart`）
   - 操作部品と合わない種類の値（例: スイッチに `SliderValue`）は `ArgumentError`
+- **仲間・関係・入れ子・補足**（詳細は docs/design/functions/property-relations.md）:
+  - `PropertySpec.group`（`PropertyGroup`。仲間。タブに使う）・`pairsWith`（組で使う相手。向きは問わない）・`requires`（これが ON でないと効かない相手）・`excludes`（同時には使えない相手。両方向に書く。全件のテストで見張る）
+  - `NestedControl`（値は `NestedValue`）は、子の `PropertySpec` の ON のものから値を組み立てる（例: `BoxDecoration(color: …, borderRadius: …)`）。`PropertySpec.children` は `NestedControl.children` の近道。子の `omitIf`・`isWrittenIn` も効く
+  - `WidgetEntry.references`（`ReferenceArg`: `name`・`typeLabel`・`description`）は、見た目が変わらない引数。詳細画面の「補足」に読むだけで載せる
+  - `PropertySpec.omitIf` は子にも効く（`NestedControl.resolve`・`code` とコードの生成が `isWrittenIn` で判定する）。ただし `DemoArgs` は `omitIf` で絞らないので、**各収録データの `_build` が top-level の `omitIf` を自分で守る**（例: Container は decoration が ON の間 color を渡さず、decoration が OFF の間 clipBehavior に `Clip.none` を渡す）
 - **PropertyArg** はコードでの書き方: `named`（`padding: …`）・`positional`（`Text('こんにちは')` の最初の引数）・`nested`（`WidgetEntry.codeNest` の入れ子の式の中）・`typeArgument`（`NotificationListener<…>` の型引数。必須にし、1 Widget に 1 つまで。全件のテストで確かめる。Dart では型引数を値から作れないので、選択肢の値はその型で組み立てる関数にする（例: `_listener<ScrollUpdateNotification>`））
 - **required** のプロパティは常に ON（スイッチを出さず「必須」の印）。`initiallyOn` は開いたときの ON/OFF
 - **PropertySetting**（`on`・`value`）も `lib/catalog/model/` に置く（DemoArgs・CodeGenerator・DetailState が使う）。`WidgetEntry.initialSettings()` が開いたときの設定を、`PropertySpec.isOnIn(settings)`・`valueIn(settings)` が「必須なら常に ON」「設定がなければ OFF・最初の値」を返す
@@ -269,6 +302,10 @@ Provider の名前は riverpod_generator が付けるもので、クラス名か
 | `entry` | `WidgetEntry` | 受け取った ID の収録データ | |
 | `genres` | `List<Genre>` | `entry.genreIds` の順のジャンル | 説明のシートのジャンル（ds-genr）に名前を出すため |
 | `settings` | `Map<String, PropertySetting>` | 各プロパティの `initiallyOn` と `control.initial` | `PropertySetting(on: bool, value: ControlValue)`。OFF にしても `value` は覚えておく |
+| `selectedChild` | `String?` | `null` | 入れ子のプロパティで選んでいる子の名前 |
+| `selectedGroup` | `PropertyGroup?`（getter） | 選んでいるプロパティの仲間 | 開いているタブ。`showsReferences` が `true` のときは補足のタブ |
+| `showsReferences` | `bool` | `false` | 補足のタブを開いているか |
+| `notice` | `ExclusionNotice?` | `null` | 同時に使えない組の知らせ（ON にした側・OFF にした側）。3 秒で `noticeDismissed` |
 | `selected` | `String?` | 最初の ON のプロパティ（なければ最初のプロパティ。プロパティがなければ `null`） | 編集パネルで選んでいるプロパティの名前 |
 | `comparing` | `Comparing?` | `null` | sealed。`ComparingProperty(name)`（見た目を持つ Widget。比べているプロパティの名前で、`selected` と同じ）か `ComparingUse()`（見た目を持たない Widget。Widget そのものを使った／使わない）。`null` は比較していない |
 
@@ -293,7 +330,11 @@ Provider の名前は riverpod_generator が付けるもので、クラス名か
 | ca_lst | `queryChanged(String)` | ユーザー | `query` と `results` を更新 |
 | ca_lst | `queryCleared()` | ユーザー | `query` を空、`results` を空 |
 | cb_dtl | `propertySelected(String name)` | ユーザー | `selected = name`。`comparing` が `ComparingProperty` なら `null`、`ComparingUse` なら変えない |
-| cb_dtl | `propertyToggled(String name, bool on)` | ユーザー | `settings[name].on`。required は変えない |
+| cb_dtl | `groupSelected(PropertyGroup?)` | ユーザー | そのタブの最初の ON のチップ（なければ先頭）を `selected`、`showsReferences = false`、比較をやめる |
+| cb_dtl | `referencesSelected()` | ユーザー | `showsReferences = true`（補足のタブ） |
+| cb_dtl | `childSelected(String)` / `childToggled` / `childValueChanged` | ユーザー | 入れ子の子の選択・ON/OFF・値 |
+| cb_dtl | `noticeDismissed()` | 副作用の結果（3 秒） | `notice = null`。ほかのプロパティを選んでも消える |
+| cb_dtl | `propertyToggled(String name, bool on)` | ユーザー | `settings[name].on`。required は変えない。ON にしたとき `excludes` の相手が ON なら OFF にして `notice` を出す |
 | cb_dtl | `propertyValueChanged(String name, ControlValue value)` | ユーザー | `settings[name].value`。OFF のときは呼ばれない（View で非活性） |
 | cb_dtl | `propertyDefaultTapped(String name)` | ユーザー | `settings[name]` を最初の値に戻す |
 | cb_dtl | `compareTapped(String name)` | ユーザー | 比較中なら `null`。そうでなければ、見た目を持つ Widget は `ComparingProperty(name)`（View は `selected` を渡す）、見た目を持たない Widget は `ComparingUse()` |
@@ -317,6 +358,7 @@ Provider の名前は riverpod_generator が付けるもので、クラス名か
 1. `entry.codeName`（例: `Padding`）を書き、`(` を開く
 2. `positional` のプロパティ（ON のもの）を先に、`named` のプロパティ（ON のもの・required）を収録データの順に、`name: control.code(value),` の形で1行ずつ書く（字下げは2文字）
 3. `)` で閉じる。プロパティが1つもなければ `Padding()` のように1行にする
+   - 入れ子のプロパティ（`NestedControl`）は、ON の子を 1 行ずつ字下げして書く（子の行のプロパティ名は `親.子`。例: `decoration.borderRadius`）。`decoration: BoxDecoration(` の次の行から書き、`),` で閉じる。ON の子（`omitIf` に当たらないもの）がなければ `decoration: const BoxDecoration(),`
    - 位置で渡す引数も 1 行ずつ書く（`Text(` の次の行に `'こんにちは',`）
    - ON でも、`PropertySpec.omitIf` に当たるプロパティは書かない。ほかのプロパティとの組み合わせでプレビューに渡さないもの（例: NavigationRail は extended の間 labelType を渡せない）を、コードとそろえるため
 4. 値の文字列は `control.code` に任せる（`Color(0xFF1E50A2)`・`'こんにちは'` のように、そのまま貼れる Dart の式にする）
@@ -324,7 +366,7 @@ Provider の名前は riverpod_generator が付けるもので、クラス名か
 行ごとに扱えるよう、`CodeGenerator.lines(entry, settings)` は `List<CodeLine>` を返す（`CodeLine`: `text`・`property`（その行のプロパティ名。`Padding(` と `)` は `null`）・`changed`）。`generate` は `lines` の `text` を改行でつないだもの。
 
 - `changed` は、そのプロパティの行が「最初の値で作ったときの行」と違う（値が変わった、または最初は OFF で書かれていなかった）とき `true`。全文のシートで印を付ける
-- コードの帯は `property == selected` の行を出す。そのプロパティが OFF で行がないときは「// {名前} は指定なし（既定値）」を出す（帯の文言。`CodeLine` には入れない）
+- コードの帯は `property == selected` の行を出す。子を選んでいる間は `property == 親.子` の行を出し、子が OFF なら「// 親.子 は指定なし（既定値）」を出す。そのプロパティが OFF で行がないときは「// {名前} は指定なし（既定値）」を出す（帯の文言。`CodeLine` には入れない）
 
 見た目を持たない Widget のために、次の 2 つの書き方を足す。データでは `PropertyArg` の `nested`・`typeArgument` と、`WidgetEntry` の `codeNest`・`codeArguments` で表す（実装の計画で案 A に決定。見た目を持つ Widget の収録データは変えない）。
 
@@ -388,6 +430,7 @@ Provider の名前は riverpod_generator が付けるもので、クラス名か
 - 可視化: build の中で回数を数えても例外が出ない（フレームの後に反映）。ログは最大 50 件。ログを消すと回数も 0。同じフレームの同じ出来事は ×n にまとまる。回数の印が変わっても数えている子は組み直されない
 - 収録データ: `behavior` のものは全部 `buildWithout` を持ち、両側とも例外なく組み立てられる。`visual` のものは `buildWithout`・`codeWithout` が `null`
 - 比較（見た目を持たない Widget）: `ComparingUse` の間はチップを選び替えても続く。左右で別に数える
+- 仲間・関係・入れ子・補足（TC-83〜90）: 入れ子のコード、タブと ON の数、関係の行と知らせ、子のチップ、補足、全件の関係の決まり、Container の組み立て、SDK の引数との突き合わせ
 - コード生成: 入れ子の式（`MediaQuery` の `copyWith`）と型引数（`NotificationListener<T>`）
 - コピー・リンク: 成功・失敗で Snackbar の文言が変わる（Client を fake に）
 - 画面を離れると DetailState と ProbeState が捨てられる（autoDispose）
