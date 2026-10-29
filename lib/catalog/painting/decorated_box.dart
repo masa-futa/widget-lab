@@ -3,7 +3,9 @@ import 'package:widget_lab/catalog/demo/demo_tile.dart';
 import 'package:widget_lab/catalog/model/choice.dart';
 import 'package:widget_lab/catalog/model/demo_args.dart';
 import 'package:widget_lab/catalog/model/property_control.dart';
+import 'package:widget_lab/catalog/model/property_group.dart';
 import 'package:widget_lab/catalog/model/property_spec.dart';
+import 'package:widget_lab/catalog/model/reference_arg.dart';
 import 'package:widget_lab/catalog/model/widget_entry.dart';
 
 final decoratedBoxEntry = WidgetEntry(
@@ -20,6 +22,7 @@ final decoratedBoxEntry = WidgetEntry(
   properties: [
     PropertySpec(
       name: 'decoration',
+      group: PropertyGroup.paint,
       typeLabel: 'Decoration',
       description: '描く飾り',
       control: ChoiceControl(
@@ -61,6 +64,7 @@ final decoratedBoxEntry = WidgetEntry(
     ),
     const PropertySpec(
       name: 'position',
+      group: PropertyGroup.paint,
       typeLabel: 'DecorationPosition',
       description: '子の後ろに描くか、前に描くか。既定は background（後ろ）',
       initiallyOn: false,
@@ -82,6 +86,7 @@ final decoratedBoxEntry = WidgetEntry(
     ),
     const PropertySpec(
       name: 'child',
+      group: PropertyGroup.content,
       typeLabel: 'Widget?',
       description: '飾る Widget',
       control: FixedControl(
@@ -91,6 +96,13 @@ final decoratedBoxEntry = WidgetEntry(
         ),
         source: 'Padding(padding: EdgeInsets.all(12), child: FlutterLogo(size: 32))',
       ),
+    ),
+  ],
+  references: const [
+    ReferenceArg(
+      name: 'key',
+      typeLabel: 'Key?',
+      description: 'Widget を見分ける印。並べ替えたときや、状態を引き継ぐときに使う',
     ),
   ],
   build: _build,

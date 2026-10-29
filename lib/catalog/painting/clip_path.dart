@@ -3,7 +3,9 @@ import 'package:widget_lab/catalog/demo/demo_tile.dart';
 import 'package:widget_lab/catalog/model/choice.dart';
 import 'package:widget_lab/catalog/model/demo_args.dart';
 import 'package:widget_lab/catalog/model/property_control.dart';
+import 'package:widget_lab/catalog/model/property_group.dart';
 import 'package:widget_lab/catalog/model/property_spec.dart';
+import 'package:widget_lab/catalog/model/reference_arg.dart';
 import 'package:widget_lab/catalog/model/widget_entry.dart';
 
 final clipPathEntry = WidgetEntry(
@@ -20,6 +22,7 @@ final clipPathEntry = WidgetEntry(
   properties: const [
     PropertySpec(
       name: 'clipper',
+      group: PropertyGroup.transform,
       typeLabel: 'CustomClipper<Path>?',
       description: '切り抜く形。指定しないと子の大きさの四角（見た目は変わらない）',
       control: ChoiceControl(
@@ -31,6 +34,7 @@ final clipPathEntry = WidgetEntry(
     ),
     PropertySpec(
       name: 'clipBehavior',
+      group: PropertyGroup.transform,
       typeLabel: 'Clip',
       description: '切り方。既定は antiAlias（縁をなめらかに）',
       initiallyOn: false,
@@ -44,12 +48,20 @@ final clipPathEntry = WidgetEntry(
     ),
     PropertySpec(
       name: 'child',
+      group: PropertyGroup.content,
       typeLabel: 'Widget?',
       description: '切り抜く Widget（96×56）',
       control: FixedControl(
         value: DemoTile(1, width: 96, height: 56),
         source: 'Tile(1)',
       ),
+    ),
+  ],
+  references: const [
+    ReferenceArg(
+      name: 'key',
+      typeLabel: 'Key?',
+      description: 'Widget を見分ける印。並べ替えたときや、状態を引き継ぐときに使う',
     ),
   ],
   build: _build,
