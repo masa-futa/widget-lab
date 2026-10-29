@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:widget_lab/catalog/model/property_control.dart';
+import 'package:widget_lab/catalog/model/property_spec.dart';
+import 'package:widget_lab/catalog/model/widget_entry.dart';
 import 'package:widget_lab/core/data/catalog_repository.dart';
 import 'package:widget_lab/core/theme/app_theme.dart';
 import 'package:widget_lab/features/detail/ui/widgets/property_list_sheet.dart';
@@ -10,16 +13,36 @@ import 'package:widget_lab/l10n/gen/app_localizations.dart';
 
 import '../../fakes.dart';
 
+/// プロパティ 1 つ・補足なしの Widget（選ぶ欄は 1 件だけ）。
+final singleEntry = WidgetEntry(
+  id: 'single',
+  name: 'Single',
+  genreIds: const ['basics'],
+  summary: '',
+  description: '',
+  docUrl: Uri.parse('https://api.flutter.dev/'),
+  properties: const [
+    PropertySpec(
+      name: 'only',
+      typeLabel: 'bool?',
+      description: '',
+      control: SwitchControl(initialValue: true),
+    ),
+  ],
+  build: (args) => const SizedBox(),
+  codeName: 'Single',
+);
+
 void main() {
   late ProviderContainer container;
 
   /// relationEntry の選ぶ欄を出す（並び: width・height・color・decoration・
   /// transform・transformAlignment・補足。開いたときは width）。
-  Future<void> pumpPicker(WidgetTester tester) async {
+  Future<void> pumpPicker(WidgetTester tester, {WidgetEntry? entry}) async {
     container = ProviderContainer(
       overrides: [
         catalogRepositoryProvider.overrideWithValue(
-          FakeCatalogRepository([relationEntry]),
+          FakeCatalogRepository([entry ?? relationEntry]),
         ),
       ],
     );
@@ -31,8 +54,10 @@ void main() {
           theme: AppTheme.light(),
           localizationsDelegates: AppLocalizations.localizationsDelegates,
           supportedLocales: AppLocalizations.supportedLocales,
-          home: const Scaffold(
-            body: Center(child: PropertyPicker(entryId: 'relation')),
+          home: Scaffold(
+            body: Center(
+              child: PropertyPicker(entryId: entry?.id ?? 'relation'),
+            ),
           ),
         ),
       ),
@@ -89,6 +114,21 @@ void main() {
       find.descendant(of: card, matching: find.byType(Opacity)).first,
     );
     expect(opacity.opacity, 0.5);
+  });
+
+  testWidgets('TC-91: 効かないプロパティのカードは、読み上げに「今は効かない」を足す', (tester) async {
+    final handle = tester.ensureSemantics();
+    await pumpPicker(tester);
+    expect(tester.getSemantics(card).label, isNot(contains('今は効かない')));
+    container
+        .read(detailProvider('relation').notifier)
+        .propertySelected('transformAlignment');
+    await tester.pumpAndSettle();
+    final label = tester.getSemantics(card).label;
+    expect(label, contains('今は効かない'));
+    expect(label, startsWith('transformAlignment、'));
+    expect(label, endsWith('、6 / 7'));
+    handle.dispose();
   });
 
   testWidgets('TC-91: 点はプロパティと補足の数だけ並び、読み上げない', (tester) async {

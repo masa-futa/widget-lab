@@ -80,7 +80,12 @@ class PropertyPicker extends ConsumerWidget {
       dimmed: dimmed,
       semanticsLabel: l10n.detailPickerSemantics(
         name,
-        fullValue,
+        dimmed
+            ? l10n.detailPickerSemanticsInactive(
+                fullValue,
+                l10n.detailChipInactive,
+              )
+            : fullValue,
         index + 1,
         items.length,
       ),
