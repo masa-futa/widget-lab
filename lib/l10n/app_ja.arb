@@ -447,5 +447,9 @@
       "on": { "type": "String", "example": "decoration" },
       "off": { "type": "String", "example": "color" }
     }
-  }
+  },
+  "detailReferencesTitle": "見た目が変わらない引数",
+  "@detailReferencesTitle": { "description": "補足のタブの見出し" },
+  "detailReferencesNote": "触っても見た目は変わりません。コードを書くときの手がかりに載せています。",
+  "@detailReferencesNote": { "description": "補足のタブの説明" }
 }

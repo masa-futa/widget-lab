@@ -542,6 +542,18 @@ abstract class AppLocalizations {
   /// In ja, this message translates to:
   /// **'{on} と同時には使えないので、{off} を OFF にしました'**
   String detailExclusionNotice(String on, String off);
+
+  /// 補足のタブの見出し
+  ///
+  /// In ja, this message translates to:
+  /// **'見た目が変わらない引数'**
+  String get detailReferencesTitle;
+
+  /// 補足のタブの説明
+  ///
+  /// In ja, this message translates to:
+  /// **'触っても見た目は変わりません。コードを書くときの手がかりに載せています。'**
+  String get detailReferencesNote;
 }
 
 class _AppLocalizationsDelegate

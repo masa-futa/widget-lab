@@ -1433,4 +1433,24 @@ void main() {
       );
     });
   });
+
+  group('補足（TC-89）', () {
+    testWidgets('補足のタブで、見た目が変わらない引数の一覧を出し、比べるを出さない', (tester) async {
+      await pumpDetail(tester, 'container');
+      await tester.scrollUntilVisible(
+        find.text('補足'),
+        100,
+        scrollable: find.descendant(
+          of: find.byType(GroupTabs),
+          matching: find.byType(Scrollable),
+        ),
+      );
+      await tester.tap(find.text('補足'));
+      await tester.pumpAndSettle();
+      expect(find.text('見た目が変わらない引数'), findsOneWidget);
+      expect(find.text('key'), findsOneWidget);
+      expect(find.byType(PropertyChip), findsNothing);
+      expect(find.text('比べる'), findsNothing);
+    });
+  });
 }

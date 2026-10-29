@@ -277,4 +277,10 @@ class AppLocalizationsJa extends AppLocalizations {
   String detailExclusionNotice(String on, String off) {
     return '$on と同時には使えないので、$off を OFF にしました';
   }
+
+  @override
+  String get detailReferencesTitle => '見た目が変わらない引数';
+
+  @override
+  String get detailReferencesNote => '触っても見た目は変わりません。コードを書くときの手がかりに載せています。';
 }

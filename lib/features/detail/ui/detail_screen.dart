@@ -16,6 +16,7 @@ import 'package:widget_lab/features/detail/ui/widgets/detail_sheet.dart';
 import 'package:widget_lab/features/detail/ui/widgets/editor_panel.dart';
 import 'package:widget_lab/features/detail/ui/widgets/group_tabs.dart';
 import 'package:widget_lab/features/detail/ui/widgets/property_chips.dart';
+import 'package:widget_lab/features/detail/ui/widgets/reference_list.dart';
 import 'package:widget_lab/features/detail/view_model/comparing.dart';
 import 'package:widget_lab/features/detail/view_model/detail_notifier.dart';
 import 'package:widget_lab/l10n/gen/app_localizations.dart';
@@ -217,7 +218,12 @@ class _PanelAreaState extends ConsumerState<_PanelArea> {
         color: Theme.of(context).colorScheme.surfaceContainer,
         borderRadius: BorderRadius.vertical(top: radius),
       ),
-      child: spec == null
+      child: state.showsReferences
+          ? SingleChildScrollView(
+              padding: EdgeInsets.all(spacing.md),
+              child: ReferenceList(references: state.entry.references),
+            )
+          : spec == null
           ? Center(
               child: Padding(
                 padding: EdgeInsets.all(spacing.md),
