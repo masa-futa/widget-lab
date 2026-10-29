@@ -266,6 +266,12 @@ class _PanelAreaState extends ConsumerState<_PanelArea> {
                   notice: state.notice,
                   onRelationTapped: notifier.propertySelected,
                   onNoticeDismissed: notifier.noticeDismissed,
+                  onRequiresTurnedOn: switch (spec.requires) {
+                    final requires?
+                        when !(state.settings[requires]?.on ?? true) =>
+                      (name) => notifier.propertyToggled(name, true),
+                    _ => null,
+                  },
                   selectedChild: state.selectedChild,
                   onChildSelected: notifier.childSelected,
                   onChildToggled: (c, on) =>

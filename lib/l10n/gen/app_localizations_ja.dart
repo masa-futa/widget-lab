@@ -274,6 +274,11 @@ class AppLocalizationsJa extends AppLocalizations {
   String get detailRelationRequiresOff => '（今は OFF）';
 
   @override
+  String detailRelationTurnOn(String name) {
+    return '$name を ON にする';
+  }
+
+  @override
   String get detailRelationExcludes => 'と同時には使えない';
 
   @override

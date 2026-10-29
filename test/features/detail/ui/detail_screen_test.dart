@@ -1398,6 +1398,33 @@ void main() {
       expect(find.text('が ON のときだけ効く（今は OFF）'), findsOneWidget);
     });
 
+    testWidgets('requires の相手を「ON にする」で、選んだまま相手を ON にできる', (tester) async {
+      await pumpDetail(tester, 'container');
+      await select(tester, 'transformAlignment');
+      await tester.tap(find.text('transform を ON にする'));
+      await tester.pumpAndSettle();
+      final chip = tester.widget<PropertyChip>(
+        find.widgetWithText(PropertyChip, 'transformAlignment'),
+      );
+      expect(chip.selected, isTrue);
+      expect(chip.dimmed, isFalse);
+      expect(find.text('が ON のときだけ効く'), findsOneWidget);
+      expect(find.text('transform を ON にする'), findsNothing);
+    });
+
+    testWidgets('「ON にする」で同時に使えない相手が OFF になると、知らせが出る', (tester) async {
+      await pumpDetail(tester, 'container');
+      await select(tester, 'clipBehavior');
+      await tester.tap(find.text('decoration を ON にする'));
+      await tester.pumpAndSettle();
+      expect(
+        find.text('decoration と同時には使えないので、color を OFF にしました'),
+        findsOneWidget,
+      );
+      await tester.pump(const Duration(seconds: 3));
+      await tester.pumpAndSettle();
+    });
+
     testWidgets('同時に使えない組の知らせが出て、3 秒で消える', (tester) async {
       await pumpDetail(tester, 'container');
       await select(tester, 'decoration');

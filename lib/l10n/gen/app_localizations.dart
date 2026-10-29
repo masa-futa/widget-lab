@@ -537,6 +537,12 @@ abstract class AppLocalizations {
   /// **'（今は OFF）'**
   String get detailRelationRequiresOff;
 
+  /// 関係の行。requires の相手が OFF のときに出す、相手を ON にするボタン
+  ///
+  /// In ja, this message translates to:
+  /// **'{name} を ON にする'**
+  String detailRelationTurnOn(String name);
+
   /// 関係の行。前に相手のプロパティ名のリンク
   ///
   /// In ja, this message translates to:

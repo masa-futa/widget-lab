@@ -131,7 +131,7 @@
 | TC-82 | R-27 | NotificationListener の詳細 | リストをスクロールし、戻り値を true にしてまたスクロールする | 「内:」「外:」のログが出て、ListView の回数は 1 のまま。true の後は「外:」が出ない。「使わない」側では「外:」だけ出る | 画面 | ✅ |
 | TC-83 | R-28 | 入れ子のプロパティ | コードを作る | ON の子を 1 行ずつ字下げ。子がなければ `const 型()` | ロジック | ✅ |
 | TC-84 | R-28 | Container の詳細 | 開く／タブを替える | 最初の ON の仲間のタブ。タブの中のチップだけ。ON の数の印 | 画面 | ✅ |
-| TC-85 | R-28 | Container の詳細 | 関係のあるチップを選ぶ／decoration を ON | 関係の行。相手を押すと移る。color を OFF にして知らせ、3 秒で消える | 画面 | ✅ |
+| TC-85 | R-28 | Container の詳細 | 関係のあるチップを選ぶ／decoration を ON／transformAlignment・clipBehavior で「相手を ON にする」 | 関係の行。相手を押すと移る。color を OFF にして知らせ、3 秒で消える。ボタンで選んだまま相手が ON になり、チップの薄さとボタンが消える。同時に使えない相手を OFF にしたら今のパネルで知らせる | 画面 | ✅ |
 | TC-86 | R-28 | Container の decoration | 子を選び、ON にする | 子のチップ。帯は子の行。比べると子を付けた／付けない | 画面 | ✅ |
 | TC-87 | R-28 | 全収録データ | 関係を調べる | 相手が実在し自分を指さない。excludes は両方向。仲間は全部か無し | ロジック | ✅ |
 | TC-88 | R-28 | Container | 全部 ON で組み立てる | assert で落ちない。decoration の中で BoxDecoration | ロジック | ✅ |

@@ -33,6 +33,7 @@ class EditorPanel extends StatelessWidget {
     required this.onChildSelected,
     required this.onChildToggled,
     required this.onChildValueChanged,
+    this.onRequiresTurnedOn,
     this.effective = true,
     this.notice,
     this.comparesUse = false,
@@ -60,6 +61,9 @@ class EditorPanel extends StatelessWidget {
   final ExclusionNotice? notice;
   final ValueChanged<String> onRelationTapped;
   final VoidCallback onNoticeDismissed;
+
+  /// requires の相手を ON にする。相手が ON なら `null`（ボタンを出さない）。
+  final ValueChanged<String>? onRequiresTurnedOn;
 
   /// 入れ子のプロパティで選んでいる子。
   final String? selectedChild;
@@ -125,6 +129,23 @@ class EditorPanel extends StatelessWidget {
           spec.description,
           style: theme.textTheme.bodySmall?.copyWith(color: secondary),
         ),
+        // 今は効かないことを、関係の行（パネルの下のほう）より先に、直し方と一緒に見せる
+        if ((spec.requires, onRequiresTurnedOn) case (
+          final requires?,
+          final onRequiresTurnedOn?,
+        )) ...[
+          Gap(spacing.xs),
+          Align(
+            alignment: AlignmentDirectional.centerStart,
+            child: FilledButton.tonalIcon(
+              onPressed: () => onRequiresTurnedOn(requires),
+              icon: const Icon(Icons.power_settings_new),
+              label: Text(
+                AppLocalizations.of(context).detailRelationTurnOn(requires),
+              ),
+            ),
+          ),
+        ],
         Gap(spacing.md),
         // 入れ子は中のチップとスイッチがそれぞれ読み上げられるので、まとめない
         if (spec.control is FixedControl || spec.control is NestedControl)
@@ -145,7 +166,10 @@ class EditorPanel extends StatelessWidget {
             onTapped: onRelationTapped,
           ),
         ],
-        if (notice case final notice? when notice.turnedOn == spec.name) ...[
+        // requires の相手をここから ON にしたときも、このパネルで知らせる
+        if (notice case final notice?
+            when notice.turnedOn == spec.name ||
+                notice.turnedOn == spec.requires) ...[
           Gap(spacing.xs),
           _Notice(notice: notice, onDismissed: onNoticeDismissed),
         ],
