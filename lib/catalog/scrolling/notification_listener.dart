@@ -5,7 +5,9 @@ import 'package:widget_lab/catalog/demo/rebuild_counter.dart';
 import 'package:widget_lab/catalog/model/choice.dart';
 import 'package:widget_lab/catalog/model/demo_args.dart';
 import 'package:widget_lab/catalog/model/property_control.dart';
+import 'package:widget_lab/catalog/model/property_group.dart';
 import 'package:widget_lab/catalog/model/property_spec.dart';
+import 'package:widget_lab/catalog/model/reference_arg.dart';
 import 'package:widget_lab/catalog/model/widget_entry.dart';
 
 final notificationListenerEntry = WidgetEntry(
@@ -25,6 +27,7 @@ final notificationListenerEntry = WidgetEntry(
   properties: const [
     PropertySpec(
       name: 'type',
+      group: PropertyGroup.behavior,
       typeLabel: 'Type',
       description:
           '受け取る通知の型。この型（とそのサブクラス）の通知だけが onNotification に来ます。'
@@ -54,6 +57,7 @@ final notificationListenerEntry = WidgetEntry(
     ),
     PropertySpec(
       name: 'onNotification',
+      group: PropertyGroup.behavior,
       typeLabel: 'bool Function(T)',
       description: '通知を受けたときに呼ばれる。true を返すと通知はここで止まり、上の聞き手に届きません。',
       required: true,
@@ -64,20 +68,40 @@ final notificationListenerEntry = WidgetEntry(
         ],
       ),
     ),
+    PropertySpec(
+      name: 'child',
+      group: PropertyGroup.content,
+      typeLabel: 'Widget',
+      description: '通知を出す子孫を含む Widget（20 行の ListView）',
+      required: true,
+      control: FixedControl(value: _Rows(), source: 'const Rows()'),
+    ),
+  ],
+  references: const [
+    ReferenceArg(
+      name: 'key',
+      typeLabel: 'Key?',
+      description: 'Widget を見分ける印。並べ替えたときや、状態を引き継ぐときに使う',
+    ),
   ],
   build: _build,
   buildWithout: _buildWithout,
   codeName: 'NotificationListener',
-  codeArguments: const ['child: const Rows()'],
 );
 
-typedef _ListenerBuilder = Widget Function({required bool stops});
+typedef _ListenerBuilder = Widget Function({
+  required bool stops,
+  required Widget child,
+});
 
 Widget _build(DemoArgs args) {
-  // どちらも必須のプロパティなので、常に値がある
+  // どれも必須のプロパティなので、常に値がある
   final listener = args.valueOf<_ListenerBuilder>('type')!;
   final stops = args.valueOf<bool>('onNotification')!;
-  return _OuterListener(child: listener(stops: stops));
+  final child = args.valueOf<Widget>('child')!;
+  return _OuterListener(
+    child: listener(stops: stops, child: child),
+  );
 }
 
 /// 包みを外す。外の聞き手には、聞き手がいなくても通知が届く。
@@ -85,23 +109,25 @@ Widget _buildWithout(DemoArgs args) =>
     const _OuterListener(child: DemoFit(child: _Rows()));
 
 /// [T] を受ける NotificationListener。受けたら「内:」をログに出し、[stops] を返す。
-Widget _listener<T extends ScrollNotification>({required bool stops}) =>
-    DemoScope(
-      label: 'NotificationListener<${_typeName<T>()}>(→ $stops)',
-      child: Builder(
-        builder: (context) {
-          // 通知は木を作り直している途中にも来うるので、窓口は build のうちに引いておく
-          final recorder = DemoRecorder.of(context);
-          return NotificationListener<T>(
-            onNotification: (notification) {
-              recorder.log('内: ${_nameOf(notification)}');
-              return stops;
-            },
-            child: const _Rows(),
-          );
+Widget _listener<T extends ScrollNotification>({
+  required bool stops,
+  required Widget child,
+}) => DemoScope(
+  label: 'NotificationListener<${_typeName<T>()}>(→ $stops)',
+  child: Builder(
+    builder: (context) {
+      // 通知は木を作り直している途中にも来うるので、窓口は build のうちに引いておく
+      final recorder = DemoRecorder.of(context);
+      return NotificationListener<T>(
+        onNotification: (notification) {
+          recorder.log('内: ${_nameOf(notification)}');
+          return stops;
         },
-      ),
-    );
+        child: child,
+      );
+    },
+  ),
+);
 
 /// デモの部品（コードには出さない）。上へ伝わってきたスクロールの通知を「外:」でログに出す。
 class _OuterListener extends StatelessWidget {

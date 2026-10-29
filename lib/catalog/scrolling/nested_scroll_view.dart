@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:widget_lab/catalog/demo/demo_choices.dart';
 import 'package:widget_lab/catalog/demo/demo_tile.dart';
 import 'package:widget_lab/catalog/model/choice.dart';
 import 'package:widget_lab/catalog/model/demo_args.dart';
 import 'package:widget_lab/catalog/model/property_control.dart';
+import 'package:widget_lab/catalog/model/property_group.dart';
 import 'package:widget_lab/catalog/model/property_spec.dart';
+import 'package:widget_lab/catalog/model/reference_arg.dart';
 import 'package:widget_lab/catalog/model/widget_entry.dart';
+import 'package:widget_lab/catalog/scrolling/scroll_choices.dart';
 
 final nestedScrollViewEntry = WidgetEntry(
   id: 'nestedScrollView',
@@ -18,9 +22,10 @@ final nestedScrollViewEntry = WidgetEntry(
   docUrl: Uri.parse(
     'https://api.flutter.dev/flutter/widgets/NestedScrollView-class.html',
   ),
-  properties: const [
-    PropertySpec(
+  properties: [
+    const PropertySpec(
       name: 'headerSliverBuilder',
+      group: PropertyGroup.content,
       typeLabel: 'NestedScrollViewHeaderSliversBuilder',
       description: '外の見出しの sliver を返す関数',
       required: true,
@@ -44,8 +49,9 @@ final nestedScrollViewEntry = WidgetEntry(
         ],
       ),
     ),
-    PropertySpec(
+    const PropertySpec(
       name: 'floatHeaderSlivers',
+      group: PropertyGroup.behavior,
       typeLabel: 'bool',
       description:
           '浮く見出し（floating）を、中を少し戻しただけで出すか。'
@@ -53,8 +59,50 @@ final nestedScrollViewEntry = WidgetEntry(
       initiallyOn: false,
       control: SwitchControl(initialValue: true),
     ),
+    const PropertySpec(
+      name: 'scrollDirection',
+      group: PropertyGroup.layout,
+      typeLabel: 'Axis',
+      description: '外のスクロールの向き。既定は vertical',
+      initiallyOn: false,
+      control: ChoiceControl(choices: axisChoices, initialIndex: 1),
+    ),
+    const PropertySpec(
+      name: 'reverse',
+      group: PropertyGroup.layout,
+      typeLabel: 'bool',
+      description: '外のスクロールを逆の向き（下から）に並べるか。既定は false',
+      initiallyOn: false,
+      control: SwitchControl(initialValue: true),
+    ),
+    const PropertySpec(
+      name: 'physics',
+      group: PropertyGroup.behavior,
+      typeLabel: 'ScrollPhysics?',
+      description: '外のスクロールの、端に来たときの動き。指定しないと端末に合わせる',
+      initiallyOn: false,
+      control: ChoiceControl(choices: physicsChoices),
+    ),
     PropertySpec(
+      name: 'scrollBehavior',
+      group: PropertyGroup.behavior,
+      typeLabel: 'ScrollBehavior?',
+      description:
+          '外のスクロールの振る舞い（スクロールバー・端の動きなど）。指定しないと ScrollConfiguration に従う',
+      initiallyOn: false,
+      control: ChoiceControl(choices: scrollBehaviorChoices),
+    ),
+    PropertySpec(
+      name: 'clipBehavior',
+      group: PropertyGroup.transform,
+      typeLabel: 'Clip',
+      description: '見える範囲の外にはみ出した中身を切り抜くか。既定は hardEdge',
+      initiallyOn: false,
+      control: ChoiceControl(choices: clipChoices),
+    ),
+    const PropertySpec(
       name: 'body',
+      group: PropertyGroup.content,
       typeLabel: 'Widget',
       description: '見出しの下の、中のスクロール',
       required: true,
@@ -62,6 +110,33 @@ final nestedScrollViewEntry = WidgetEntry(
         value: _Body(),
         source: 'ListView(children: tiles)',
       ),
+    ),
+  ],
+  references: const [
+    ReferenceArg(
+      name: 'key',
+      typeLabel: 'Key?',
+      description: 'Widget を見分ける印。並べ替えたときや、状態を引き継ぐときに使う',
+    ),
+    ReferenceArg(
+      name: 'controller',
+      typeLabel: 'ScrollController?',
+      description: '外のスクロールの位置を読んだり動かしたりする',
+    ),
+    ReferenceArg(
+      name: 'dragStartBehavior',
+      typeLabel: 'DragStartBehavior',
+      description: 'ドラッグを、指が動き始めた位置と最初に触れた位置のどちらから始めるか',
+    ),
+    ReferenceArg(
+      name: 'hitTestBehavior',
+      typeLabel: 'HitTestBehavior',
+      description: 'タップなどの当たり判定を、中身のない所でも受けるか',
+    ),
+    ReferenceArg(
+      name: 'restorationId',
+      typeLabel: 'String?',
+      description: 'アプリを作り直したときに、スクロールの位置を戻すための名前',
     ),
   ],
   build: _build,
@@ -76,6 +151,11 @@ List<Widget> _floatingHeader(BuildContext context, bool innerBoxIsScrolled) =>
 
 // headerSliverBuilder・body は必須のプロパティなので、常に値がある
 Widget _build(DemoArgs args) => NestedScrollView(
+  scrollDirection: args.valueOf<Axis>('scrollDirection') ?? Axis.vertical,
+  reverse: args.valueOf<bool>('reverse') ?? false,
+  physics: args.valueOf<ScrollPhysics>('physics'),
+  scrollBehavior: args.valueOf<ScrollBehavior>('scrollBehavior'),
+  clipBehavior: args.valueOf<Clip>('clipBehavior') ?? Clip.hardEdge,
   headerSliverBuilder: args.valueOf<NestedScrollViewHeaderSliversBuilder>(
     'headerSliverBuilder',
   )!,
