@@ -265,6 +265,45 @@ class AppLocalizationsJa extends AppLocalizations {
   }
 
   @override
+  String get detailReferencesLabel => '補足';
+
+  @override
+  String get detailPickerPrevious => '前のプロパティ';
+
+  @override
+  String get detailPickerNext => '次のプロパティ';
+
+  @override
+  String detailPickerSemantics(
+    String name,
+    String detail,
+    int index,
+    int count,
+  ) {
+    return '$name、$detail、$index / $count';
+  }
+
+  @override
+  String detailPickerReferencesValue(int count) {
+    return '$count 件 ・ 読むだけ';
+  }
+
+  @override
+  String detailPickerSheetTitle(int count) {
+    return 'プロパティ（$count）';
+  }
+
+  @override
+  String detailPickerSheetOnCount(int count) {
+    return '指定中 $count';
+  }
+
+  @override
+  String detailPickerReferencesCount(int count) {
+    return '$count 件';
+  }
+
+  @override
   String get detailRelationPairs => 'と組で使うことが多い';
 
   @override

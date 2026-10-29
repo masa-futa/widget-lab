@@ -453,55 +453,55 @@ abstract class AppLocalizations {
   /// **'ログ、{count} 件、最新: {latest}'**
   String probeLogSemantics(int count, String latest);
 
-  /// 仲間のタブ
+  /// 仲間の名前（選ぶ欄のカードと一覧のシートの見出し）
   ///
   /// In ja, this message translates to:
   /// **'大きさ'**
   String get detailGroupSize;
 
-  /// 仲間のタブ
+  /// 仲間の名前（選ぶ欄のカードと一覧のシートの見出し）
   ///
   /// In ja, this message translates to:
   /// **'余白'**
   String get detailGroupSpacing;
 
-  /// 仲間のタブ
+  /// 仲間の名前（選ぶ欄のカードと一覧のシートの見出し）
   ///
   /// In ja, this message translates to:
   /// **'配置'**
   String get detailGroupLayout;
 
-  /// 仲間のタブ
+  /// 仲間の名前（選ぶ欄のカードと一覧のシートの見出し）
   ///
   /// In ja, this message translates to:
   /// **'色と装飾'**
   String get detailGroupPaint;
 
-  /// 仲間のタブ
+  /// 仲間の名前（選ぶ欄のカードと一覧のシートの見出し）
   ///
   /// In ja, this message translates to:
   /// **'変形'**
   String get detailGroupTransform;
 
-  /// 仲間のタブ
+  /// 仲間の名前（選ぶ欄のカードと一覧のシートの見出し）
   ///
   /// In ja, this message translates to:
   /// **'文字'**
   String get detailGroupText;
 
-  /// 仲間のタブ
+  /// 仲間の名前（選ぶ欄のカードと一覧のシートの見出し）
   ///
   /// In ja, this message translates to:
   /// **'挙動'**
   String get detailGroupBehavior;
 
-  /// 仲間のタブ
+  /// 仲間の名前（選ぶ欄のカードと一覧のシートの見出し）
   ///
   /// In ja, this message translates to:
   /// **'中身'**
   String get detailGroupContent;
 
-  /// 仲間を決めていない収録のタブ（補足があるときだけ出る）
+  /// 仲間を決めていない収録の見出し
   ///
   /// In ja, this message translates to:
   /// **'プロパティ'**
@@ -518,6 +518,59 @@ abstract class AppLocalizations {
   /// In ja, this message translates to:
   /// **'{group}、ON が {count} 件'**
   String detailTabOnCount(String group, int count);
+
+  /// 見た目が変わらない引数（選ぶ欄のカードと一覧のシートの見出し）
+  ///
+  /// In ja, this message translates to:
+  /// **'補足'**
+  String get detailReferencesLabel;
+
+  /// 選ぶ欄の ‹
+  ///
+  /// In ja, this message translates to:
+  /// **'前のプロパティ'**
+  String get detailPickerPrevious;
+
+  /// 選ぶ欄の ›
+  ///
+  /// In ja, this message translates to:
+  /// **'次のプロパティ'**
+  String get detailPickerNext;
+
+  /// 選ぶ欄のカードの読み上げ
+  ///
+  /// In ja, this message translates to:
+  /// **'{name}、{detail}、{index} / {count}'**
+  String detailPickerSemantics(
+    String name,
+    String detail,
+    int index,
+    int count,
+  );
+
+  /// 補足を選んでいるときのカードの 2 行目
+  ///
+  /// In ja, this message translates to:
+  /// **'{count} 件 ・ 読むだけ'**
+  String detailPickerReferencesValue(int count);
+
+  /// 一覧のシートの題
+  ///
+  /// In ja, this message translates to:
+  /// **'プロパティ（{count}）'**
+  String detailPickerSheetTitle(int count);
+
+  /// 一覧のシートの題の横
+  ///
+  /// In ja, this message translates to:
+  /// **'指定中 {count}'**
+  String detailPickerSheetOnCount(int count);
+
+  /// 一覧のシートの補足の行の値
+  ///
+  /// In ja, this message translates to:
+  /// **'{count} 件'**
+  String detailPickerReferencesCount(int count);
 
   /// 関係の行。前に相手のプロパティ名のリンク
   ///

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gap/gap.dart';
-import 'package:widget_lab/catalog/model/property_group.dart';
 import 'package:widget_lab/core/theme/nimi_spacing.dart';
+import 'package:widget_lab/features/detail/ui/widgets/property_group_label.dart';
 import 'package:widget_lab/features/detail/view_model/detail_notifier.dart';
 import 'package:widget_lab/l10n/gen/app_localizations.dart';
 
@@ -46,20 +46,6 @@ class GroupTabs extends ConsumerWidget {
     );
   }
 }
-
-/// 仲間の名前。仲間を決めていない収録は「プロパティ」。
-String groupLabel(AppLocalizations l10n, PropertyGroup? group) =>
-    switch (group) {
-      PropertyGroup.size => l10n.detailGroupSize,
-      PropertyGroup.spacing => l10n.detailGroupSpacing,
-      PropertyGroup.layout => l10n.detailGroupLayout,
-      PropertyGroup.paint => l10n.detailGroupPaint,
-      PropertyGroup.transform => l10n.detailGroupTransform,
-      PropertyGroup.text => l10n.detailGroupText,
-      PropertyGroup.behavior => l10n.detailGroupBehavior,
-      PropertyGroup.content => l10n.detailGroupContent,
-      null => l10n.detailGroupAll,
-    };
 
 class _Tab extends StatelessWidget {
   const _Tab({
