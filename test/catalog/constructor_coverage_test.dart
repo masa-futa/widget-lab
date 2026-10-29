@@ -60,7 +60,14 @@ void main() {
       test('${entry.codeName}（${entry.name}）', () {
         final parameters = _constructorParameters(entry.codeName, index);
         if (parameters == null) {
-          return markTestSkipped('クラス名でない（${entry.name}）');
+          if (_strict.contains(entry.codeName)) {
+            fail(
+              '厳しく見る収録のクラスのコンストラクタが Flutter SDK のソースで見つからない: ${entry.codeName}',
+            );
+          }
+          return markTestSkipped(
+            '名前なしのコンストラクタを SDK のソースで見つけられない（${entry.name}）',
+          );
         }
         final covered = {
           for (final spec in entry.properties) spec.name,
