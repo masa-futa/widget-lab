@@ -12,6 +12,7 @@ void main() {
     ) as FilledButton;
 
     expect(button.onPressed, isNull);
+    expect(button.onLongPress, isNull);
     expect(button.enabled, isFalse);
     expect(button.style, isNull);
     // child は必須なので OFF にしても渡る

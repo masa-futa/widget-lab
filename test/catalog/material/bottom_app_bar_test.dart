@@ -16,5 +16,10 @@ void main() {
     expect(bar.color, isNull);
     expect(bar.height, isNull);
     expect(bar.elevation, isNull);
+    expect(bar.padding, isNull);
+    expect(bar.shape, isNull);
+    expect(bar.clipBehavior, Clip.none);
+    expect(bar.surfaceTintColor, isNull);
+    expect(bar.shadowColor, isNull);
   });
 }

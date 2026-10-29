@@ -14,6 +14,12 @@ void main() {
     expect(badge.isLabelVisible, isTrue);
     expect(badge.backgroundColor, isNull);
     expect(badge.alignment, isNull);
+    expect(badge.textColor, isNull);
+    expect(badge.smallSize, isNull);
+    expect(badge.largeSize, isNull);
+    expect(badge.textStyle, isNull);
+    expect(badge.padding, isNull);
+    expect(badge.offset, isNull);
     expect(badge.child, isNull);
   });
 }
