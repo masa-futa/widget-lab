@@ -5,9 +5,6 @@ import 'package:analyzer/dart/ast/ast.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:widget_lab/catalog/catalog.dart';
 
-/// 厳しく見る収録（段 2 で全件にしたら、この集合をやめて全件を厳しく見る）。
-const _strict = {'Container'};
-
 /// SDK のコンストラクタの呼び出しでない収録と、その理由。ここにある収録は突き合わせない。
 const _notSdkConstructor = {
   'await DefaultAssetBundle.of(context).loadString': '読み込みのメソッドの呼び出し',
@@ -89,12 +86,7 @@ void main() {
           for (final reference in entry.references) reference.name,
         };
         final missing = parameters.difference(covered);
-        if (!_strict.contains(entry.codeName) && missing.isNotEmpty) {
-          return markTestSkipped(
-            '抜け ${missing.length} 件（段 2 で埋める）: ${missing.join(', ')}',
-          );
-        }
-        expect(missing, isEmpty);
+        expect(missing, isEmpty, reason: '抜けている引数: ${missing.join(', ')}');
       });
     }
   });
