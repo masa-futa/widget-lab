@@ -5,7 +5,6 @@ import 'package:widget_lab/catalog/basics/container.dart';
 import 'package:widget_lab/catalog/basics/text.dart';
 import 'package:widget_lab/catalog/layout/padding.dart';
 import 'package:widget_lab/catalog/model/control_value.dart';
-import 'package:widget_lab/catalog/model/property_group.dart';
 import 'package:widget_lab/catalog/model/property_setting.dart';
 import 'package:widget_lab/core/data/catalog_repository.dart';
 import 'package:widget_lab/core/data/clipboard_client.dart';
@@ -504,55 +503,6 @@ void main() {
     );
   });
 
-  group('仲間のタブ（TC-84）', () {
-    DetailNotifier notifierOf(ProviderContainer c) =>
-        c.read(detailProvider('relation').notifier);
-    DetailState stateOf(ProviderContainer c) =>
-        c.read(detailProvider('relation'));
-
-    test('開いたときは最初の ON のプロパティの仲間', () {
-      final c = makeContainer(
-        repository: FakeCatalogRepository([relationEntry]),
-      );
-      expect(stateOf(c).selected, 'width');
-      expect(stateOf(c).selectedGroup, PropertyGroup.size);
-      expect(stateOf(c).showsTabs, isTrue);
-    });
-
-    test('タブを替えると、その仲間の最初の ON のチップを選ぶ', () {
-      final c = makeContainer(
-        repository: FakeCatalogRepository([relationEntry]),
-      );
-      notifierOf(c).groupSelected(PropertyGroup.paint);
-      expect(stateOf(c).selected, 'color');
-      expect(stateOf(c).specsInSelectedGroup.map((s) => s.name), [
-        'color',
-        'decoration',
-      ]);
-    });
-
-    test('ON がない仲間は先頭のチップを選ぶ', () {
-      final c = makeContainer(
-        repository: FakeCatalogRepository([relationEntry]),
-      );
-      notifierOf(c).propertyToggled('transformAlignment', false);
-      notifierOf(c).groupSelected(PropertyGroup.transform);
-      expect(stateOf(c).selected, 'transform');
-    });
-
-    test('補足を開くと比較をやめ、チップを選ぶと補足を閉じる', () {
-      final c = makeContainer(
-        repository: FakeCatalogRepository([relationEntry]),
-      );
-      notifierOf(c).compareTapped('width');
-      notifierOf(c).referencesSelected();
-      expect(stateOf(c).showsReferences, isTrue);
-      expect(stateOf(c).comparing, isNull);
-      notifierOf(c).propertySelected('height');
-      expect(stateOf(c).showsReferences, isFalse);
-    });
-  });
-
   group('選ぶ欄（TC-91）', () {
     DetailNotifier notifierOf(ProviderContainer c) =>
         c.read(detailProvider('relation').notifier);
@@ -623,6 +573,16 @@ void main() {
       notifierOf(c).compareTapped('width');
       notifierOf(c).nextTapped();
       expect(stateOf(c).comparing, isNull);
+    });
+
+    test('補足を開くと比較をやめ、チップを選ぶと補足を閉じる', () {
+      final c = open();
+      notifierOf(c).compareTapped('width');
+      notifierOf(c).referencesSelected();
+      expect(stateOf(c).showsReferences, isTrue);
+      expect(stateOf(c).comparing, isNull);
+      notifierOf(c).propertySelected('height');
+      expect(stateOf(c).showsReferences, isFalse);
     });
 
     test('ON の数は全部のプロパティで数える', () {

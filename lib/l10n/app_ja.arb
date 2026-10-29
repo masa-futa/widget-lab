@@ -426,16 +426,6 @@
   "@detailGroupContent": { "description": "仲間の名前（選ぶ欄のカードと一覧のシートの見出し）" },
   "detailGroupAll": "プロパティ",
   "@detailGroupAll": { "description": "仲間を決めていない収録の見出し" },
-  "detailTabReferences": "補足",
-  "@detailTabReferences": { "description": "見た目が変わらない引数のタブ" },
-  "detailTabOnCount": "{group}、ON が {count} 件",
-  "@detailTabOnCount": {
-    "description": "タブの読み上げ",
-    "placeholders": {
-      "group": { "type": "String", "example": "大きさ" },
-      "count": { "type": "int", "example": "2" }
-    }
-  },
   "detailReferencesLabel": "補足",
   "@detailReferencesLabel": { "description": "見た目が変わらない引数（選ぶ欄のカードと一覧のシートの見出し）" },
   "detailPickerPrevious": "前のプロパティ",

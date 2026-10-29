@@ -4,7 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:widget_lab/catalog/async/stream_builder.dart';
 import 'package:widget_lab/catalog/basics/container.dart';
 import 'package:widget_lab/catalog/demo/rebuild_counter.dart';
-import 'package:widget_lab/catalog/model/property_group.dart';
+import 'package:widget_lab/catalog/painting/clip_rect.dart';
 import 'package:widget_lab/catalog/scrolling/notification_listener.dart';
 import 'package:widget_lab/catalog/styling/media_query.dart';
 import 'package:widget_lab/core/data/catalog_repository.dart';
@@ -17,9 +17,10 @@ import 'package:widget_lab/features/detail/ui/probe/log_strip.dart';
 import 'package:widget_lab/features/detail/ui/widgets/code_strip.dart';
 import 'package:widget_lab/features/detail/ui/widgets/compare_preview.dart';
 import 'package:widget_lab/features/detail/ui/widgets/editor_panel.dart';
-import 'package:widget_lab/features/detail/ui/widgets/group_tabs.dart';
 import 'package:widget_lab/features/detail/ui/widgets/preview_card.dart';
 import 'package:widget_lab/features/detail/ui/widgets/property_chip.dart';
+import 'package:widget_lab/features/detail/ui/widgets/property_list_sheet.dart';
+import 'package:widget_lab/features/detail/ui/widgets/property_picker.dart';
 import 'package:widget_lab/features/detail/ui/widgets/property_value_control.dart';
 import 'package:widget_lab/features/detail/view_model/probe_notifier.dart';
 import 'package:widget_lab/features/detail/view_model/probe_state.dart';
@@ -79,38 +80,35 @@ void main() {
     );
   }
 
-  /// [name] のチップ。
-  Finder chip(String name) =>
-      find.ancestor(of: find.text(name), matching: find.byType(PropertyChip));
+  /// 選ぶ欄のカード。
+  final pickerCard = find.byKey(PropertyPicker.cardKey);
 
-  /// [name] のチップの値の表示。
-  String chipValue(WidgetTester tester, String name) => tester
+  /// カードに [text] が出ているか。
+  Finder inCard(String text) =>
+      find.descendant(of: pickerCard, matching: find.text(text));
+
+  /// カードの 2 行目の値（「仲間 ・ 値」の値の側）。
+  String cardValue(WidgetTester tester) => tester
       .widgetList<Text>(
-        find.descendant(of: chip(name), matching: find.byType(Text)),
+        find.descendant(of: pickerCard, matching: find.byType(Text)),
       )
       .last
-      .data!;
+      .data!
+      .split(' ・ ')
+      .last;
 
-  /// [name] のチップがいま見えていなければ、それを持つ仲間のタブを順に開いて探す
-  /// （チップは選んでいる仲間の分だけ並ぶ）。
-  Future<void> openTabOf(WidgetTester tester, String name) async {
-    if (chip(name).evaluate().isNotEmpty) return;
-    final tabs = find.descendant(
-      of: find.byType(GroupTabs),
-      matching: find.byType(InkWell),
-    );
-    for (var i = 0; i < tabs.evaluate().length; i++) {
-      await tester.tap(tabs.at(i));
-      await tester.pumpAndSettle();
-      if (chip(name).evaluate().isNotEmpty) return;
-    }
-  }
-
+  /// 一覧のシートから [name] を選ぶ（補足は「補足」）。
   Future<void> select(WidgetTester tester, String name) async {
-    await openTabOf(tester, name);
-    await tester.ensureVisible(chip(name));
+    await tester.tap(pickerCard);
     await tester.pumpAndSettle();
-    await tester.tap(chip(name));
+    final row = find.descendant(
+      of: find.byType(PropertyListSheet),
+      matching: find.text(name),
+    );
+    // 「補足」は見出しと行の 2 か所にあるので、行（最後）を押す
+    await tester.ensureVisible(row.last);
+    await tester.pumpAndSettle();
+    await tester.tap(row.last);
     await tester.pumpAndSettle();
   }
 
@@ -161,17 +159,12 @@ void main() {
     await pumpDetail(tester, 'container');
 
     expect(find.widgetWithText(AppBar, 'Container'), findsOneWidget);
-    expect(tester.widget<PropertyChip>(chip('padding')).selected, isTrue);
+    expect(inCard('padding'), findsOneWidget);
     expect(inPanel(find.text('padding')), findsOneWidget);
     expect(stripText(tester), 'padding: EdgeInsets.all(16.0),');
-    // チップは選んでいる仲間（余白）の分だけ、収録データの順に
-    final spacingCount = containerEntry.properties
-        .where((spec) => spec.group == PropertyGroup.spacing)
-        .length;
-    expect(find.byType(PropertyChip), findsNWidgets(spacingCount));
   });
 
-  testWidgets('TC-17: padding を OFF にすると余白がなくなり、チップが「既定」、帯が指定なし', (
+  testWidgets('TC-17: padding を OFF にすると余白がなくなり、カードが「既定」、帯が指定なし', (
     tester,
   ) async {
     await pumpDetail(tester, 'padding');
@@ -179,11 +172,11 @@ void main() {
     await toggle(tester);
 
     expect(preview<Padding>(tester).padding, EdgeInsets.zero);
-    expect(chipValue(tester, 'padding'), '既定');
+    expect(cardValue(tester), '既定');
     expect(stripText(tester), '// padding は指定なし（既定値）');
   });
 
-  testWidgets('TC-19: スライダーを 32 にすると、余白が 32、吹き出しが 32.0、チップが 32', (
+  testWidgets('TC-19: スライダーを 32 にすると、余白が 32、吹き出しが 32.0、カードが 32', (
     tester,
   ) async {
     await pumpDetail(tester, 'padding');
@@ -192,7 +185,7 @@ void main() {
 
     expect(preview<Padding>(tester).padding, const EdgeInsets.all(32));
     expect(inPanel(find.text('32.0')), findsOneWidget);
-    expect(chipValue(tester, 'padding'), '32');
+    expect(cardValue(tester), '32');
   });
 
   testWidgets('TC-20: 真偽のスイッチで値を変えるとプレビューに反映される', (tester) async {
@@ -238,7 +231,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(preview<Container>(tester).color, const Color(0xFF68BE8D));
-    expect(chipValue(tester, 'color'), '若竹');
+    expect(cardValue(tester), '若竹');
   });
 
   testWidgets('TC-23: 文字を入れるとプレビューとチップの値に反映される', (tester) async {
@@ -248,7 +241,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(preview<Text>(tester).data, 'さようなら');
-    expect(chipValue(tester, 'data'), 'さようなら');
+    expect(cardValue(tester), 'さようなら');
   });
 
   testWidgets('TC-24: 色と余白を両方変えると、プレビューとコードに両方が出る', (tester) async {
@@ -466,18 +459,16 @@ void main() {
     expect(inPanel(find.text('16.0')), findsOneWidget);
   });
 
-  testWidgets('初期状態に戻すと、画面の外の最初のチップを見える位置まで送る', (tester) async {
+  testWidgets('初期状態に戻すと、選ぶ欄も最初のプロパティに戻る', (tester) async {
     await pumpDetail(tester, 'text');
-    // 文字のタブの最後のチップまで送り、タブの最初のチップを画面の外に出す
     await select(tester, 'textScaler');
     await toggle(tester);
-    expect(tester.getRect(chip('style')).right, lessThan(0));
+    expect(inCard('textScaler'), findsOneWidget);
 
     await tester.tap(find.byTooltip('初期状態に戻す'));
     await tester.pumpAndSettle();
 
-    final screen = tester.getRect(find.byType(DetailScreen));
-    expect(screen.contains(tester.getRect(chip('data')).center), isTrue);
+    expect(inCard('data'), findsOneWidget);
   });
 
   group('コードの帯', () {
@@ -602,7 +593,7 @@ void main() {
     );
 
     expect(find.text('この Widget には変えられるプロパティがありません'), findsOneWidget);
-    expect(find.byType(PropertyChip), findsNothing);
+    expect(find.byType(PropertyPicker), findsNothing);
     expect(find.byType(CodeStrip), findsNothing);
   });
 
@@ -636,21 +627,22 @@ void main() {
       addTearDown(tester.view.resetViewInsets);
       await tester.pumpAndSettle();
 
+      // 選ぶ欄を出したままなので、パネルは最低の高さ（96）を割ることがある。中でスクロールできる
       expect(tester.takeException(), isNull);
       expect(
         tester.getSize(find.byKey(DetailScreen.panelAreaKey)).height,
-        greaterThanOrEqualTo(96),
+        greaterThanOrEqualTo(48),
       );
     });
 
-    testWidgets('仲間のタブがある Container を低い画面で開いても、はみ出さず編集パネルが残る', (tester) async {
+    testWidgets('Container を低い画面で開いても、はみ出さず編集パネルが残る', (tester) async {
       await pumpDetail(tester, 'container');
       // 874×402 の横向き
       tester.view.physicalSize = const Size(2622, 1206);
       await tester.pumpAndSettle();
 
       expect(tester.takeException(), isNull);
-      expect(find.byType(GroupTabs), findsOneWidget);
+      expect(find.byType(PropertyPicker), findsOneWidget);
       expect(
         tester.getSize(find.byKey(DetailScreen.panelAreaKey)).height,
         greaterThanOrEqualTo(96),
@@ -668,10 +660,11 @@ void main() {
       addTearDown(tester.view.resetViewInsets);
       await tester.pumpAndSettle();
 
+      // 選ぶ欄を出したままなので、パネルは最低の高さ（96）を割ることがある。中でスクロールできる
       expect(tester.takeException(), isNull);
       expect(
         tester.getSize(find.byKey(DetailScreen.panelAreaKey)).height,
-        greaterThanOrEqualTo(96),
+        greaterThanOrEqualTo(48),
       );
     });
   });
@@ -799,7 +792,7 @@ void main() {
       await tester.tap(inPanel(find.text('使わない場合と比べる')));
       await tester.pumpAndSettle();
 
-      await tester.tap(chip('mode'));
+      await select(tester, 'mode');
       await tester.pumpAndSettle();
 
       expect(find.byType(ComparePreview), findsOneWidget);
@@ -1327,70 +1320,87 @@ void main() {
     });
   });
 
-  group('仲間のタブ（TC-84）', () {
-    testWidgets('タブと ON の数が出て、開いたときは最初の ON の仲間', (tester) async {
+  group('選ぶ欄（TC-91）', () {
+    testWidgets('開いたときは padding。› で margin、‹ で constraints', (tester) async {
       await pumpDetail(tester, 'container');
-      expect(find.byType(GroupTabs), findsOneWidget);
-      expect(find.bySemanticsLabel('余白、ON が 1 件'), findsOneWidget);
-      // 最初の ON は padding（余白）
-      expect(find.widgetWithText(PropertyChip, 'padding'), findsOneWidget);
-      expect(find.widgetWithText(PropertyChip, 'width'), findsNothing);
+      expect(inCard('padding'), findsOneWidget);
+      await tester.tap(find.byTooltip('次のプロパティ'));
+      await tester.pumpAndSettle();
+      expect(inCard('margin'), findsOneWidget);
+      expect(inPanel(find.text('margin')), findsOneWidget);
+      await tester.tap(find.byTooltip('前のプロパティ'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byTooltip('前のプロパティ'));
+      await tester.pumpAndSettle();
+      expect(inCard('constraints'), findsOneWidget);
     });
 
-    testWidgets('タブを替えると、その仲間のチップだけになる', (tester) async {
+    testWidgets('先頭の width では ‹ が押せない', (tester) async {
       await pumpDetail(tester, 'container');
-      await tester.tap(find.text('大きさ'));
-      await tester.pumpAndSettle();
-      expect(find.widgetWithText(PropertyChip, 'width'), findsOneWidget);
-      expect(find.widgetWithText(PropertyChip, 'padding'), findsNothing);
+      await select(tester, 'width');
+      expect(
+        tester
+            .widget<IconButton>(
+              find.widgetWithIcon(IconButton, Icons.chevron_left),
+            )
+            .onPressed,
+        isNull,
+      );
     });
 
-    testWidgets('読み上げの操作で仲間のタブを押せる', (tester) async {
-      final handle = tester.ensureSemantics();
+    testWidgets('最後のプロパティの › で補足に入り、› が押せなくなる', (tester) async {
       await pumpDetail(tester, 'container');
-      tester.semantics.tap(find.semantics.byLabel('大きさ、ON が 0 件'));
+      await select(tester, 'child');
+      await tester.tap(find.byTooltip('次のプロパティ'));
       await tester.pumpAndSettle();
-      expect(find.widgetWithText(PropertyChip, 'width'), findsOneWidget);
-      expect(find.widgetWithText(PropertyChip, 'padding'), findsNothing);
-      handle.dispose();
+      expect(find.text('見た目が変わらない引数'), findsOneWidget);
+      expect(
+        tester
+            .widget<IconButton>(
+              find.widgetWithIcon(IconButton, Icons.chevron_right),
+            )
+            .onPressed,
+        isNull,
+      );
     });
 
-    testWidgets('requires の相手が OFF のチップは薄い', (tester) async {
+    testWidgets('requires の相手が OFF なら、カードは薄い', (tester) async {
       await pumpDetail(tester, 'container');
-      await tester.tap(find.text('変形'));
+      await select(tester, 'transformAlignment');
+      final opacity = tester.widget<Opacity>(
+        find.descendant(of: pickerCard, matching: find.byType(Opacity)).first,
+      );
+      expect(opacity.opacity, 0.5);
+    });
+
+    testWidgets('長い値はカードで型の名前だけ', (tester) async {
+      await pumpDetail(
+        tester,
+        'clipRect',
+        repository: FakeCatalogRepository([clipRectEntry]),
+      );
+      await select(tester, 'child');
+      // ClipRect の child は OverflowBox(maxWidth: 120, ...) の書き方
+      expect(cardValue(tester), 'OverflowBox');
+    });
+
+    testWidgets('キーボードが出ていても選ぶ欄は出たまま', (tester) async {
+      await pumpDetail(tester, 'text');
+      tester.view.viewInsets = const FakeViewPadding(bottom: 900);
+      addTearDown(tester.view.resetViewInsets);
       await tester.pumpAndSettle();
-      final chip = tester.widget<PropertyChip>(
-        find.widgetWithText(PropertyChip, 'transformAlignment'),
-      );
-      expect(chip.dimmed, isTrue);
-      final dimmedOpacity = tester.widget<Opacity>(
-        find.descendant(
-          of: find.widgetWithText(PropertyChip, 'transformAlignment'),
-          matching: find.byType(Opacity),
-        ),
-      );
-      expect(dimmedOpacity.opacity, 0.5);
-      final normalOpacity = tester.widget<Opacity>(
-        find.descendant(
-          of: find.widgetWithText(PropertyChip, 'transform'),
-          matching: find.byType(Opacity),
-        ),
-      );
-      expect(normalOpacity.opacity, 1);
+      expect(find.byType(PropertyPicker), findsOneWidget);
     });
   });
 
   group('関係の行（TC-85）', () {
-    testWidgets('組で使う相手を押すと、相手のタブとチップに移る', (tester) async {
+    testWidgets('組で使う相手を押すと、相手に移る', (tester) async {
       await pumpDetail(tester, 'container');
       await select(tester, 'width');
       expect(find.text('と組で使うことが多い'), findsOneWidget);
       await tester.tap(find.widgetWithText(TextButton, 'height'));
       await tester.pumpAndSettle();
-      final selected = tester.widget<PropertyChip>(
-        find.widgetWithText(PropertyChip, 'height'),
-      );
-      expect(selected.selected, isTrue);
+      expect(inCard('height'), findsOneWidget);
     });
 
     testWidgets('requires の相手が OFF なら「今は OFF」', (tester) async {
@@ -1404,11 +1414,17 @@ void main() {
       await select(tester, 'transformAlignment');
       await tester.tap(find.text('transform を ON にする'));
       await tester.pumpAndSettle();
-      final chip = tester.widget<PropertyChip>(
-        find.widgetWithText(PropertyChip, 'transformAlignment'),
+      expect(inCard('transformAlignment'), findsOneWidget);
+      expect(
+        tester
+            .widget<Opacity>(
+              find
+                  .descendant(of: pickerCard, matching: find.byType(Opacity))
+                  .first,
+            )
+            .opacity,
+        1,
       );
-      expect(chip.selected, isTrue);
-      expect(chip.dimmed, isFalse);
       expect(find.text('が ON のときだけ効く'), findsOneWidget);
       expect(find.text('transform を ON にする'), findsNothing);
     });
@@ -1444,10 +1460,7 @@ void main() {
   group('入れ子（TC-86）', () {
     testWidgets('decoration を選ぶと子のチップが並び、帯は選んだ子の行', (tester) async {
       await pumpDetail(tester, 'container');
-      await tester.tap(find.text('色と装飾'));
-      await tester.pumpAndSettle();
-      await tester.tap(find.widgetWithText(PropertyChip, 'decoration'));
-      await tester.pumpAndSettle();
+      await select(tester, 'decoration');
       await tester.tap(find.bySemanticsLabel('decoration を付ける'));
       await tester.pumpAndSettle();
       expect(find.text('中の値'), findsOneWidget);
@@ -1483,10 +1496,14 @@ void main() {
 
       await tester.tap(find.widgetWithText(PropertyChip, 'borderRadius'));
       await tester.pumpAndSettle();
-      final chip = tester.widget<PropertyChip>(
-        find.widgetWithText(PropertyChip, 'borderRadius'),
+      expect(
+        tester
+            .widget<PropertyChip>(
+              find.widgetWithText(PropertyChip, 'borderRadius'),
+            )
+            .selected,
+        isTrue,
       );
-      expect(chip.selected, isTrue);
     });
 
     testWidgets('子を選んで OFF なら、帯は decoration.<子> の指定なし', (tester) async {
@@ -1515,21 +1532,11 @@ void main() {
   });
 
   group('補足（TC-89）', () {
-    testWidgets('補足のタブで、見た目が変わらない引数の一覧を出し、比べるを出さない', (tester) async {
+    testWidgets('補足を選ぶと、見た目が変わらない引数の一覧を出し、比べるを出さない', (tester) async {
       await pumpDetail(tester, 'container');
-      await tester.scrollUntilVisible(
-        find.text('補足'),
-        100,
-        scrollable: find.descendant(
-          of: find.byType(GroupTabs),
-          matching: find.byType(Scrollable),
-        ),
-      );
-      await tester.tap(find.text('補足'));
-      await tester.pumpAndSettle();
+      await select(tester, '補足');
       expect(find.text('見た目が変わらない引数'), findsOneWidget);
       expect(find.text('key'), findsOneWidget);
-      expect(find.byType(PropertyChip), findsNothing);
       expect(find.text('比べる'), findsNothing);
     });
   });

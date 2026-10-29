@@ -1,7 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:widget_lab/catalog/model/genre.dart';
 import 'package:widget_lab/catalog/model/control_value.dart';
-import 'package:widget_lab/catalog/model/property_group.dart';
 import 'package:widget_lab/catalog/model/property_setting.dart';
 import 'package:widget_lab/catalog/model/property_spec.dart';
 import 'package:widget_lab/catalog/model/widget_entry.dart';
@@ -49,7 +48,7 @@ final class DetailState {
   /// 何を比べているか。`null` は比較していない。
   final Comparing? comparing;
 
-  /// 補足のタブを開いているか。
+  /// 補足を選んでいるか。
   final bool showsReferences;
 
   /// 入れ子のプロパティを選んでいるときの、中で選んでいる子。
@@ -141,24 +140,6 @@ final class DetailState {
       ),
     };
   }
-
-  /// 選んでいるプロパティの仲間。
-  PropertyGroup? get selectedGroup => selectedSpec?.group;
-
-  /// タブを出すか。仲間が 2 つ以上か、補足がある。
-  bool get showsTabs =>
-      entry.groups.length + (entry.references.isEmpty ? 0 : 1) >= 2;
-
-  /// 開いているタブのプロパティ（チップの列に並べる）。
-  List<PropertySpec> get specsInSelectedGroup => [
-    for (final spec in entry.properties)
-      if (spec.group == selectedGroup) spec,
-  ];
-
-  /// [group] の仲間で ON のプロパティの数（タブの数の印）。
-  int onCountIn(PropertyGroup? group) => entry.properties
-      .where((spec) => spec.group == group && spec.isOnIn(settings))
-      .length;
 
   /// [name] のプロパティが効くか（`requires` の相手がコードに書かれる）。
   /// 相手がなければ常に `true`。相手が ON でも `omitIf` で書かれないときは効かない。

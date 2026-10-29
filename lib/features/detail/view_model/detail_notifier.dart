@@ -2,7 +2,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart'
     show ProviderListenableSelect;
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:widget_lab/catalog/model/control_value.dart';
-import 'package:widget_lab/catalog/model/property_group.dart';
 import 'package:widget_lab/catalog/model/property_setting.dart';
 import 'package:widget_lab/catalog/model/widget_entry.dart';
 import 'package:widget_lab/core/data/catalog_repository.dart';
@@ -47,16 +46,7 @@ class DetailNotifier extends _$DetailNotifier {
     );
   }
 
-  /// [group] のタブを開き、その仲間の最初の ON のプロパティ（なければ先頭）を選ぶ。
-  void groupSelected(PropertyGroup? group) {
-    final specs = state.entry.properties.where((s) => s.group == group);
-    final first =
-        specs.where((s) => s.isOnIn(state.settings)).firstOrNull ??
-        specs.firstOrNull;
-    if (first != null) propertySelected(first.name);
-  }
-
-  /// 補足のタブを開く。補足は比べられないので比較をやめる。
+  /// 補足を選ぶ。補足は比べられないので比較をやめる。
   void referencesSelected() {
     state = state.copyWith(
       showsReferences: true,

@@ -14,14 +14,13 @@ import 'package:widget_lab/features/detail/ui/widgets/code_strip.dart';
 import 'package:widget_lab/features/detail/ui/widgets/detail_preview.dart';
 import 'package:widget_lab/features/detail/ui/widgets/detail_sheet.dart';
 import 'package:widget_lab/features/detail/ui/widgets/editor_panel.dart';
-import 'package:widget_lab/features/detail/ui/widgets/group_tabs.dart';
-import 'package:widget_lab/features/detail/ui/widgets/property_chips.dart';
+import 'package:widget_lab/features/detail/ui/widgets/property_picker.dart';
 import 'package:widget_lab/features/detail/ui/widgets/reference_list.dart';
 import 'package:widget_lab/features/detail/view_model/comparing.dart';
 import 'package:widget_lab/features/detail/view_model/detail_notifier.dart';
 import 'package:widget_lab/l10n/gen/app_localizations.dart';
 
-/// 詳細画面（cb_dtl）。上にプレビューとコードの帯、その下にプロパティのチップの列、
+/// 詳細画面（cb_dtl）。上にプレビューとコードの帯、その下にプロパティの選ぶ欄、
 /// 下半分に選んだ 1 つを触る編集パネル。説明とコードの全文はシートで開く。
 class DetailScreen extends ConsumerWidget {
   const DetailScreen({required this.entryId, super.key});
@@ -35,9 +34,8 @@ class DetailScreen extends ConsumerWidget {
   /// 本体が低いときも、編集パネルにこれだけの高さを残す。
   static const _minPanelHeight = 96.0;
 
-  /// コードの帯とチップの列の高さ（間の余白を除く）。文字の拡大に合わせて多めに見積もる。
+  /// コードの帯の高さ（間の余白を除く）。文字の拡大に合わせて多めに見積もる。
   static const _stripHeight = 44.0;
-  static const _chipsHeight = 48.0;
 
   /// プレビューの領域（テストで高さを見る）。
   static const previewAreaKey = Key('previewArea');
@@ -61,17 +59,14 @@ class DetailScreen extends ConsumerWidget {
     // キーボードが出たら、入力欄が隠れないようにプレビューを縮める
     final screenHeight = MediaQuery.sizeOf(context).height;
     final keyboardShown = MediaQuery.viewInsetsOf(context).bottom > 0;
-    // キーボードが出ている間（文字の入力中）は、仲間のタブを隠して編集パネルの高さを残す
-    final showsTabs =
-        ref.watch(provider.select((s) => s.showsTabs)) && !keyboardShown;
     final preferredHeight = screenHeight * (keyboardShown ? 0.2 : 0.35);
     final textScaler = MediaQuery.textScalerOf(context);
     final middleHeight =
         (hasProperties
             ? textScaler.scale(_stripHeight) +
-                  textScaler.scale(_chipsHeight) +
-                  spacing.xs * 3 +
-                  (showsTabs ? textScaler.scale(GroupTabs.height) : 0)
+                  textScaler.scale(PropertyPicker.cardHeight) +
+                  PropertyPicker.dotsHeight +
+                  spacing.xs * 3
             : spacing.xs) +
         (showsLogStrip ? textScaler.scale(LogStrip.height) + spacing.xs : 0);
     return Scaffold(
@@ -99,7 +94,7 @@ class DetailScreen extends ConsumerWidget {
           child: LayoutBuilder(
             builder: (context, constraints) {
               // 横向きでキーボードが出たときなど本体が低いときは、
-              // 帯・チップ・編集パネルの分を残してプレビューを縮める
+              // 帯・選ぶ欄・編集パネルの分を残してプレビューを縮める
               final previewHeight = min(
                 preferredHeight,
                 max(
@@ -138,10 +133,12 @@ class DetailScreen extends ConsumerWidget {
                       ),
                     ),
                   ],
-                  if (showsTabs) GroupTabs(entryId: entryId),
                   if (hasProperties) ...[
                     Gap(spacing.xs),
-                    PropertyChips(entryId: entryId),
+                    Padding(
+                      padding: EdgeInsets.symmetric(horizontal: spacing.md),
+                      child: PropertyPicker(entryId: entryId),
+                    ),
                   ],
                   Gap(spacing.xs),
                   Expanded(

@@ -507,18 +507,6 @@ abstract class AppLocalizations {
   /// **'プロパティ'**
   String get detailGroupAll;
 
-  /// 見た目が変わらない引数のタブ
-  ///
-  /// In ja, this message translates to:
-  /// **'補足'**
-  String get detailTabReferences;
-
-  /// タブの読み上げ
-  ///
-  /// In ja, this message translates to:
-  /// **'{group}、ON が {count} 件'**
-  String detailTabOnCount(String group, int count);
-
   /// 見た目が変わらない引数（選ぶ欄のカードと一覧のシートの見出し）
   ///
   /// In ja, this message translates to:

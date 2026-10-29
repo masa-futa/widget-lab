@@ -257,14 +257,6 @@ class AppLocalizationsJa extends AppLocalizations {
   String get detailGroupAll => 'プロパティ';
 
   @override
-  String get detailTabReferences => '補足';
-
-  @override
-  String detailTabOnCount(String group, int count) {
-    return '$group、ON が $count 件';
-  }
-
-  @override
   String get detailReferencesLabel => '補足';
 
   @override
