@@ -13,6 +13,7 @@ class PropertyChip extends StatelessWidget {
     required this.on,
     required this.selected,
     required this.onTap,
+    this.dimmed = false,
     super.key,
   });
 
@@ -23,6 +24,9 @@ class PropertyChip extends StatelessWidget {
   final bool on;
   final bool selected;
   final VoidCallback onTap;
+
+  /// requires の相手が OFF で効かない（薄く出す）。
+  final bool dimmed;
 
   /// チップの見た目の高さ。押せる範囲は 48。
   static const _height = 40.0;

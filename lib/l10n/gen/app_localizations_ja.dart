@@ -222,4 +222,39 @@ class AppLocalizationsJa extends AppLocalizations {
   String probeLogSemantics(int count, String latest) {
     return 'ログ、$count 件、最新: $latest';
   }
+
+  @override
+  String get detailGroupSize => '大きさ';
+
+  @override
+  String get detailGroupSpacing => '余白';
+
+  @override
+  String get detailGroupLayout => '配置';
+
+  @override
+  String get detailGroupPaint => '色と装飾';
+
+  @override
+  String get detailGroupTransform => '変形';
+
+  @override
+  String get detailGroupText => '文字';
+
+  @override
+  String get detailGroupBehavior => '挙動';
+
+  @override
+  String get detailGroupContent => '中身';
+
+  @override
+  String get detailGroupAll => 'プロパティ';
+
+  @override
+  String get detailTabReferences => '補足';
+
+  @override
+  String detailTabOnCount(String group, int count) {
+    return '$group、ON が $count 件';
+  }
 }

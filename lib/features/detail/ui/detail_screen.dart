@@ -14,6 +14,7 @@ import 'package:widget_lab/features/detail/ui/widgets/code_strip.dart';
 import 'package:widget_lab/features/detail/ui/widgets/detail_preview.dart';
 import 'package:widget_lab/features/detail/ui/widgets/detail_sheet.dart';
 import 'package:widget_lab/features/detail/ui/widgets/editor_panel.dart';
+import 'package:widget_lab/features/detail/ui/widgets/group_tabs.dart';
 import 'package:widget_lab/features/detail/ui/widgets/property_chips.dart';
 import 'package:widget_lab/features/detail/view_model/comparing.dart';
 import 'package:widget_lab/features/detail/view_model/detail_notifier.dart';
@@ -52,6 +53,7 @@ class DetailScreen extends ConsumerWidget {
     final hasProperties = ref.watch(
       provider.select((s) => s.entry.properties.isNotEmpty),
     );
+    final showsTabs = ref.watch(provider.select((s) => s.showsTabs));
     final showsLogStrip = ref.watch(
       provider.select((s) => s.entry.kind == EntryKind.behavior),
     );
@@ -132,6 +134,7 @@ class DetailScreen extends ConsumerWidget {
                       ),
                     ),
                   ],
+                  if (showsTabs) GroupTabs(entryId: entryId),
                   if (hasProperties) ...[
                     Gap(spacing.xs),
                     PropertyChips(entryId: entryId),

@@ -45,13 +45,14 @@ class _PropertyChipsState extends ConsumerState<PropertyChips> {
     final state = ref.watch(provider);
     final notifier = ref.read(provider.notifier);
     final spacing = NimiSpacing.of(context);
+    if (state.showsReferences) return const SizedBox.shrink();
     // チップは十数個までなので、全部を組み立てて Row に並べる
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
       padding: EdgeInsets.symmetric(horizontal: spacing.md),
       child: Row(
         children: [
-          for (final (i, spec) in state.entry.properties.indexed) ...[
+          for (final (i, spec) in state.specsInSelectedGroup.indexed) ...[
             if (i > 0) Gap(spacing.xs),
             PropertyChip(
               key: _keyOf(spec.name),
@@ -59,6 +60,7 @@ class _PropertyChipsState extends ConsumerState<PropertyChips> {
               value: chipValueLabel(spec.control, spec.valueIn(state.settings)),
               on: spec.isOnIn(state.settings),
               selected: spec.name == state.selected,
+              dimmed: !state.isEffective(spec.name),
               onTap: () => notifier.propertySelected(spec.name),
             ),
           ],

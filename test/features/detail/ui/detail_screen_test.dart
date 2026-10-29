@@ -4,6 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:widget_lab/catalog/async/stream_builder.dart';
 import 'package:widget_lab/catalog/basics/container.dart';
 import 'package:widget_lab/catalog/demo/rebuild_counter.dart';
+import 'package:widget_lab/catalog/model/property_group.dart';
 import 'package:widget_lab/catalog/scrolling/notification_listener.dart';
 import 'package:widget_lab/catalog/styling/media_query.dart';
 import 'package:widget_lab/core/data/catalog_repository.dart';
@@ -16,6 +17,7 @@ import 'package:widget_lab/features/detail/ui/probe/log_strip.dart';
 import 'package:widget_lab/features/detail/ui/widgets/code_strip.dart';
 import 'package:widget_lab/features/detail/ui/widgets/compare_preview.dart';
 import 'package:widget_lab/features/detail/ui/widgets/editor_panel.dart';
+import 'package:widget_lab/features/detail/ui/widgets/group_tabs.dart';
 import 'package:widget_lab/features/detail/ui/widgets/preview_card.dart';
 import 'package:widget_lab/features/detail/ui/widgets/property_chip.dart';
 import 'package:widget_lab/features/detail/view_model/probe_notifier.dart';
@@ -88,7 +90,23 @@ void main() {
       .last
       .data!;
 
+  /// [name] のチップがいま見えていなければ、それを持つ仲間のタブを順に開いて探す
+  /// （チップは選んでいる仲間の分だけ並ぶ）。
+  Future<void> openTabOf(WidgetTester tester, String name) async {
+    if (chip(name).evaluate().isNotEmpty) return;
+    final tabs = find.descendant(
+      of: find.byType(GroupTabs),
+      matching: find.byType(InkWell),
+    );
+    for (var i = 0; i < tabs.evaluate().length; i++) {
+      await tester.tap(tabs.at(i));
+      await tester.pumpAndSettle();
+      if (chip(name).evaluate().isNotEmpty) return;
+    }
+  }
+
   Future<void> select(WidgetTester tester, String name) async {
+    await openTabOf(tester, name);
     await tester.ensureVisible(chip(name));
     await tester.pumpAndSettle();
     await tester.tap(chip(name));
@@ -145,8 +163,11 @@ void main() {
     expect(tester.widget<PropertyChip>(chip('padding')).selected, isTrue);
     expect(inPanel(find.text('padding')), findsOneWidget);
     expect(stripText(tester), 'padding: EdgeInsets.all(16.0),');
-    // チップは収録データの順に全部
-    expect(find.byType(PropertyChip), findsNWidgets(14));
+    // チップは選んでいる仲間（余白）の分だけ、収録データの順に
+    final spacingCount = containerEntry.properties
+        .where((spec) => spec.group == PropertyGroup.spacing)
+        .length;
+    expect(find.byType(PropertyChip), findsNWidgets(spacingCount));
   });
 
   testWidgets('TC-17: padding を OFF にすると余白がなくなり、チップが「既定」、帯が指定なし', (
@@ -445,16 +466,16 @@ void main() {
   });
 
   testWidgets('初期状態に戻すと、画面の外の最初のチップを見える位置まで送る', (tester) async {
-    await pumpDetail(tester, 'container');
-    await select(tester, 'child');
+    await pumpDetail(tester, 'text');
+    await select(tester, 'overflow');
     await toggle(tester);
-    expect(tester.getRect(chip('padding')).right, lessThan(0));
+    expect(tester.getRect(chip('data')).right, lessThan(0));
 
     await tester.tap(find.byTooltip('初期状態に戻す'));
     await tester.pumpAndSettle();
 
     final screen = tester.getRect(find.byType(DetailScreen));
-    expect(screen.contains(tester.getRect(chip('padding')).center), isTrue);
+    expect(screen.contains(tester.getRect(chip('data')).center), isTrue);
   });
 
   group('コードの帯', () {
@@ -1287,6 +1308,35 @@ void main() {
       expect(logs, contains('外: ScrollUpdateNotification'));
       expect(logs.where((text) => text.startsWith('内:')), isEmpty);
       expect(logsOf(tester), isEmpty);
+    });
+  });
+
+  group('仲間のタブ（TC-84）', () {
+    testWidgets('タブと ON の数が出て、開いたときは最初の ON の仲間', (tester) async {
+      await pumpDetail(tester, 'container');
+      expect(find.byType(GroupTabs), findsOneWidget);
+      expect(find.bySemanticsLabel('余白、ON が 1 件'), findsOneWidget);
+      // 最初の ON は padding（余白）
+      expect(find.widgetWithText(PropertyChip, 'padding'), findsOneWidget);
+      expect(find.widgetWithText(PropertyChip, 'width'), findsNothing);
+    });
+
+    testWidgets('タブを替えると、その仲間のチップだけになる', (tester) async {
+      await pumpDetail(tester, 'container');
+      await tester.tap(find.text('大きさ'));
+      await tester.pumpAndSettle();
+      expect(find.widgetWithText(PropertyChip, 'width'), findsOneWidget);
+      expect(find.widgetWithText(PropertyChip, 'padding'), findsNothing);
+    });
+
+    testWidgets('requires の相手が OFF のチップは薄い', (tester) async {
+      await pumpDetail(tester, 'container');
+      await tester.tap(find.text('変形'));
+      await tester.pumpAndSettle();
+      final chip = tester.widget<PropertyChip>(
+        find.widgetWithText(PropertyChip, 'transformAlignment'),
+      );
+      expect(chip.dimmed, isTrue);
     });
   });
 }

@@ -440,6 +440,72 @@ abstract class AppLocalizations {
   /// In ja, this message translates to:
   /// **'ログ、{count} 件、最新: {latest}'**
   String probeLogSemantics(int count, String latest);
+
+  /// 仲間のタブ
+  ///
+  /// In ja, this message translates to:
+  /// **'大きさ'**
+  String get detailGroupSize;
+
+  /// 仲間のタブ
+  ///
+  /// In ja, this message translates to:
+  /// **'余白'**
+  String get detailGroupSpacing;
+
+  /// 仲間のタブ
+  ///
+  /// In ja, this message translates to:
+  /// **'配置'**
+  String get detailGroupLayout;
+
+  /// 仲間のタブ
+  ///
+  /// In ja, this message translates to:
+  /// **'色と装飾'**
+  String get detailGroupPaint;
+
+  /// 仲間のタブ
+  ///
+  /// In ja, this message translates to:
+  /// **'変形'**
+  String get detailGroupTransform;
+
+  /// 仲間のタブ
+  ///
+  /// In ja, this message translates to:
+  /// **'文字'**
+  String get detailGroupText;
+
+  /// 仲間のタブ
+  ///
+  /// In ja, this message translates to:
+  /// **'挙動'**
+  String get detailGroupBehavior;
+
+  /// 仲間のタブ
+  ///
+  /// In ja, this message translates to:
+  /// **'中身'**
+  String get detailGroupContent;
+
+  /// 仲間を決めていない収録のタブ（補足があるときだけ出る）
+  ///
+  /// In ja, this message translates to:
+  /// **'プロパティ'**
+  String get detailGroupAll;
+
+  /// 見た目が変わらない引数のタブ
+  ///
+  /// In ja, this message translates to:
+  /// **'補足'**
+  String get detailTabReferences;
+
+  /// タブの読み上げ
+  ///
+  /// In ja, this message translates to:
+  /// **'{group}、ON が {count} 件'**
+  String detailTabOnCount(String group, int count);
 }
 
 class _AppLocalizationsDelegate
