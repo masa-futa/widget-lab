@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:widget_lab/catalog/model/choice.dart';
 import 'package:widget_lab/catalog/model/demo_args.dart';
 import 'package:widget_lab/catalog/model/property_control.dart';
+import 'package:widget_lab/catalog/model/property_group.dart';
 import 'package:widget_lab/catalog/model/property_spec.dart';
 import 'package:widget_lab/catalog/model/widget_entry.dart';
 
@@ -20,6 +21,7 @@ final cupertinoThumbPainterEntry = WidgetEntry(
   properties: [
     PropertySpec(
       name: 'color',
+      group: PropertyGroup.paint,
       typeLabel: 'Color',
       description: 'つまみの色。指定しないと白',
       initiallyOn: false,
@@ -36,6 +38,7 @@ final cupertinoThumbPainterEntry = WidgetEntry(
     ),
     const PropertySpec(
       name: 'shadows',
+      group: PropertyGroup.paint,
       typeLabel: 'List<BoxShadow>',
       description: 'つまみの影。指定しないとスライダーの影',
       initiallyOn: false,

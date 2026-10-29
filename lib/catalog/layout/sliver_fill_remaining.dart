@@ -2,7 +2,9 @@ import 'package:flutter/widgets.dart';
 import 'package:widget_lab/catalog/demo/demo_tile.dart';
 import 'package:widget_lab/catalog/model/demo_args.dart';
 import 'package:widget_lab/catalog/model/property_control.dart';
+import 'package:widget_lab/catalog/model/property_group.dart';
 import 'package:widget_lab/catalog/model/property_spec.dart';
+import 'package:widget_lab/catalog/model/reference_arg.dart';
 import 'package:widget_lab/catalog/model/widget_entry.dart';
 
 final sliverFillRemainingEntry = WidgetEntry(
@@ -20,6 +22,7 @@ final sliverFillRemainingEntry = WidgetEntry(
   properties: const [
     PropertySpec(
       name: 'hasScrollBody',
+      group: PropertyGroup.behavior,
       typeLabel: 'bool',
       description:
           '子がスクロールするもの（ListView など）か。false にすると、'
@@ -29,6 +32,7 @@ final sliverFillRemainingEntry = WidgetEntry(
     ),
     PropertySpec(
       name: 'fillOverscroll',
+      group: PropertyGroup.behavior,
       typeLabel: 'bool',
       description:
           '端を越えて引いたとき、その分まで子を伸ばすか（hasScrollBody が false のとき）。既定は false',
@@ -37,9 +41,17 @@ final sliverFillRemainingEntry = WidgetEntry(
     ),
     PropertySpec(
       name: 'child',
+      group: PropertyGroup.content,
       typeLabel: 'Widget?',
       description: '残りを埋める Widget',
       control: FixedControl(value: DemoTile(2), source: 'Tile(2)'),
+    ),
+  ],
+  references: const [
+    ReferenceArg(
+      name: 'key',
+      typeLabel: 'Key?',
+      description: 'Widget を見分ける印。並べ替えたときや、状態を引き継ぐときに使う',
     ),
   ],
   build: _build,

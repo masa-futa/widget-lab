@@ -14,6 +14,9 @@ void main() {
     expect(card.elevation, isNull);
     expect(card.shape, isNull);
     expect(card.margin, isNull);
+    expect(card.shadowColor, isNull);
+    expect(card.surfaceTintColor, isNull);
+    expect(card.clipBehavior, isNull);
     expect(card.child, isNull);
   });
 }

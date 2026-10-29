@@ -2,7 +2,9 @@ import 'package:flutter/cupertino.dart';
 import 'package:widget_lab/catalog/model/choice.dart';
 import 'package:widget_lab/catalog/model/demo_args.dart';
 import 'package:widget_lab/catalog/model/property_control.dart';
+import 'package:widget_lab/catalog/model/property_group.dart';
 import 'package:widget_lab/catalog/model/property_spec.dart';
+import 'package:widget_lab/catalog/model/reference_arg.dart';
 import 'package:widget_lab/catalog/model/widget_entry.dart';
 
 final cupertinoTabScaffoldEntry = WidgetEntry(
@@ -20,6 +22,7 @@ final cupertinoTabScaffoldEntry = WidgetEntry(
   properties: [
     PropertySpec(
       name: 'tabBar',
+      group: PropertyGroup.content,
       typeLabel: 'CupertinoTabBar',
       description: '下に置くタブバー',
       required: true,
@@ -27,6 +30,7 @@ final cupertinoTabScaffoldEntry = WidgetEntry(
     ),
     PropertySpec(
       name: 'backgroundColor',
+      group: PropertyGroup.paint,
       typeLabel: 'Color?',
       description: '地の色。指定しないとテーマの scaffoldBackgroundColor',
       initiallyOn: false,
@@ -40,6 +44,33 @@ final cupertinoTabScaffoldEntry = WidgetEntry(
           Choice.color('山吹', const Color(0xFFF8B500)),
         ],
       ),
+    ),
+  ],
+  references: const [
+    ReferenceArg(
+      name: 'key',
+      typeLabel: 'Key?',
+      description: 'Widget を見分ける印。並べ替えたときや、状態を引き継ぐときに使う',
+    ),
+    ReferenceArg(
+      name: 'tabBuilder',
+      typeLabel: 'IndexedWidgetBuilder',
+      description: 'タブの番号から、そのタブの中身を組み立てる',
+    ),
+    ReferenceArg(
+      name: 'controller',
+      typeLabel: 'CupertinoTabController?',
+      description: '選んでいるタブを外から読み書きする',
+    ),
+    ReferenceArg(
+      name: 'resizeToAvoidBottomInset',
+      typeLabel: 'bool',
+      description: 'キーボードが出たときに、中身をその分だけ縮めるか（プレビューではキーボードが出ない）',
+    ),
+    ReferenceArg(
+      name: 'restorationId',
+      typeLabel: 'String?',
+      description: 'アプリを作り直したときに、選んでいたタブを戻すための ID',
     ),
   ],
   build: _build,

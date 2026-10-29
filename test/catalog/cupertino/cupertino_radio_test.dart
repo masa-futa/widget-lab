@@ -25,6 +25,7 @@ void main() {
     const defaults = CupertinoRadio<int>(value: 0);
     expect(radio.activeColor, defaults.activeColor);
     expect(radio.inactiveColor, defaults.inactiveColor);
+    expect(radio.fillColor, defaults.fillColor);
     expect(radio.useCheckmarkStyle, defaults.useCheckmarkStyle);
     expect(radio.toggleable, defaults.toggleable);
     expect(radio.enabled, defaults.enabled);

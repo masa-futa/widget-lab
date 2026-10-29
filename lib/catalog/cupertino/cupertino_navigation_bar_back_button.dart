@@ -2,7 +2,9 @@ import 'package:flutter/cupertino.dart';
 import 'package:widget_lab/catalog/model/choice.dart';
 import 'package:widget_lab/catalog/model/demo_args.dart';
 import 'package:widget_lab/catalog/model/property_control.dart';
+import 'package:widget_lab/catalog/model/property_group.dart';
 import 'package:widget_lab/catalog/model/property_spec.dart';
+import 'package:widget_lab/catalog/model/reference_arg.dart';
 import 'package:widget_lab/catalog/model/widget_entry.dart';
 
 final cupertinoNavigationBarBackButtonEntry = WidgetEntry(
@@ -20,6 +22,7 @@ final cupertinoNavigationBarBackButtonEntry = WidgetEntry(
   properties: [
     PropertySpec(
       name: 'color',
+      group: PropertyGroup.paint,
       typeLabel: 'Color?',
       description: '山かっこと文字の色。指定しないとテーマの主な色',
       initiallyOn: false,
@@ -36,6 +39,7 @@ final cupertinoNavigationBarBackButtonEntry = WidgetEntry(
     ),
     const PropertySpec(
       name: 'previousPageTitle',
+      group: PropertyGroup.content,
       typeLabel: 'String?',
       description: '山かっこの横に出す文字。指定しないと前の Route の題（なければ出さない）',
       control: TextControl(initialValue: '一覧'),
@@ -43,10 +47,18 @@ final cupertinoNavigationBarBackButtonEntry = WidgetEntry(
     // null だとプレビューで押したときにアプリの Navigator を戻し、詳細画面が閉じるので必須にする
     const PropertySpec(
       name: 'onPressed',
+      group: PropertyGroup.behavior,
       typeLabel: 'VoidCallback?',
       description: '押したときに呼ばれる。null なら Navigator.maybePop で戻る（ここでは何もしない関数）',
       required: true,
       control: FixedControl(value: _pressed, source: '() {}'),
+    ),
+  ],
+  references: const [
+    ReferenceArg(
+      name: 'key',
+      typeLabel: 'Key?',
+      description: 'Widget を見分ける印。並べ替えたときや、状態を引き継ぐときに使う',
     ),
   ],
   build: _build,

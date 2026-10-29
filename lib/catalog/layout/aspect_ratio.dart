@@ -3,7 +3,9 @@ import 'package:widget_lab/catalog/demo/demo_choices.dart';
 import 'package:widget_lab/catalog/demo/demo_tile.dart';
 import 'package:widget_lab/catalog/model/demo_args.dart';
 import 'package:widget_lab/catalog/model/property_control.dart';
+import 'package:widget_lab/catalog/model/property_group.dart';
 import 'package:widget_lab/catalog/model/property_spec.dart';
+import 'package:widget_lab/catalog/model/reference_arg.dart';
 import 'package:widget_lab/catalog/model/widget_entry.dart';
 
 final aspectRatioEntry = WidgetEntry(
@@ -20,6 +22,7 @@ final aspectRatioEntry = WidgetEntry(
   properties: const [
     PropertySpec(
       name: 'aspectRatio',
+      group: PropertyGroup.size,
       typeLabel: 'double',
       description: '幅 ÷ 高さ。2.0 なら横長、0.5 なら縦長',
       required: true,
@@ -34,9 +37,17 @@ final aspectRatioEntry = WidgetEntry(
     ),
     PropertySpec(
       name: 'child',
+      group: PropertyGroup.content,
       typeLabel: 'Widget?',
       description: 'その比の大きさに組む Widget',
       control: FixedControl(value: DemoTile(1), source: 'Tile(1)'),
+    ),
+  ],
+  references: const [
+    ReferenceArg(
+      name: 'key',
+      typeLabel: 'Key?',
+      description: 'Widget を見分ける印。並べ替えたときや、状態を引き継ぐときに使う',
     ),
   ],
   build: _build,

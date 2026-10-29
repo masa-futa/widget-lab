@@ -3,7 +3,9 @@ import 'package:widget_lab/catalog/demo/demo_choices.dart';
 import 'package:widget_lab/catalog/demo/demo_tile.dart';
 import 'package:widget_lab/catalog/model/demo_args.dart';
 import 'package:widget_lab/catalog/model/property_control.dart';
+import 'package:widget_lab/catalog/model/property_group.dart';
 import 'package:widget_lab/catalog/model/property_spec.dart';
+import 'package:widget_lab/catalog/model/reference_arg.dart';
 import 'package:widget_lab/catalog/model/widget_entry.dart';
 
 final listBodyEntry = WidgetEntry(
@@ -21,6 +23,7 @@ final listBodyEntry = WidgetEntry(
   properties: const [
     PropertySpec(
       name: 'mainAxis',
+      group: PropertyGroup.layout,
       typeLabel: 'Axis',
       description: '並べる向き。既定は vertical',
       initiallyOn: false,
@@ -28,6 +31,7 @@ final listBodyEntry = WidgetEntry(
     ),
     PropertySpec(
       name: 'reverse',
+      group: PropertyGroup.layout,
       typeLabel: 'bool',
       description: '逆の順（下から・右から）に並べるか。既定は false',
       initiallyOn: false,
@@ -35,6 +39,7 @@ final listBodyEntry = WidgetEntry(
     ),
     PropertySpec(
       name: 'children',
+      group: PropertyGroup.content,
       typeLabel: 'List<Widget>',
       description: '並べる子',
       control: FixedControl(
@@ -45,6 +50,13 @@ final listBodyEntry = WidgetEntry(
         ],
         source: '[Tile(1), Tile(2), Tile(3)]',
       ),
+    ),
+  ],
+  references: const [
+    ReferenceArg(
+      name: 'key',
+      typeLabel: 'Key?',
+      description: 'Widget を見分ける印。並べ替えたときや、状態を引き継ぐときに使う',
     ),
   ],
   build: _build,

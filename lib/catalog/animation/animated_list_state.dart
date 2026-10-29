@@ -4,6 +4,7 @@ import 'package:widget_lab/catalog/demo/demo_scope.dart';
 import 'package:widget_lab/catalog/demo/rebuild_counter.dart';
 import 'package:widget_lab/catalog/model/demo_args.dart';
 import 'package:widget_lab/catalog/model/property_control.dart';
+import 'package:widget_lab/catalog/model/property_group.dart';
 import 'package:widget_lab/catalog/model/property_spec.dart';
 import 'package:widget_lab/catalog/model/widget_entry.dart';
 
@@ -26,6 +27,7 @@ final animatedListStateEntry = WidgetEntry(
   properties: [
     const PropertySpec(
       name: 'index',
+      group: PropertyGroup.layout,
       typeLabel: 'int',
       description: '足す位置。ここでは先頭（0）',
       required: true,
@@ -34,6 +36,7 @@ final animatedListStateEntry = WidgetEntry(
     ),
     PropertySpec(
       name: 'duration',
+      group: PropertyGroup.behavior,
       typeLabel: 'Duration',
       description: '入ってくる動きにかける時間。指定しないと 300 ミリ秒',
       initiallyOn: false,
