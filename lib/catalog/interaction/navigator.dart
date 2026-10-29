@@ -4,7 +4,9 @@ import 'package:widget_lab/catalog/demo/demo_scope.dart';
 import 'package:widget_lab/catalog/model/choice.dart';
 import 'package:widget_lab/catalog/model/demo_args.dart';
 import 'package:widget_lab/catalog/model/property_control.dart';
+import 'package:widget_lab/catalog/model/property_group.dart';
 import 'package:widget_lab/catalog/model/property_spec.dart';
+import 'package:widget_lab/catalog/model/reference_arg.dart';
 import 'package:widget_lab/catalog/model/widget_entry.dart';
 
 final navigatorEntry = WidgetEntry(
@@ -24,6 +26,7 @@ final navigatorEntry = WidgetEntry(
   properties: const [
     PropertySpec(
       name: 'initialRoute',
+      group: PropertyGroup.behavior,
       typeLabel: 'String?',
       description:
           '最初に開く画面の名前。/detail にすると、/ の上に /detail を積んだ状態で始まり、'
@@ -39,6 +42,7 @@ final navigatorEntry = WidgetEntry(
     ),
     PropertySpec(
       name: 'onGenerateRoute',
+      group: PropertyGroup.behavior,
       typeLabel: 'RouteFactory?',
       description: '画面の名前から Route を作る関数。pushNamed で呼ばれます。',
       required: true,
@@ -50,6 +54,78 @@ final navigatorEntry = WidgetEntry(
             '    builder: (context) => pageFor(settings.name),\n'
             '  )',
       ),
+    ),
+  ],
+  references: const [
+    ReferenceArg(
+      name: 'key',
+      typeLabel: 'Key?',
+      description: 'Widget を見分ける印。並べ替えたときや、状態を引き継ぐときに使う',
+    ),
+    ReferenceArg(
+      name: 'pages',
+      typeLabel: 'List<Page<dynamic>>',
+      description: '宣言的に積む画面の一覧。並びを変えて組み直すと、積み方が変わる。onDidRemovePage と組で使う',
+    ),
+    ReferenceArg(
+      name: 'onPopPage',
+      typeLabel: 'PopPageCallback?',
+      description: '非推奨。代わりに onDidRemovePage を使う',
+    ),
+    ReferenceArg(
+      name: 'onGenerateInitialRoutes',
+      typeLabel: 'RouteListFactory',
+      description: 'initialRoute から、最初に積む画面の一覧を作る',
+    ),
+    ReferenceArg(
+      name: 'onUnknownRoute',
+      typeLabel: 'RouteFactory?',
+      description: 'onGenerateRoute が画面を作れなかった名前のときに呼ばれる',
+    ),
+    ReferenceArg(
+      name: 'transitionDelegate',
+      typeLabel: 'TransitionDelegate<dynamic>',
+      description: 'pages が変わったときに、どの画面を動きつきで出し入れするかを決める',
+    ),
+    ReferenceArg(
+      name: 'reportsRouteUpdateToEngine',
+      typeLabel: 'bool',
+      description: '今の画面の名前を OS（Web ならアドレスバー）に知らせるか。既定は false',
+    ),
+    ReferenceArg(
+      name: 'clipBehavior',
+      typeLabel: 'Clip',
+      description: '画面の切り替えの動きで、はみ出した所を切り取るか。見本は外側で切り取っているので違いは出ない',
+    ),
+    ReferenceArg(
+      name: 'observers',
+      typeLabel: 'List<NavigatorObserver>',
+      description: '画面の積み外しを知らせる相手の一覧。ここではログを出すのに使っている',
+    ),
+    ReferenceArg(
+      name: 'requestFocus',
+      typeLabel: 'bool',
+      description: '画面を積んだときに、その画面へフォーカスを移すか。既定は true',
+    ),
+    ReferenceArg(
+      name: 'restorationScopeId',
+      typeLabel: 'String?',
+      description: 'アプリを作り直したときに、積んでいた画面を戻すための ID',
+    ),
+    ReferenceArg(
+      name: 'routeTraversalEdgeBehavior',
+      typeLabel: 'TraversalEdgeBehavior',
+      description: 'Tab キーでフォーカスを送って画面の端に来たときにどうするか',
+    ),
+    ReferenceArg(
+      name: 'routeDirectionalTraversalEdgeBehavior',
+      typeLabel: 'TraversalEdgeBehavior',
+      description: '矢印キーでフォーカスを送って画面の端に来たときにどうするか',
+    ),
+    ReferenceArg(
+      name: 'onDidRemovePage',
+      typeLabel: 'DidRemovePageCallback?',
+      description: 'pages の画面が外されたときに呼ばれる。ここで自分の pages の一覧からも除く',
     ),
   ],
   build: _build,
