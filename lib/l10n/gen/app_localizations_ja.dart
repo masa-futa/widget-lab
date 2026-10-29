@@ -125,6 +125,9 @@ class AppLocalizationsJa extends AppLocalizations {
   String get detailChipSelected => '選択中';
 
   @override
+  String get detailChipInactive => '今は効かない';
+
+  @override
   String get detailCompare => '比べる';
 
   @override

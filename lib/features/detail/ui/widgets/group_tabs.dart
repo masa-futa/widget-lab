@@ -130,6 +130,7 @@ class _Tab extends StatelessWidget {
                           shape: const StadiumBorder(),
                         ),
                         child: Padding(
+                          // 件数のバッジの左右。NimiSpacing に 6 はない（xxs=4, xs=8）ので固定
                           padding: const EdgeInsets.symmetric(horizontal: 6),
                           child: Text(
                             '$count',

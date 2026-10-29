@@ -52,6 +52,7 @@ class PropertyChip extends StatelessWidget {
         name,
         shownValue,
         if (selected) l10n.detailChipSelected,
+        if (dimmed) l10n.detailChipInactive,
       ].join('、'),
       button: true,
       selected: selected,

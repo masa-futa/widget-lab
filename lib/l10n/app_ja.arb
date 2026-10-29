@@ -224,6 +224,10 @@
   "@detailChipSelected": {
     "description": "選んでいるチップの読み上げ"
   },
+  "detailChipInactive": "今は効かない",
+  "@detailChipInactive": {
+    "description": "requires の相手が OFF で効かないチップの読み上げ"
+  },
   "detailCompare": "比べる",
   "@detailCompare": {
     "description": "編集パネルの比べるボタン"

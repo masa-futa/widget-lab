@@ -73,6 +73,7 @@ class _Row extends StatelessWidget {
     final secondary = theme.colorScheme.onSurfaceVariant;
     return Row(
       children: [
+        // 行内の小さな印。アイコンの大きさのトークンはまだないので固定
         Icon(icon, size: 18, color: secondary),
         TextButton(onPressed: () => onTapped(other), child: Text(other)),
         Flexible(

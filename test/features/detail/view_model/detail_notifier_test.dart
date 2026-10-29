@@ -567,6 +567,47 @@ void main() {
       expect(stateOf(c).isEffective('transformAlignment'), isTrue);
     });
 
+    test('requires の相手が omitIf で書かれないときも効かない', () {
+      final c = makeContainer(
+        repository: FakeCatalogRepository([containerEntry]),
+      );
+      final initial = c.read(detailProvider('container'));
+      final withColor = {
+        ...initial.settings,
+        'color': initial.settings['color']!.copyWith(on: true),
+        'decoration': initial.settings['decoration']!.copyWith(on: false),
+      };
+      expect(
+        initial.copyWith(settings: withColor).isEffective('isAntiAlias'),
+        isTrue,
+      );
+      // decoration が ON の間、color は ON でも書かれない
+      final withDecoration = {
+        ...withColor,
+        'decoration': withColor['decoration']!.copyWith(on: true),
+      };
+      expect(
+        initial.copyWith(settings: withDecoration).isEffective('isAntiAlias'),
+        isFalse,
+      );
+    });
+
+    test('既定に戻して ON になるときも、同時に使えない相手を OFF にして知らせる', () {
+      final c = makeContainer(
+        repository: FakeCatalogRepository([relationEntry]),
+      );
+      notifierOf(c)
+        ..propertyToggled('color', false)
+        ..propertyToggled('decoration', true)
+        ..propertyDefaultTapped('color'); // color は最初 ON
+      expect(stateOf(c).settings['color']!.on, isTrue);
+      expect(stateOf(c).settings['decoration']!.on, isFalse);
+      expect(
+        stateOf(c).notice,
+        const ExclusionNotice(turnedOn: 'color', turnedOff: 'decoration'),
+      );
+    });
+
     test('同時に使えない相手を OFF にし、知らせを立てる', () {
       final c = makeContainer(
         repository: FakeCatalogRepository([relationEntry]),
@@ -657,6 +698,37 @@ void main() {
               as NestedValue;
       expect(off.settings['round']!.on, isFalse);
       expect(on.settings['round']!.on, isTrue);
+    });
+
+    test('親が OFF のまま子を比べても、両側とも親は ON で子だけ違う', () {
+      final c = makeContainer(
+        repository: FakeCatalogRepository([relationEntry]),
+      );
+      expect(stateOf(c).settings['decoration']!.on, isFalse);
+      notifierOf(c).propertySelected('decoration');
+      notifierOf(c).childSelected('round');
+      notifierOf(c).compareTapped('decoration');
+      for (final side in [true, false]) {
+        final setting = stateOf(c).settingsForSide(on: side)['decoration']!;
+        expect(setting.on, isTrue);
+        expect((setting.value as NestedValue).settings['round']!.on, side);
+      }
+    });
+
+    test('比較の付けた側は、同時に使えない相手を OFF にする（付けない側はそのまま）', () {
+      final c = makeContainer(
+        repository: FakeCatalogRepository([relationEntry]),
+      );
+      notifierOf(c)
+        ..propertyToggled('decoration', true) // color が OFF になる
+        ..propertySelected('color')
+        ..compareTapped('color');
+      final withSide = stateOf(c).settingsForSide(on: true);
+      expect(withSide['color']!.on, isTrue);
+      expect(withSide['decoration']!.on, isFalse);
+      final withoutSide = stateOf(c).settingsForSide(on: false);
+      expect(withoutSide['color']!.on, isFalse);
+      expect(withoutSide['decoration']!.on, isTrue);
     });
   });
 }

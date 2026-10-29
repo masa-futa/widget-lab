@@ -279,6 +279,12 @@ abstract class AppLocalizations {
   /// **'選択中'**
   String get detailChipSelected;
 
+  /// requires の相手が OFF で効かないチップの読み上げ
+  ///
+  /// In ja, this message translates to:
+  /// **'今は効かない'**
+  String get detailChipInactive;
+
   /// 編集パネルの比べるボタン
   ///
   /// In ja, this message translates to:

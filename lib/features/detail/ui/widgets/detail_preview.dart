@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:widget_lab/catalog/model/control_value.dart';
 import 'package:widget_lab/catalog/model/demo_args.dart';
 import 'package:widget_lab/catalog/model/widget_entry.dart';
 import 'package:widget_lab/core/theme/nimi_colors.dart';
@@ -55,15 +56,32 @@ class _DetailPreviewState extends ConsumerState<DetailPreview> {
             epoch: epoch,
           ),
         );
-      case ComparingProperty():
+      case ComparingProperty(:final child):
         final spec = state.comparingSpec!;
+        // 子を比べているときは、読み上げも「親.子」と子の値にする
+        final parentValue = spec.valueIn(state.settings);
+        final childSpec = child == null
+            ? null
+            : spec.children.where((c) => c.name == child).firstOrNull;
+        final (
+          semanticsName,
+          semanticsValue,
+        ) = childSpec != null && parentValue is NestedValue
+            ? (
+                '${spec.name}.${childSpec.name}',
+                valueLabel(
+                  childSpec.control,
+                  childSpec.valueIn(parentValue.settings),
+                ),
+              )
+            : (spec.name, valueLabel(spec.control, parentValue));
         content = ComparePreview(
           key: const ValueKey('compare'),
           withLabel: l10n.detailCompareWith,
           withoutLabel: l10n.detailCompareWithout,
           withSemanticsLabel: l10n.detailCompareWithSemantics(
-            spec.name,
-            valueLabel(spec.control, spec.valueIn(state.settings)),
+            semanticsName,
+            semanticsValue,
           ),
           scale: scale,
           withChild: entry.build(

@@ -20,6 +20,7 @@ import 'package:widget_lab/features/detail/ui/widgets/editor_panel.dart';
 import 'package:widget_lab/features/detail/ui/widgets/group_tabs.dart';
 import 'package:widget_lab/features/detail/ui/widgets/preview_card.dart';
 import 'package:widget_lab/features/detail/ui/widgets/property_chip.dart';
+import 'package:widget_lab/features/detail/ui/widgets/property_value_control.dart';
 import 'package:widget_lab/features/detail/view_model/probe_notifier.dart';
 import 'package:widget_lab/features/detail/view_model/probe_state.dart';
 import 'package:widget_lab/l10n/gen/app_localizations.dart';
@@ -1431,6 +1432,57 @@ void main() {
         find.textContaining('borderRadius: BorderRadius.circular('),
         findsOneWidget,
       );
+    });
+  });
+
+  group('入れ子の親が OFF（TC-86）', () {
+    Future<void> openDecoration(WidgetTester tester) async {
+      await pumpDetail(tester, 'container');
+      await select(tester, 'decoration');
+    }
+
+    testWidgets('子のスイッチと値の操作は押せず、子のチップは選べる', (tester) async {
+      await openDecoration(tester);
+      // 親は OFF のまま。子のスイッチは編集パネルの 2 つ目
+      expect(
+        tester.widget<Switch>(inPanel(find.byType(Switch)).last).onChanged,
+        isNull,
+      );
+      final control = tester.widget<PropertyValueControl>(
+        inPanel(find.byType(PropertyValueControl)),
+      );
+      expect(control.enabled, isFalse);
+
+      await tester.tap(find.widgetWithText(PropertyChip, 'borderRadius'));
+      await tester.pumpAndSettle();
+      final chip = tester.widget<PropertyChip>(
+        find.widgetWithText(PropertyChip, 'borderRadius'),
+      );
+      expect(chip.selected, isTrue);
+    });
+
+    testWidgets('子を選んで OFF なら、帯は decoration.<子> の指定なし', (tester) async {
+      await openDecoration(tester);
+      await tester.tap(find.widgetWithText(PropertyChip, 'borderRadius'));
+      await tester.pumpAndSettle();
+      expect(stripText(tester), '// decoration.borderRadius は指定なし（既定値）');
+    });
+
+    testWidgets('子を比べると、読み上げは「親.子」の名前で子の値を言う', (tester) async {
+      final handle = tester.ensureSemantics();
+      await openDecoration(tester);
+      await tester.tap(find.widgetWithText(PropertyChip, 'borderRadius'));
+      await tester.pumpAndSettle();
+      await tester.ensureVisible(inPanel(find.text('比べる')));
+      await tester.tap(inPanel(find.text('比べる')));
+      await tester.pumpAndSettle();
+
+      expect(find.byType(ComparePreview), findsOneWidget);
+      expect(
+        find.bySemanticsLabel(RegExp(r'^付けた、decoration\.borderRadius、')),
+        findsOneWidget,
+      );
+      handle.dispose();
     });
   });
 

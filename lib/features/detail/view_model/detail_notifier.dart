@@ -73,25 +73,9 @@ class DetailNotifier extends _$DetailNotifier {
         .where((p) => p.name == name)
         .firstOrNull;
     if (spec == null || spec.required) return;
-    final settings = {...state.settings};
-    final setting = settings[name];
+    final setting = state.settings[name];
     if (setting == null) return;
-    settings[name] = setting.copyWith(on: on);
-    String? turnedOff;
-    if (on) {
-      for (final other in spec.excludes) {
-        final otherSetting = settings[other];
-        if (otherSetting == null || !otherSetting.on) continue;
-        settings[other] = otherSetting.copyWith(on: false);
-        turnedOff ??= other;
-      }
-    }
-    state = state.copyWith(
-      settings: settings,
-      notice: () => turnedOff == null
-          ? null
-          : ExclusionNotice(turnedOn: name, turnedOff: turnedOff),
-    );
+    _apply(name, setting.copyWith(on: on));
   }
 
   /// 入れ子のプロパティの中で [child] を選ぶ。子の比較はやめる。
@@ -132,7 +116,28 @@ class DetailNotifier extends _$DetailNotifier {
   void propertyDefaultTapped(String name) {
     final initial = state.entry.initialSettings()[name];
     if (initial == null) return;
-    _update(name, (_) => initial);
+    _apply(name, initial);
+  }
+
+  /// [name] の設定を [setting] にする。ON なら、同時に使えない相手を OFF にして知らせる。
+  void _apply(String name, PropertySetting setting) {
+    final spec = state.entry.properties.where((p) => p.name == name).first;
+    final settings = {...state.settings, name: setting};
+    String? turnedOff;
+    if (setting.on) {
+      for (final other in spec.excludes) {
+        final otherSetting = settings[other];
+        if (otherSetting == null || !otherSetting.on) continue;
+        settings[other] = otherSetting.copyWith(on: false);
+        turnedOff ??= other;
+      }
+    }
+    state = state.copyWith(
+      settings: settings,
+      notice: () => turnedOff == null
+          ? null
+          : ExclusionNotice(turnedOn: name, turnedOff: turnedOff),
+    );
   }
 
   /// 比較中ならやめる。そうでなければ、見た目を持つ Widget は [name] のプロパティを、

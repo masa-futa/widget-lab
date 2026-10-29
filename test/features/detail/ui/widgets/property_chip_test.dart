@@ -9,6 +9,7 @@ void main() {
     WidgetTester tester, {
     bool on = true,
     bool selected = false,
+    bool dimmed = false,
     VoidCallback? onTap,
   }) => pumpPart(
     tester,
@@ -18,6 +19,7 @@ void main() {
         value: '16',
         on: on,
         selected: selected,
+        dimmed: dimmed,
         onTap: onTap ?? () {},
       ),
     ),
@@ -50,6 +52,22 @@ void main() {
         isButton: true,
         hasSelectedState: true,
         isSelected: true,
+        hasTapAction: true,
+      ),
+    );
+    semantics.dispose();
+  });
+
+  testWidgets('効かないチップは「今は効かない」と読み上げる', (tester) async {
+    final semantics = tester.ensureSemantics();
+    await pumpChip(tester, dimmed: true);
+
+    expect(
+      tester.getSemantics(find.byType(PropertyChip)),
+      matchesSemantics(
+        label: 'padding、16、今は効かない',
+        isButton: true,
+        hasSelectedState: true,
         hasTapAction: true,
       ),
     );

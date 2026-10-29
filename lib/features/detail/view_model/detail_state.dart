@@ -87,13 +87,24 @@ final class DetailState {
     final child = comparing.child;
     final value = setting.value;
     if (child == null || value is! NestedValue) {
-      return {...settings, comparing.name: setting.copyWith(on: on)};
+      return {
+        ...settings,
+        // 付けた側が ON になるので、同時に使えない相手は OFF にする
+        if (on)
+          for (final other
+              in _specOf(comparing.name)?.excludes ?? const <String>[])
+            if (settings[other] case final otherSetting?)
+              other: otherSetting.copyWith(on: false),
+        comparing.name: setting.copyWith(on: on),
+      };
     }
     final childSetting = value.settings[child];
     if (childSetting == null) return settings;
     return {
       ...settings,
+      // 親が OFF のままだと左右が同じ絵になるので、両側とも親を ON にして子だけ変える
       comparing.name: setting.copyWith(
+        on: true,
         value: value.copyWithChild(child, childSetting.copyWith(on: on)),
       ),
     };
@@ -117,11 +128,12 @@ final class DetailState {
       .where((spec) => spec.group == group && spec.isOnIn(settings))
       .length;
 
-  /// [name] のプロパティが効くか（`requires` の相手が ON）。相手がなければ常に `true`。
+  /// [name] のプロパティが効くか（`requires` の相手がコードに書かれる）。
+  /// 相手がなければ常に `true`。相手が ON でも `omitIf` で書かれないときは効かない。
   bool isEffective(String name) {
     final requires = _specOf(name)?.requires;
     if (requires == null) return true;
-    return _specOf(requires)?.isOnIn(settings) ?? true;
+    return _specOf(requires)?.isWrittenIn(settings) ?? true;
   }
 
   DetailState copyWith({
