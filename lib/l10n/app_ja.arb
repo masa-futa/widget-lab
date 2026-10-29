@@ -442,6 +442,30 @@
       "count": { "type": "int", "example": "15" }
     }
   },
+  "detailPickerCardValue": "{group} ・ {value}",
+  "@detailPickerCardValue": {
+    "description": "選ぶ欄のカードの 2 行目（仲間 ・ 短い値）",
+    "placeholders": {
+      "group": { "type": "String", "example": "色と装飾" },
+      "value": { "type": "String", "example": "若竹" }
+    }
+  },
+  "detailPickerSemanticsValue": "{group}、{value}",
+  "@detailPickerSemanticsValue": {
+    "description": "選ぶ欄のカードの読み上げの、仲間と値のところ",
+    "placeholders": {
+      "group": { "type": "String", "example": "色と装飾" },
+      "value": { "type": "String", "example": "若竹" }
+    }
+  },
+  "detailPickerSemanticsInactive": "{detail}、{inactive}",
+  "@detailPickerSemanticsInactive": {
+    "description": "選ぶ欄のカードの読み上げに、効かないことを足す",
+    "placeholders": {
+      "detail": { "type": "String", "example": "色と装飾、若竹" },
+      "inactive": { "type": "String", "example": "今は効かない" }
+    }
+  },
   "detailPickerReferencesValue": "{count} 件 ・ 読むだけ",
   "@detailPickerReferencesValue": {
     "description": "補足を選んでいるときのカードの 2 行目",

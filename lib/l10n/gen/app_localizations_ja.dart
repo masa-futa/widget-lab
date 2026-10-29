@@ -276,6 +276,21 @@ class AppLocalizationsJa extends AppLocalizations {
   }
 
   @override
+  String detailPickerCardValue(String group, String value) {
+    return '$group ・ $value';
+  }
+
+  @override
+  String detailPickerSemanticsValue(String group, String value) {
+    return '$group、$value';
+  }
+
+  @override
+  String detailPickerSemanticsInactive(String detail, String inactive) {
+    return '$detail、$inactive';
+  }
+
+  @override
   String detailPickerReferencesValue(int count) {
     return '$count 件 ・ 読むだけ';
   }

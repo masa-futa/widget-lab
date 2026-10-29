@@ -49,10 +49,16 @@ class PropertyPicker extends ConsumerWidget {
       PickerProperty(:final spec) => (
         groupIcon(spec.group),
         spec.name,
-        '${groupLabel(l10n, spec.group)} ・ '
-            '${spec.isOnIn(settings) ? chipValueLabel(spec.control, spec.valueIn(settings)) : l10n.detailChipDefault}',
-        '${groupLabel(l10n, spec.group)}、'
-            '${spec.isOnIn(settings) ? valueLabel(spec.control, spec.valueIn(settings)) : l10n.detailChipDefault}',
+        l10n.detailPickerCardValue(
+          groupLabel(l10n, spec.group),
+          shortValueLabel(spec, settings) ?? l10n.detailChipDefault,
+        ),
+        l10n.detailPickerSemanticsValue(
+          groupLabel(l10n, spec.group),
+          spec.isOnIn(settings)
+              ? valueLabel(spec.control, spec.valueIn(settings))
+              : l10n.detailChipDefault,
+        ),
         spec.isOnIn(settings),
         !state.isEffective(spec.name),
       ),

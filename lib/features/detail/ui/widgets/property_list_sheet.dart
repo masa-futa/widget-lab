@@ -94,9 +94,7 @@ class _PropertyListSheetState extends ConsumerState<PropertyListSheet> {
             PickerProperty(:final spec) => _Row(
               key: i == current ? _currentKey : null,
               name: spec.name,
-              value: spec.isOnIn(settings)
-                  ? chipValueLabel(spec.control, spec.valueIn(settings))
-                  : l10n.detailChipDefault,
+              value: shortValueLabel(spec, settings) ?? l10n.detailChipDefault,
               on: spec.isOnIn(settings),
               dimmed: !state.isEffective(spec.name),
               selected: i == current,

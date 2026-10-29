@@ -536,6 +536,24 @@ abstract class AppLocalizations {
     int count,
   );
 
+  /// 選ぶ欄のカードの 2 行目（仲間 ・ 短い値）
+  ///
+  /// In ja, this message translates to:
+  /// **'{group} ・ {value}'**
+  String detailPickerCardValue(String group, String value);
+
+  /// 選ぶ欄のカードの読み上げの、仲間と値のところ
+  ///
+  /// In ja, this message translates to:
+  /// **'{group}、{value}'**
+  String detailPickerSemanticsValue(String group, String value);
+
+  /// 選ぶ欄のカードの読み上げに、効かないことを足す
+  ///
+  /// In ja, this message translates to:
+  /// **'{detail}、{inactive}'**
+  String detailPickerSemanticsInactive(String detail, String inactive);
+
   /// 補足を選んでいるときのカードの 2 行目
   ///
   /// In ja, this message translates to:
