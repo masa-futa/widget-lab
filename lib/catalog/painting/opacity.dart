@@ -2,7 +2,9 @@ import 'package:flutter/widgets.dart';
 import 'package:widget_lab/catalog/demo/demo_choices.dart';
 import 'package:widget_lab/catalog/model/demo_args.dart';
 import 'package:widget_lab/catalog/model/property_control.dart';
+import 'package:widget_lab/catalog/model/property_group.dart';
 import 'package:widget_lab/catalog/model/property_spec.dart';
+import 'package:widget_lab/catalog/model/reference_arg.dart';
 import 'package:widget_lab/catalog/model/widget_entry.dart';
 
 final opacityEntry = WidgetEntry(
@@ -20,6 +22,7 @@ final opacityEntry = WidgetEntry(
   properties: const [
     PropertySpec(
       name: 'opacity',
+      group: PropertyGroup.paint,
       typeLabel: 'double',
       description: '濃さ（0.0〜1.0）',
       control: SliderControl(
@@ -33,12 +36,25 @@ final opacityEntry = WidgetEntry(
     ),
     PropertySpec(
       name: 'child',
+      group: PropertyGroup.content,
       typeLabel: 'Widget?',
       description: '半透明にする Widget',
       control: FixedControl(
         value: FlutterLogo(size: 48),
         source: 'FlutterLogo(size: 48)',
       ),
+    ),
+  ],
+  references: const [
+    ReferenceArg(
+      name: 'key',
+      typeLabel: 'Key?',
+      description: 'Widget を見分ける印。並べ替えたときや、状態を引き継ぐときに使う',
+    ),
+    ReferenceArg(
+      name: 'alwaysIncludeSemantics',
+      typeLabel: 'bool',
+      description: '透明（0）のときも、読み上げの対象に残すか。見た目は変わらない',
     ),
   ],
   build: _build,

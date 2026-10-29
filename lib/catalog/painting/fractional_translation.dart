@@ -3,7 +3,9 @@ import 'package:widget_lab/catalog/demo/demo_tile.dart';
 import 'package:widget_lab/catalog/model/choice.dart';
 import 'package:widget_lab/catalog/model/demo_args.dart';
 import 'package:widget_lab/catalog/model/property_control.dart';
+import 'package:widget_lab/catalog/model/property_group.dart';
 import 'package:widget_lab/catalog/model/property_spec.dart';
+import 'package:widget_lab/catalog/model/reference_arg.dart';
 import 'package:widget_lab/catalog/model/widget_entry.dart';
 
 final fractionalTranslationEntry = WidgetEntry(
@@ -21,6 +23,7 @@ final fractionalTranslationEntry = WidgetEntry(
   properties: const [
     PropertySpec(
       name: 'translation',
+      group: PropertyGroup.transform,
       typeLabel: 'Offset',
       description: 'ずらす量（子の幅・高さに対する割合）',
       control: ChoiceControl(
@@ -33,12 +36,25 @@ final fractionalTranslationEntry = WidgetEntry(
     ),
     PropertySpec(
       name: 'child',
+      group: PropertyGroup.content,
       typeLabel: 'Widget?',
       description: 'ずらして描く Widget（40×40）',
       control: FixedControl(
         value: DemoTile(1, width: 40, height: 40),
         source: 'Tile(1)',
       ),
+    ),
+  ],
+  references: const [
+    ReferenceArg(
+      name: 'key',
+      typeLabel: 'Key?',
+      description: 'Widget を見分ける印。並べ替えたときや、状態を引き継ぐときに使う',
+    ),
+    ReferenceArg(
+      name: 'transformHitTests',
+      typeLabel: 'bool',
+      description: 'ずらした先で押されたことを受けるか。false だと元の場所で受ける。既定は true',
     ),
   ],
   build: _build,

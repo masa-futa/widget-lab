@@ -5,7 +5,9 @@ import 'package:widget_lab/catalog/demo/demo_tile.dart';
 import 'package:widget_lab/catalog/model/choice.dart';
 import 'package:widget_lab/catalog/model/demo_args.dart';
 import 'package:widget_lab/catalog/model/property_control.dart';
+import 'package:widget_lab/catalog/model/property_group.dart';
 import 'package:widget_lab/catalog/model/property_spec.dart';
+import 'package:widget_lab/catalog/model/reference_arg.dart';
 import 'package:widget_lab/catalog/model/widget_entry.dart';
 
 final backdropFilterEntry = WidgetEntry(
@@ -25,6 +27,7 @@ final backdropFilterEntry = WidgetEntry(
   properties: [
     PropertySpec(
       name: 'filter',
+      group: PropertyGroup.paint,
       typeLabel: 'ImageFilter',
       description: '後ろの絵にかけるフィルター',
       required: true,
@@ -50,6 +53,7 @@ final backdropFilterEntry = WidgetEntry(
     ),
     const PropertySpec(
       name: 'child',
+      group: PropertyGroup.content,
       typeLabel: 'Widget?',
       description: 'フィルターの上に描く Widget（フィルターはかからない）',
       control: FixedControl(
@@ -60,6 +64,46 @@ final backdropFilterEntry = WidgetEntry(
         ),
         source: "SizedBox(width: 120, height: 40, child: Center(child: Text('すりガラス')))",
       ),
+    ),
+    const PropertySpec(
+      name: 'blendMode',
+      group: PropertyGroup.paint,
+      typeLabel: 'BlendMode',
+      description: 'フィルターをかけた絵を、後ろの絵に重ねる方法。既定は srcOver（そのまま重ねる）',
+      initiallyOn: false,
+      control: ChoiceControl(
+        choices: [
+          Choice('difference', BlendMode.difference, 'BlendMode.difference'),
+          Choice('multiply', BlendMode.multiply, 'BlendMode.multiply'),
+          Choice('src', BlendMode.src, 'BlendMode.src'),
+        ],
+      ),
+    ),
+    const PropertySpec(
+      name: 'enabled',
+      group: PropertyGroup.behavior,
+      typeLabel: 'bool',
+      description: 'false にするとフィルターをかけない（子はそのまま描く）。既定は true',
+      initiallyOn: false,
+      control: SwitchControl(initialValue: false),
+    ),
+  ],
+  references: const [
+    ReferenceArg(
+      name: 'key',
+      typeLabel: 'Key?',
+      description: 'Widget を見分ける印。並べ替えたときや、状態を引き継ぐときに使う',
+    ),
+    ReferenceArg(
+      name: 'filterConfig',
+      typeLabel: 'ImageFilterConfig?',
+      description:
+          'filter の代わりに渡す、フィルターの設定。ぼかしの範囲（bounds）なども決められる。filter とは同時に渡せない',
+    ),
+    ReferenceArg(
+      name: 'backdropGroupKey',
+      typeLabel: 'BackdropKey?',
+      description: '同じ鍵の BackdropFilter どうしで、後ろの絵を一度だけ読んで共有する（速くなる）。見た目は変わらない',
     ),
   ],
   build: _build,
@@ -77,6 +121,8 @@ Widget _build(DemoArgs args) => SizedBox(
         child: BackdropFilter(
           // 必須のプロパティなので、常に値がある
           filter: args.valueOf<ImageFilter>('filter')!,
+          blendMode: args.valueOf<BlendMode>('blendMode') ?? BlendMode.srcOver,
+          enabled: args.valueOf<bool>('enabled') ?? true,
           child: args.valueOf<Widget>('child') ?? const SizedBox.shrink(),
         ),
       ),

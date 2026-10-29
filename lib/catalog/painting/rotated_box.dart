@@ -3,7 +3,9 @@ import 'package:widget_lab/catalog/demo/demo_choices.dart';
 import 'package:widget_lab/catalog/demo/demo_tile.dart';
 import 'package:widget_lab/catalog/model/demo_args.dart';
 import 'package:widget_lab/catalog/model/property_control.dart';
+import 'package:widget_lab/catalog/model/property_group.dart';
 import 'package:widget_lab/catalog/model/property_spec.dart';
+import 'package:widget_lab/catalog/model/reference_arg.dart';
 import 'package:widget_lab/catalog/model/widget_entry.dart';
 
 final rotatedBoxEntry = WidgetEntry(
@@ -21,6 +23,7 @@ final rotatedBoxEntry = WidgetEntry(
   properties: const [
     PropertySpec(
       name: 'quarterTurns',
+      group: PropertyGroup.transform,
       typeLabel: 'int',
       description: '時計回りに 90° 回す回数',
       control: SliderControl(
@@ -34,12 +37,20 @@ final rotatedBoxEntry = WidgetEntry(
     ),
     PropertySpec(
       name: 'child',
+      group: PropertyGroup.content,
       typeLabel: 'Widget?',
       description: '回す Widget',
       control: FixedControl(
         value: Text('RotatedBox', style: TextStyle(fontSize: 16)),
         source: "Text('RotatedBox', style: TextStyle(fontSize: 16))",
       ),
+    ),
+  ],
+  references: const [
+    ReferenceArg(
+      name: 'key',
+      typeLabel: 'Key?',
+      description: 'Widget を見分ける印。並べ替えたときや、状態を引き継ぐときに使う',
     ),
   ],
   build: _build,

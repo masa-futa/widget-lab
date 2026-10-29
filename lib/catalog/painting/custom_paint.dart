@@ -3,7 +3,9 @@ import 'package:widget_lab/catalog/demo/demo_tile.dart';
 import 'package:widget_lab/catalog/model/choice.dart';
 import 'package:widget_lab/catalog/model/demo_args.dart';
 import 'package:widget_lab/catalog/model/property_control.dart';
+import 'package:widget_lab/catalog/model/property_group.dart';
 import 'package:widget_lab/catalog/model/property_spec.dart';
+import 'package:widget_lab/catalog/model/reference_arg.dart';
 import 'package:widget_lab/catalog/model/widget_entry.dart';
 
 final customPaintEntry = WidgetEntry(
@@ -21,6 +23,7 @@ final customPaintEntry = WidgetEntry(
   properties: const [
     PropertySpec(
       name: 'painter',
+      group: PropertyGroup.paint,
       typeLabel: 'CustomPainter?',
       description: '子の後ろに描く絵',
       control: ChoiceControl(
@@ -32,6 +35,7 @@ final customPaintEntry = WidgetEntry(
     ),
     PropertySpec(
       name: 'foregroundPainter',
+      group: PropertyGroup.paint,
       typeLabel: 'CustomPainter?',
       description: '子の前に描く絵',
       initiallyOn: false,
@@ -45,6 +49,7 @@ final customPaintEntry = WidgetEntry(
     ),
     PropertySpec(
       name: 'size',
+      group: PropertyGroup.size,
       typeLabel: 'Size',
       description: '子がないときの大きさ。既定は Size.zero（何も見えない）',
       control: ChoiceControl(
@@ -56,6 +61,7 @@ final customPaintEntry = WidgetEntry(
     ),
     PropertySpec(
       name: 'child',
+      group: PropertyGroup.content,
       typeLabel: 'Widget?',
       description: '絵と重ねる Widget。あると大きさは子に合わせる',
       initiallyOn: false,
@@ -63,6 +69,23 @@ final customPaintEntry = WidgetEntry(
         value: DemoTile(1, width: 96, height: 40),
         source: 'Tile(1)',
       ),
+    ),
+  ],
+  references: const [
+    ReferenceArg(
+      name: 'key',
+      typeLabel: 'Key?',
+      description: 'Widget を見分ける印。並べ替えたときや、状態を引き継ぐときに使う',
+    ),
+    ReferenceArg(
+      name: 'isComplex',
+      typeLabel: 'bool',
+      description: '絵が複雑で、描いた結果を取っておく（キャッシュする）価値があるかの目安。見た目は変わらない',
+    ),
+    ReferenceArg(
+      name: 'willChange',
+      typeLabel: 'bool',
+      description: '絵が次のフレームで変わりそうかの目安。キャッシュするかの判断に使い、見た目は変わらない',
     ),
   ],
   build: _build,
