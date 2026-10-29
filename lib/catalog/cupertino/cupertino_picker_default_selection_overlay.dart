@@ -2,7 +2,9 @@ import 'package:flutter/cupertino.dart';
 import 'package:widget_lab/catalog/model/choice.dart';
 import 'package:widget_lab/catalog/model/demo_args.dart';
 import 'package:widget_lab/catalog/model/property_control.dart';
+import 'package:widget_lab/catalog/model/property_group.dart';
 import 'package:widget_lab/catalog/model/property_spec.dart';
+import 'package:widget_lab/catalog/model/reference_arg.dart';
 import 'package:widget_lab/catalog/model/widget_entry.dart';
 
 final cupertinoPickerDefaultSelectionOverlayEntry = WidgetEntry(
@@ -20,6 +22,7 @@ final cupertinoPickerDefaultSelectionOverlayEntry = WidgetEntry(
   properties: [
     PropertySpec(
       name: 'background',
+      group: PropertyGroup.paint,
       typeLabel: 'Color',
       description: '帯の色。指定しないと tertiarySystemFill',
       control: ColorControl(
@@ -37,6 +40,7 @@ final cupertinoPickerDefaultSelectionOverlayEntry = WidgetEntry(
     ),
     const PropertySpec(
       name: 'capStartEdge',
+      group: PropertyGroup.layout,
       typeLabel: 'bool',
       description: '始まりの側（左）の角を丸め、余白を空けるか',
       initiallyOn: false,
@@ -44,10 +48,18 @@ final cupertinoPickerDefaultSelectionOverlayEntry = WidgetEntry(
     ),
     const PropertySpec(
       name: 'capEndEdge',
+      group: PropertyGroup.layout,
       typeLabel: 'bool',
       description: '終わりの側（右）の角を丸め、余白を空けるか',
       initiallyOn: false,
       control: SwitchControl(initialValue: false),
+    ),
+  ],
+  references: const [
+    ReferenceArg(
+      name: 'key',
+      typeLabel: 'Key?',
+      description: 'Widget を見分ける印。並べ替えたときや、状態を引き継ぐときに使う',
     ),
   ],
   build: _build,

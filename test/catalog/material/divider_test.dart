@@ -18,6 +18,7 @@ void main() {
     expect(divider.indent, isNull);
     expect(divider.endIndent, isNull);
     expect(divider.color, isNull);
+    expect(divider.radius, isNull);
   });
 }
 

@@ -1,7 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:widget_lab/catalog/model/demo_args.dart';
 import 'package:widget_lab/catalog/model/property_control.dart';
+import 'package:widget_lab/catalog/model/property_group.dart';
 import 'package:widget_lab/catalog/model/property_spec.dart';
+import 'package:widget_lab/catalog/model/reference_arg.dart';
 import 'package:widget_lab/catalog/model/widget_entry.dart';
 
 final cupertinoActionSheetActionEntry = WidgetEntry(
@@ -18,6 +20,7 @@ final cupertinoActionSheetActionEntry = WidgetEntry(
   properties: const [
     PropertySpec(
       name: 'child',
+      group: PropertyGroup.content,
       typeLabel: 'Widget',
       description: 'ボタンの中身',
       required: true,
@@ -25,6 +28,7 @@ final cupertinoActionSheetActionEntry = WidgetEntry(
     ),
     PropertySpec(
       name: 'isDefaultAction',
+      group: PropertyGroup.text,
       typeLabel: 'bool',
       description: 'true なら、すすめる選択肢として太字にする',
       initiallyOn: false,
@@ -32,16 +36,40 @@ final cupertinoActionSheetActionEntry = WidgetEntry(
     ),
     PropertySpec(
       name: 'isDestructiveAction',
+      group: PropertyGroup.text,
       typeLabel: 'bool',
       description: 'true なら、取り消せない操作として赤い文字にする',
       control: SwitchControl(initialValue: true),
     ),
     PropertySpec(
       name: 'onPressed',
+      group: PropertyGroup.behavior,
       typeLabel: 'VoidCallback',
       description: '押したときに呼ばれる',
       required: true,
       control: FixedControl(value: _pressed, source: '() {}'),
+    ),
+  ],
+  references: const [
+    ReferenceArg(
+      name: 'key',
+      typeLabel: 'Key?',
+      description: 'Widget を見分ける印。並べ替えたときや、状態を引き継ぐときに使う',
+    ),
+    ReferenceArg(
+      name: 'mouseCursor',
+      typeLabel: 'MouseCursor?',
+      description: 'マウスを重ねたときのカーソルの形。指定しないと Web では指の形',
+    ),
+    ReferenceArg(
+      name: 'focusNode',
+      typeLabel: 'FocusNode?',
+      description: 'キーボードの操作の行き先を、外から決める・読むときに渡す',
+    ),
+    ReferenceArg(
+      name: 'focusColor',
+      typeLabel: 'Color?',
+      description: 'キーボードの操作の行き先になったときの地の色（プレビューでは見えない）',
     ),
   ],
   build: _build,
