@@ -1,7 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:widget_lab/catalog/model/demo_args.dart';
 import 'package:widget_lab/catalog/model/property_control.dart';
+import 'package:widget_lab/catalog/model/property_group.dart';
 import 'package:widget_lab/catalog/model/property_spec.dart';
+import 'package:widget_lab/catalog/model/reference_arg.dart';
 import 'package:widget_lab/catalog/model/widget_entry.dart';
 
 final cupertinoAlertDialogEntry = WidgetEntry(
@@ -19,12 +21,14 @@ final cupertinoAlertDialogEntry = WidgetEntry(
   properties: const [
     PropertySpec(
       name: 'title',
+      group: PropertyGroup.content,
       typeLabel: 'Widget?',
       description: '上に太字で出す題',
       control: FixedControl(value: Text('削除しますか？'), source: "Text('削除しますか？')"),
     ),
     PropertySpec(
       name: 'content',
+      group: PropertyGroup.content,
       typeLabel: 'Widget?',
       description: '題の下に出す説明',
       control: FixedControl(
@@ -34,6 +38,7 @@ final cupertinoAlertDialogEntry = WidgetEntry(
     ),
     PropertySpec(
       name: 'actions',
+      group: PropertyGroup.content,
       typeLabel: 'List<Widget>',
       description: '下に並べるボタン。ふつうは CupertinoDialogAction を並べる',
       control: FixedControl(
@@ -43,6 +48,33 @@ final cupertinoAlertDialogEntry = WidgetEntry(
             'CupertinoDialogAction(isDestructiveAction: true, '
             "onPressed: () {}, child: Text('削除'))]",
       ),
+    ),
+  ],
+  references: const [
+    ReferenceArg(
+      name: 'key',
+      typeLabel: 'Key?',
+      description: 'Widget を見分ける印。並べ替えたときや、状態を引き継ぐときに使う',
+    ),
+    ReferenceArg(
+      name: 'scrollController',
+      typeLabel: 'ScrollController?',
+      description: 'content の部分のスクロールを外から動かす・読むときに渡す。渡さないと中で作る',
+    ),
+    ReferenceArg(
+      name: 'actionScrollController',
+      typeLabel: 'ScrollController?',
+      description: 'actions の部分のスクロールを外から動かす・読むときに渡す。渡さないと中で作る',
+    ),
+    ReferenceArg(
+      name: 'insetAnimationDuration',
+      typeLabel: 'Duration',
+      description: 'キーボードが出たときに、ダイアログが動く時間（プレビューでは見えない）',
+    ),
+    ReferenceArg(
+      name: 'insetAnimationCurve',
+      typeLabel: 'Curve',
+      description: 'キーボードが出たときに、ダイアログが動く速さの変わり方（プレビューでは見えない）',
     ),
   ],
   build: _build,
