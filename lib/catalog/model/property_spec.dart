@@ -1,5 +1,6 @@
 import 'package:widget_lab/catalog/model/control_value.dart';
 import 'package:widget_lab/catalog/model/property_control.dart';
+import 'package:widget_lab/catalog/model/property_group.dart';
 import 'package:widget_lab/catalog/model/property_setting.dart';
 
 /// コードでの渡し方。
@@ -31,6 +32,10 @@ final class PropertySpec {
     this.initiallyOn = true,
     this.arg = PropertyArg.named,
     this.omitIf,
+    this.group,
+    this.pairsWith = const [],
+    this.requires,
+    this.excludes = const [],
   });
 
   final String name;
@@ -50,6 +55,18 @@ final class PropertySpec {
   /// ほかのプロパティとの組み合わせで、ON でも Widget に渡さない（コードにも書かない）条件。
   /// 例: NavigationRail は extended の間、labelType を渡せない（assert）。
   final bool Function(Map<String, PropertySetting> settings)? omitIf;
+
+  /// 仲間（タブ）。`null` は仲間を決めていない収録（段 2 で埋める）。
+  final PropertyGroup? group;
+
+  /// 組で使うことが多い相手（プロパティ名）。向きは問わない。
+  final List<String> pairsWith;
+
+  /// これが ON でないと効かない相手（プロパティ名）。
+  final String? requires;
+
+  /// 同時には使えない相手（プロパティ名）。相手の側にも書く（全件のテストで見張る）。
+  final List<String> excludes;
 
   /// 開いたときの設定。
   PropertySetting get initialSetting =>
