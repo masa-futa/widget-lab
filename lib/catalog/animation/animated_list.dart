@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:widget_lab/catalog/animation/shared_specs.dart';
+import 'package:widget_lab/catalog/demo/demo_choices.dart';
 import 'package:widget_lab/catalog/demo/demo_stage.dart';
 import 'package:widget_lab/catalog/model/choice.dart';
 import 'package:widget_lab/catalog/model/demo_args.dart';
 import 'package:widget_lab/catalog/model/property_control.dart';
+import 'package:widget_lab/catalog/model/property_group.dart';
 import 'package:widget_lab/catalog/model/property_spec.dart';
+import 'package:widget_lab/catalog/model/reference_arg.dart';
 import 'package:widget_lab/catalog/model/widget_entry.dart';
 
 final animatedListEntry = WidgetEntry(
@@ -22,6 +26,7 @@ final animatedListEntry = WidgetEntry(
   properties: [
     PropertySpec(
       name: 'initialItemCount',
+      group: PropertyGroup.content,
       typeLabel: 'int',
       description: '最初にある項目の数。最初の項目は動かずに出る',
       control: SliderControl(
@@ -35,6 +40,7 @@ final animatedListEntry = WidgetEntry(
     ),
     PropertySpec(
       name: 'scrollDirection',
+      group: PropertyGroup.layout,
       typeLabel: 'Axis',
       description: '並べる向き',
       initiallyOn: false,
@@ -47,10 +53,88 @@ final animatedListEntry = WidgetEntry(
     ),
     const PropertySpec(
       name: 'reverse',
+      group: PropertyGroup.layout,
       typeLabel: 'bool',
       description: '並びを逆にする（縦なら下から、横なら右から）',
       initiallyOn: false,
       control: SwitchControl(initialValue: true),
+    ),
+    const PropertySpec(
+      name: 'physics',
+      typeLabel: 'ScrollPhysics?',
+      description: 'スクロールの手ざわり。端で跳ね返るか、止まるか、動かさないか',
+      initiallyOn: false,
+      group: PropertyGroup.behavior,
+      control: ChoiceControl(
+        choices: [
+          Choice(
+            'Bouncing',
+            BouncingScrollPhysics(),
+            'const BouncingScrollPhysics()',
+          ),
+          Choice(
+            'Clamping',
+            ClampingScrollPhysics(),
+            'const ClampingScrollPhysics()',
+          ),
+          Choice(
+            'NeverScrollable',
+            NeverScrollableScrollPhysics(),
+            'const NeverScrollableScrollPhysics()',
+          ),
+        ],
+      ),
+    ),
+    const PropertySpec(
+      name: 'padding',
+      typeLabel: 'EdgeInsetsGeometry?',
+      description: 'リストの中身のまわりの余白。スクロールすると余白ごと動く',
+      initiallyOn: false,
+      group: PropertyGroup.spacing,
+      control: SliderControl(
+        min: 0,
+        max: 32,
+        divisions: 4,
+        initialValue: 16,
+        resolve: EdgeInsets.all,
+        code: insetsCode,
+      ),
+    ),
+    PropertySpec(
+      name: 'clipBehavior',
+      typeLabel: 'Clip',
+      description: 'リストの枠からはみ出す項目を切るか。指定しないと Clip.hardEdge',
+      initiallyOn: false,
+      group: PropertyGroup.transform,
+      control: ChoiceControl(choices: clipChoices()),
+    ),
+  ],
+  references: const [
+    keyReference,
+    ReferenceArg(
+      name: 'itemBuilder',
+      typeLabel: 'AnimatedItemBuilder',
+      description: '項目を 1 つずつ組み立てる関数。入ってくる動きの animation を受け取る',
+    ),
+    ReferenceArg(
+      name: 'controller',
+      typeLabel: 'ScrollController?',
+      description: 'スクロールの位置を読む・動かすためのもの。見た目は変わらない',
+    ),
+    ReferenceArg(
+      name: 'primary',
+      typeLabel: 'bool?',
+      description: '画面の主なスクロール（PrimaryScrollController）につなぐか。見た目は変わらない',
+    ),
+    ReferenceArg(
+      name: 'shrinkWrap',
+      typeLabel: 'bool',
+      description: 'リストの長さを中身に合わせるか。見本では高さが決まっているので違いが見えない',
+    ),
+    ReferenceArg(
+      name: 'scrollCacheExtent',
+      typeLabel: 'ScrollCacheExtent?',
+      description: '画面の外で先に組み立てておく範囲。見た目は変わらない',
     ),
   ],
   build: _build,
@@ -70,6 +154,9 @@ Widget _build(DemoArgs args) => DemoStage(
     initialItemCount: args.valueOf<int>('initialItemCount') ?? 0,
     scrollDirection: args.valueOf<Axis>('scrollDirection') ?? Axis.vertical,
     reverse: args.valueOf<bool>('reverse') ?? false,
+    physics: args.valueOf<ScrollPhysics>('physics'),
+    padding: args.valueOf<EdgeInsetsGeometry>('padding'),
+    clipBehavior: args.valueOf<Clip>('clipBehavior') ?? Clip.hardEdge,
   ),
 );
 
@@ -79,11 +166,17 @@ class _ListDemo extends StatefulWidget {
     required this.initialItemCount,
     required this.scrollDirection,
     required this.reverse,
+    required this.physics,
+    required this.padding,
+    required this.clipBehavior,
   });
 
   final int initialItemCount;
   final Axis scrollDirection;
   final bool reverse;
+  final ScrollPhysics? physics;
+  final EdgeInsetsGeometry? padding;
+  final Clip clipBehavior;
 
   @override
   State<_ListDemo> createState() => _ListDemoState();
@@ -156,6 +249,9 @@ class _ListDemoState extends State<_ListDemo> {
           initialItemCount: widget.initialItemCount,
           scrollDirection: widget.scrollDirection,
           reverse: widget.reverse,
+          physics: widget.physics,
+          padding: widget.padding,
+          clipBehavior: widget.clipBehavior,
           itemBuilder: (context, index, animation) => _Item(
             number: _items[index],
             animation: animation,

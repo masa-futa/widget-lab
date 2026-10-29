@@ -1,8 +1,10 @@
 import 'package:flutter/widgets.dart';
+import 'package:widget_lab/catalog/animation/shared_specs.dart';
 import 'package:widget_lab/catalog/animation/transition_curves.dart';
 import 'package:widget_lab/catalog/demo/demo_animation.dart';
 import 'package:widget_lab/catalog/model/demo_args.dart';
 import 'package:widget_lab/catalog/model/property_control.dart';
+import 'package:widget_lab/catalog/model/property_group.dart';
 import 'package:widget_lab/catalog/model/property_spec.dart';
 import 'package:widget_lab/catalog/model/widget_entry.dart';
 
@@ -21,6 +23,7 @@ final scaleTransitionEntry = WidgetEntry(
   properties: [
     PropertySpec(
       name: 'scale',
+      group: PropertyGroup.transform,
       typeLabel: 'Animation<double>',
       description: '倍率の Animation。ここでは 0.5 → 1.0 を曲線を選んで動かす',
       required: true,
@@ -28,13 +31,16 @@ final scaleTransitionEntry = WidgetEntry(
     ),
     PropertySpec(
       name: 'alignment',
+      group: PropertyGroup.transform,
       typeLabel: 'Alignment',
       description: '拡大・縮小の中心。topLeft なら左上を止めたまま大きさが変わる',
       initiallyOn: false,
       control: ChoiceControl(initialIndex: 1, choices: pivotChoices()),
     ),
+    filterQualitySpec(),
     const PropertySpec(
       name: 'child',
+      group: PropertyGroup.content,
       typeLabel: 'Widget?',
       description: '拡大・縮小して描く Widget',
       control: FixedControl(
@@ -43,6 +49,7 @@ final scaleTransitionEntry = WidgetEntry(
       ),
     ),
   ],
+  references: const [keyReference],
   build: _build,
   codeName: 'ScaleTransition',
 );
@@ -51,6 +58,7 @@ Widget _build(DemoArgs args) => DemoAnimation(
   builder: (context, controller) => ScaleTransition(
     scale: (args.valueOf<AnimationOf<double>>('scale') ?? linearOf)(controller),
     alignment: args.valueOf<Alignment>('alignment') ?? Alignment.center,
+    filterQuality: args.valueOf<FilterQuality>('filterQuality'),
     child: args.valueOf<Widget>('child'),
   ),
 );

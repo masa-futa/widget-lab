@@ -1,9 +1,11 @@
 import 'package:flutter/widgets.dart';
+import 'package:widget_lab/catalog/animation/shared_specs.dart';
 import 'package:widget_lab/catalog/animation/transition_curves.dart';
 import 'package:widget_lab/catalog/demo/demo_animation.dart';
 import 'package:widget_lab/catalog/model/choice.dart';
 import 'package:widget_lab/catalog/model/demo_args.dart';
 import 'package:widget_lab/catalog/model/property_control.dart';
+import 'package:widget_lab/catalog/model/property_group.dart';
 import 'package:widget_lab/catalog/model/property_spec.dart';
 import 'package:widget_lab/catalog/model/widget_entry.dart';
 
@@ -25,6 +27,7 @@ final decoratedBoxTransitionEntry = WidgetEntry(
   properties: [
     PropertySpec(
       name: 'decoration',
+      group: PropertyGroup.paint,
       typeLabel: 'Animation<Decoration>',
       description: '飾りの Animation。ここでは瑠璃色の四角（BoxDecoration(color: Color(0xFF1E50A2))）から動かす',
       required: true,
@@ -67,6 +70,7 @@ final decoratedBoxTransitionEntry = WidgetEntry(
     ),
     PropertySpec(
       name: 'position',
+      group: PropertyGroup.paint,
       typeLabel: 'DecorationPosition',
       description: '飾りを子の後ろ（background）に描くか、前（foreground）に描くか',
       initiallyOn: false,
@@ -80,6 +84,7 @@ final decoratedBoxTransitionEntry = WidgetEntry(
     ),
     const PropertySpec(
       name: 'child',
+      group: PropertyGroup.content,
       typeLabel: 'Widget',
       description: '飾る Widget。飾りはこの大きさに描かれる',
       required: true,
@@ -89,6 +94,7 @@ final decoratedBoxTransitionEntry = WidgetEntry(
       ),
     ),
   ],
+  references: const [keyReference],
   build: _build,
   codeName: 'DecoratedBoxTransition',
 );

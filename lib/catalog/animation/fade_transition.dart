@@ -1,8 +1,10 @@
 import 'package:flutter/widgets.dart';
+import 'package:widget_lab/catalog/animation/shared_specs.dart';
 import 'package:widget_lab/catalog/animation/transition_curves.dart';
 import 'package:widget_lab/catalog/demo/demo_animation.dart';
 import 'package:widget_lab/catalog/model/demo_args.dart';
 import 'package:widget_lab/catalog/model/property_control.dart';
+import 'package:widget_lab/catalog/model/property_group.dart';
 import 'package:widget_lab/catalog/model/property_spec.dart';
 import 'package:widget_lab/catalog/model/widget_entry.dart';
 
@@ -21,6 +23,7 @@ final fadeTransitionEntry = WidgetEntry(
   properties: [
     PropertySpec(
       name: 'opacity',
+      group: PropertyGroup.paint,
       typeLabel: 'Animation<double>',
       description: '不透明度の Animation。ここでは 0.2 → 1.0 を曲線を選んで動かす',
       required: true,
@@ -28,6 +31,7 @@ final fadeTransitionEntry = WidgetEntry(
     ),
     const PropertySpec(
       name: 'alwaysIncludeSemantics',
+      group: PropertyGroup.behavior,
       typeLabel: 'bool',
       description: '透明（0）のときも読み上げの対象に残すか。見た目は変わらない',
       initiallyOn: false,
@@ -35,6 +39,7 @@ final fadeTransitionEntry = WidgetEntry(
     ),
     const PropertySpec(
       name: 'child',
+      group: PropertyGroup.content,
       typeLabel: 'Widget?',
       description: '不透明度を変えて描く Widget',
       control: FixedControl(
@@ -43,6 +48,7 @@ final fadeTransitionEntry = WidgetEntry(
       ),
     ),
   ],
+  references: const [keyReference],
   build: _build,
   codeName: 'FadeTransition',
 );

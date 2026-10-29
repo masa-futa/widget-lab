@@ -2,6 +2,7 @@ import 'package:flutter/widgets.dart';
 import 'package:widget_lab/catalog/animation/implicit_animation_specs.dart';
 import 'package:widget_lab/catalog/model/demo_args.dart';
 import 'package:widget_lab/catalog/model/property_control.dart';
+import 'package:widget_lab/catalog/model/property_group.dart';
 import 'package:widget_lab/catalog/model/property_spec.dart';
 import 'package:widget_lab/catalog/model/widget_entry.dart';
 
@@ -23,6 +24,7 @@ final implicitlyAnimatedWidgetEntry = WidgetEntry(
   properties: [
     PropertySpec(
       name: 'radius',
+      group: PropertyGroup.paint,
       typeLabel: 'double',
       description: 'サブクラスで足した、動かす値（角の丸み）。変えると新しい丸みへ動く',
       required: true,
