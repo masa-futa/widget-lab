@@ -7,7 +7,9 @@ import 'package:widget_lab/catalog/demo/rebuild_counter.dart';
 import 'package:widget_lab/catalog/model/choice.dart';
 import 'package:widget_lab/catalog/model/demo_args.dart';
 import 'package:widget_lab/catalog/model/property_control.dart';
+import 'package:widget_lab/catalog/model/property_group.dart';
 import 'package:widget_lab/catalog/model/property_spec.dart';
+import 'package:widget_lab/catalog/model/reference_arg.dart';
 import 'package:widget_lab/catalog/model/widget_entry.dart';
 
 /// Stream を作る関数。「最初から流す」のたびに新しい Stream を作る。
@@ -35,16 +37,30 @@ final streamBuilderEntry = WidgetEntry(
   properties: const [
     PropertySpec(
       name: 'stream',
+      group: PropertyGroup.behavior,
       typeLabel: 'Stream<int>?',
       description: 'listen する Stream。値は 1 秒おきに届きます。変えると最初から流し直します。',
       control: ChoiceControl(choices: _streams),
     ),
     PropertySpec(
       name: 'initialData',
+      group: PropertyGroup.behavior,
       typeLabel: 'int?',
       description: '最初の値が届くまでの間、snapshot が持つ値。',
       initiallyOn: false,
       control: FixedControl(value: 0, source: '0'),
+    ),
+  ],
+  references: const [
+    ReferenceArg(
+      name: 'key',
+      typeLabel: 'Key?',
+      description: 'Widget を見分ける印。並べ替えたときや、状態を引き継ぐときに使う',
+    ),
+    ReferenceArg(
+      name: 'builder',
+      typeLabel: 'AsyncWidgetBuilder<int>',
+      description: 'snapshot（Stream の状態と結果）から子を組み立てる関数。ここでは snapshot を文にして出す',
     ),
   ],
   build: _build,
