@@ -61,7 +61,7 @@ final class DetailNotifierProvider
   }
 }
 
-String _$detailNotifierHash() => r'da3cc597876c5128da2ba5f23e957ec1e6b8fa8d';
+String _$detailNotifierHash() => r'41f8bbc0704803d0c122c047da9dfd19cbd38aa6';
 
 /// 1つの Widget の詳細の設定・選択・比較。画面を離れると捨てる（autoDispose）。
 
