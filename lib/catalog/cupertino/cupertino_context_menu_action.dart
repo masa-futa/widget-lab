@@ -2,7 +2,9 @@ import 'package:flutter/cupertino.dart';
 import 'package:widget_lab/catalog/model/choice.dart';
 import 'package:widget_lab/catalog/model/demo_args.dart';
 import 'package:widget_lab/catalog/model/property_control.dart';
+import 'package:widget_lab/catalog/model/property_group.dart';
 import 'package:widget_lab/catalog/model/property_spec.dart';
+import 'package:widget_lab/catalog/model/reference_arg.dart';
 import 'package:widget_lab/catalog/model/widget_entry.dart';
 
 final cupertinoContextMenuActionEntry = WidgetEntry(
@@ -19,6 +21,7 @@ final cupertinoContextMenuActionEntry = WidgetEntry(
   properties: const [
     PropertySpec(
       name: 'child',
+      group: PropertyGroup.content,
       typeLabel: 'Widget',
       description: '項目の文字',
       required: true,
@@ -26,6 +29,7 @@ final cupertinoContextMenuActionEntry = WidgetEntry(
     ),
     PropertySpec(
       name: 'trailingIcon',
+      group: PropertyGroup.content,
       typeLabel: 'IconData?',
       description: '右端に出すアイコン',
       control: ChoiceControl(
@@ -38,6 +42,7 @@ final cupertinoContextMenuActionEntry = WidgetEntry(
     ),
     PropertySpec(
       name: 'isDefaultAction',
+      group: PropertyGroup.text,
       typeLabel: 'bool',
       description: 'true なら、すすめる項目として太字にする',
       initiallyOn: false,
@@ -45,6 +50,7 @@ final cupertinoContextMenuActionEntry = WidgetEntry(
     ),
     PropertySpec(
       name: 'isDestructiveAction',
+      group: PropertyGroup.text,
       typeLabel: 'bool',
       description: 'true なら、取り消せない操作として赤い文字にする',
       initiallyOn: false,
@@ -52,9 +58,17 @@ final cupertinoContextMenuActionEntry = WidgetEntry(
     ),
     PropertySpec(
       name: 'onPressed',
+      group: PropertyGroup.behavior,
       typeLabel: 'VoidCallback?',
       description: '押したときに呼ばれる',
       control: FixedControl(value: _pressed, source: '() {}'),
+    ),
+  ],
+  references: const [
+    ReferenceArg(
+      name: 'key',
+      typeLabel: 'Key?',
+      description: 'Widget を見分ける印。並べ替えたときや、状態を引き継ぐときに使う',
     ),
   ],
   build: _build,
