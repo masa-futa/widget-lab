@@ -223,7 +223,7 @@ void main() {
     expect(preview<Row>(tester).mainAxisAlignment, MainAxisAlignment.center);
   });
 
-  testWidgets('TC-23: 色見本を選ぶとプレビューとチップの値に反映される', (tester) async {
+  testWidgets('TC-23: 色見本を選ぶとプレビューと選ぶ欄の値に反映される', (tester) async {
     await pumpDetail(tester, 'container');
     await select(tester, 'color');
 
@@ -234,7 +234,7 @@ void main() {
     expect(cardValue(tester), '若竹');
   });
 
-  testWidgets('TC-23: 文字を入れるとプレビューとチップの値に反映される', (tester) async {
+  testWidgets('TC-23: 文字を入れるとプレビューと選ぶ欄の値に反映される', (tester) async {
     await pumpDetail(tester, 'text');
 
     await tester.enterText(inPanel(find.byType(TextField)), 'さようなら');
@@ -314,9 +314,7 @@ void main() {
       expect(preview<Padding>(tester).padding, const EdgeInsets.all(24));
     });
 
-    testWidgets('TC-28: 比較中に child のチップを選ぶと、比較をやめて child を編集する', (
-      tester,
-    ) async {
+    testWidgets('TC-28: 比較中に child を選ぶと、比較をやめて child を編集する', (tester) async {
       await pumpDetail(tester, 'padding');
       await compare(tester);
 
@@ -450,7 +448,7 @@ void main() {
     expect(tester.state<ScrollableState>(scrollable).position.pixels, 0);
   });
 
-  testWidgets('チップを選び替えても、スライダーの吹き出しが出る', (tester) async {
+  testWidgets('プロパティを選び替えても、スライダーの吹き出しが出る', (tester) async {
     await pumpDetail(tester, 'container');
 
     await select(tester, 'color');
@@ -585,7 +583,7 @@ void main() {
     expect(preview<Padding>(tester).padding, const EdgeInsets.all(16));
   });
 
-  testWidgets('変えられるプロパティがなければ、その旨を出し、チップと帯を出さない', (tester) async {
+  testWidgets('変えられるプロパティがなければ、その旨を出し、選ぶ欄と帯を出さない', (tester) async {
     await pumpDetail(
       tester,
       'none',
@@ -627,11 +625,11 @@ void main() {
       addTearDown(tester.view.resetViewInsets);
       await tester.pumpAndSettle();
 
-      // 選ぶ欄を出したままなので、パネルは最低の高さ（96）を割ることがある。中でスクロールできる
+      // 2 倍の文字では選ぶ欄のカードも大きくなり、パネルは最低の高さ（96）に届かない。中でスクロールできる
       expect(tester.takeException(), isNull);
       expect(
         tester.getSize(find.byKey(DetailScreen.panelAreaKey)).height,
-        greaterThanOrEqualTo(48),
+        greaterThanOrEqualTo(60),
       );
     });
 
@@ -660,11 +658,11 @@ void main() {
       addTearDown(tester.view.resetViewInsets);
       await tester.pumpAndSettle();
 
-      // 選ぶ欄を出したままなので、パネルは最低の高さ（96）を割ることがある。中でスクロールできる
+      // キーボードの間は点を隠すので、パネルは最低の高さを守る
       expect(tester.takeException(), isNull);
       expect(
         tester.getSize(find.byKey(DetailScreen.panelAreaKey)).height,
-        greaterThanOrEqualTo(48),
+        greaterThanOrEqualTo(96),
       );
     });
   });
@@ -787,7 +785,7 @@ void main() {
       );
     });
 
-    testWidgets('TC-76: 比較中に別のチップを選んでも比較が続く', (tester) async {
+    testWidgets('TC-76: 比較中に別のプロパティを選んでも比較が続く', (tester) async {
       await pumpBehavior(tester);
       await tester.tap(inPanel(find.text('使わない場合と比べる')));
       await tester.pumpAndSettle();
@@ -1390,6 +1388,23 @@ void main() {
       addTearDown(tester.view.resetViewInsets);
       await tester.pumpAndSettle();
       expect(find.byType(PropertyPicker), findsOneWidget);
+      expect(find.byKey(PropertyPicker.cardKey), findsOneWidget);
+      expect(find.byTooltip('前のプロパティ'), findsOneWidget);
+      expect(find.byTooltip('次のプロパティ'), findsOneWidget);
+    });
+
+    testWidgets('キーボードが出ている間は点を隠し、閉じると戻る', (tester) async {
+      await pumpDetail(tester, 'text');
+      expect(find.byKey(const ValueKey('pickerDot-0')), findsOneWidget);
+
+      tester.view.viewInsets = const FakeViewPadding(bottom: 900);
+      addTearDown(tester.view.resetViewInsets);
+      await tester.pumpAndSettle();
+      expect(find.byKey(const ValueKey('pickerDot-0')), findsNothing);
+
+      tester.view.resetViewInsets();
+      await tester.pumpAndSettle();
+      expect(find.byKey(const ValueKey('pickerDot-0')), findsOneWidget);
     });
   });
 

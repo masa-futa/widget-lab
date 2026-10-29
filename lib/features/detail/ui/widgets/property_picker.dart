@@ -14,9 +14,16 @@ import 'package:widget_lab/l10n/gen/app_localizations.dart';
 /// プロパティの選ぶ欄。真ん中に今のプロパティのカード、左右に丸い ‹ ›、下に点。
 /// カードを押すと一覧のシートを開く。1 か所しかなければカードだけを出す。
 class PropertyPicker extends ConsumerWidget {
-  const PropertyPicker({required this.entryId, super.key});
+  const PropertyPicker({
+    required this.entryId,
+    this.showsDots = true,
+    super.key,
+  });
 
   final String entryId;
+
+  /// 点の行を出すか。キーボードが出ている間は、編集パネルの高さを守るため隠す。
+  final bool showsDots;
 
   /// カードの高さ。文字を大きくしたら中身に合わせて高くする。
   static const cardHeight = 56.0;
@@ -98,17 +105,18 @@ class PropertyPicker extends ConsumerWidget {
             ),
           ],
         ),
-        SizedBox(
-          height: dotsHeight,
-          child: _PickerDots(
-            items: items,
-            index: index,
-            on: [
-              for (final item in items)
-                item is PickerProperty && item.spec.isOnIn(settings),
-            ],
+        if (showsDots)
+          SizedBox(
+            height: dotsHeight,
+            child: _PickerDots(
+              items: items,
+              index: index,
+              on: [
+                for (final item in items)
+                  item is PickerProperty && item.spec.isOnIn(settings),
+              ],
+            ),
           ),
-        ),
       ],
     );
   }

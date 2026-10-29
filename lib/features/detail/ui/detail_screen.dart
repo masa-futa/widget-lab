@@ -32,6 +32,8 @@ class DetailScreen extends ConsumerWidget {
   static const _maxBodyWidth = 640.0;
 
   /// 本体が低いときも、編集パネルにこれだけの高さを残す。
+  /// ただし横向きで文字を 2 倍にしてキーボードを出すと、選ぶ欄のカードが大きくなり
+  /// （選ぶ欄は出したままにする）、この高さは守れない。パネルの中でスクロールできる。
   static const _minPanelHeight = 96.0;
 
   /// コードの帯の高さ（間の余白を除く）。文字の拡大に合わせて多めに見積もる。
@@ -65,7 +67,7 @@ class DetailScreen extends ConsumerWidget {
         (hasProperties
             ? textScaler.scale(_stripHeight) +
                   textScaler.scale(PropertyPicker.cardHeight) +
-                  PropertyPicker.dotsHeight +
+                  (keyboardShown ? 0 : PropertyPicker.dotsHeight) +
                   spacing.xs * 3
             : spacing.xs) +
         (showsLogStrip ? textScaler.scale(LogStrip.height) + spacing.xs : 0);
@@ -137,7 +139,10 @@ class DetailScreen extends ConsumerWidget {
                     Gap(spacing.xs),
                     Padding(
                       padding: EdgeInsets.symmetric(horizontal: spacing.md),
-                      child: PropertyPicker(entryId: entryId),
+                      child: PropertyPicker(
+                        entryId: entryId,
+                        showsDots: !keyboardShown,
+                      ),
                     ),
                   ],
                   Gap(spacing.xs),
