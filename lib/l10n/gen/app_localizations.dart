@@ -279,6 +279,12 @@ abstract class AppLocalizations {
   /// **'選択中'**
   String get detailChipSelected;
 
+  /// requires の相手が OFF で効かないチップの読み上げ
+  ///
+  /// In ja, this message translates to:
+  /// **'今は効かない'**
+  String get detailChipInactive;
+
   /// 編集パネルの比べるボタン
   ///
   /// In ja, this message translates to:
@@ -302,6 +308,12 @@ abstract class AppLocalizations {
   /// In ja, this message translates to:
   /// **'必須'**
   String get detailRequired;
+
+  /// 入れ子のプロパティの子のチップの列の見出し
+  ///
+  /// In ja, this message translates to:
+  /// **'中の値'**
+  String get detailNestedLabel;
 
   /// プロパティの ON/OFF のスイッチの読み上げ
   ///
@@ -440,6 +452,114 @@ abstract class AppLocalizations {
   /// In ja, this message translates to:
   /// **'ログ、{count} 件、最新: {latest}'**
   String probeLogSemantics(int count, String latest);
+
+  /// 仲間のタブ
+  ///
+  /// In ja, this message translates to:
+  /// **'大きさ'**
+  String get detailGroupSize;
+
+  /// 仲間のタブ
+  ///
+  /// In ja, this message translates to:
+  /// **'余白'**
+  String get detailGroupSpacing;
+
+  /// 仲間のタブ
+  ///
+  /// In ja, this message translates to:
+  /// **'配置'**
+  String get detailGroupLayout;
+
+  /// 仲間のタブ
+  ///
+  /// In ja, this message translates to:
+  /// **'色と装飾'**
+  String get detailGroupPaint;
+
+  /// 仲間のタブ
+  ///
+  /// In ja, this message translates to:
+  /// **'変形'**
+  String get detailGroupTransform;
+
+  /// 仲間のタブ
+  ///
+  /// In ja, this message translates to:
+  /// **'文字'**
+  String get detailGroupText;
+
+  /// 仲間のタブ
+  ///
+  /// In ja, this message translates to:
+  /// **'挙動'**
+  String get detailGroupBehavior;
+
+  /// 仲間のタブ
+  ///
+  /// In ja, this message translates to:
+  /// **'中身'**
+  String get detailGroupContent;
+
+  /// 仲間を決めていない収録のタブ（補足があるときだけ出る）
+  ///
+  /// In ja, this message translates to:
+  /// **'プロパティ'**
+  String get detailGroupAll;
+
+  /// 見た目が変わらない引数のタブ
+  ///
+  /// In ja, this message translates to:
+  /// **'補足'**
+  String get detailTabReferences;
+
+  /// タブの読み上げ
+  ///
+  /// In ja, this message translates to:
+  /// **'{group}、ON が {count} 件'**
+  String detailTabOnCount(String group, int count);
+
+  /// 関係の行。前に相手のプロパティ名のリンク
+  ///
+  /// In ja, this message translates to:
+  /// **'と組で使うことが多い'**
+  String get detailRelationPairs;
+
+  /// 関係の行。前に相手のプロパティ名のリンク
+  ///
+  /// In ja, this message translates to:
+  /// **'が ON のときだけ効く'**
+  String get detailRelationRequires;
+
+  /// 関係の行。相手が OFF のときに後ろに足す
+  ///
+  /// In ja, this message translates to:
+  /// **'（今は OFF）'**
+  String get detailRelationRequiresOff;
+
+  /// 関係の行。前に相手のプロパティ名のリンク
+  ///
+  /// In ja, this message translates to:
+  /// **'と同時には使えない'**
+  String get detailRelationExcludes;
+
+  /// 同時に使えない相手を OFF にした知らせ
+  ///
+  /// In ja, this message translates to:
+  /// **'{on} と同時には使えないので、{off} を OFF にしました'**
+  String detailExclusionNotice(String on, String off);
+
+  /// 補足のタブの見出し
+  ///
+  /// In ja, this message translates to:
+  /// **'見た目が変わらない引数'**
+  String get detailReferencesTitle;
+
+  /// 補足のタブの説明
+  ///
+  /// In ja, this message translates to:
+  /// **'触っても見た目は変わりません。コードを書くときの手がかりに載せています。'**
+  String get detailReferencesNote;
 }
 
 class _AppLocalizationsDelegate

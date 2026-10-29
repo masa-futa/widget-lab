@@ -77,6 +77,7 @@ List<Map<String, PropertySetting>> _variations(WidgetEntry entry) {
         SwitchControl() => const [SwitchValue(true), SwitchValue(false)],
         TextControl() => const [TextValue(''), TextValue("It's")],
         FixedControl() => const [FixedValue()],
+        NestedControl() => [spec.control.initial],
       })
         {...base, spec.name: PropertySetting(on: true, value: value)},
   ];
@@ -139,7 +140,7 @@ void main() {
               expect(initialIndex, inInclusiveRange(0, palette.length - 1));
             case TextControl(:final initialValue, :final maxLength):
               expect(initialValue.length, lessThanOrEqualTo(maxLength));
-            case SwitchControl() || FixedControl():
+            case SwitchControl() || FixedControl() || NestedControl():
               break;
           }
         }
@@ -302,6 +303,45 @@ void main() {
         );
         for (final settings in [_all(entry, on: true), ..._variations(entry)]) {
           await _expectBuilds(tester, entry, settings, build: buildWithout);
+        }
+      });
+    }
+  });
+
+  group('TC-87: 関係と仲間の決まり', () {
+    for (final entry in allEntries) {
+      final names = {for (final spec in entry.properties) spec.name};
+      test('${entry.name}: 関係の相手が実在し、自分を指さない', () {
+        for (final spec in entry.properties) {
+          for (final other in [
+            ...spec.pairsWith,
+            ...spec.excludes,
+            ?spec.requires,
+          ]) {
+            expect(names, contains(other), reason: '${spec.name} → $other');
+            expect(other, isNot(spec.name), reason: spec.name);
+          }
+        }
+      });
+      test('${entry.name}: excludes は両方向に書く', () {
+        final byName = {for (final s in entry.properties) s.name: s};
+        for (final spec in entry.properties) {
+          for (final other in spec.excludes) {
+            expect(
+              byName[other]!.excludes,
+              contains(spec.name),
+              reason: '${spec.name} ✕ $other',
+            );
+          }
+        }
+      });
+      test('${entry.name}: 仲間は全部に付けるか、全部に付けない', () {
+        final grouped = entry.properties.where((s) => s.group != null).length;
+        expect(grouped == 0 || grouped == entry.properties.length, isTrue);
+      });
+      test('${entry.name}: 補足とプロパティの名前が重ならない', () {
+        for (final reference in entry.references) {
+          expect(names, isNot(contains(reference.name)));
         }
       });
     }

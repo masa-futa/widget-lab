@@ -16,7 +16,7 @@
 ## デザイン
 
 - ワイヤー: なし（下の mermaid の図）
-- デザイン: [Figma](https://www.figma.com/design/W9DAjjGAmMzNhnCQu0BLo7/Widget-Lab?node-id=3-2)「cb_dtl v2 / …」の 10 枚（見た目を持たない Widget の 3 枚: MediaQuery・使わない場合と比べる・ログのシート。部品の build の回数の印・ログの帯は「Components（見た目を持たない Widget）」）。色・文字・余白は docs/design-system.md
+- デザイン: [Figma](https://www.figma.com/design/W9DAjjGAmMzNhnCQu0BLo7/Widget-Lab?node-id=3-2)「cb_dtl v2 / …」の 10 枚（見た目を持たない Widget の 3 枚: MediaQuery・使わない場合と比べる・ログのシート。部品の build の回数の印・ログの帯は「Components（見た目を持たない Widget）」）。v3 の 4 枚: [仲間のタブ](https://www.figma.com/design/W9DAjjGAmMzNhnCQu0BLo7/Widget-Lab?node-id=47-1569)（`47:1569`）・[関係の行](https://www.figma.com/design/W9DAjjGAmMzNhnCQu0BLo7/Widget-Lab?node-id=47-1698)（`47:1698`）・[入れ子と同時に使えない組の知らせ](https://www.figma.com/design/W9DAjjGAmMzNhnCQu0BLo7/Widget-Lab?node-id=47-1824)（`47:1824`）・[補足](https://www.figma.com/design/W9DAjjGAmMzNhnCQu0BLo7/Widget-Lab?node-id=47-1953)（`47:1953`）。色・文字・余白は docs/design-system.md
 
 ## バージョン履歴
 
@@ -25,6 +25,7 @@
 | 2026/10/28 | 1.0.0 | 初版作成 | Claude（ui-spec） |
 | 2026/10/28 | 2.0.0 | v2 に作り直す。タブをやめ、チップの列と編集パネル・コードの帯・左右の比べる・説明のシート・方眼と拡大にする | Claude（ui-spec、Figma の v2） |
 | 2026/10/28 | 2.1.0 | 見た目を持たない Widget（PR 5/5）。回数の印・ログの帯とシート・使った／使わないの比較・コードのシートの切り替えを足す | Claude（ブレインストーミング） |
+| 2026/10/29 | 3.0.0 | v3: 仲間のタブ・関係の行・入れ子・補足（docs/design/functions/property-relations.md）。タブ（gt）・関係の行（rl）・入れ子の子のチップ（ne）・補足のタブ（rf）を足し、チップの並びを開いているタブの仲間だけにする | Claude（Figma の v3） |
 
 ## 構成
 
@@ -45,21 +46,26 @@ flowchart TB
         Logs["ログの帯（見た目を持たない Widget だけ）<br/>最新の 1 件と件数・全件"]
         Card --> Strip --> Logs
     end
+    subgraph GROUPS["仲間のタブ（固定・横にスクロール。仲間が 1 つだけなら出さない）"]
+        Tab["仲間の名前と ON の数<br/>補足のタブは最後"]
+    end
     subgraph CHIPS["プロパティのチップ（固定・横にスクロール）"]
-        Chip["名前と今の値<br/>選択中 / 指定中 / 既定"]
+        Chip["開いているタブの仲間だけ<br/>名前と今の値<br/>選択中 / 指定中 / 既定 / 薄い（相手が OFF）"]
     end
     subgraph EDITOR["編集パネル（固定。中がはみ出すときはパネルの中でスクロール）"]
         direction TB
         Head["名前・型・ON/OFF"]
         Desc["一言の説明"]
-        Control["型ごとの操作<br/>数値・選択肢・Alignment・色・文字・真偽"]
+        Control["型ごとの操作<br/>数値・選択肢・Alignment・色・文字・真偽<br/>入れ子は子のチップと子の操作"]
+        Relations["関係の行<br/>組で使う・ON のときだけ効く・同時に使えない"]
+        Notice["同時に使えない組の知らせ（3 秒）"]
         Actions["比べる・既定に戻す"]
-        Head --> Desc --> Control --> Actions
+        Head --> Desc --> Control --> Relations --> Notice --> Actions
     end
-    APPBAR --> PREVIEW --> CHIPS --> EDITOR
+    APPBAR --> PREVIEW --> GROUPS --> CHIPS --> EDITOR
 ```
 
-部品は Material 3 の標準（`AppBar`・`Switch`・`Slider`・`SegmentedButton` / `DropdownMenu`・`ChoiceChip`・`IconButton`・`FilledButton.tonal`・`TextButton`・`SnackBar`・`showModalBottomSheet`）。色見本・Alignment の 3×3・比較の仕切り・コードの帯は標準の部品がないので、土台の値で自前に作る。
+部品は Material 3 の標準（`AppBar`・`Switch`・`Slider`・`SegmentedButton` / `DropdownMenu`・`ChoiceChip`・`IconButton`・`FilledButton.tonal`・`TextButton`・`SnackBar`・`showModalBottomSheet`）。仲間のタブは自前の横並び（押せる範囲 48×48）。色見本・Alignment の 3×3・比較の仕切り・コードの帯は標準の部品がないので、土台の値で自前に作る。
 
 主な操作（チップを選ぶ・値を変える）は画面の下半分にあり、親指で届く。プレビューとコードの帯は操作しても隠れない。
 
@@ -235,7 +241,7 @@ flowchart TB
 
 | ID | 項目名 | 内容 | 状態変化の有無 | 初期表示 | データ取得元 |
 |-|-|-|-|-|-|
-| pc-chip | チップ | プロパティごとに 1 つ、収録データの順に横に並べる（横にスクロール）。名前（headline）と今の値（footnote。例:「16」「瑠璃」「center」「FlutterLogo」。OFF は「既定」、必須は値の前に印なし）。高さ 40、押せる範囲 48 | 有 | 全プロパティ | ローカルアセット（収録データ） |
+| pc-chip | チップ | 開いているタブの仲間のプロパティを、収録データの順に横に並べる（横にスクロール。仲間が 1 つだけの Widget は全部）。名前（headline）と今の値（footnote。例:「16」「瑠璃」「center」「FlutterLogo」。OFF は「既定」、必須は値の前に印なし）。高さ 40、押せる範囲 48 | 有 | 全プロパティ | ローカルアセット（収録データ） |
 
 #### アクション一覧
 
@@ -252,6 +258,92 @@ flowchart TB
 | 選択中 | 地は `accent`、文字は `on-accent` |
 | 指定中（ON） | 地は `accent-container`、文字は `on-accent-container` |
 | 既定（OFF） | 地なし、`outline` の枠、値は ink-secondary の「既定」 |
+| 薄い | `requires` の相手が OFF で効かないチップ。ほかの見た目のまま 50% の不透明度で描く（押せる） |
+
+### gt_仲間のタブ
+
+#### 項目一覧
+
+| ID | 項目名 | 内容 | 状態変化の有無 | 初期表示 | データ取得元 |
+|-|-|-|-|-|-|
+| gt-tab | 仲間のタブ | プレビューの下、チップの列の上に置く。プロパティのある仲間を収録データの語彙の順（大きさ・余白・配置・色と装飾・変形・文字・挙動・中身）に、横に並べる（横にスクロール。収まらなければ送る。左の余白はチップとそろえる）。名前の横に、そのタブで ON のプロパティの数を出す（例:「大きさ 2」。0 件なら数は出さない）。地は塗らない下線のタブ。大きさは最小 48×48（押せる範囲も同じ）。選んでいるタブは下に 2px の `accent` の線を引き、文字は `ink` の太字。ほかのタブは線なしで文字が `ink-secondary`。ON の数の印は `accent-container` の丸い地。タブの行の高さもプレビューの高さの割り当てに入れる | 有 | 最初の ON のプロパティがある仲間（ON がなければ先頭の仲間） | ローカルアセット（収録データの `group`） |
+| gt-refs | 補足のタブ | 収録データに `references` があるときだけ、最後に「補足」を置く。ON の数は出さない | 有 | 非選択 | ローカルアセット（収録データの `references`） |
+
+仲間が 1 つだけの Widget（補足がなければ）はタブを出さず、チップは全部並ぶ。
+
+#### アクション一覧
+
+| ID | 起動動作 | 内容（状態変化含む） |
+|-|-|-|
+| gt-tab | タップ（読み上げのタップ操作でも押せる） | そのタブのチップだけを並べ、最初の ON のチップを選ぶ（ON がなければ先頭）。比較中ならやめる。タブは並べ方だけを変え、ON のプロパティはタブにかかわらず全部プレビューとコードに効く |
+| gt-refs | タップ | 補足の一覧（rf）に切り替える。チップの列と編集パネルの代わりに出す |
+
+#### 表示パターン
+
+| パターン名 | 内容 |
+|-|-|
+| 選択中 | 地は `accent`、文字は `on-accent` |
+| 選択中でない | 地なし、`outline` の枠 |
+
+読み上げは「大きさ、ON が 2 件。ボタン」（選んでいるものは「選択中」）。
+
+### rl_関係の行
+
+#### 項目一覧
+
+| ID | 項目名 | 内容 | 状態変化の有無 | 初期表示 | データ取得元 |
+|-|-|-|-|-|-|
+| rl-pair | 組で使う | 編集パネルの値の操作の下に 1 行。「↔ {相手} と組で使うことが多い」（subheadline、相手の名前は `accent` のリンク）。向きは問わない（`pairsWith`） | 無 | 関係があるときだけ | ローカルアセット（収録データの `pairsWith`） |
+| rl-reqd | ON のときだけ効く | 「{相手} が ON のときだけ効く」。相手が OFF の間は後ろに「（今は OFF）」を足し、このプロパティのチップを薄くする（`requires`） | 有 | 関係があるときだけ | ローカルアセット（収録データの `requires`）・DetailState |
+| rl-excl | 同時に使えない | 「{相手} と同時には使えない」（`excludes`。両方向に書いてあるので、どちらのチップでも出る） | 無 | 関係があるときだけ | ローカルアセット（収録データの `excludes`） |
+
+#### アクション一覧
+
+| ID | 起動動作 | 内容（状態変化含む） |
+|-|-|-|
+| rl-pair / rl-reqd / rl-excl | 相手の名前をタップ | 相手のタブとチップに移る（相手のタブを開き、相手を選ぶ）。比較中ならやめる |
+
+#### 同時に使えない組の知らせ
+
+| ID | 項目名 | 内容 | 状態変化の有無 | 初期表示 |
+|-|-|-|-|-|
+| rl-note | 知らせ | 片方を ON にしたとき、`excludes` のもう片方が ON なら OFF にし、編集パネルに「{ON にした側} と同時には使えないので {OFF にした側} を OFF にしました」を出す（footnote、地は `surface-muted`、角丸 `sm`）。ライブリージョンで、読み上げに伝える。3 秒で消える。ほかのプロパティを選んでも消える。OFF にした側の値は覚えておく（ed-swch と同じ） | 有 | 非表示 |
+
+### ne_入れ子
+
+入れ子のプロパティ（`children` を持つもの。Container の decoration・foregroundDecoration）を選んだときの編集パネル。
+
+#### 項目一覧
+
+| ID | 項目名 | 内容 | 状態変化の有無 | 初期表示 | データ取得元 |
+|-|-|-|-|-|-|
+| ne-chip | 子のチップ | 値の操作の代わりに、見出し「中の値」と子のチップの列（pc-chip と同じ見た目と表示パターン。名前と今の値）を出す。例: decoration の color・borderRadius・border・boxShadow・gradient・shape。foregroundDecoration は color・border | 有 | 最初の ON の子（なければ最初の子） | ローカルアセット（収録データの `children`） |
+| ne-sw | 子の ON/OFF | 選んだ子のスイッチ（ed-swch と同じ）。親が OFF なら子は効かない | 有 | 子の収録データに従う | ローカルアセット |
+| ne-valu | 子の値の操作 | 選んだ子の型ごとの部品（ed-valu と同じ）。OFF のときは非活性 | 有 | 子の最初の値 | ユーザー入力 |
+| ne-line | 帯の子の行 | 子を選んでいる間、cs-line に選んだ子の 1 行を出す（例: `borderRadius: BorderRadius.circular(12.0),`）。子が OFF なら「// decoration.borderRadius は指定なし（既定値）」（名前は `親.子`） | 有 | - | - |
+
+- コードの全文は、`decoration: BoxDecoration(` の次の行から ON の子を 1 行ずつ字下げして書き、`),` で閉じる。ON の子がなければ `decoration: const BoxDecoration(),`
+- 子に `omitIf` があるものは、条件に当たる間コードにも書かず、プレビューにも渡さない（Container は decoration の shape が circle の間、borderRadius を渡さない）。top-level でも同じで、color は decoration が ON の間、clipBehavior は decoration が OFF の間は渡さない（プレビューは `Clip.none`）
+- 比べるのは、選んだ子 1 つの付けた／付けない（`ComparingProperty(name, child: 子)`）
+
+#### アクション一覧
+
+| ID | 起動動作 | 内容（状態変化含む） |
+|-|-|-|
+| ne-chip | タップ | その子を選び、ne-sw・ne-valu・ne-line を切り替える。比較中ならやめる |
+| ne-sw | タップ | 子の ON/OFF を切り替え、プレビュー・子のチップ・コードにすぐ反映する |
+| ne-valu | 値の操作 | プレビュー・子のチップ・コードにすぐ反映する |
+
+### rf_補足
+
+#### 項目一覧
+
+| ID | 項目名 | 内容 | 状態変化の有無 | 初期表示 | データ取得元 |
+|-|-|-|-|-|-|
+| rf-ttle | 見出し | 「見た目が変わらない引数」（title3）と、その下に「触っても見た目は変わりません。コードを書くときの手がかりに載せています。」（subheadline、ink-secondary） | 無 | 補足のタブを開いたとき | - |
+| rf-list | 一覧 | 引数ごとに 1 行。名前（headline）・型（footnote、ink-secondary）・一言の説明（subheadline）。読むだけで、押せず、ON/OFF も値の操作もない（例: Container の `key`） | 無 | 収録データの `references` の順 | ローカルアセット（収録データの `references`） |
+
+補足のタブを開いている間は、チップの列と編集パネルの代わりに rf を出し、「比べる」「既定に戻す」を出さない。コードの帯は最後に選んでいたプロパティの行のまま。
 
 ### ed_編集パネル
 
@@ -266,6 +358,7 @@ flowchart TB
 | ed-valu | 値の操作 | 型ごとの部品（下の表示パターン）。OFF のときは非活性 | 有 | 収録データの最初の値 | ユーザー入力 |
 | ed-cmpr | 比べる | `FilledButton.tonal`「比べる」と⇅のアイコン。比較中は地が `accent` で「比べるのをやめる」。見た目を持たない Widget は「使わない場合と比べる」 | 有 | 表示 | - |
 | ed-dflt | 既定に戻す | `TextButton`「既定に戻す」と↺のアイコン。このプロパティだけを最初の値に戻す | 有 | 非活性 | - |
+| ed-rel | 関係の行・知らせ | 値の操作の下に rl の行（関係があるときだけ）。知らせ（rl-note）は出ている間だけ | 有 | 関係があるときだけ | ローカルアセット（収録データ） |
 | ed-none | プロパティがない | 「この Widget には変えられるプロパティがありません」（例: 子を受け取るだけの Widget）。チップの列と比べるも出さない | 有 | プロパティが 0 件のときだけ | - |
 
 #### アクション一覧
@@ -376,6 +469,18 @@ flowchart TB
 | 説明の見出し | {Widget 名} について |
 | 公式ドキュメント | 公式ドキュメントを開く |
 | リンクのエラー | ブラウザを開けませんでした |
+| 仲間のタブ | 大きさ／余白／配置／色と装飾／変形／文字／挙動／中身 |
+| 仲間を決めていない収録のタブ（補足があるときだけ） | プロパティ |
+| 補足のタブ | 補足 |
+| タブの読み上げ | {仲間}、ON が {n} 件 |
+| 入れ子の子のチップの見出し | 中の値 |
+| 関係の行（組で使う） | {相手} と組で使うことが多い |
+| 関係の行（ON のときだけ効く） | {相手} が ON のときだけ効く（今は OFF） |
+| 関係の行（同時に使えない） | {相手} と同時には使えない |
+| 同時に使えない組の知らせ | {ON にした側} と同時には使えないので {OFF にした側} を OFF にしました |
+| 補足の見出し | 見た目が変わらない引数 |
+| 補足の説明 | 触っても見た目は変わりません。コードを書くときの手がかりに載せています。 |
+| 子が OFF のときの帯 | // {親}.{子} は指定なし（既定値） |
 
 ## 実装時の考慮事項
 
@@ -386,8 +491,9 @@ flowchart TB
 - 文字サイズの拡大: OS の設定に Flutter が合わせる（`MediaQuery.textScaler`）。この画面で個別の対応はしない
 - タブレット: 1 カラムのまま、本文の最大幅を 640 にして中央に置く
 - アクセシビリティ:
-  - 読み上げの順は 戻る → 題 → 説明 → 初期状態に戻す → プレビュー → コードの帯 →（ログの帯）→ チップ → 編集パネル
+  - 読み上げの順は 戻る → 題 → 説明 → 初期状態に戻す → プレビュー → コードの帯 →（ログの帯）→ 仲間のタブ → チップ → 編集パネル
   - 回数の印は「読む子、build 4 回」と読む。光る動きは読み上げない。ログの帯は「ログ、12 件、最新: 読む子を build。ボタン」と読む
+  - タブは「大きさ、ON が 2 件。ボタン」と読み、読み上げのタップ操作で押せる。同時に使えない組の知らせはライブリージョンで読み上げる。薄いチップも名前と値は同じように読む
   - チップは「padding、16、選択中。ボタン」「width、既定。ボタン」のように読む
   - 比較のラベルは文言とアイコンで示し、色だけに頼らない。比較中のプレビューは「付けた、color、瑠璃」「付けない」と読む
   - 仕切りはドラッグのほかに、読み上げの調整操作（`Semantics` の increase / decrease）で 10% ずつ動かせる

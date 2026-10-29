@@ -37,11 +37,11 @@
 | `pairsWith` | `List<String>` | 組で使うことが多い相手（プロパティ名）。向きは問わない | width ↔ height |
 | `requires` | `String?` | これが ON でないと効かない相手 | transformAlignment → transform |
 | `excludes` | `List<String>` | 同時には使えない相手。両方向に書く（全件のテストで見張る） | color ✕ decoration |
-| `children` | `List<PropertySpec>` | 入れ子の中身。空でなければ入れ子のプロパティ | decoration → color・borderRadius・border・boxShadow・gradient・shape |
+| `children` | `List<PropertySpec>` | 入れ子の中身。空でなければ入れ子のプロパティ。実体は `NestedControl.children` で、`PropertySpec.children` はその近道 | decoration → color・borderRadius・border・boxShadow・gradient・shape |
 
 - 入れ子のプロパティの値は、ON の子の値から組み立てる関数（`NestedControl`）で作る。例: `BoxDecoration(color: …, borderRadius: …)`
 - 入れ子のプロパティのコードは、`decoration: BoxDecoration(` の次の行から ON の子を 1 行ずつ字下げして書き、`),` で閉じる。ON の子がなければ `decoration: const BoxDecoration(),`
-- 既存の `omitIf`（値の組み合わせで渡さない。NavigationRail の extended が true の間の labelType）は残す。`excludes` は ON・OFF の段階でぶつかるもの、`omitIf` は値によってぶつかるもの
+- 既存の `omitIf`（値の組み合わせで渡さない。NavigationRail の extended が true の間の labelType）は残し、入れ子の子にも効かせる（Container は decoration の shape が circle の間 borderRadius を渡さない）。`excludes` は ON・OFF の段階でぶつかるもの、`omitIf` は値によってぶつかるもの
 - 既存の `PropertyArg.nested` と `WidgetEntry.codeNest`（MediaQuery の `copyWith`）は、見た目を持たない Widget の入れ子の式のまま残す。`children` は引数の値そのものが入れ子のもの
 
 ### PropertyGroup
@@ -90,6 +90,7 @@
 
 ### 同時に使えない組
 
+- ON になる操作（スイッチ・既定に戻す・比較の付けた側）では、相手を OFF にする
 - 片方を ON にすると、もう片方を OFF にし、パネルに「decoration と同時には使えないので color を OFF にしました」を 3 秒ほど出す
 - OFF にした側の値は覚えておく（今の OFF と同じ）
 

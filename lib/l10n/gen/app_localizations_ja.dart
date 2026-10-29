@@ -125,6 +125,9 @@ class AppLocalizationsJa extends AppLocalizations {
   String get detailChipSelected => '選択中';
 
   @override
+  String get detailChipInactive => '今は効かない';
+
+  @override
   String get detailCompare => '比べる';
 
   @override
@@ -135,6 +138,9 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get detailRequired => '必須';
+
+  @override
+  String get detailNestedLabel => '中の値';
 
   @override
   String detailToggleLabel(String name) {
@@ -222,4 +228,62 @@ class AppLocalizationsJa extends AppLocalizations {
   String probeLogSemantics(int count, String latest) {
     return 'ログ、$count 件、最新: $latest';
   }
+
+  @override
+  String get detailGroupSize => '大きさ';
+
+  @override
+  String get detailGroupSpacing => '余白';
+
+  @override
+  String get detailGroupLayout => '配置';
+
+  @override
+  String get detailGroupPaint => '色と装飾';
+
+  @override
+  String get detailGroupTransform => '変形';
+
+  @override
+  String get detailGroupText => '文字';
+
+  @override
+  String get detailGroupBehavior => '挙動';
+
+  @override
+  String get detailGroupContent => '中身';
+
+  @override
+  String get detailGroupAll => 'プロパティ';
+
+  @override
+  String get detailTabReferences => '補足';
+
+  @override
+  String detailTabOnCount(String group, int count) {
+    return '$group、ON が $count 件';
+  }
+
+  @override
+  String get detailRelationPairs => 'と組で使うことが多い';
+
+  @override
+  String get detailRelationRequires => 'が ON のときだけ効く';
+
+  @override
+  String get detailRelationRequiresOff => '（今は OFF）';
+
+  @override
+  String get detailRelationExcludes => 'と同時には使えない';
+
+  @override
+  String detailExclusionNotice(String on, String off) {
+    return '$on と同時には使えないので、$off を OFF にしました';
+  }
+
+  @override
+  String get detailReferencesTitle => '見た目が変わらない引数';
+
+  @override
+  String get detailReferencesNote => '触っても見た目は変わりません。コードを書くときの手がかりに載せています。';
 }

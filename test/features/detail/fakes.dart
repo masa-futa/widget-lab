@@ -7,6 +7,8 @@ import 'package:widget_lab/catalog/layout/padding.dart';
 import 'package:widget_lab/catalog/model/genre.dart';
 import 'package:widget_lab/catalog/model/choice.dart';
 import 'package:widget_lab/catalog/model/property_control.dart';
+import 'package:widget_lab/catalog/model/property_group.dart';
+import 'package:widget_lab/catalog/model/reference_arg.dart';
 import 'package:widget_lab/catalog/model/property_spec.dart';
 import 'package:widget_lab/catalog/model/widget_entry.dart';
 import 'package:widget_lab/core/data/catalog_repository.dart';
@@ -170,4 +172,89 @@ final behaviorWithCodeEntry = WidgetEntry(
   codeName: 'BehaviorCode',
   codeWithout:
       'class Plain extends StatefulWidget {\n  // listen して setState\n}',
+);
+
+/// 仲間・関係・入れ子・補足を持つ試しの収録データ（DetailNotifier と画面のテスト用）。
+final relationEntry = WidgetEntry(
+  id: 'relation',
+  name: 'Relation',
+  genreIds: const ['basics'],
+  summary: '',
+  description: '',
+  docUrl: Uri.parse('https://api.flutter.dev/'),
+  properties: [
+    const PropertySpec(
+      name: 'width',
+      typeLabel: 'double?',
+      description: '',
+      group: PropertyGroup.size,
+      pairsWith: ['height'],
+      control: SwitchControl(initialValue: true),
+    ),
+    const PropertySpec(
+      name: 'height',
+      typeLabel: 'double?',
+      description: '',
+      group: PropertyGroup.size,
+      initiallyOn: false,
+      pairsWith: ['width'],
+      control: SwitchControl(initialValue: true),
+    ),
+    const PropertySpec(
+      name: 'color',
+      typeLabel: 'Color?',
+      description: '',
+      group: PropertyGroup.paint,
+      excludes: ['decoration'],
+      control: SwitchControl(initialValue: true),
+    ),
+    PropertySpec(
+      name: 'decoration',
+      typeLabel: 'Decoration?',
+      description: '',
+      group: PropertyGroup.paint,
+      initiallyOn: false,
+      excludes: const ['color'],
+      control: NestedControl(
+        typeName: 'BoxDecoration',
+        children: const [
+          PropertySpec(
+            name: 'shadow',
+            typeLabel: 'bool',
+            description: '',
+            control: SwitchControl(initialValue: true),
+          ),
+          PropertySpec(
+            name: 'round',
+            typeLabel: 'bool',
+            description: '',
+            initiallyOn: false,
+            control: SwitchControl(initialValue: true),
+          ),
+        ],
+        build: (values) => const BoxDecoration(),
+      ),
+    ),
+    const PropertySpec(
+      name: 'transform',
+      typeLabel: 'Matrix4?',
+      description: '',
+      group: PropertyGroup.transform,
+      initiallyOn: false,
+      control: SwitchControl(initialValue: true),
+    ),
+    const PropertySpec(
+      name: 'transformAlignment',
+      typeLabel: 'AlignmentGeometry?',
+      description: '',
+      group: PropertyGroup.transform,
+      requires: 'transform',
+      control: SwitchControl(initialValue: true),
+    ),
+  ],
+  references: const [
+    ReferenceArg(name: 'key', typeLabel: 'Key?', description: '見分ける印'),
+  ],
+  build: (args) => const SizedBox(),
+  codeName: 'Relation',
 );

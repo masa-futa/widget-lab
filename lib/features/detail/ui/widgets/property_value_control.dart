@@ -69,6 +69,8 @@ class PropertyValueControl extends StatelessWidget {
         style: NimiTextStyles.of(context).code
             .copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant),
       ),
+      // 入れ子は編集パネルの NestedEditor が子のチップと子の操作を出す
+      (NestedControl(), NestedValue()) => const SizedBox.shrink(),
       _ => const SizedBox.shrink(),
     };
   }

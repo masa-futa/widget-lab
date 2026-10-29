@@ -224,6 +224,10 @@
   "@detailChipSelected": {
     "description": "選んでいるチップの読み上げ"
   },
+  "detailChipInactive": "今は効かない",
+  "@detailChipInactive": {
+    "description": "requires の相手が OFF で効かないチップの読み上げ"
+  },
   "detailCompare": "比べる",
   "@detailCompare": {
     "description": "編集パネルの比べるボタン"
@@ -240,6 +244,8 @@
   "@detailRequired": {
     "description": "必須のプロパティの印（スイッチの代わり）"
   },
+  "detailNestedLabel": "中の値",
+  "@detailNestedLabel": { "description": "入れ子のプロパティの子のチップの列の見出し" },
   "detailToggleLabel": "{name} を付ける",
   "@detailToggleLabel": {
     "description": "プロパティの ON/OFF のスイッチの読み上げ",
@@ -401,5 +407,53 @@
         "example": "読む子を build（4 回目）"
       }
     }
-  }
+  },
+  "detailGroupSize": "大きさ",
+  "@detailGroupSize": { "description": "仲間のタブ" },
+  "detailGroupSpacing": "余白",
+  "@detailGroupSpacing": { "description": "仲間のタブ" },
+  "detailGroupLayout": "配置",
+  "@detailGroupLayout": { "description": "仲間のタブ" },
+  "detailGroupPaint": "色と装飾",
+  "@detailGroupPaint": { "description": "仲間のタブ" },
+  "detailGroupTransform": "変形",
+  "@detailGroupTransform": { "description": "仲間のタブ" },
+  "detailGroupText": "文字",
+  "@detailGroupText": { "description": "仲間のタブ" },
+  "detailGroupBehavior": "挙動",
+  "@detailGroupBehavior": { "description": "仲間のタブ" },
+  "detailGroupContent": "中身",
+  "@detailGroupContent": { "description": "仲間のタブ" },
+  "detailGroupAll": "プロパティ",
+  "@detailGroupAll": { "description": "仲間を決めていない収録のタブ（補足があるときだけ出る）" },
+  "detailTabReferences": "補足",
+  "@detailTabReferences": { "description": "見た目が変わらない引数のタブ" },
+  "detailTabOnCount": "{group}、ON が {count} 件",
+  "@detailTabOnCount": {
+    "description": "タブの読み上げ",
+    "placeholders": {
+      "group": { "type": "String", "example": "大きさ" },
+      "count": { "type": "int", "example": "2" }
+    }
+  },
+  "detailRelationPairs": "と組で使うことが多い",
+  "@detailRelationPairs": { "description": "関係の行。前に相手のプロパティ名のリンク" },
+  "detailRelationRequires": "が ON のときだけ効く",
+  "@detailRelationRequires": { "description": "関係の行。前に相手のプロパティ名のリンク" },
+  "detailRelationRequiresOff": "（今は OFF）",
+  "@detailRelationRequiresOff": { "description": "関係の行。相手が OFF のときに後ろに足す" },
+  "detailRelationExcludes": "と同時には使えない",
+  "@detailRelationExcludes": { "description": "関係の行。前に相手のプロパティ名のリンク" },
+  "detailExclusionNotice": "{on} と同時には使えないので、{off} を OFF にしました",
+  "@detailExclusionNotice": {
+    "description": "同時に使えない相手を OFF にした知らせ",
+    "placeholders": {
+      "on": { "type": "String", "example": "decoration" },
+      "off": { "type": "String", "example": "color" }
+    }
+  },
+  "detailReferencesTitle": "見た目が変わらない引数",
+  "@detailReferencesTitle": { "description": "補足のタブの見出し" },
+  "detailReferencesNote": "触っても見た目は変わりません。コードを書くときの手がかりに載せています。",
+  "@detailReferencesNote": { "description": "補足のタブの説明" }
 }

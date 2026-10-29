@@ -4,6 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:widget_lab/catalog/async/stream_builder.dart';
 import 'package:widget_lab/catalog/basics/container.dart';
 import 'package:widget_lab/catalog/demo/rebuild_counter.dart';
+import 'package:widget_lab/catalog/model/property_group.dart';
 import 'package:widget_lab/catalog/scrolling/notification_listener.dart';
 import 'package:widget_lab/catalog/styling/media_query.dart';
 import 'package:widget_lab/core/data/catalog_repository.dart';
@@ -16,8 +17,10 @@ import 'package:widget_lab/features/detail/ui/probe/log_strip.dart';
 import 'package:widget_lab/features/detail/ui/widgets/code_strip.dart';
 import 'package:widget_lab/features/detail/ui/widgets/compare_preview.dart';
 import 'package:widget_lab/features/detail/ui/widgets/editor_panel.dart';
+import 'package:widget_lab/features/detail/ui/widgets/group_tabs.dart';
 import 'package:widget_lab/features/detail/ui/widgets/preview_card.dart';
 import 'package:widget_lab/features/detail/ui/widgets/property_chip.dart';
+import 'package:widget_lab/features/detail/ui/widgets/property_value_control.dart';
 import 'package:widget_lab/features/detail/view_model/probe_notifier.dart';
 import 'package:widget_lab/features/detail/view_model/probe_state.dart';
 import 'package:widget_lab/l10n/gen/app_localizations.dart';
@@ -88,7 +91,23 @@ void main() {
       .last
       .data!;
 
+  /// [name] のチップがいま見えていなければ、それを持つ仲間のタブを順に開いて探す
+  /// （チップは選んでいる仲間の分だけ並ぶ）。
+  Future<void> openTabOf(WidgetTester tester, String name) async {
+    if (chip(name).evaluate().isNotEmpty) return;
+    final tabs = find.descendant(
+      of: find.byType(GroupTabs),
+      matching: find.byType(InkWell),
+    );
+    for (var i = 0; i < tabs.evaluate().length; i++) {
+      await tester.tap(tabs.at(i));
+      await tester.pumpAndSettle();
+      if (chip(name).evaluate().isNotEmpty) return;
+    }
+  }
+
   Future<void> select(WidgetTester tester, String name) async {
+    await openTabOf(tester, name);
     await tester.ensureVisible(chip(name));
     await tester.pumpAndSettle();
     await tester.tap(chip(name));
@@ -145,8 +164,11 @@ void main() {
     expect(tester.widget<PropertyChip>(chip('padding')).selected, isTrue);
     expect(inPanel(find.text('padding')), findsOneWidget);
     expect(stripText(tester), 'padding: EdgeInsets.all(16.0),');
-    // チップは収録データの順に全部
-    expect(find.byType(PropertyChip), findsNWidgets(7));
+    // チップは選んでいる仲間（余白）の分だけ、収録データの順に
+    final spacingCount = containerEntry.properties
+        .where((spec) => spec.group == PropertyGroup.spacing)
+        .length;
+    expect(find.byType(PropertyChip), findsNWidgets(spacingCount));
   });
 
   testWidgets('TC-17: padding を OFF にすると余白がなくなり、チップが「既定」、帯が指定なし', (
@@ -445,16 +467,16 @@ void main() {
   });
 
   testWidgets('初期状態に戻すと、画面の外の最初のチップを見える位置まで送る', (tester) async {
-    await pumpDetail(tester, 'container');
-    await select(tester, 'child');
+    await pumpDetail(tester, 'text');
+    await select(tester, 'overflow');
     await toggle(tester);
-    expect(tester.getRect(chip('padding')).right, lessThan(0));
+    expect(tester.getRect(chip('data')).right, lessThan(0));
 
     await tester.tap(find.byTooltip('初期状態に戻す'));
     await tester.pumpAndSettle();
 
     final screen = tester.getRect(find.byType(DetailScreen));
-    expect(screen.contains(tester.getRect(chip('padding')).center), isTrue);
+    expect(screen.contains(tester.getRect(chip('data')).center), isTrue);
   });
 
   group('コードの帯', () {
@@ -614,6 +636,20 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(tester.takeException(), isNull);
+      expect(
+        tester.getSize(find.byKey(DetailScreen.panelAreaKey)).height,
+        greaterThanOrEqualTo(96),
+      );
+    });
+
+    testWidgets('仲間のタブがある Container を低い画面で開いても、はみ出さず編集パネルが残る', (tester) async {
+      await pumpDetail(tester, 'container');
+      // 874×402 の横向き
+      tester.view.physicalSize = const Size(2622, 1206);
+      await tester.pumpAndSettle();
+
+      expect(tester.takeException(), isNull);
+      expect(find.byType(GroupTabs), findsOneWidget);
       expect(
         tester.getSize(find.byKey(DetailScreen.panelAreaKey)).height,
         greaterThanOrEqualTo(96),
@@ -1287,6 +1323,186 @@ void main() {
       expect(logs, contains('外: ScrollUpdateNotification'));
       expect(logs.where((text) => text.startsWith('内:')), isEmpty);
       expect(logsOf(tester), isEmpty);
+    });
+  });
+
+  group('仲間のタブ（TC-84）', () {
+    testWidgets('タブと ON の数が出て、開いたときは最初の ON の仲間', (tester) async {
+      await pumpDetail(tester, 'container');
+      expect(find.byType(GroupTabs), findsOneWidget);
+      expect(find.bySemanticsLabel('余白、ON が 1 件'), findsOneWidget);
+      // 最初の ON は padding（余白）
+      expect(find.widgetWithText(PropertyChip, 'padding'), findsOneWidget);
+      expect(find.widgetWithText(PropertyChip, 'width'), findsNothing);
+    });
+
+    testWidgets('タブを替えると、その仲間のチップだけになる', (tester) async {
+      await pumpDetail(tester, 'container');
+      await tester.tap(find.text('大きさ'));
+      await tester.pumpAndSettle();
+      expect(find.widgetWithText(PropertyChip, 'width'), findsOneWidget);
+      expect(find.widgetWithText(PropertyChip, 'padding'), findsNothing);
+    });
+
+    testWidgets('読み上げの操作で仲間のタブを押せる', (tester) async {
+      final handle = tester.ensureSemantics();
+      await pumpDetail(tester, 'container');
+      tester.semantics.tap(find.semantics.byLabel('大きさ、ON が 0 件'));
+      await tester.pumpAndSettle();
+      expect(find.widgetWithText(PropertyChip, 'width'), findsOneWidget);
+      expect(find.widgetWithText(PropertyChip, 'padding'), findsNothing);
+      handle.dispose();
+    });
+
+    testWidgets('requires の相手が OFF のチップは薄い', (tester) async {
+      await pumpDetail(tester, 'container');
+      await tester.tap(find.text('変形'));
+      await tester.pumpAndSettle();
+      final chip = tester.widget<PropertyChip>(
+        find.widgetWithText(PropertyChip, 'transformAlignment'),
+      );
+      expect(chip.dimmed, isTrue);
+      final dimmedOpacity = tester.widget<Opacity>(
+        find.descendant(
+          of: find.widgetWithText(PropertyChip, 'transformAlignment'),
+          matching: find.byType(Opacity),
+        ),
+      );
+      expect(dimmedOpacity.opacity, 0.5);
+      final normalOpacity = tester.widget<Opacity>(
+        find.descendant(
+          of: find.widgetWithText(PropertyChip, 'transform'),
+          matching: find.byType(Opacity),
+        ),
+      );
+      expect(normalOpacity.opacity, 1);
+    });
+  });
+
+  group('関係の行（TC-85）', () {
+    testWidgets('組で使う相手を押すと、相手のタブとチップに移る', (tester) async {
+      await pumpDetail(tester, 'container');
+      await select(tester, 'width');
+      expect(find.text('と組で使うことが多い'), findsOneWidget);
+      await tester.tap(find.widgetWithText(TextButton, 'height'));
+      await tester.pumpAndSettle();
+      final selected = tester.widget<PropertyChip>(
+        find.widgetWithText(PropertyChip, 'height'),
+      );
+      expect(selected.selected, isTrue);
+    });
+
+    testWidgets('requires の相手が OFF なら「今は OFF」', (tester) async {
+      await pumpDetail(tester, 'container');
+      await select(tester, 'transformAlignment');
+      expect(find.text('が ON のときだけ効く（今は OFF）'), findsOneWidget);
+    });
+
+    testWidgets('同時に使えない組の知らせが出て、3 秒で消える', (tester) async {
+      await pumpDetail(tester, 'container');
+      await select(tester, 'decoration');
+      await tester.tap(find.bySemanticsLabel('decoration を付ける'));
+      await tester.pumpAndSettle();
+      expect(
+        find.text('decoration と同時には使えないので、color を OFF にしました'),
+        findsOneWidget,
+      );
+      await tester.pump(const Duration(seconds: 3));
+      await tester.pumpAndSettle();
+      expect(find.textContaining('同時には使えないので'), findsNothing);
+    });
+  });
+
+  group('入れ子（TC-86）', () {
+    testWidgets('decoration を選ぶと子のチップが並び、帯は選んだ子の行', (tester) async {
+      await pumpDetail(tester, 'container');
+      await tester.tap(find.text('色と装飾'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.widgetWithText(PropertyChip, 'decoration'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.bySemanticsLabel('decoration を付ける'));
+      await tester.pumpAndSettle();
+      expect(find.text('中の値'), findsOneWidget);
+      expect(find.widgetWithText(PropertyChip, 'borderRadius'), findsOneWidget);
+      await tester.tap(find.widgetWithText(PropertyChip, 'borderRadius'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.bySemanticsLabel('borderRadius を付ける'));
+      await tester.pumpAndSettle();
+      expect(
+        find.textContaining('borderRadius: BorderRadius.circular('),
+        findsOneWidget,
+      );
+    });
+  });
+
+  group('入れ子の親が OFF（TC-86）', () {
+    Future<void> openDecoration(WidgetTester tester) async {
+      await pumpDetail(tester, 'container');
+      await select(tester, 'decoration');
+    }
+
+    testWidgets('子のスイッチと値の操作は押せず、子のチップは選べる', (tester) async {
+      await openDecoration(tester);
+      // 親は OFF のまま。子のスイッチは編集パネルの 2 つ目
+      expect(
+        tester.widget<Switch>(inPanel(find.byType(Switch)).last).onChanged,
+        isNull,
+      );
+      final control = tester.widget<PropertyValueControl>(
+        inPanel(find.byType(PropertyValueControl)),
+      );
+      expect(control.enabled, isFalse);
+
+      await tester.tap(find.widgetWithText(PropertyChip, 'borderRadius'));
+      await tester.pumpAndSettle();
+      final chip = tester.widget<PropertyChip>(
+        find.widgetWithText(PropertyChip, 'borderRadius'),
+      );
+      expect(chip.selected, isTrue);
+    });
+
+    testWidgets('子を選んで OFF なら、帯は decoration.<子> の指定なし', (tester) async {
+      await openDecoration(tester);
+      await tester.tap(find.widgetWithText(PropertyChip, 'borderRadius'));
+      await tester.pumpAndSettle();
+      expect(stripText(tester), '// decoration.borderRadius は指定なし（既定値）');
+    });
+
+    testWidgets('子を比べると、読み上げは「親.子」の名前で子の値を言う', (tester) async {
+      final handle = tester.ensureSemantics();
+      await openDecoration(tester);
+      await tester.tap(find.widgetWithText(PropertyChip, 'borderRadius'));
+      await tester.pumpAndSettle();
+      await tester.ensureVisible(inPanel(find.text('比べる')));
+      await tester.tap(inPanel(find.text('比べる')));
+      await tester.pumpAndSettle();
+
+      expect(find.byType(ComparePreview), findsOneWidget);
+      expect(
+        find.bySemanticsLabel(RegExp(r'^付けた、decoration\.borderRadius、')),
+        findsOneWidget,
+      );
+      handle.dispose();
+    });
+  });
+
+  group('補足（TC-89）', () {
+    testWidgets('補足のタブで、見た目が変わらない引数の一覧を出し、比べるを出さない', (tester) async {
+      await pumpDetail(tester, 'container');
+      await tester.scrollUntilVisible(
+        find.text('補足'),
+        100,
+        scrollable: find.descendant(
+          of: find.byType(GroupTabs),
+          matching: find.byType(Scrollable),
+        ),
+      );
+      await tester.tap(find.text('補足'));
+      await tester.pumpAndSettle();
+      expect(find.text('見た目が変わらない引数'), findsOneWidget);
+      expect(find.text('key'), findsOneWidget);
+      expect(find.byType(PropertyChip), findsNothing);
+      expect(find.text('比べる'), findsNothing);
     });
   });
 }

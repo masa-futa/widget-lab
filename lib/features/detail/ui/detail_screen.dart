@@ -14,7 +14,9 @@ import 'package:widget_lab/features/detail/ui/widgets/code_strip.dart';
 import 'package:widget_lab/features/detail/ui/widgets/detail_preview.dart';
 import 'package:widget_lab/features/detail/ui/widgets/detail_sheet.dart';
 import 'package:widget_lab/features/detail/ui/widgets/editor_panel.dart';
+import 'package:widget_lab/features/detail/ui/widgets/group_tabs.dart';
 import 'package:widget_lab/features/detail/ui/widgets/property_chips.dart';
+import 'package:widget_lab/features/detail/ui/widgets/reference_list.dart';
 import 'package:widget_lab/features/detail/view_model/comparing.dart';
 import 'package:widget_lab/features/detail/view_model/detail_notifier.dart';
 import 'package:widget_lab/l10n/gen/app_localizations.dart';
@@ -52,6 +54,7 @@ class DetailScreen extends ConsumerWidget {
     final hasProperties = ref.watch(
       provider.select((s) => s.entry.properties.isNotEmpty),
     );
+    final showsTabs = ref.watch(provider.select((s) => s.showsTabs));
     final showsLogStrip = ref.watch(
       provider.select((s) => s.entry.kind == EntryKind.behavior),
     );
@@ -65,7 +68,8 @@ class DetailScreen extends ConsumerWidget {
         (hasProperties
             ? textScaler.scale(_stripHeight) +
                   textScaler.scale(_chipsHeight) +
-                  spacing.xs * 3
+                  spacing.xs * 3 +
+                  (showsTabs ? textScaler.scale(GroupTabs.height) : 0)
             : spacing.xs) +
         (showsLogStrip ? textScaler.scale(LogStrip.height) + spacing.xs : 0);
     return Scaffold(
@@ -132,6 +136,7 @@ class DetailScreen extends ConsumerWidget {
                       ),
                     ),
                   ],
+                  if (showsTabs) GroupTabs(entryId: entryId),
                   if (hasProperties) ...[
                     Gap(spacing.xs),
                     PropertyChips(entryId: entryId),
@@ -159,14 +164,19 @@ class _SelectedCodeStrip extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final selected = ref.watch(
-      detailProvider(entryId).select((s) => s.selected),
+    final (selected, child) = ref.watch(
+      detailProvider(entryId).select((s) => (s.selected, s.selectedChild)),
     );
     final lines = ref.watch(detailCodeProvider(entryId));
     if (selected == null) return const SizedBox.shrink();
+    final childKey = child == null ? null : '$selected.$child';
+    // 子を選んでいるときは子の行。なければ（OFF など）子の指定なしとして出す
+    final line = childKey == null
+        ? lines.where((l) => l.property == selected).firstOrNull
+        : lines.where((l) => l.property == childKey).firstOrNull;
     return CodeStrip(
-      propertyName: selected,
-      line: lines.where((line) => line.property == selected).firstOrNull,
+      propertyName: childKey ?? selected,
+      line: line,
       onTap: () => showDetailSheet(context, (_) => CodeSheet(entryId: entryId)),
     );
   }
@@ -208,7 +218,12 @@ class _PanelAreaState extends ConsumerState<_PanelArea> {
         color: Theme.of(context).colorScheme.surfaceContainer,
         borderRadius: BorderRadius.vertical(top: radius),
       ),
-      child: spec == null
+      child: state.showsReferences
+          ? SingleChildScrollView(
+              padding: EdgeInsets.all(spacing.md),
+              child: ReferenceList(references: state.entry.references),
+            )
+          : spec == null
           ? Center(
               child: Padding(
                 padding: EdgeInsets.all(spacing.md),
@@ -247,6 +262,16 @@ class _PanelAreaState extends ConsumerState<_PanelArea> {
                   onCompareTapped: () => notifier.compareTapped(spec.name),
                   onDefaultTapped: () =>
                       notifier.propertyDefaultTapped(spec.name),
+                  effective: state.isEffective(spec.name),
+                  notice: state.notice,
+                  onRelationTapped: notifier.propertySelected,
+                  onNoticeDismissed: notifier.noticeDismissed,
+                  selectedChild: state.selectedChild,
+                  onChildSelected: notifier.childSelected,
+                  onChildToggled: (c, on) =>
+                      notifier.childToggled(spec.name, c, on),
+                  onChildValueChanged: (c, v) =>
+                      notifier.childValueChanged(spec.name, c, v),
                 ),
               ),
             ),

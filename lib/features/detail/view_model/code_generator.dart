@@ -1,3 +1,5 @@
+import 'package:widget_lab/catalog/model/control_value.dart';
+import 'package:widget_lab/catalog/model/property_control.dart';
 import 'package:widget_lab/catalog/model/property_setting.dart';
 import 'package:widget_lab/catalog/model/property_spec.dart';
 import 'package:widget_lab/catalog/model/widget_entry.dart';
@@ -73,8 +75,7 @@ class CodeGenerator {
           (spec.name, '  ${_value(spec, settings)},'),
       ..._nested(entry, on, settings),
       for (final spec in on)
-        if (spec.arg == PropertyArg.named)
-          (spec.name, '  ${spec.name}: ${_value(spec, settings)},'),
+        if (spec.arg == PropertyArg.named) ..._namedArgument(spec, settings),
       for (final argument in entry.codeArguments) (null, '  $argument,'),
     ];
     if (arguments.isEmpty) return [(typeSpec?.name, '$head()')];
@@ -96,6 +97,35 @@ class CodeGenerator {
       for (final spec in inner)
         (spec.name, '    ${spec.name}: ${_value(spec, settings)},'),
       (null, '  ),'),
+    ];
+  }
+
+  /// 名前つきの引数。入れ子のプロパティは、ON の子を 1 行ずつ字下げして書く
+  /// （子の行のプロパティ名は `親.子`）。ON の子がなければ `const 型()` の 1 行。
+  List<(String?, String)> _namedArgument(
+    PropertySpec spec,
+    Map<String, PropertySetting> settings,
+  ) {
+    final control = spec.control;
+    if (control is! NestedControl) {
+      return [(spec.name, '  ${spec.name}: ${_value(spec, settings)},')];
+    }
+    final inner = switch (spec.valueIn(settings)) {
+      NestedValue(:final settings) => settings,
+      _ => const <String, PropertySetting>{},
+    };
+    final on = control.children.where((child) => child.isWrittenIn(inner));
+    if (on.isEmpty) {
+      return [(spec.name, '  ${spec.name}: const ${control.typeName}(),')];
+    }
+    return [
+      (spec.name, '  ${spec.name}: ${control.typeName}('),
+      for (final child in on)
+        (
+          '${spec.name}.${child.name}',
+          '    ${child.name}: ${child.control.code(child.valueIn(inner))},',
+        ),
+      (spec.name, '  ),'),
     ];
   }
 

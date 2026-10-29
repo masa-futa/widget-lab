@@ -1,6 +1,8 @@
 import 'package:widget_lab/catalog/model/choice.dart';
 import 'package:widget_lab/catalog/model/control_value.dart';
 import 'package:widget_lab/catalog/model/dart_code.dart';
+import 'package:widget_lab/catalog/model/property_setting.dart';
+import 'package:widget_lab/catalog/model/property_spec.dart';
 
 /// 画面の操作部品と、Widget に渡す値への写し方と、コードでの書き方をまとめたもの。
 ///
@@ -162,3 +164,50 @@ Choice _choiceAt(List<Choice> choices, ControlValue value) => switch (value) {
   ChoiceValue(:final index) => choices[index],
   _ => throw ArgumentError.value(value, 'value', 'ChoiceValue ではない'),
 };
+
+/// 入れ子のプロパティ（例: `decoration` の中の color・borderRadius）。
+/// 値は子の設定（[NestedValue]）で、ON の子の値から [build] で組み立てる。
+final class NestedControl extends PropertyControl {
+  const NestedControl({
+    required this.typeName,
+    required this.children,
+    required this._build,
+  });
+
+  /// 組み立てる型の名前（コードの `BoxDecoration(`）。
+  final String typeName;
+  final List<PropertySpec> children;
+  final Object Function(Map<String, Object> values) _build;
+
+  @override
+  NestedValue get initial => NestedValue({
+    for (final child in children) child.name: child.initialSetting,
+  });
+
+  @override
+  Object resolve(ControlValue value) {
+    final settings = _settingsOf(value);
+    return _build({
+      for (final child in children)
+        if (child.isWrittenIn(settings))
+          child.name: child.control.resolve(child.valueIn(settings)),
+    });
+  }
+
+  @override
+  String code(ControlValue value) {
+    final settings = _settingsOf(value);
+    final on = [
+      for (final child in children)
+        if (child.isWrittenIn(settings))
+          '${child.name}: ${child.control.code(child.valueIn(settings))}',
+    ];
+    return on.isEmpty ? 'const $typeName()' : '$typeName(${on.join(', ')})';
+  }
+
+  Map<String, PropertySetting> _settingsOf(ControlValue value) =>
+      switch (value) {
+        NestedValue(:final settings) => settings,
+        _ => throw ArgumentError.value(value, 'value', 'NestedValue ではない'),
+      };
+}

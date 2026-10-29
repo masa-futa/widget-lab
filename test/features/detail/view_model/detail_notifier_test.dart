@@ -5,6 +5,7 @@ import 'package:widget_lab/catalog/basics/container.dart';
 import 'package:widget_lab/catalog/basics/text.dart';
 import 'package:widget_lab/catalog/layout/padding.dart';
 import 'package:widget_lab/catalog/model/control_value.dart';
+import 'package:widget_lab/catalog/model/property_group.dart';
 import 'package:widget_lab/catalog/model/property_setting.dart';
 import 'package:widget_lab/core/data/catalog_repository.dart';
 import 'package:widget_lab/core/data/clipboard_client.dart';
@@ -12,6 +13,8 @@ import 'package:widget_lab/core/data/url_launcher_client.dart';
 import 'package:widget_lab/features/detail/view_model/code_generator.dart';
 import 'package:widget_lab/features/detail/view_model/comparing.dart';
 import 'package:widget_lab/features/detail/view_model/detail_notifier.dart';
+import 'package:widget_lab/features/detail/view_model/detail_state.dart';
+import 'package:widget_lab/features/detail/view_model/exclusion_notice.dart';
 import 'package:widget_lab/features/detail/view_model/probe_notifier.dart';
 import 'package:widget_lab/features/detail/view_model/probe_state.dart';
 
@@ -498,5 +501,234 @@ void main() {
       container.read(detailProvider('padding')).settings,
       paddingEntry.initialSettings(),
     );
+  });
+
+  group('仲間のタブ（TC-84）', () {
+    DetailNotifier notifierOf(ProviderContainer c) =>
+        c.read(detailProvider('relation').notifier);
+    DetailState stateOf(ProviderContainer c) =>
+        c.read(detailProvider('relation'));
+
+    test('開いたときは最初の ON のプロパティの仲間', () {
+      final c = makeContainer(
+        repository: FakeCatalogRepository([relationEntry]),
+      );
+      expect(stateOf(c).selected, 'width');
+      expect(stateOf(c).selectedGroup, PropertyGroup.size);
+      expect(stateOf(c).showsTabs, isTrue);
+    });
+
+    test('タブを替えると、その仲間の最初の ON のチップを選ぶ', () {
+      final c = makeContainer(
+        repository: FakeCatalogRepository([relationEntry]),
+      );
+      notifierOf(c).groupSelected(PropertyGroup.paint);
+      expect(stateOf(c).selected, 'color');
+      expect(stateOf(c).specsInSelectedGroup.map((s) => s.name), [
+        'color',
+        'decoration',
+      ]);
+    });
+
+    test('ON がない仲間は先頭のチップを選ぶ', () {
+      final c = makeContainer(
+        repository: FakeCatalogRepository([relationEntry]),
+      );
+      notifierOf(c).propertyToggled('transformAlignment', false);
+      notifierOf(c).groupSelected(PropertyGroup.transform);
+      expect(stateOf(c).selected, 'transform');
+    });
+
+    test('補足を開くと比較をやめ、チップを選ぶと補足を閉じる', () {
+      final c = makeContainer(
+        repository: FakeCatalogRepository([relationEntry]),
+      );
+      notifierOf(c).compareTapped('width');
+      notifierOf(c).referencesSelected();
+      expect(stateOf(c).showsReferences, isTrue);
+      expect(stateOf(c).comparing, isNull);
+      notifierOf(c).propertySelected('height');
+      expect(stateOf(c).showsReferences, isFalse);
+    });
+  });
+
+  group('関係（TC-85）', () {
+    DetailNotifier notifierOf(ProviderContainer c) =>
+        c.read(detailProvider('relation').notifier);
+    DetailState stateOf(ProviderContainer c) =>
+        c.read(detailProvider('relation'));
+
+    test('requires の相手が OFF なら効かない', () {
+      final c = makeContainer(
+        repository: FakeCatalogRepository([relationEntry]),
+      );
+      expect(stateOf(c).isEffective('transformAlignment'), isFalse);
+      notifierOf(c).propertyToggled('transform', true);
+      expect(stateOf(c).isEffective('transformAlignment'), isTrue);
+    });
+
+    test('requires の相手が omitIf で書かれないときも効かない', () {
+      final c = makeContainer(
+        repository: FakeCatalogRepository([containerEntry]),
+      );
+      final initial = c.read(detailProvider('container'));
+      final withColor = {
+        ...initial.settings,
+        'color': initial.settings['color']!.copyWith(on: true),
+        'decoration': initial.settings['decoration']!.copyWith(on: false),
+      };
+      expect(
+        initial.copyWith(settings: withColor).isEffective('isAntiAlias'),
+        isTrue,
+      );
+      // decoration が ON の間、color は ON でも書かれない
+      final withDecoration = {
+        ...withColor,
+        'decoration': withColor['decoration']!.copyWith(on: true),
+      };
+      expect(
+        initial.copyWith(settings: withDecoration).isEffective('isAntiAlias'),
+        isFalse,
+      );
+    });
+
+    test('既定に戻して ON になるときも、同時に使えない相手を OFF にして知らせる', () {
+      final c = makeContainer(
+        repository: FakeCatalogRepository([relationEntry]),
+      );
+      notifierOf(c)
+        ..propertyToggled('color', false)
+        ..propertyToggled('decoration', true)
+        ..propertyDefaultTapped('color'); // color は最初 ON
+      expect(stateOf(c).settings['color']!.on, isTrue);
+      expect(stateOf(c).settings['decoration']!.on, isFalse);
+      expect(
+        stateOf(c).notice,
+        const ExclusionNotice(turnedOn: 'color', turnedOff: 'decoration'),
+      );
+    });
+
+    test('同時に使えない相手を OFF にし、知らせを立てる', () {
+      final c = makeContainer(
+        repository: FakeCatalogRepository([relationEntry]),
+      );
+      notifierOf(c).propertyToggled('decoration', true);
+      expect(stateOf(c).settings['color']!.on, isFalse);
+      expect(
+        stateOf(c).notice,
+        const ExclusionNotice(turnedOn: 'decoration', turnedOff: 'color'),
+      );
+    });
+
+    test('OFF にした側の値は覚えておく', () {
+      final c = makeContainer(
+        repository: FakeCatalogRepository([relationEntry]),
+      );
+      final before = stateOf(c).settings['color']!.value;
+      notifierOf(c).propertyToggled('decoration', true);
+      expect(stateOf(c).settings['color']!.value, before);
+    });
+
+    test('相手がもとから OFF なら知らせない', () {
+      final c = makeContainer(
+        repository: FakeCatalogRepository([relationEntry]),
+      );
+      notifierOf(c).propertyToggled('color', false);
+      notifierOf(c).propertyToggled('decoration', true);
+      expect(stateOf(c).notice, isNull);
+    });
+
+    test('知らせは閉じられ、ほかの操作でも消える', () {
+      final c = makeContainer(
+        repository: FakeCatalogRepository([relationEntry]),
+      );
+      notifierOf(c).propertyToggled('decoration', true);
+      notifierOf(c).noticeDismissed();
+      expect(stateOf(c).notice, isNull);
+      notifierOf(c).propertyToggled('color', true);
+      notifierOf(c).propertySelected('width');
+      expect(stateOf(c).notice, isNull);
+    });
+  });
+
+  group('入れ子（TC-86）', () {
+    DetailNotifier notifierOf(ProviderContainer c) =>
+        c.read(detailProvider('relation').notifier);
+    DetailState stateOf(ProviderContainer c) =>
+        c.read(detailProvider('relation'));
+
+    test('入れ子のプロパティを選ぶと、最初の ON の子を選ぶ', () {
+      final c = makeContainer(
+        repository: FakeCatalogRepository([relationEntry]),
+      );
+      notifierOf(c).propertySelected('decoration');
+      expect(stateOf(c).selectedChild, 'shadow');
+    });
+
+    test('子の ON/OFF と値を変える', () {
+      final c = makeContainer(
+        repository: FakeCatalogRepository([relationEntry]),
+      );
+      notifierOf(c).childToggled('decoration', 'round', true);
+      notifierOf(c)
+          .childValueChanged('decoration', 'round', const SwitchValue(false));
+      final value = stateOf(c).settings['decoration']!.value as NestedValue;
+      expect(
+        value.settings['round'],
+        const PropertySetting(on: true, value: SwitchValue(false)),
+      );
+    });
+
+    test('子を選んで比べると、その子を付けた／付けないで比べる', () {
+      final c = makeContainer(
+        repository: FakeCatalogRepository([relationEntry]),
+      );
+      notifierOf(c).propertySelected('decoration');
+      notifierOf(c).childSelected('round');
+      notifierOf(c).compareTapped('decoration');
+      expect(
+        stateOf(c).comparing,
+        const ComparingProperty('decoration', child: 'round'),
+      );
+      final off =
+          stateOf(c).settingsForSide(on: false)['decoration']!.value
+              as NestedValue;
+      final on =
+          stateOf(c).settingsForSide(on: true)['decoration']!.value
+              as NestedValue;
+      expect(off.settings['round']!.on, isFalse);
+      expect(on.settings['round']!.on, isTrue);
+    });
+
+    test('親が OFF のまま子を比べても、両側とも親は ON で子だけ違う', () {
+      final c = makeContainer(
+        repository: FakeCatalogRepository([relationEntry]),
+      );
+      expect(stateOf(c).settings['decoration']!.on, isFalse);
+      notifierOf(c).propertySelected('decoration');
+      notifierOf(c).childSelected('round');
+      notifierOf(c).compareTapped('decoration');
+      for (final side in [true, false]) {
+        final setting = stateOf(c).settingsForSide(on: side)['decoration']!;
+        expect(setting.on, isTrue);
+        expect((setting.value as NestedValue).settings['round']!.on, side);
+      }
+    });
+
+    test('比較の付けた側は、同時に使えない相手を OFF にする（付けない側はそのまま）', () {
+      final c = makeContainer(
+        repository: FakeCatalogRepository([relationEntry]),
+      );
+      notifierOf(c)
+        ..propertyToggled('decoration', true) // color が OFF になる
+        ..propertySelected('color')
+        ..compareTapped('color');
+      final withSide = stateOf(c).settingsForSide(on: true);
+      expect(withSide['color']!.on, isTrue);
+      expect(withSide['decoration']!.on, isFalse);
+      final withoutSide = stateOf(c).settingsForSide(on: false);
+      expect(withoutSide['color']!.on, isFalse);
+      expect(withoutSide['decoration']!.on, isTrue);
+    });
   });
 }

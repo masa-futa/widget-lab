@@ -1,8 +1,10 @@
 import 'package:flutter/widgets.dart';
 import 'package:widget_lab/catalog/model/code_nest.dart';
 import 'package:widget_lab/catalog/model/demo_args.dart';
+import 'package:widget_lab/catalog/model/property_group.dart';
 import 'package:widget_lab/catalog/model/property_setting.dart';
 import 'package:widget_lab/catalog/model/property_spec.dart';
+import 'package:widget_lab/catalog/model/reference_arg.dart';
 
 /// プレビューを組み立てる関数。OFF のプロパティには Widget の既定値を渡す。
 typedef DemoBuilder = Widget Function(DemoArgs args);
@@ -29,6 +31,7 @@ final class WidgetEntry {
     this.codeWithout,
     this.codeNest,
     this.codeArguments = const [],
+    this.references = const [],
   });
 
   final String id;
@@ -60,6 +63,19 @@ final class WidgetEntry {
   /// チップに出さない、コードの最後に書く固定の引数（例: `child: const _Readers()`。
   /// 末尾の `,` は付けない）。
   final List<String> codeArguments;
+
+  /// 見た目が変わらない引数（補足に出す）。
+  final List<ReferenceArg> references;
+
+  /// プロパティの仲間を、[PropertyGroup] の順に重ねずに並べる。仲間のないもの（`null`）は先頭。
+  List<PropertyGroup?> get groups {
+    final present = {for (final spec in properties) spec.group};
+    return [
+      if (present.contains(null)) null,
+      for (final group in PropertyGroup.values)
+        if (present.contains(group)) group,
+    ];
+  }
 
   /// 使わない場合のよくある書き方（手で書いたコード）。包みを外すだけで済む Widget は `null`。
   final String? codeWithout;

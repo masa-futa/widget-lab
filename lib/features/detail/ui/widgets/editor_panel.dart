@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:widget_lab/catalog/model/control_value.dart';
@@ -7,7 +9,10 @@ import 'package:widget_lab/catalog/model/property_spec.dart';
 import 'package:widget_lab/core/theme/nimi_colors.dart';
 import 'package:widget_lab/core/theme/nimi_radius.dart';
 import 'package:widget_lab/core/theme/nimi_spacing.dart';
+import 'package:widget_lab/features/detail/ui/widgets/nested_editor.dart';
 import 'package:widget_lab/features/detail/ui/widgets/property_value_control.dart';
+import 'package:widget_lab/features/detail/ui/widgets/relation_rows.dart';
+import 'package:widget_lab/features/detail/view_model/exclusion_notice.dart';
 import 'package:widget_lab/l10n/gen/app_localizations.dart';
 
 /// 編集パネル。選んでいる 1 つのプロパティの名前・型・ON/OFF・説明・値の操作・
@@ -22,6 +27,14 @@ class EditorPanel extends StatelessWidget {
     required this.onValueChanged,
     required this.onCompareTapped,
     required this.onDefaultTapped,
+    required this.onRelationTapped,
+    required this.onNoticeDismissed,
+    required this.selectedChild,
+    required this.onChildSelected,
+    required this.onChildToggled,
+    required this.onChildValueChanged,
+    this.effective = true,
+    this.notice,
     this.comparesUse = false,
     super.key,
   });
@@ -40,17 +53,43 @@ class EditorPanel extends StatelessWidget {
   final VoidCallback onCompareTapped;
   final VoidCallback onDefaultTapped;
 
+  /// requires の相手が ON か。
+  final bool effective;
+
+  /// 同時に使えない相手を OFF にした知らせ。
+  final ExclusionNotice? notice;
+  final ValueChanged<String> onRelationTapped;
+  final VoidCallback onNoticeDismissed;
+
+  /// 入れ子のプロパティで選んでいる子。
+  final String? selectedChild;
+  final ValueChanged<String> onChildSelected;
+  final void Function(String child, bool on) onChildToggled;
+  final void Function(String child, ControlValue value) onChildValueChanged;
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final spacing = NimiSpacing.of(context);
     final secondary = theme.colorScheme.onSurfaceVariant;
-    final control = PropertyValueControl(
-      control: spec.control,
-      value: setting.value,
-      enabled: spec.required || setting.on,
-      onChanged: onValueChanged,
-    );
+    final enabled = spec.required || setting.on;
+    final Widget control = switch ((spec.control, setting.value)) {
+      (NestedControl(), final NestedValue nested) => NestedEditor(
+        spec: spec,
+        value: nested,
+        selectedChild: selectedChild,
+        enabled: enabled,
+        onChildSelected: onChildSelected,
+        onChildToggled: onChildToggled,
+        onChildValueChanged: onChildValueChanged,
+      ),
+      _ => PropertyValueControl(
+        control: spec.control,
+        value: setting.value,
+        enabled: enabled,
+        onChanged: onValueChanged,
+      ),
+    };
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -87,7 +126,8 @@ class EditorPanel extends StatelessWidget {
           style: theme.textTheme.bodySmall?.copyWith(color: secondary),
         ),
         Gap(spacing.md),
-        if (spec.control is FixedControl)
+        // 入れ子は中のチップとスイッチがそれぞれ読み上げられるので、まとめない
+        if (spec.control is FixedControl || spec.control is NestedControl)
           control
         else
           Semantics(
@@ -95,6 +135,20 @@ class EditorPanel extends StatelessWidget {
             label: AppLocalizations.of(context).detailValueLabel(spec.name),
             child: control,
           ),
+        if (spec.pairsWith.isNotEmpty ||
+            spec.requires != null ||
+            spec.excludes.isNotEmpty) ...[
+          Gap(spacing.xs),
+          RelationRows(
+            spec: spec,
+            effective: effective,
+            onTapped: onRelationTapped,
+          ),
+        ],
+        if (notice case final notice? when notice.turnedOn == spec.name) ...[
+          Gap(spacing.xs),
+          _Notice(notice: notice, onDismissed: onNoticeDismissed),
+        ],
         Gap(spacing.md),
         _Actions(
           isComparing: isComparing,
@@ -176,6 +230,67 @@ class _Actions extends StatelessWidget {
           label: Text(l10n.detailDefault),
         ),
       ],
+    );
+  }
+}
+
+/// 同時に使えない相手を OFF にした知らせ。3 秒で自分から消える。
+class _Notice extends StatefulWidget {
+  const _Notice({required this.notice, required this.onDismissed});
+
+  final ExclusionNotice notice;
+  final VoidCallback onDismissed;
+
+  @override
+  State<_Notice> createState() => _NoticeState();
+}
+
+class _NoticeState extends State<_Notice> {
+  Timer? _timer;
+
+  @override
+  void initState() {
+    super.initState();
+    _start();
+  }
+
+  @override
+  void didUpdateWidget(_Notice oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.notice != widget.notice) _start();
+  }
+
+  void _start() {
+    _timer?.cancel();
+    _timer = Timer(const Duration(seconds: 3), () => widget.onDismissed());
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final spacing = NimiSpacing.of(context);
+    return Semantics(
+      liveRegion: true,
+      container: true,
+      child: Container(
+        padding: EdgeInsets.all(spacing.xs),
+        decoration: BoxDecoration(
+          color: NimiColors.of(context).surfaceMuted,
+          borderRadius: BorderRadius.circular(NimiRadius.of(context).sm),
+        ),
+        child: Text(
+          AppLocalizations.of(context).detailExclusionNotice(
+            widget.notice.turnedOn,
+            widget.notice.turnedOff,
+          ),
+          style: Theme.of(context).textTheme.bodySmall,
+        ),
+      ),
     );
   }
 }
