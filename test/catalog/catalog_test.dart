@@ -57,28 +57,40 @@ Map<String, PropertySetting> _all(WidgetEntry entry, {required bool on}) => {
     spec.name: PropertySetting(on: on, value: spec.control.initial),
 };
 
+/// [control] の試す値。選択肢・色見本は全部、スライダーは最小と最大、スイッチは両方。
+/// 入れ子は、子を全部 ON にしたうえで 1 つの子だけ値を変えたものと、子を全部 OFF にしたもの。
+List<ControlValue> _values(PropertyControl control) => switch (control) {
+  ChoiceControl(:final choices) => [
+    for (var i = 0; i < choices.length; i++) ChoiceValue(i),
+  ],
+  ColorControl(:final palette) => [
+    for (var i = 0; i < palette.length; i++) ChoiceValue(i),
+  ],
+  SliderControl(:final min, :final max) => [SliderValue(min), SliderValue(max)],
+  SwitchControl() => const [SwitchValue(true), SwitchValue(false)],
+  TextControl() => const [TextValue(''), TextValue("It's")],
+  FixedControl() => const [FixedValue()],
+  NestedControl(:final children) => [
+    for (final child in children)
+      for (final value in _values(child.control))
+        NestedValue({
+          for (final c in children)
+            c.name: PropertySetting(on: true, value: c.control.initial),
+          child.name: PropertySetting(on: true, value: value),
+        }),
+    NestedValue({
+      for (final c in children)
+        c.name: PropertySetting(on: false, value: c.control.initial),
+    }),
+  ],
+};
+
 /// 全部 ON のうえで、1つのプロパティだけ値を変えた設定の一覧。
-/// 選択肢・色見本は全部、スライダーは最小と最大、スイッチは両方。
 List<Map<String, PropertySetting>> _variations(WidgetEntry entry) {
   final base = _all(entry, on: true);
   return [
     for (final spec in entry.properties)
-      for (final value in switch (spec.control) {
-        ChoiceControl(:final choices) => [
-          for (var i = 0; i < choices.length; i++) ChoiceValue(i),
-        ],
-        ColorControl(:final palette) => [
-          for (var i = 0; i < palette.length; i++) ChoiceValue(i),
-        ],
-        SliderControl(:final min, :final max) => [
-          SliderValue(min),
-          SliderValue(max),
-        ],
-        SwitchControl() => const [SwitchValue(true), SwitchValue(false)],
-        TextControl() => const [TextValue(''), TextValue("It's")],
-        FixedControl() => const [FixedValue()],
-        NestedControl() => [spec.control.initial],
-      })
+      for (final value in _values(spec.control))
         {...base, spec.name: PropertySetting(on: true, value: value)},
   ];
 }

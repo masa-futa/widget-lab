@@ -8,11 +8,26 @@ import 'package:widget_lab/catalog/catalog.dart';
 /// 厳しく見る収録（段 2 で全件にしたら、この集合をやめて全件を厳しく見る）。
 const _strict = {'Container'};
 
-/// Flutter SDK のソースから、[className] の名前なしのコンストラクタの引数の名前を読む。
-/// 読めなければ `null`。原因は、クラス名でない収録（Common buttons など）、
+/// SDK のコンストラクタの呼び出しでない収録と、その理由。ここにある収録は突き合わせない。
+const _notSdkConstructor = {
+  'await DefaultAssetBundle.of(context).loadString': '読み込みのメソッドの呼び出し',
+  'listKey.currentState!.insertItem': 'State のメソッドの呼び出し',
+  'SpinningLogo': '抽象クラスを継いだ見本の自作クラス（AnimatedWidget）',
+  'AnimatedRadius': '抽象クラスを継いだ見本の自作クラス（ImplicitlyAnimatedWidget）',
+};
+
+/// `Foo`・`Foo<int>`・`Foo.named`・`Foo<int>.named` を、クラス名とコンストラクタ名に分ける。
+final _codeNamePattern = RegExp(r'^([A-Z]\w*)(?:<.*>)?(?:\.(\w+))?$');
+
+/// Flutter SDK のソースから、[codeName] のコンストラクタの引数の名前を読む。
+/// 読めなければ `null`。原因は、式の収録（`_notSdkConstructor`）、
 /// SDK のソースに見つからないクラス、クラス本体が通常の形でない、
-/// 名前なしのコンストラクタを持たない（named / factory のみ）のいずれか。
-Set<String>? _constructorParameters(String className, Map<String, File> index) {
+/// そのコンストラクタを持たないのいずれか。
+Set<String>? _constructorParameters(String codeName, Map<String, File> index) {
+  final match = _codeNamePattern.firstMatch(codeName);
+  if (match == null) return null;
+  final className = match.group(1)!;
+  final constructorName = match.group(2);
   final file = index[className];
   if (file == null) return null;
   final unit = parseString(
@@ -25,7 +40,7 @@ Set<String>? _constructorParameters(String className, Map<String, File> index) {
     if (body is! BlockClassBody) return null;
     final constructor = body.members
         .whereType<ConstructorDeclaration>()
-        .where((c) => c.name == null)
+        .where((c) => c.name?.lexeme == constructorName)
         .firstOrNull;
     if (constructor == null) return null;
     return {
@@ -61,15 +76,13 @@ void main() {
     for (final entry in allEntries) {
       test('${entry.codeName}（${entry.name}）', () {
         final parameters = _constructorParameters(entry.codeName, index);
+        if (_notSdkConstructor.containsKey(entry.codeName)) {
+          // 突き合わせない理由が今も正しい（SDK のコンストラクタとして読めない）
+          expect(parameters, isNull);
+          return;
+        }
         if (parameters == null) {
-          if (_strict.contains(entry.codeName)) {
-            fail(
-              '厳しく見る収録のクラスのコンストラクタが Flutter SDK のソースで見つからない: ${entry.codeName}',
-            );
-          }
-          return markTestSkipped(
-            '名前なしのコンストラクタを SDK のソースで見つけられない（${entry.name}）',
-          );
+          fail('コンストラクタが Flutter SDK のソースで見つからない: ${entry.codeName}');
         }
         final covered = {
           for (final spec in entry.properties) spec.name,
