@@ -9,7 +9,9 @@ import 'package:widget_lab/catalog/catalog.dart';
 const _strict = {'Container'};
 
 /// Flutter SDK のソースから、[className] の名前なしのコンストラクタの引数の名前を読む。
-/// 見つからなければ `null`（クラス名でないもの: Common buttons など）。
+/// 読めなければ `null`。原因は、クラス名でない収録（Common buttons など）、
+/// SDK のソースに見つからないクラス、クラス本体が通常の形でない、
+/// 名前なしのコンストラクタを持たない（named / factory のみ）のいずれか。
 Set<String>? _constructorParameters(String className, Map<String, File> index) {
   final file = index[className];
   if (file == null) return null;
