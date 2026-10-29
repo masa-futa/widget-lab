@@ -12,6 +12,7 @@ import 'package:widget_lab/features/detail/view_model/code_generator.dart';
 import 'package:widget_lab/features/detail/view_model/comparing.dart';
 import 'package:widget_lab/features/detail/view_model/detail_state.dart';
 import 'package:widget_lab/features/detail/view_model/exclusion_notice.dart';
+import 'package:widget_lab/features/detail/view_model/picker_item.dart';
 import 'package:widget_lab/features/detail/view_model/probe_notifier.dart';
 
 part 'detail_notifier.g.dart';
@@ -63,6 +64,25 @@ class DetailNotifier extends _$DetailNotifier {
       comparing: () => null,
     );
     _restartProbe();
+  }
+
+  /// 選ぶ欄の ‹。前のプロパティ（または補足）を選ぶ。先頭なら何もしない。
+  void previousTapped() => _moveBy(-1);
+
+  /// 選ぶ欄の ›。次のプロパティ（または補足）を選ぶ。最後なら何もしない。
+  void nextTapped() => _moveBy(1);
+
+  void _moveBy(int delta) {
+    final items = state.pickerItems;
+    final from = state.pickerIndex;
+    final to = from + delta;
+    if (from < 0 || to < 0 || to >= items.length) return;
+    switch (items[to]) {
+      case PickerProperty(:final spec):
+        propertySelected(spec.name);
+      case PickerReferences():
+        referencesSelected();
+    }
   }
 
   void noticeDismissed() => state = state.copyWith(notice: () => null);

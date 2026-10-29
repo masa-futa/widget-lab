@@ -15,6 +15,7 @@ import 'package:widget_lab/features/detail/view_model/comparing.dart';
 import 'package:widget_lab/features/detail/view_model/detail_notifier.dart';
 import 'package:widget_lab/features/detail/view_model/detail_state.dart';
 import 'package:widget_lab/features/detail/view_model/exclusion_notice.dart';
+import 'package:widget_lab/features/detail/view_model/picker_item.dart';
 import 'package:widget_lab/features/detail/view_model/probe_notifier.dart';
 import 'package:widget_lab/features/detail/view_model/probe_state.dart';
 
@@ -549,6 +550,87 @@ void main() {
       expect(stateOf(c).comparing, isNull);
       notifierOf(c).propertySelected('height');
       expect(stateOf(c).showsReferences, isFalse);
+    });
+  });
+
+  group('選ぶ欄（TC-91）', () {
+    DetailNotifier notifierOf(ProviderContainer c) =>
+        c.read(detailProvider('relation').notifier);
+    DetailState stateOf(ProviderContainer c) =>
+        c.read(detailProvider('relation'));
+    ProviderContainer open() =>
+        makeContainer(repository: FakeCatalogRepository([relationEntry]));
+
+    test('送る順番は、仲間の語彙の順・中は収録の順・最後に補足', () {
+      final c = open();
+      expect(
+        stateOf(c).pickerItems.map(
+          (item) => switch (item) {
+            PickerProperty(:final spec) => spec.name,
+            PickerReferences() => '補足',
+          },
+        ),
+        [
+          'width',
+          'height',
+          'color',
+          'decoration',
+          'transform',
+          'transformAlignment',
+          '補足',
+        ],
+      );
+    });
+
+    test('開いたときは先頭なので、前はなく次はある', () {
+      final c = open();
+      expect(stateOf(c).pickerIndex, 0);
+      expect(stateOf(c).hasPrevious, isFalse);
+      expect(stateOf(c).hasNext, isTrue);
+    });
+
+    test('次・前で隣のプロパティを選ぶ。仲間をまたいでも送れる', () {
+      final c = open();
+      notifierOf(c).nextTapped();
+      expect(stateOf(c).selected, 'height');
+      notifierOf(c).nextTapped();
+      expect(stateOf(c).selected, 'color');
+      notifierOf(c).previousTapped();
+      expect(stateOf(c).selected, 'height');
+    });
+
+    test('最後のプロパティの次は補足。補足の前で最後のプロパティに戻る', () {
+      final c = open();
+      notifierOf(c).propertySelected('transformAlignment');
+      notifierOf(c).nextTapped();
+      expect(stateOf(c).showsReferences, isTrue);
+      expect(stateOf(c).hasNext, isFalse);
+      notifierOf(c).nextTapped();
+      expect(stateOf(c).showsReferences, isTrue);
+      notifierOf(c).previousTapped();
+      expect(stateOf(c).showsReferences, isFalse);
+      expect(stateOf(c).selected, 'transformAlignment');
+    });
+
+    test('先頭の前は何もしない', () {
+      final c = open();
+      notifierOf(c).previousTapped();
+      expect(stateOf(c).selected, 'width');
+    });
+
+    test('送るとプロパティの比較をやめる', () {
+      final c = open();
+      notifierOf(c).compareTapped('width');
+      notifierOf(c).nextTapped();
+      expect(stateOf(c).comparing, isNull);
+    });
+
+    test('ON の数は全部のプロパティで数える', () {
+      final c = open();
+      final on = relationEntry.properties
+          .where((s) => s.isOnIn(relationEntry.initialSettings()))
+          .length;
+      expect(stateOf(c).onCount, on);
     });
   });
 
