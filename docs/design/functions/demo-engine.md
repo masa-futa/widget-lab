@@ -307,7 +307,7 @@ Provider の名前は riverpod_generator が付けるもので、クラス名か
 | `showsReferences` | `bool` | `false` | 補足のタブを開いているか |
 | `notice` | `ExclusionNotice?` | `null` | 同時に使えない組の知らせ（ON にした側・OFF にした側）。3 秒で `noticeDismissed` |
 | `selected` | `String?` | 最初の ON のプロパティ（なければ最初のプロパティ。プロパティがなければ `null`） | 編集パネルで選んでいるプロパティの名前 |
-| `comparing` | `Comparing?` | `null` | sealed。`ComparingProperty(name)`（見た目を持つ Widget。比べているプロパティの名前で、`selected` と同じ）か `ComparingUse()`（見た目を持たない Widget。Widget そのものを使った／使わない）。`null` は比較していない |
+| `comparing` | `Comparing?` | `null` | sealed。`ComparingProperty(name, child: 子)`（見た目を持つ Widget。比べているプロパティの名前（`selected` と同じ）と、入れ子のプロパティで子を選んでいるときはその子（`selectedChild`。それ以外は `null`））か `ComparingUse()`（見た目を持たない Widget。Widget そのものを使った／使わない）。`null` は比較していない |
 
 `isModified`（最初の値から1つでも変わった、または比較中）は State から求める（ab-rset の活性。`selected` の変化は数えない）。`isDefault(name)`（そのプロパティが最初の値のまま）は ed-dflt の活性に使う。拡大（×1 / ×2）と比較の仕切りの位置は、画面の中だけの一時的な状態なので StatefulWidget に持つ。比較の2枚の設定は `settingsForSide(on:)` が、比べているプロパティの定義は `comparingSpec` が返す。値の短い表示（スライダーの `16.0`・選択肢の名前など。操作パネルと比較のカードの読み上げで使う）は `valueLabel(control, value)`（`lib/features/detail/view_model/value_label.dart`）。
 
@@ -330,14 +330,14 @@ Provider の名前は riverpod_generator が付けるもので、クラス名か
 | ca_lst | `queryChanged(String)` | ユーザー | `query` と `results` を更新 |
 | ca_lst | `queryCleared()` | ユーザー | `query` を空、`results` を空 |
 | cb_dtl | `propertySelected(String name)` | ユーザー | `selected = name`。`comparing` が `ComparingProperty` なら `null`、`ComparingUse` なら変えない |
-| cb_dtl | `groupSelected(PropertyGroup?)` | ユーザー | そのタブの最初の ON のチップ（なければ先頭）を `selected`、`showsReferences = false`、比較をやめる |
+| cb_dtl | `groupSelected(PropertyGroup?)` | ユーザー | そのタブの最初の ON のチップ（なければ先頭）を `selected`、`showsReferences = false`、比較をやめる。`null` は仲間を付けていないプロパティの組（仲間を決めていない収録の「プロパティ」のタブ） |
 | cb_dtl | `referencesSelected()` | ユーザー | `showsReferences = true`（補足のタブ） |
 | cb_dtl | `childSelected(String)` / `childToggled` / `childValueChanged` | ユーザー | 入れ子の子の選択・ON/OFF・値 |
 | cb_dtl | `noticeDismissed()` | 副作用の結果（3 秒） | `notice = null`。ほかのプロパティを選んでも消える |
 | cb_dtl | `propertyToggled(String name, bool on)` | ユーザー | `settings[name].on`。required は変えない。ON にしたとき `excludes` の相手が ON なら OFF にして `notice` を出す |
 | cb_dtl | `propertyValueChanged(String name, ControlValue value)` | ユーザー | `settings[name].value`。OFF のときは呼ばれない（View で非活性） |
 | cb_dtl | `propertyDefaultTapped(String name)` | ユーザー | `settings[name]` を最初の値に戻す |
-| cb_dtl | `compareTapped(String name)` | ユーザー | 比較中なら `null`。そうでなければ、見た目を持つ Widget は `ComparingProperty(name)`（View は `selected` を渡す）、見た目を持たない Widget は `ComparingUse()` |
+| cb_dtl | `compareTapped(String name)` | ユーザー | 比較中なら `null`。そうでなければ、見た目を持つ Widget は `ComparingProperty(name, child: 子)`（`name` が `selected` で子を選んでいれば子は `selectedChild`、それ以外は `null`。View は `selected` と `selectedChild` を渡す）、見た目を持たない Widget は `ComparingUse()` |
 | cb_dtl | `compareDismissed()` | ユーザー | `comparing = null` |
 | cb_dtl | `resetTapped()` | ユーザー | `settings` と `selected` を最初の値、`comparing = null`。見た目を持たない Widget は計測をやり直す（`ProbeNotifier.restarted`） |
 | cb_dtl | `copyTapped({bool without = false})` → `Future<bool>` | ユーザー＋副作用の結果 | 変化なし。成功したかを返す。`without` なら `codeWithout` をコピーする（コードのシートで「使わない」を選んでいるとき） |
@@ -430,7 +430,7 @@ Provider の名前は riverpod_generator が付けるもので、クラス名か
 - 可視化: build の中で回数を数えても例外が出ない（フレームの後に反映）。ログは最大 50 件。ログを消すと回数も 0。同じフレームの同じ出来事は ×n にまとまる。回数の印が変わっても数えている子は組み直されない
 - 収録データ: `behavior` のものは全部 `buildWithout` を持ち、両側とも例外なく組み立てられる。`visual` のものは `buildWithout`・`codeWithout` が `null`
 - 比較（見た目を持たない Widget）: `ComparingUse` の間はチップを選び替えても続く。左右で別に数える
-- 仲間・関係・入れ子・補足（TC-83〜90）: 入れ子のコード、タブと ON の数、関係の行と知らせ、子のチップ、補足、全件の関係の決まり、Container の組み立て、SDK の引数との突き合わせ
+- 仲間・関係・入れ子・補足（TC-83〜90）: 入れ子のコード、タブと ON の数、関係の行と知らせ、子のチップ、補足、全件の関係の決まり、Container の組み立て、SDK の引数との突き合わせ（`package:analyzer`（dev、^14.6.0）で `$FLUTTER_ROOT` の widgets・material・cupertino のソースを読み、名前なしのコンストラクタの引数がプロパティか補足のどちらかに入っていることを求める。厳しく見る収録（今は Container）は、クラスかコンストラクタが見つからなければ失敗し、ほかは抜けの数を出して skip。型引数つきの `codeName`（例: `Autocomplete<String>`）は段 2 で扱う）
 - コード生成: 入れ子の式（`MediaQuery` の `copyWith`）と型引数（`NotificationListener<T>`）
 - コピー・リンク: 成功・失敗で Snackbar の文言が変わる（Client を fake に）
 - 画面を離れると DetailState と ProbeState が捨てられる（autoDispose）

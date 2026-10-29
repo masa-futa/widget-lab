@@ -178,5 +178,6 @@
 
 - 実行: `fvm flutter test`（2026-10-29、ブランチ feat/property-relations）。1933 件成功・0 件失敗・209 件 skip
 - 埋めた結果: TC-83〜90 が ✅。TC-90 は Container を厳しく見て通り、ほかの収録は抜けの数を出して skip する作りのため（skip は設計どおり）
-- skip の内訳: 全件の見張り（TC-90）の、Container 以外の収録。段 2 で収録データに引数を足して減らす。`Autocomplete<String>` のように `codeName` に型引数があるものは、まだクラスに突き合わせられない（段 2 で扱う）
+- skip の内訳（今回の 209 件は新しく出たもので、前の回（Phase 3 の収録）は 0 件）: 全件の見張り（TC-90）の、Container 以外の収録。段 2 で収録データに引数を足して減らす。`Autocomplete<String>` のように `codeName` に型引数があるものは、まだクラスに突き合わせられない（段 2 で扱う）
+- 確かめ: `fvm dart format --set-exit-if-changed .` と `fvm flutter analyze` も実行し、どちらも問題なし。
 - 未実施: TC-53〜55。手動のため。v3 の実機の確かめ（Figma の 4 枚との見比べ）もまだ

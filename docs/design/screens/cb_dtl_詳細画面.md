@@ -317,7 +317,7 @@ flowchart TB
 
 | ID | 項目名 | 内容 | 状態変化の有無 | 初期表示 | データ取得元 |
 |-|-|-|-|-|-|
-| ne-chip | 子のチップ | 値の操作の代わりに、見出し「中の値」と子のチップの列（pc-chip と同じ見た目と表示パターン。名前と今の値）を出す。例: decoration の color・borderRadius・border・boxShadow・gradient・shape | 有 | 最初の子 | ローカルアセット（収録データの `children`） |
+| ne-chip | 子のチップ | 値の操作の代わりに、見出し「中の値」と子のチップの列（pc-chip と同じ見た目と表示パターン。名前と今の値）を出す。例: decoration の color・borderRadius・border・boxShadow・gradient・shape。foregroundDecoration は color・border | 有 | 最初の子 | ローカルアセット（収録データの `children`） |
 | ne-sw | 子の ON/OFF | 選んだ子のスイッチ（ed-swch と同じ）。親が OFF なら子は効かない | 有 | 子の収録データに従う | ローカルアセット |
 | ne-valu | 子の値の操作 | 選んだ子の型ごとの部品（ed-valu と同じ）。OFF のときは非活性 | 有 | 子の最初の値 | ユーザー入力 |
 | ne-line | 帯の子の行 | 子を選んでいる間、cs-line に選んだ子の 1 行を出す（例: `borderRadius: BorderRadius.circular(12.0),`）。子が OFF なら「// decoration.borderRadius は指定なし（既定値）」（名前は `親.子`） | 有 | - | - |
