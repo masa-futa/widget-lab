@@ -240,6 +240,8 @@
   "@detailRequired": {
     "description": "必須のプロパティの印（スイッチの代わり）"
   },
+  "detailNestedLabel": "中の値",
+  "@detailNestedLabel": { "description": "入れ子のプロパティの子のチップの列の見出し" },
   "detailToggleLabel": "{name} を付ける",
   "@detailToggleLabel": {
     "description": "プロパティの ON/OFF のスイッチの読み上げ",

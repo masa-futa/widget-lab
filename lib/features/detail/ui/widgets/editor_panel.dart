@@ -9,6 +9,7 @@ import 'package:widget_lab/catalog/model/property_spec.dart';
 import 'package:widget_lab/core/theme/nimi_colors.dart';
 import 'package:widget_lab/core/theme/nimi_radius.dart';
 import 'package:widget_lab/core/theme/nimi_spacing.dart';
+import 'package:widget_lab/features/detail/ui/widgets/nested_editor.dart';
 import 'package:widget_lab/features/detail/ui/widgets/property_value_control.dart';
 import 'package:widget_lab/features/detail/ui/widgets/relation_rows.dart';
 import 'package:widget_lab/features/detail/view_model/exclusion_notice.dart';
@@ -28,6 +29,10 @@ class EditorPanel extends StatelessWidget {
     required this.onDefaultTapped,
     required this.onRelationTapped,
     required this.onNoticeDismissed,
+    required this.selectedChild,
+    required this.onChildSelected,
+    required this.onChildToggled,
+    required this.onChildValueChanged,
     this.effective = true,
     this.notice,
     this.comparesUse = false,
@@ -56,17 +61,35 @@ class EditorPanel extends StatelessWidget {
   final ValueChanged<String> onRelationTapped;
   final VoidCallback onNoticeDismissed;
 
+  /// 入れ子のプロパティで選んでいる子。
+  final String? selectedChild;
+  final ValueChanged<String> onChildSelected;
+  final void Function(String child, bool on) onChildToggled;
+  final void Function(String child, ControlValue value) onChildValueChanged;
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final spacing = NimiSpacing.of(context);
     final secondary = theme.colorScheme.onSurfaceVariant;
-    final control = PropertyValueControl(
-      control: spec.control,
-      value: setting.value,
-      enabled: spec.required || setting.on,
-      onChanged: onValueChanged,
-    );
+    final enabled = spec.required || setting.on;
+    final Widget control = switch ((spec.control, setting.value)) {
+      (NestedControl(), final NestedValue nested) => NestedEditor(
+        spec: spec,
+        value: nested,
+        selectedChild: selectedChild,
+        enabled: enabled,
+        onChildSelected: onChildSelected,
+        onChildToggled: onChildToggled,
+        onChildValueChanged: onChildValueChanged,
+      ),
+      _ => PropertyValueControl(
+        control: spec.control,
+        value: setting.value,
+        enabled: enabled,
+        onChanged: onValueChanged,
+      ),
+    };
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -103,7 +126,8 @@ class EditorPanel extends StatelessWidget {
           style: theme.textTheme.bodySmall?.copyWith(color: secondary),
         ),
         Gap(spacing.md),
-        if (spec.control is FixedControl)
+        // 入れ子は中のチップとスイッチがそれぞれ読み上げられるので、まとめない
+        if (spec.control is FixedControl || spec.control is NestedControl)
           control
         else
           Semantics(

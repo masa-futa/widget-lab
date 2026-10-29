@@ -303,6 +303,12 @@ abstract class AppLocalizations {
   /// **'必須'**
   String get detailRequired;
 
+  /// 入れ子のプロパティの子のチップの列の見出し
+  ///
+  /// In ja, this message translates to:
+  /// **'中の値'**
+  String get detailNestedLabel;
+
   /// プロパティの ON/OFF のスイッチの読み上げ
   ///
   /// In ja, this message translates to:

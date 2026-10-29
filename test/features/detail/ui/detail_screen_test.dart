@@ -1411,4 +1411,26 @@ void main() {
       expect(find.textContaining('同時には使えないので'), findsNothing);
     });
   });
+
+  group('入れ子（TC-86）', () {
+    testWidgets('decoration を選ぶと子のチップが並び、帯は選んだ子の行', (tester) async {
+      await pumpDetail(tester, 'container');
+      await tester.tap(find.text('色と装飾'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.widgetWithText(PropertyChip, 'decoration'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.bySemanticsLabel('decoration を付ける'));
+      await tester.pumpAndSettle();
+      expect(find.text('中の値'), findsOneWidget);
+      expect(find.widgetWithText(PropertyChip, 'borderRadius'), findsOneWidget);
+      await tester.tap(find.widgetWithText(PropertyChip, 'borderRadius'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.bySemanticsLabel('borderRadius を付ける'));
+      await tester.pumpAndSettle();
+      expect(
+        find.textContaining('borderRadius: BorderRadius.circular('),
+        findsOneWidget,
+      );
+    });
+  });
 }

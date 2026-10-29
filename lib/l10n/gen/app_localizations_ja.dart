@@ -137,6 +137,9 @@ class AppLocalizationsJa extends AppLocalizations {
   String get detailRequired => '必須';
 
   @override
+  String get detailNestedLabel => '中の値';
+
+  @override
   String detailToggleLabel(String name) {
     return '$name を付ける';
   }

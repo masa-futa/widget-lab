@@ -163,14 +163,19 @@ class _SelectedCodeStrip extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final selected = ref.watch(
-      detailProvider(entryId).select((s) => s.selected),
+    final (selected, child) = ref.watch(
+      detailProvider(entryId).select((s) => (s.selected, s.selectedChild)),
     );
     final lines = ref.watch(detailCodeProvider(entryId));
     if (selected == null) return const SizedBox.shrink();
+    final childKey = child == null ? null : '$selected.$child';
+    // 子を選んでいるときは子の行。なければ（OFF など）子の指定なしとして出す
+    final line = childKey == null
+        ? lines.where((l) => l.property == selected).firstOrNull
+        : lines.where((l) => l.property == childKey).firstOrNull;
     return CodeStrip(
-      propertyName: selected,
-      line: lines.where((line) => line.property == selected).firstOrNull,
+      propertyName: childKey ?? selected,
+      line: line,
       onTap: () => showDetailSheet(context, (_) => CodeSheet(entryId: entryId)),
     );
   }
@@ -255,6 +260,12 @@ class _PanelAreaState extends ConsumerState<_PanelArea> {
                   notice: state.notice,
                   onRelationTapped: notifier.propertySelected,
                   onNoticeDismissed: notifier.noticeDismissed,
+                  selectedChild: state.selectedChild,
+                  onChildSelected: notifier.childSelected,
+                  onChildToggled: (c, on) =>
+                      notifier.childToggled(spec.name, c, on),
+                  onChildValueChanged: (c, v) =>
+                      notifier.childValueChanged(spec.name, c, v),
                 ),
               ),
             ),
