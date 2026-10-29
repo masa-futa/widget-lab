@@ -257,11 +257,57 @@ class AppLocalizationsJa extends AppLocalizations {
   String get detailGroupAll => 'プロパティ';
 
   @override
-  String get detailTabReferences => '補足';
+  String get detailReferencesLabel => '補足';
 
   @override
-  String detailTabOnCount(String group, int count) {
-    return '$group、ON が $count 件';
+  String get detailPickerPrevious => '前のプロパティ';
+
+  @override
+  String get detailPickerNext => '次のプロパティ';
+
+  @override
+  String detailPickerSemantics(
+    String name,
+    String detail,
+    int index,
+    int count,
+  ) {
+    return '$name、$detail、$index / $count';
+  }
+
+  @override
+  String detailPickerCardValue(String group, String value) {
+    return '$group ・ $value';
+  }
+
+  @override
+  String detailPickerSemanticsValue(String group, String value) {
+    return '$group、$value';
+  }
+
+  @override
+  String detailPickerSemanticsInactive(String detail, String inactive) {
+    return '$detail、$inactive';
+  }
+
+  @override
+  String detailPickerReferencesValue(int count) {
+    return '$count 件 ・ 読むだけ';
+  }
+
+  @override
+  String detailPickerSheetTitle(int count) {
+    return 'プロパティ（$count）';
+  }
+
+  @override
+  String detailPickerSheetOnCount(int count) {
+    return '指定中 $count';
+  }
+
+  @override
+  String detailPickerReferencesCount(int count) {
+    return '$count 件';
   }
 
   @override

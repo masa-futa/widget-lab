@@ -1,12 +1,12 @@
 import 'package:flutter/foundation.dart';
 import 'package:widget_lab/catalog/model/genre.dart';
 import 'package:widget_lab/catalog/model/control_value.dart';
-import 'package:widget_lab/catalog/model/property_group.dart';
 import 'package:widget_lab/catalog/model/property_setting.dart';
 import 'package:widget_lab/catalog/model/property_spec.dart';
 import 'package:widget_lab/catalog/model/widget_entry.dart';
 import 'package:widget_lab/features/detail/view_model/comparing.dart';
 import 'package:widget_lab/features/detail/view_model/exclusion_notice.dart';
+import 'package:widget_lab/features/detail/view_model/picker_item.dart';
 
 /// 詳細画面の状態。プレビュー・チップ・編集パネル・比較・コードで共有する。
 final class DetailState {
@@ -48,7 +48,7 @@ final class DetailState {
   /// 何を比べているか。`null` は比較していない。
   final Comparing? comparing;
 
-  /// 補足のタブを開いているか。
+  /// 補足を選んでいるか。
   final bool showsReferences;
 
   /// 入れ子のプロパティを選んでいるときの、中で選んでいる子。
@@ -56,6 +56,37 @@ final class DetailState {
 
   /// 同時に使えない相手を OFF にした知らせ。`null` は出していない。
   final ExclusionNotice? notice;
+
+  /// 選ぶ欄の送る順番。仲間のないもの → 仲間の語彙の順（中は収録の順）→ 補足。
+  /// 一覧のシートの並びと同じ。
+  List<PickerItem> get pickerItems => [
+    for (final group in entry.groups)
+      for (final spec in entry.properties)
+        if (spec.group == group) PickerProperty(spec),
+    if (entry.references.isNotEmpty) const PickerReferences(),
+  ];
+
+  /// 選ぶ欄の今の位置。どこでもなければ `-1`（プロパティのない Widget）。
+  int get pickerIndex {
+    final items = pickerItems;
+    if (showsReferences) return items.indexOf(const PickerReferences());
+    return items.indexWhere(
+      (item) => item is PickerProperty && item.spec.name == selected,
+    );
+  }
+
+  /// ‹ で前に送れるか。
+  bool get hasPrevious => pickerIndex > 0;
+
+  /// › で次に送れるか。
+  bool get hasNext {
+    final index = pickerIndex;
+    return index >= 0 && index < pickerItems.length - 1;
+  }
+
+  /// ON のプロパティの数（一覧のシートの「指定中」）。
+  int get onCount =>
+      entry.properties.where((spec) => spec.isOnIn(settings)).length;
 
   /// 選んでいるプロパティの定義。
   PropertySpec? get selectedSpec => _specOf(selected);
@@ -109,24 +140,6 @@ final class DetailState {
       ),
     };
   }
-
-  /// 選んでいるプロパティの仲間。
-  PropertyGroup? get selectedGroup => selectedSpec?.group;
-
-  /// タブを出すか。仲間が 2 つ以上か、補足がある。
-  bool get showsTabs =>
-      entry.groups.length + (entry.references.isEmpty ? 0 : 1) >= 2;
-
-  /// 開いているタブのプロパティ（チップの列に並べる）。
-  List<PropertySpec> get specsInSelectedGroup => [
-    for (final spec in entry.properties)
-      if (spec.group == selectedGroup) spec,
-  ];
-
-  /// [group] の仲間で ON のプロパティの数（タブの数の印）。
-  int onCountIn(PropertyGroup? group) => entry.properties
-      .where((spec) => spec.group == group && spec.isOnIn(settings))
-      .length;
 
   /// [name] のプロパティが効くか（`requires` の相手がコードに書かれる）。
   /// 相手がなければ常に `true`。相手が ON でも `omitIf` で書かれないときは効かない。

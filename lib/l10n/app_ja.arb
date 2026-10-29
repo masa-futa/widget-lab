@@ -409,32 +409,82 @@
     }
   },
   "detailGroupSize": "大きさ",
-  "@detailGroupSize": { "description": "仲間のタブ" },
+  "@detailGroupSize": { "description": "仲間の名前（選ぶ欄のカードと一覧のシートの見出し）" },
   "detailGroupSpacing": "余白",
-  "@detailGroupSpacing": { "description": "仲間のタブ" },
+  "@detailGroupSpacing": { "description": "仲間の名前（選ぶ欄のカードと一覧のシートの見出し）" },
   "detailGroupLayout": "配置",
-  "@detailGroupLayout": { "description": "仲間のタブ" },
+  "@detailGroupLayout": { "description": "仲間の名前（選ぶ欄のカードと一覧のシートの見出し）" },
   "detailGroupPaint": "色と装飾",
-  "@detailGroupPaint": { "description": "仲間のタブ" },
+  "@detailGroupPaint": { "description": "仲間の名前（選ぶ欄のカードと一覧のシートの見出し）" },
   "detailGroupTransform": "変形",
-  "@detailGroupTransform": { "description": "仲間のタブ" },
+  "@detailGroupTransform": { "description": "仲間の名前（選ぶ欄のカードと一覧のシートの見出し）" },
   "detailGroupText": "文字",
-  "@detailGroupText": { "description": "仲間のタブ" },
+  "@detailGroupText": { "description": "仲間の名前（選ぶ欄のカードと一覧のシートの見出し）" },
   "detailGroupBehavior": "挙動",
-  "@detailGroupBehavior": { "description": "仲間のタブ" },
+  "@detailGroupBehavior": { "description": "仲間の名前（選ぶ欄のカードと一覧のシートの見出し）" },
   "detailGroupContent": "中身",
-  "@detailGroupContent": { "description": "仲間のタブ" },
+  "@detailGroupContent": { "description": "仲間の名前（選ぶ欄のカードと一覧のシートの見出し）" },
   "detailGroupAll": "プロパティ",
-  "@detailGroupAll": { "description": "仲間を決めていない収録のタブ（補足があるときだけ出る）" },
-  "detailTabReferences": "補足",
-  "@detailTabReferences": { "description": "見た目が変わらない引数のタブ" },
-  "detailTabOnCount": "{group}、ON が {count} 件",
-  "@detailTabOnCount": {
-    "description": "タブの読み上げ",
+  "@detailGroupAll": { "description": "仲間を決めていない収録の見出し" },
+  "detailReferencesLabel": "補足",
+  "@detailReferencesLabel": { "description": "見た目が変わらない引数（選ぶ欄のカードと一覧のシートの見出し）" },
+  "detailPickerPrevious": "前のプロパティ",
+  "@detailPickerPrevious": { "description": "選ぶ欄の ‹" },
+  "detailPickerNext": "次のプロパティ",
+  "@detailPickerNext": { "description": "選ぶ欄の ›" },
+  "detailPickerSemantics": "{name}、{detail}、{index} / {count}",
+  "@detailPickerSemantics": {
+    "description": "選ぶ欄のカードの読み上げ",
     "placeholders": {
-      "group": { "type": "String", "example": "大きさ" },
-      "count": { "type": "int", "example": "2" }
+      "name": { "type": "String", "example": "color" },
+      "detail": { "type": "String", "example": "色と装飾、若竹" },
+      "index": { "type": "int", "example": "7" },
+      "count": { "type": "int", "example": "15" }
     }
+  },
+  "detailPickerCardValue": "{group} ・ {value}",
+  "@detailPickerCardValue": {
+    "description": "選ぶ欄のカードの 2 行目（仲間 ・ 短い値）",
+    "placeholders": {
+      "group": { "type": "String", "example": "色と装飾" },
+      "value": { "type": "String", "example": "若竹" }
+    }
+  },
+  "detailPickerSemanticsValue": "{group}、{value}",
+  "@detailPickerSemanticsValue": {
+    "description": "選ぶ欄のカードの読み上げの、仲間と値のところ",
+    "placeholders": {
+      "group": { "type": "String", "example": "色と装飾" },
+      "value": { "type": "String", "example": "若竹" }
+    }
+  },
+  "detailPickerSemanticsInactive": "{detail}、{inactive}",
+  "@detailPickerSemanticsInactive": {
+    "description": "選ぶ欄のカードの読み上げに、効かないことを足す",
+    "placeholders": {
+      "detail": { "type": "String", "example": "色と装飾、若竹" },
+      "inactive": { "type": "String", "example": "今は効かない" }
+    }
+  },
+  "detailPickerReferencesValue": "{count} 件 ・ 読むだけ",
+  "@detailPickerReferencesValue": {
+    "description": "補足を選んでいるときのカードの 2 行目",
+    "placeholders": { "count": { "type": "int", "example": "1" } }
+  },
+  "detailPickerSheetTitle": "プロパティ（{count}）",
+  "@detailPickerSheetTitle": {
+    "description": "一覧のシートの題",
+    "placeholders": { "count": { "type": "int", "example": "14" } }
+  },
+  "detailPickerSheetOnCount": "指定中 {count}",
+  "@detailPickerSheetOnCount": {
+    "description": "一覧のシートの題の横",
+    "placeholders": { "count": { "type": "int", "example": "3" } }
+  },
+  "detailPickerReferencesCount": "{count} 件",
+  "@detailPickerReferencesCount": {
+    "description": "一覧のシートの補足の行の値",
+    "placeholders": { "count": { "type": "int", "example": "1" } }
   },
   "detailRelationPairs": "と組で使うことが多い",
   "@detailRelationPairs": { "description": "関係の行。前に相手のプロパティ名のリンク" },

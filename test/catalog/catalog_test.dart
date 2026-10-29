@@ -12,6 +12,8 @@ import 'package:widget_lab/catalog/model/property_spec.dart';
 import 'package:widget_lab/catalog/model/widget_entry.dart';
 import 'package:widget_lab/core/theme/app_theme.dart';
 import 'package:widget_lab/features/catalog/ui/widgets/entry_sample.dart';
+import 'package:widget_lab/features/detail/view_model/detail_state.dart';
+import 'package:widget_lab/features/detail/view_model/picker_item.dart';
 import 'package:widget_lab/features/detail/ui/widgets/preview_card.dart';
 
 /// プレビューのカードの大きさ。小さいスマートフォン（360×640）で、
@@ -246,6 +248,28 @@ void main() {
         await _expectBuilds(tester, entry, _all(entry, on: true));
         for (final settings in _variations(entry)) {
           await _expectBuilds(tester, entry, settings);
+        }
+      });
+    }
+  });
+
+  group('TC-92: 全件で、選ぶ欄の送る順番がプロパティを 1 回ずつ通り、最後が補足', () {
+    for (final entry in allEntries) {
+      test(entry.id, () {
+        final items = DetailState.initial(entry, const <Genre>[]).pickerItems;
+        expect(
+          [
+            for (final item in items)
+              if (item case PickerProperty(:final spec)) spec.name,
+          ]..sort(),
+          [for (final spec in entry.properties) spec.name]..sort(),
+        );
+        expect(
+          items.whereType<PickerReferences>().length,
+          entry.references.isEmpty ? 0 : 1,
+        );
+        if (entry.references.isNotEmpty) {
+          expect(items.last, const PickerReferences());
         }
       });
     }

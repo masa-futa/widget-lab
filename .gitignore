@@ -60,3 +60,6 @@ key.properties
 *.p8
 *.p12
 *.mobileprovision
+
+# ブレインストーミングの見本（visual companion）
+.superpowers/

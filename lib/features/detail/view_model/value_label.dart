@@ -1,5 +1,7 @@
 import 'package:widget_lab/catalog/model/control_value.dart';
 import 'package:widget_lab/catalog/model/property_control.dart';
+import 'package:widget_lab/catalog/model/property_setting.dart';
+import 'package:widget_lab/catalog/model/property_spec.dart';
 
 /// 操作パネルの値の表示と、比較のカードの読み上げに使う、値の短い文字。
 ///
@@ -23,16 +25,38 @@ String valueLabel(PropertyControl control, ControlValue value) =>
 /// チップに出す、さらに短い値の文字。
 ///
 /// スライダーは整数なら小数点を省き（例: `16`）、[FixedControl] は末尾の `()` を省く
-/// （例: `FlutterLogo`）。ほかは [valueLabel] と同じ。
+/// （例: `FlutterLogo`）。[FixedControl] の書き方が長いときは先頭の型の名前だけにする
+/// （例: `OverflowBox`・`[BoxShadow]`）。ほかは [valueLabel] と同じ。
 String chipValueLabel(PropertyControl control, ControlValue value) =>
     switch ((control, value)) {
       (SliderControl(), SliderValue()) => valueLabel(
         control,
         value,
       ).replaceFirst(RegExp(r'\.0$'), ''),
-      (FixedControl(:final source), FixedValue()) => source.replaceFirst(
-        RegExp(r'\(\)$'),
-        '',
-      ),
+      (FixedControl(:final source), FixedValue()) => _shortSource(source),
       _ => valueLabel(control, value),
     };
+
+/// [spec] が ON のときのチップ・カード・一覧の行に出す短い値。OFF なら `null`
+/// （呼ぶ側が「既定」の文言を出す）。
+String? shortValueLabel(
+  PropertySpec spec,
+  Map<String, PropertySetting> settings,
+) => spec.isOnIn(settings)
+    ? chipValueLabel(spec.control, spec.valueIn(settings))
+    : null;
+
+/// 書き方のまま出す長さの上限。超えたら型の名前だけにする。
+const _maxSourceLength = 20;
+
+/// 先頭の型の名前（`Padding`・`EdgeInsets.symmetric`）。リストの `[` と `const` は飛ばす。
+final _leadingType = RegExp(r'^\[?(?:const )?([A-Za-z_][\w.]*)');
+
+String _shortSource(String source) {
+  final trimmed = source.replaceFirst(RegExp(r'\(\)$'), '');
+  if (trimmed.length <= _maxSourceLength) return trimmed;
+  final type = _leadingType.firstMatch(source)?.group(1);
+  // 型の名前が取れない（文字の値など）ときは、長くても書き方のまま返す
+  if (type == null) return trimmed;
+  return source.startsWith('[') ? '[$type]' : type;
+}
