@@ -11,6 +11,7 @@ void main() {
 
     expect(built.alignment, AlignmentDirectional.topStart);
     expect(built.fit, StackFit.loose);
+    expect(built.textDirection, isNull);
     expect(built.children, isEmpty);
   });
 }

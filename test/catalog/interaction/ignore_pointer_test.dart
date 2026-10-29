@@ -8,6 +8,7 @@ import '../demo_pump.dart';
 
 void main() {
   DemoArgs argsWith({required bool ignoring}) => DemoArgs(ignorePointerEntry, {
+    ...ignorePointerEntry.initialSettings(),
     'ignoring': PropertySetting(on: true, value: SwitchValue(ignoring)),
   });
 

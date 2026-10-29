@@ -13,6 +13,10 @@ void main() {
     expect(built.runSpacing, 0);
     expect(built.alignment, WrapAlignment.start);
     expect(built.direction, Axis.horizontal);
+    expect(built.runAlignment, WrapAlignment.start);
+    expect(built.crossAxisAlignment, WrapCrossAlignment.start);
+    expect(built.textDirection, isNull);
+    expect(built.verticalDirection, VerticalDirection.down);
     expect(built.children, isEmpty);
   });
 }

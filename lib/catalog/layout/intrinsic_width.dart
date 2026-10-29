@@ -3,7 +3,9 @@ import 'package:widget_lab/catalog/demo/demo_choices.dart';
 import 'package:widget_lab/catalog/demo/demo_tile.dart';
 import 'package:widget_lab/catalog/model/demo_args.dart';
 import 'package:widget_lab/catalog/model/property_control.dart';
+import 'package:widget_lab/catalog/model/property_group.dart';
 import 'package:widget_lab/catalog/model/property_spec.dart';
+import 'package:widget_lab/catalog/model/reference_arg.dart';
 import 'package:widget_lab/catalog/model/widget_entry.dart';
 
 final intrinsicWidthEntry = WidgetEntry(
@@ -21,6 +23,7 @@ final intrinsicWidthEntry = WidgetEntry(
   properties: const [
     PropertySpec(
       name: 'stepWidth',
+      group: PropertyGroup.size,
       typeLabel: 'double?',
       description: '幅をこの値の倍数に切り上げる',
       initiallyOn: false,
@@ -35,6 +38,7 @@ final intrinsicWidthEntry = WidgetEntry(
     ),
     PropertySpec(
       name: 'stepHeight',
+      group: PropertyGroup.size,
       typeLabel: 'double?',
       description: '高さをこの値の倍数に切り上げる',
       initiallyOn: false,
@@ -49,6 +53,7 @@ final intrinsicWidthEntry = WidgetEntry(
     ),
     PropertySpec(
       name: 'child',
+      group: PropertyGroup.content,
       typeLabel: 'Widget?',
       description: '幅を揃える Widget。ここでは幅の違う 2 つの子（48 と 96）を stretch で並べた Column',
       control: FixedControl(
@@ -64,6 +69,13 @@ final intrinsicWidthEntry = WidgetEntry(
             'Column(crossAxisAlignment: CrossAxisAlignment.stretch, '
             'children: [Tile(1), Tile(2)])',
       ),
+    ),
+  ],
+  references: const [
+    ReferenceArg(
+      name: 'key',
+      typeLabel: 'Key?',
+      description: 'Widget を見分ける印。並べ替えたときや、状態を引き継ぐときに使う',
     ),
   ],
   build: _build,

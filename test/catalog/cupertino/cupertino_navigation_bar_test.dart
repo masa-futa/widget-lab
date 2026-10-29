@@ -29,6 +29,11 @@ void main() {
     expect(built.middle, isNull);
     expect(built.trailing, isNull);
     expect(built.backgroundColor, isNull);
+    expect(built.automaticallyImplyLeading, isTrue);
+    expect(built.previousPageTitle, isNull);
+    expect(built.bottom, isNull);
+    expect(built.border, const CupertinoNavigationBar().border);
+    expect(built.padding, isNull);
     expect(built.transitionBetweenRoutes, isFalse);
   });
 }

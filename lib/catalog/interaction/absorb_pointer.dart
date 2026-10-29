@@ -3,7 +3,9 @@ import 'package:widget_lab/catalog/demo/demo_scope.dart';
 import 'package:widget_lab/catalog/demo/demo_tap_layers.dart';
 import 'package:widget_lab/catalog/model/demo_args.dart';
 import 'package:widget_lab/catalog/model/property_control.dart';
+import 'package:widget_lab/catalog/model/property_group.dart';
 import 'package:widget_lab/catalog/model/property_spec.dart';
+import 'package:widget_lab/catalog/model/reference_arg.dart';
 import 'package:widget_lab/catalog/model/widget_entry.dart';
 
 final absorbPointerEntry = WidgetEntry(
@@ -22,15 +24,37 @@ final absorbPointerEntry = WidgetEntry(
   properties: const [
     PropertySpec(
       name: 'absorbing',
+      group: PropertyGroup.behavior,
       typeLabel: 'bool',
       description: '押すのを止めるか。false にすると子はふつうに押せます。既定は true',
       control: SwitchControl(initialValue: true),
+    ),
+    PropertySpec(
+      name: 'child',
+      group: PropertyGroup.content,
+      typeLabel: 'Widget?',
+      description: '包む Widget。ここでは後ろの面の中央に重ねたボタン',
+      control: FixedControl(
+        value: DemoFrontButton(),
+        source: 'const FrontButton()',
+      ),
+    ),
+  ],
+  references: const [
+    ReferenceArg(
+      name: 'key',
+      typeLabel: 'Key?',
+      description: 'Widget を見分ける印。並べ替えたときや、状態を引き継ぐときに使う',
+    ),
+    ReferenceArg(
+      name: 'ignoringSemantics',
+      typeLabel: 'bool?',
+      description: '非推奨。代わりに ExcludeSemantics を使う',
     ),
   ],
   build: _build,
   buildWithout: _buildWithout,
   codeName: 'AbsorbPointer',
-  codeArguments: const ['child: const FrontButton()'],
 );
 
 Widget _build(DemoArgs args) {
@@ -40,7 +64,7 @@ Widget _build(DemoArgs args) {
     child: DemoTapLayers(
       front: AbsorbPointer(
         absorbing: absorbing,
-        child: const DemoFrontButton(),
+        child: args.valueOf<Widget>('child'),
       ),
     ),
   );

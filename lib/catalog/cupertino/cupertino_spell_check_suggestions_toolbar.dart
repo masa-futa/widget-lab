@@ -2,7 +2,9 @@ import 'package:flutter/cupertino.dart';
 import 'package:widget_lab/catalog/model/choice.dart';
 import 'package:widget_lab/catalog/model/demo_args.dart';
 import 'package:widget_lab/catalog/model/property_control.dart';
+import 'package:widget_lab/catalog/model/property_group.dart';
 import 'package:widget_lab/catalog/model/property_spec.dart';
+import 'package:widget_lab/catalog/model/reference_arg.dart';
 import 'package:widget_lab/catalog/model/widget_entry.dart';
 
 final cupertinoSpellCheckSuggestionsToolbarEntry = WidgetEntry(
@@ -20,6 +22,7 @@ final cupertinoSpellCheckSuggestionsToolbarEntry = WidgetEntry(
   properties: [
     PropertySpec(
       name: 'anchors',
+      group: PropertyGroup.layout,
       typeLabel: 'TextSelectionToolbarAnchors',
       description: 'メニューを出す点。ここでは横の位置を変える',
       required: true,
@@ -36,6 +39,7 @@ final cupertinoSpellCheckSuggestionsToolbarEntry = WidgetEntry(
     ),
     const PropertySpec(
       name: 'buttonItems',
+      group: PropertyGroup.content,
       typeLabel: 'List<ContextMenuButtonItem>',
       description: '直し方の候補（3 つまで）。0 個なら何も出さない',
       required: true,
@@ -58,6 +62,13 @@ final cupertinoSpellCheckSuggestionsToolbarEntry = WidgetEntry(
           Choice('0 個', <ContextMenuButtonItem>[], '[]'),
         ],
       ),
+    ),
+  ],
+  references: const [
+    ReferenceArg(
+      name: 'key',
+      typeLabel: 'Key?',
+      description: 'Widget を見分ける印。並べ替えたときや、状態を引き継ぐときに使う',
     ),
   ],
   build: _build,

@@ -18,6 +18,11 @@ void main() {
       expect(button.onSelectionChanged, isNull);
       expect(button.multiSelectionEnabled, isFalse);
       expect(button.showSelectedIcon, isTrue);
+      expect(button.emptySelectionAllowed, isFalse);
+      expect(button.expandedInsets, isNull);
+      expect(button.style, isNull);
+      expect(button.selectedIcon, isNull);
+      expect(button.direction, Axis.horizontal);
     },
   );
 }

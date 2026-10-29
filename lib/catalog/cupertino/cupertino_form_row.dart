@@ -1,7 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:widget_lab/catalog/model/demo_args.dart';
 import 'package:widget_lab/catalog/model/property_control.dart';
+import 'package:widget_lab/catalog/model/property_group.dart';
 import 'package:widget_lab/catalog/model/property_spec.dart';
+import 'package:widget_lab/catalog/model/reference_arg.dart';
 import 'package:widget_lab/catalog/model/widget_entry.dart';
 
 final cupertinoFormRowEntry = WidgetEntry(
@@ -18,12 +20,14 @@ final cupertinoFormRowEntry = WidgetEntry(
   properties: [
     const PropertySpec(
       name: 'prefix',
+      group: PropertyGroup.content,
       typeLabel: 'Widget?',
       description: '行の始まりに出す見出し',
       control: FixedControl(value: Text('通知'), source: "Text('通知')"),
     ),
     const PropertySpec(
       name: 'helper',
+      group: PropertyGroup.content,
       typeLabel: 'Widget?',
       description: '行の下に出す補足',
       initiallyOn: false,
@@ -34,6 +38,7 @@ final cupertinoFormRowEntry = WidgetEntry(
     ),
     const PropertySpec(
       name: 'error',
+      group: PropertyGroup.content,
       typeLabel: 'Widget?',
       description: '行の下に出すエラー。文字は赤になる',
       initiallyOn: false,
@@ -44,6 +49,7 @@ final cupertinoFormRowEntry = WidgetEntry(
     ),
     PropertySpec(
       name: 'padding',
+      group: PropertyGroup.spacing,
       typeLabel: 'EdgeInsetsGeometry?',
       description: '行の内側の余白。指定しないと左右 20・上下 6 ほど',
       initiallyOn: false,
@@ -58,6 +64,7 @@ final cupertinoFormRowEntry = WidgetEntry(
     ),
     const PropertySpec(
       name: 'child',
+      group: PropertyGroup.content,
       typeLabel: 'Widget',
       description: '行の終わりに置く入力の部品',
       required: true,
@@ -65,6 +72,13 @@ final cupertinoFormRowEntry = WidgetEntry(
         value: CupertinoSwitch(value: true, onChanged: _changed),
         source: 'CupertinoSwitch(value: true, onChanged: (value) {})',
       ),
+    ),
+  ],
+  references: const [
+    ReferenceArg(
+      name: 'key',
+      typeLabel: 'Key?',
+      description: 'Widget を見分ける印。並べ替えたときや、状態を引き継ぐときに使う',
     ),
   ],
   build: _build,

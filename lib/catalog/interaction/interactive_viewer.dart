@@ -1,9 +1,12 @@
 import 'package:flutter/widgets.dart';
 import 'package:widget_lab/catalog/demo/demo_choices.dart';
 import 'package:widget_lab/catalog/demo/demo_tile.dart';
+import 'package:widget_lab/catalog/model/choice.dart';
 import 'package:widget_lab/catalog/model/demo_args.dart';
 import 'package:widget_lab/catalog/model/property_control.dart';
+import 'package:widget_lab/catalog/model/property_group.dart';
 import 'package:widget_lab/catalog/model/property_spec.dart';
+import 'package:widget_lab/catalog/model/reference_arg.dart';
 import 'package:widget_lab/catalog/model/widget_entry.dart';
 
 final interactiveViewerEntry = WidgetEntry(
@@ -21,12 +24,14 @@ final interactiveViewerEntry = WidgetEntry(
   properties: const [
     PropertySpec(
       name: 'constrained',
+      group: PropertyGroup.size,
       typeLabel: 'bool',
       description: '子を自分の大きさに収めて組むか。false で子を本来の大きさにする。既定は true',
       control: SwitchControl(initialValue: false),
     ),
     PropertySpec(
       name: 'minScale',
+      group: PropertyGroup.behavior,
       typeLabel: 'double',
       description: '縮められる下限の倍率。既定は 0.8',
       initiallyOn: false,
@@ -41,6 +46,7 @@ final interactiveViewerEntry = WidgetEntry(
     ),
     PropertySpec(
       name: 'maxScale',
+      group: PropertyGroup.behavior,
       typeLabel: 'double',
       description: '拡大できる上限の倍率。既定は 2.5',
       initiallyOn: false,
@@ -55,6 +61,7 @@ final interactiveViewerEntry = WidgetEntry(
     ),
     PropertySpec(
       name: 'panEnabled',
+      group: PropertyGroup.behavior,
       typeLabel: 'bool',
       description: 'ドラッグで動かせるか。既定は true',
       initiallyOn: false,
@@ -62,17 +69,126 @@ final interactiveViewerEntry = WidgetEntry(
     ),
     PropertySpec(
       name: 'scaleEnabled',
+      group: PropertyGroup.behavior,
       typeLabel: 'bool',
       description: 'つまんで拡大・縮小できるか。既定は true',
       initiallyOn: false,
       control: SwitchControl(initialValue: false),
     ),
     PropertySpec(
+      name: 'clipBehavior',
+      group: PropertyGroup.transform,
+      typeLabel: 'Clip',
+      description:
+          '自分の四角からはみ出した子を切り取るか。none にすると、拡大した子が外にはみ出して見える。既定は hardEdge',
+      initiallyOn: false,
+      control: ChoiceControl(
+        choices: [
+          Choice('none', Clip.none, 'Clip.none'),
+          Choice('antiAlias', Clip.antiAlias, 'Clip.antiAlias'),
+        ],
+      ),
+    ),
+    PropertySpec(
+      name: 'panAxis',
+      group: PropertyGroup.behavior,
+      typeLabel: 'PanAxis',
+      description: 'ドラッグで動かせる向き。aligned は縦か横のどちらか一方だけで、斜めには動かない。既定は free',
+      initiallyOn: false,
+      control: ChoiceControl(
+        choices: [
+          Choice('horizontal', PanAxis.horizontal, 'PanAxis.horizontal'),
+          Choice('vertical', PanAxis.vertical, 'PanAxis.vertical'),
+          Choice('aligned', PanAxis.aligned, 'PanAxis.aligned'),
+        ],
+      ),
+    ),
+    PropertySpec(
+      name: 'boundaryMargin',
+      group: PropertyGroup.behavior,
+      typeLabel: 'EdgeInsets',
+      description:
+          '子の端より外へ動かせる余白。infinity にすると、どこまでも動かせる。既定は EdgeInsets.zero（子の端で止まる）',
+      initiallyOn: false,
+      control: ChoiceControl(
+        choices: [
+          Choice('40', EdgeInsets.all(40), 'EdgeInsets.all(40)'),
+          Choice(
+            'infinity',
+            EdgeInsets.all(double.infinity),
+            'EdgeInsets.all(double.infinity)',
+          ),
+        ],
+      ),
+    ),
+    PropertySpec(
+      name: 'interactionEndFrictionCoefficient',
+      group: PropertyGroup.behavior,
+      typeLabel: 'double',
+      description: '指を離したあと、はじいた勢いで滑るときの止まりやすさ。大きいほどすぐ止まる。既定は 0.0000135',
+      initiallyOn: false,
+      control: ChoiceControl(
+        choices: [
+          Choice('すぐ止まる', 0.001, '0.001'),
+          Choice('よく滑る', 0.000001, '0.000001'),
+        ],
+      ),
+    ),
+    PropertySpec(
+      name: 'alignment',
+      group: PropertyGroup.layout,
+      typeLabel: 'Alignment?',
+      description: '拡大・縮小の変形の基準にする、子の位置。指定しないと左上',
+      initiallyOn: false,
+      control: ChoiceControl(
+        choices: alignmentChoices,
+        initialIndex: alignmentCenter,
+      ),
+    ),
+    PropertySpec(
       name: 'child',
+      group: PropertyGroup.content,
       typeLabel: 'Widget',
       description: '見る子（480×240）',
       required: true,
       control: FixedControl(value: _Scene(), source: 'const Scene()'),
+    ),
+  ],
+  references: const [
+    ReferenceArg(
+      name: 'key',
+      typeLabel: 'Key?',
+      description: 'Widget を見分ける印。並べ替えたときや、状態を引き継ぐときに使う',
+    ),
+    ReferenceArg(
+      name: 'onInteractionEnd',
+      typeLabel: 'GestureScaleEndCallback?',
+      description: 'ドラッグやつまむ動きで指を離したときに呼ばれる',
+    ),
+    ReferenceArg(
+      name: 'onInteractionStart',
+      typeLabel: 'GestureScaleStartCallback?',
+      description: 'ドラッグやつまむ動きが始まったときに呼ばれる',
+    ),
+    ReferenceArg(
+      name: 'onInteractionUpdate',
+      typeLabel: 'GestureScaleUpdateCallback?',
+      description: 'ドラッグやつまむ動きの途中、指が動くたびに呼ばれる',
+    ),
+    ReferenceArg(
+      name: 'scaleFactor',
+      typeLabel: 'double',
+      description: 'マウスのホイールを回した量を、拡大・縮小の倍率に換える係数',
+    ),
+    ReferenceArg(
+      name: 'transformationController',
+      typeLabel: 'TransformationController?',
+      description: '今の拡大・移動の変形を読み書きする。ボタンで元の大きさに戻すときなどに使う',
+    ),
+    ReferenceArg(
+      name: 'trackpadScrollCausesScale',
+      typeLabel: 'bool',
+      description: 'トラックパッドの 2 本指のスクロールを、拡大・縮小として扱うか。既定は false',
     ),
   ],
   build: _build,
@@ -80,11 +196,17 @@ final interactiveViewerEntry = WidgetEntry(
 );
 
 Widget _build(DemoArgs args) => InteractiveViewer(
+  clipBehavior: args.valueOf<Clip>('clipBehavior') ?? Clip.hardEdge,
+  panAxis: args.valueOf<PanAxis>('panAxis') ?? PanAxis.free,
+  boundaryMargin: args.valueOf<EdgeInsets>('boundaryMargin') ?? EdgeInsets.zero,
   constrained: args.valueOf<bool>('constrained') ?? true,
   minScale: args.valueOf<double>('minScale') ?? 0.8,
   maxScale: args.valueOf<double>('maxScale') ?? 2.5,
   panEnabled: args.valueOf<bool>('panEnabled') ?? true,
   scaleEnabled: args.valueOf<bool>('scaleEnabled') ?? true,
+  interactionEndFrictionCoefficient:
+      args.valueOf<double>('interactionEndFrictionCoefficient') ?? 0.0000135,
+  alignment: args.valueOf<Alignment>('alignment'),
   // 必須のプロパティなので、常に値がある
   child: args.valueOf<Widget>('child')!,
 );
