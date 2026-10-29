@@ -189,7 +189,7 @@ final class NestedControl extends PropertyControl {
     final settings = _settingsOf(value);
     return _build({
       for (final child in children)
-        if (child.isOnIn(settings))
+        if (child.isWrittenIn(settings))
           child.name: child.control.resolve(child.valueIn(settings)),
     });
   }
@@ -199,7 +199,7 @@ final class NestedControl extends PropertyControl {
     final settings = _settingsOf(value);
     final on = [
       for (final child in children)
-        if (child.isOnIn(settings))
+        if (child.isWrittenIn(settings))
           '${child.name}: ${child.control.code(child.valueIn(settings))}',
     ];
     return on.isEmpty ? 'const $typeName()' : '$typeName(${on.join(', ')})';

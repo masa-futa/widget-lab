@@ -1,8 +1,10 @@
 import 'package:flutter/widgets.dart';
 import 'package:widget_lab/catalog/model/choice.dart';
+import 'package:widget_lab/catalog/model/control_value.dart';
 import 'package:widget_lab/catalog/model/demo_args.dart';
 import 'package:widget_lab/catalog/model/property_control.dart';
 import 'package:widget_lab/catalog/model/property_group.dart';
+import 'package:widget_lab/catalog/model/property_setting.dart';
 import 'package:widget_lab/catalog/model/property_spec.dart';
 import 'package:widget_lab/catalog/model/reference_arg.dart';
 import 'package:widget_lab/catalog/model/widget_entry.dart';
@@ -74,15 +76,7 @@ final containerEntry = WidgetEntry(
       omitIf: (settings) => settings['decoration']?.on ?? false,
       typeLabel: 'Color?',
       description: '箱の地の色',
-      control: ColorControl(
-        palette: [
-          Choice.color('瑠璃', const Color(0xFF1E50A2)),
-          Choice.color('山吹', const Color(0xFFF8B500)),
-          Choice.color('若竹', const Color(0xFF68BE8D)),
-          Choice.color('紅', const Color(0xFFD7003A)),
-          Choice.color('墨', const Color(0xFF18181B)),
-        ],
-      ),
+      control: _colorControl(),
     ),
     PropertySpec(
       name: 'decoration',
@@ -105,6 +99,7 @@ final containerEntry = WidgetEntry(
             typeLabel: 'BorderRadiusGeometry?',
             description: '角の丸み。shape が circle のときは使えない',
             initiallyOn: false,
+            omitIf: (settings) => _isCircle(settings['shape']),
             control: SliderControl(
               min: 0,
               max: 32,
@@ -360,17 +355,22 @@ ColorControl _colorControl() => ColorControl(
   ],
 );
 
+/// shape の子が ON で circle か（このとき borderRadius は渡せない）。
+bool _isCircle(PropertySetting? shape) {
+  if (shape == null || !shape.on) return false;
+  final value = shape.value;
+  return value is ChoiceValue &&
+      BoxShape.values[value.index] == BoxShape.circle;
+}
+
 BoxDecoration _buildDecoration(Map<String, Object> values) {
-  final shape = values['shape'] as BoxShape? ?? BoxShape.rectangle;
   return BoxDecoration(
     color: values['color'] as Color?,
-    borderRadius: shape == BoxShape.circle
-        ? null
-        : values['borderRadius'] as BorderRadiusGeometry?,
+    borderRadius: values['borderRadius'] as BorderRadiusGeometry?,
     border: values['border'] as BoxBorder?,
     boxShadow: values['boxShadow'] as List<BoxShadow>?,
     gradient: values['gradient'] as Gradient?,
-    shape: shape,
+    shape: values['shape'] as BoxShape? ?? BoxShape.rectangle,
   );
 }
 
@@ -380,6 +380,7 @@ Widget _build(DemoArgs args) {
     alignment: args.valueOf<AlignmentGeometry>('alignment'),
     padding: args.valueOf<EdgeInsetsGeometry>('padding'),
     color: decoration == null ? args.valueOf<Color>('color') : null,
+    // Flutter の既定値（true）。OFF のときも省いたコードと同じ挙動にそろえる。
     isAntiAlias: args.valueOf<bool>('isAntiAlias') ?? true,
     decoration: decoration,
     foregroundDecoration: args.valueOf<Decoration>('foregroundDecoration'),

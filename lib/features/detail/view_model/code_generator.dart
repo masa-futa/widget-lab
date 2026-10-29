@@ -114,7 +114,7 @@ class CodeGenerator {
       NestedValue(:final settings) => settings,
       _ => const <String, PropertySetting>{},
     };
-    final on = control.children.where((child) => child.isOnIn(inner));
+    final on = control.children.where((child) => child.isWrittenIn(inner));
     if (on.isEmpty) {
       return [(spec.name, '  ${spec.name}: const ${control.typeName}(),')];
     }

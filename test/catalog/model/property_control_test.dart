@@ -171,6 +171,43 @@ void main() {
       expect(control.code(off), 'const BoxDecoration()');
     });
 
+    test('omitIf に当たる子は、組み立てにもコードにも出さない', () {
+      final withOmit = NestedControl(
+        typeName: 'BoxDecoration',
+        children: [
+          PropertySpec(
+            name: 'color',
+            typeLabel: 'Color?',
+            description: '',
+            control: const ColorControl(
+              palette: [Choice('若竹', Color(0xFF68BE8D), 'Color(0xFF68BE8D)')],
+            ),
+            omitIf: (settings) => settings['shape']?.on ?? false,
+          ),
+          const PropertySpec(
+            name: 'shape',
+            typeLabel: 'BoxShape',
+            description: '',
+            control: ChoiceControl(
+              choices: [Choice('circle', BoxShape.circle, 'BoxShape.circle')],
+            ),
+          ),
+        ],
+        build: (values) => BoxDecoration(
+          color: values['color'] as Color?,
+          shape: values['shape'] as BoxShape? ?? BoxShape.rectangle,
+        ),
+      );
+
+      // color も shape も ON だが、shape が ON の間 color は省かれる。
+      final value = withOmit.initial;
+      expect(
+        withOmit.resolve(value),
+        const BoxDecoration(shape: BoxShape.circle),
+      );
+      expect(withOmit.code(value), 'BoxDecoration(shape: BoxShape.circle)');
+    });
+
     test('NestedValue は中身で比べる', () {
       expect(
         control.initial,

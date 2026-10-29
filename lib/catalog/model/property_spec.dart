@@ -54,6 +54,7 @@ final class PropertySpec {
 
   /// ほかのプロパティとの組み合わせで、ON でも Widget に渡さない（コードにも書かない）条件。
   /// 例: NavigationRail は extended の間、labelType を渡せない（assert）。
+  /// 入れ子の子（[NestedControl] の children）にも効く。その場合 [settings] は入れ子の中の設定。
   final bool Function(Map<String, PropertySetting> settings)? omitIf;
 
   /// 仲間（タブ）。`null` は仲間を決めていない収録（段 2 で埋める）。
