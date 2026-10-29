@@ -131,6 +131,30 @@ void main() {
     handle.dispose();
   });
 
+  testWidgets('TC-91: ‹ › の記号は accent、非活性は薄い', (tester) async {
+    await pumpPicker(tester);
+    final scheme = Theme.of(tester.element(card)).colorScheme;
+    Color resolved(IconData icon) {
+      final style = tester
+          .widget<IconButton>(find.widgetWithIcon(IconButton, icon))
+          .style!;
+      final disabled =
+          tester
+              .widget<IconButton>(find.widgetWithIcon(IconButton, icon))
+              .onPressed ==
+          null;
+      return style.foregroundColor!.resolve({
+        if (disabled) WidgetState.disabled,
+      })!;
+    }
+
+    expect(resolved(Icons.chevron_right), scheme.primary);
+    expect(
+      resolved(Icons.chevron_left),
+      scheme.onSurface.withValues(alpha: 0.38),
+    );
+  });
+
   testWidgets('TC-91: 1 件だけなら、カードだけを出して ‹ › と点は出さない', (tester) async {
     await pumpPicker(tester, entry: singleEntry);
     expect(card, findsOneWidget);

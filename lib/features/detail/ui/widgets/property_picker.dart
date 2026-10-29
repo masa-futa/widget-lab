@@ -95,6 +95,12 @@ class PropertyPicker extends ConsumerWidget {
       onDecrease: state.hasPrevious ? notifier.previousTapped : null,
     );
     if (items.length == 1) return card;
+    // 記号は accent（primary）。非活性の色は Flutter の既定（onSurface の 38%）に合わせる
+    final colorScheme = Theme.of(context).colorScheme;
+    final stepStyle = IconButton.styleFrom(
+      foregroundColor: colorScheme.primary,
+      disabledForegroundColor: colorScheme.onSurface.withValues(alpha: 0.38),
+    );
     return Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -102,6 +108,7 @@ class PropertyPicker extends ConsumerWidget {
         Row(
           children: [
             IconButton.filledTonal(
+              style: stepStyle,
               tooltip: l10n.detailPickerPrevious,
               onPressed: state.hasPrevious ? notifier.previousTapped : null,
               icon: const Icon(Icons.chevron_left),
@@ -110,6 +117,7 @@ class PropertyPicker extends ConsumerWidget {
             Expanded(child: card),
             Gap(spacing.xxs),
             IconButton.filledTonal(
+              style: stepStyle,
               tooltip: l10n.detailPickerNext,
               onPressed: state.hasNext ? notifier.nextTapped : null,
               icon: const Icon(Icons.chevron_right),
