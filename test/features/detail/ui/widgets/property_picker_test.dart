@@ -131,6 +131,15 @@ void main() {
     handle.dispose();
   });
 
+  testWidgets('TC-91: 1 件だけなら、カードだけを出して ‹ › と点は出さない', (tester) async {
+    await pumpPicker(tester, entry: singleEntry);
+    expect(card, findsOneWidget);
+    expect(find.byType(IconButton), findsNothing);
+    expect(find.byIcon(Icons.chevron_left), findsNothing);
+    expect(find.byIcon(Icons.chevron_right), findsNothing);
+    expect(find.byKey(const ValueKey('pickerDot-0')), findsNothing);
+  });
+
   testWidgets('TC-91: 点はプロパティと補足の数だけ並び、読み上げない', (tester) async {
     final handle = tester.ensureSemantics();
     await pumpPicker(tester);
