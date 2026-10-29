@@ -5,7 +5,9 @@ import 'package:widget_lab/catalog/model/choice.dart';
 import 'package:widget_lab/catalog/model/code_nest.dart';
 import 'package:widget_lab/catalog/model/demo_args.dart';
 import 'package:widget_lab/catalog/model/property_control.dart';
+import 'package:widget_lab/catalog/model/property_group.dart';
 import 'package:widget_lab/catalog/model/property_spec.dart';
+import 'package:widget_lab/catalog/model/reference_arg.dart';
 import 'package:widget_lab/catalog/model/widget_entry.dart';
 
 final mediaQueryEntry = WidgetEntry(
@@ -24,6 +26,7 @@ final mediaQueryEntry = WidgetEntry(
   properties: [
     PropertySpec(
       name: 'textScaler',
+      group: PropertyGroup.text,
       typeLabel: 'TextScaler',
       description: '文字の倍率。MediaQuery.textScalerOf で読んだ子だけが組み直されます。',
       arg: PropertyArg.nested,
@@ -38,6 +41,7 @@ final mediaQueryEntry = WidgetEntry(
     ),
     const PropertySpec(
       name: 'platformBrightness',
+      group: PropertyGroup.paint,
       typeLabel: 'Brightness',
       description: '端末の明るさの設定。MediaQuery.platformBrightnessOf で読んだ子だけが組み直されます。',
       arg: PropertyArg.nested,
@@ -48,6 +52,24 @@ final mediaQueryEntry = WidgetEntry(
           Choice('dark', Brightness.dark, 'Brightness.dark'),
         ],
       ),
+    ),
+  ],
+  references: const [
+    ReferenceArg(
+      name: 'key',
+      typeLabel: 'Key?',
+      description: 'Widget を見分ける印。並べ替えたときや、状態を引き継ぐときに使う',
+    ),
+    ReferenceArg(
+      name: 'data',
+      typeLabel: 'MediaQueryData',
+      description:
+          '子孫に配る画面の情報。ここでは MediaQuery.of(context).copyWith で、上の項目だけを変える',
+    ),
+    ReferenceArg(
+      name: 'child',
+      typeLabel: 'Widget',
+      description: '画面の情報を受け取る子孫。ここでは項目ごとに読む子の組（コードでは const Readers()）',
     ),
   ],
   build: _build,
