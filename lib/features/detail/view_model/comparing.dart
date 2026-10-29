@@ -3,21 +3,24 @@ sealed class Comparing {
   const Comparing();
 }
 
-/// 見た目を持つ Widget。[name] のプロパティを付けた／付けないで比べる。
+/// 見た目を持つ Widget。[name] のプロパティ（入れ子なら中の [child]）を付けた／付けないで比べる。
 final class ComparingProperty extends Comparing {
-  const ComparingProperty(this.name);
+  const ComparingProperty(this.name, {this.child});
 
   final String name;
 
+  /// 入れ子のプロパティの中で比べる子。`null` はプロパティそのもの。
+  final String? child;
+
   @override
   bool operator ==(Object other) =>
-      other is ComparingProperty && other.name == name;
+      other is ComparingProperty && other.name == name && other.child == child;
 
   @override
-  int get hashCode => name.hashCode;
+  int get hashCode => Object.hash(name, child);
 
   @override
-  String toString() => 'ComparingProperty($name)';
+  String toString() => 'ComparingProperty($name, child: $child)';
 }
 
 /// 見た目を持たない Widget。Widget そのものを使った／使わないで比べる。

@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart'
     show ProviderListenableSelect;
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:widget_lab/catalog/model/control_value.dart';
+import 'package:widget_lab/catalog/model/property_group.dart';
 import 'package:widget_lab/catalog/model/property_setting.dart';
 import 'package:widget_lab/catalog/model/widget_entry.dart';
 import 'package:widget_lab/core/data/catalog_repository.dart';
@@ -10,6 +11,7 @@ import 'package:widget_lab/core/data/url_launcher_client.dart';
 import 'package:widget_lab/features/detail/view_model/code_generator.dart';
 import 'package:widget_lab/features/detail/view_model/comparing.dart';
 import 'package:widget_lab/features/detail/view_model/detail_state.dart';
+import 'package:widget_lab/features/detail/view_model/exclusion_notice.dart';
 import 'package:widget_lab/features/detail/view_model/probe_notifier.dart';
 
 part 'detail_notifier.g.dart';
@@ -36,18 +38,92 @@ class DetailNotifier extends _$DetailNotifier {
     final comparing = state.comparing;
     state = state.copyWith(
       selected: name,
+      selectedChild: () =>
+          DetailState.firstChildOf(state.entry, name, state.settings),
+      showsReferences: false,
+      notice: () => null,
       comparing: () => comparing is ComparingUse ? comparing : null,
     );
   }
 
-  /// 必須のプロパティは変えない。
+  /// [group] のタブを開き、その仲間の最初の ON のプロパティ（なければ先頭）を選ぶ。
+  void groupSelected(PropertyGroup? group) {
+    final specs = state.entry.properties.where((s) => s.group == group);
+    final first =
+        specs.where((s) => s.isOnIn(state.settings)).firstOrNull ??
+        specs.firstOrNull;
+    if (first != null) propertySelected(first.name);
+  }
+
+  /// 補足のタブを開く。補足は比べられないので比較をやめる。
+  void referencesSelected() {
+    state = state.copyWith(
+      showsReferences: true,
+      notice: () => null,
+      comparing: () => null,
+    );
+    _restartProbe();
+  }
+
+  void noticeDismissed() => state = state.copyWith(notice: () => null);
+
+  /// 必須のプロパティは変えない。ON にしたら、同時に使えない相手を OFF にして知らせる。
   void propertyToggled(String name, bool on) {
     final spec = state.entry.properties
         .where((p) => p.name == name)
         .firstOrNull;
     if (spec == null || spec.required) return;
-    _update(name, (setting) => setting.copyWith(on: on));
+    final settings = {...state.settings};
+    final setting = settings[name];
+    if (setting == null) return;
+    settings[name] = setting.copyWith(on: on);
+    String? turnedOff;
+    if (on) {
+      for (final other in spec.excludes) {
+        final otherSetting = settings[other];
+        if (otherSetting == null || !otherSetting.on) continue;
+        settings[other] = otherSetting.copyWith(on: false);
+        turnedOff ??= other;
+      }
+    }
+    state = state.copyWith(
+      settings: settings,
+      notice: () => turnedOff == null
+          ? null
+          : ExclusionNotice(turnedOn: name, turnedOff: turnedOff),
+    );
   }
+
+  /// 入れ子のプロパティの中で [child] を選ぶ。子の比較はやめる。
+  void childSelected(String child) {
+    final comparing = state.comparing;
+    state = state.copyWith(
+      selectedChild: () => child,
+      comparing: () => comparing is ComparingProperty && comparing.child != null
+          ? null
+          : comparing,
+    );
+  }
+
+  void childToggled(String parent, String child, bool on) =>
+      _updateChild(parent, child, (s) => s.copyWith(on: on));
+
+  void childValueChanged(String parent, String child, ControlValue value) =>
+      _updateChild(parent, child, (s) => s.copyWith(value: value));
+
+  void _updateChild(
+    String parent,
+    String child,
+    PropertySetting Function(PropertySetting setting) change,
+  ) => _update(parent, (setting) {
+    final value = setting.value;
+    if (value is! NestedValue) return setting;
+    final childSetting = value.settings[child];
+    if (childSetting == null) return setting;
+    return setting.copyWith(
+      value: value.copyWithChild(child, change(childSetting)),
+    );
+  });
 
   void propertyValueChanged(String name, ControlValue value) =>
       _update(name, (setting) => setting.copyWith(value: value));
@@ -65,7 +141,10 @@ class DetailNotifier extends _$DetailNotifier {
     state = state.copyWith(
       comparing: () => switch ((state.comparing, state.entry.kind)) {
         (Comparing(), _) => null,
-        (null, EntryKind.visual) => ComparingProperty(name),
+        (null, EntryKind.visual) => ComparingProperty(
+          name,
+          child: name == state.selected ? state.selectedChild : null,
+        ),
         (null, EntryKind.behavior) => const ComparingUse(),
       },
     );
@@ -110,6 +189,7 @@ class DetailNotifier extends _$DetailNotifier {
     if (setting == null) return;
     state = state.copyWith(
       settings: {...state.settings, name: change(setting)},
+      notice: () => null,
     );
   }
 }
