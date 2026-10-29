@@ -2,7 +2,9 @@ import 'package:flutter/cupertino.dart';
 import 'package:widget_lab/catalog/model/choice.dart';
 import 'package:widget_lab/catalog/model/demo_args.dart';
 import 'package:widget_lab/catalog/model/property_control.dart';
+import 'package:widget_lab/catalog/model/property_group.dart';
 import 'package:widget_lab/catalog/model/property_spec.dart';
+import 'package:widget_lab/catalog/model/reference_arg.dart';
 import 'package:widget_lab/catalog/model/widget_entry.dart';
 
 /// 選べる色。CupertinoColors の多くは明るさで変わる CupertinoDynamicColor。
@@ -59,24 +61,48 @@ final cupertinoColorsEntry = WidgetEntry(
   properties: const [
     PropertySpec(
       name: 'color',
+      group: PropertyGroup.paint,
       typeLabel: 'Color',
       description: '塗る色。CupertinoColors から選ぶ',
       required: true,
       control: ChoiceControl(choices: _colors),
     ),
+    PropertySpec(
+      name: 'child',
+      group: PropertyGroup.content,
+      typeLabel: 'Widget?',
+      description: '色を塗る範囲を決める子。ここでは幅 120・高さ 80 の空の箱',
+      required: true,
+      control: FixedControl(
+        value: SizedBox(width: 120, height: 80),
+        source: 'const SizedBox(width: 120, height: 80)',
+      ),
+    ),
+  ],
+  references: const [
+    ReferenceArg(
+      name: 'key',
+      typeLabel: 'Key?',
+      description: 'Widget を見分ける印。並べ替えたときや、状態を引き継ぐときに使う',
+    ),
+    ReferenceArg(
+      name: 'isAntiAlias',
+      typeLabel: 'bool',
+      description: '塗りの縁をなめらかにするか。傾けない四角では違いが見えない',
+    ),
   ],
   build: _build,
   codeName: 'ColoredBox',
-  codeArguments: const ['child: const SizedBox(width: 120, height: 80)'],
 );
 
 Widget _build(DemoArgs args) {
-  // 必須のプロパティなので、常に値がある
+  // color は必須のプロパティなので、常に値がある
   final color = args.valueOf<Color>('color')!;
+  final child = args.valueOf<Widget>('child');
   return Builder(
     builder: (context) => ColoredBox(
       color: CupertinoDynamicColor.resolve(color, context),
-      child: const SizedBox(width: 120, height: 80),
+      child: child,
     ),
   );
 }

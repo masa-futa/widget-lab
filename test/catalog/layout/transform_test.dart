@@ -11,6 +11,8 @@ void main() {
 
     expect(built.transform, Matrix4.identity());
     expect(built.alignment, isNull);
+    expect(built.origin, isNull);
+    expect(built.filterQuality, isNull);
     expect(built.child, isNull);
   });
 }

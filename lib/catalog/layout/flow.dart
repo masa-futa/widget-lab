@@ -3,7 +3,9 @@ import 'package:widget_lab/catalog/demo/demo_tile.dart';
 import 'package:widget_lab/catalog/model/choice.dart';
 import 'package:widget_lab/catalog/model/demo_args.dart';
 import 'package:widget_lab/catalog/model/property_control.dart';
+import 'package:widget_lab/catalog/model/property_group.dart';
 import 'package:widget_lab/catalog/model/property_spec.dart';
+import 'package:widget_lab/catalog/model/reference_arg.dart';
 import 'package:widget_lab/catalog/model/widget_entry.dart';
 
 final flowEntry = WidgetEntry(
@@ -19,6 +21,7 @@ final flowEntry = WidgetEntry(
   properties: const [
     PropertySpec(
       name: 'delegate',
+      group: PropertyGroup.layout,
       typeLabel: 'FlowDelegate',
       description: '子の描き方',
       required: true,
@@ -26,11 +29,13 @@ final flowEntry = WidgetEntry(
         choices: [
           Choice('横に並べる', _RowDelegate(), 'const RowDelegate()'),
           Choice('重ねてずらす', _StackDelegate(), 'const StackDelegate()'),
+          Choice('左上にはみ出す', _OverflowDelegate(), 'const OverflowDelegate()'),
         ],
       ),
     ),
     PropertySpec(
       name: 'children',
+      group: PropertyGroup.content,
       typeLabel: 'List<Widget>',
       description: '描く子（40×40）',
       control: FixedControl(
@@ -43,6 +48,27 @@ final flowEntry = WidgetEntry(
         source: '[Tile(1), Tile(2), Tile(3), Tile(4)]',
       ),
     ),
+    PropertySpec(
+      name: 'clipBehavior',
+      group: PropertyGroup.transform,
+      typeLabel: 'Clip',
+      description: '自分の外にはみ出して描いた子を切るか。既定は hardEdge（切る）',
+      initiallyOn: false,
+      control: ChoiceControl(
+        choices: [
+          Choice('none', Clip.none, 'Clip.none'),
+          Choice('hardEdge', Clip.hardEdge, 'Clip.hardEdge'),
+          Choice('antiAlias', Clip.antiAlias, 'Clip.antiAlias'),
+        ],
+      ),
+    ),
+  ],
+  references: const [
+    ReferenceArg(
+      name: 'key',
+      typeLabel: 'Key?',
+      description: 'Widget を見分ける印。並べ替えたときや、状態を引き継ぐときに使う',
+    ),
   ],
   build: _build,
   codeName: 'Flow',
@@ -51,6 +77,7 @@ final flowEntry = WidgetEntry(
 Widget _build(DemoArgs args) => Flow(
   // 必須のプロパティなので、常に値がある
   delegate: args.valueOf<FlowDelegate>('delegate')!,
+  clipBehavior: args.valueOf<Clip>('clipBehavior') ?? Clip.hardEdge,
   children: args.valueOf<List<Widget>>('children') ?? const [],
 );
 
@@ -87,4 +114,22 @@ class _StackDelegate extends FlowDelegate {
 
   @override
   bool shouldRepaint(_StackDelegate oldDelegate) => false;
+}
+
+/// 左上へ 16 ずつはみ出した所から、右へ 24 ずつずらして描く（clipBehavior の違いが見える）。
+class _OverflowDelegate extends FlowDelegate {
+  const _OverflowDelegate();
+
+  @override
+  void paintChildren(FlowPaintingContext context) {
+    for (var i = 0; i < context.childCount; i++) {
+      context.paintChild(
+        i,
+        transform: Matrix4.translationValues(i * 24.0 - 16, -16, 0),
+      );
+    }
+  }
+
+  @override
+  bool shouldRepaint(_OverflowDelegate oldDelegate) => false;
 }

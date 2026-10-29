@@ -1,7 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:widget_lab/catalog/model/demo_args.dart';
 import 'package:widget_lab/catalog/model/property_control.dart';
+import 'package:widget_lab/catalog/model/property_group.dart';
 import 'package:widget_lab/catalog/model/property_spec.dart';
+import 'package:widget_lab/catalog/model/reference_arg.dart';
 import 'package:widget_lab/catalog/model/widget_entry.dart';
 
 final cupertinoScrollBehaviorEntry = WidgetEntry(
@@ -19,12 +21,25 @@ final cupertinoScrollBehaviorEntry = WidgetEntry(
   properties: const [
     PropertySpec(
       name: 'behavior',
+      group: PropertyGroup.behavior,
       typeLabel: 'ScrollBehavior',
       description: '子孫のスクロールの動き。OFF なら親（アプリ）の ScrollBehavior のまま',
       control: FixedControl(
         value: CupertinoScrollBehavior(),
         source: 'const CupertinoScrollBehavior()',
       ),
+    ),
+  ],
+  references: const [
+    ReferenceArg(
+      name: 'key',
+      typeLabel: 'Key?',
+      description: 'Widget を見分ける印。並べ替えたときや、状態を引き継ぐときに使う',
+    ),
+    ReferenceArg(
+      name: 'child',
+      typeLabel: 'Widget',
+      description: 'スクロールの動きを変える範囲の Widget。ここでは行を並べた ListView',
     ),
   ],
   build: _build,

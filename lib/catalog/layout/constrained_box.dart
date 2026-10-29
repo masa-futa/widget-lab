@@ -2,7 +2,9 @@ import 'package:flutter/widgets.dart';
 import 'package:widget_lab/catalog/model/choice.dart';
 import 'package:widget_lab/catalog/model/demo_args.dart';
 import 'package:widget_lab/catalog/model/property_control.dart';
+import 'package:widget_lab/catalog/model/property_group.dart';
 import 'package:widget_lab/catalog/model/property_spec.dart';
+import 'package:widget_lab/catalog/model/reference_arg.dart';
 import 'package:widget_lab/catalog/model/widget_entry.dart';
 
 final constrainedBoxEntry = WidgetEntry(
@@ -20,6 +22,7 @@ final constrainedBoxEntry = WidgetEntry(
   properties: const [
     PropertySpec(
       name: 'constraints',
+      group: PropertyGroup.size,
       typeLabel: 'BoxConstraints',
       description: '子に足す制約',
       control: ChoiceControl(
@@ -45,9 +48,17 @@ final constrainedBoxEntry = WidgetEntry(
     ),
     PropertySpec(
       name: 'child',
+      group: PropertyGroup.content,
       typeLabel: 'Widget?',
       description: '制約を受ける Widget。FlutterLogo はふだん 24×24',
       control: FixedControl(value: FlutterLogo(), source: 'FlutterLogo()'),
+    ),
+  ],
+  references: const [
+    ReferenceArg(
+      name: 'key',
+      typeLabel: 'Key?',
+      description: 'Widget を見分ける印。並べ替えたときや、状態を引き継ぐときに使う',
     ),
   ],
   build: _build,

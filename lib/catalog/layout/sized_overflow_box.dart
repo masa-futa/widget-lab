@@ -4,7 +4,9 @@ import 'package:widget_lab/catalog/demo/demo_tile.dart';
 import 'package:widget_lab/catalog/model/choice.dart';
 import 'package:widget_lab/catalog/model/demo_args.dart';
 import 'package:widget_lab/catalog/model/property_control.dart';
+import 'package:widget_lab/catalog/model/property_group.dart';
 import 'package:widget_lab/catalog/model/property_spec.dart';
+import 'package:widget_lab/catalog/model/reference_arg.dart';
 import 'package:widget_lab/catalog/model/widget_entry.dart';
 
 final sizedOverflowBoxEntry = WidgetEntry(
@@ -21,6 +23,7 @@ final sizedOverflowBoxEntry = WidgetEntry(
   properties: const [
     PropertySpec(
       name: 'size',
+      group: PropertyGroup.size,
       typeLabel: 'Size',
       description: '自分の大きさ',
       required: true,
@@ -34,6 +37,7 @@ final sizedOverflowBoxEntry = WidgetEntry(
     ),
     PropertySpec(
       name: 'alignment',
+      group: PropertyGroup.layout,
       typeLabel: 'AlignmentGeometry',
       description: '子を置く位置。既定は center',
       initiallyOn: false,
@@ -41,12 +45,20 @@ final sizedOverflowBoxEntry = WidgetEntry(
     ),
     PropertySpec(
       name: 'child',
+      group: PropertyGroup.content,
       typeLabel: 'Widget?',
       description: '置く Widget（64×40）',
       control: FixedControl(
         value: DemoTile(1, width: 64, height: 40),
         source: 'Tile(1)',
       ),
+    ),
+  ],
+  references: const [
+    ReferenceArg(
+      name: 'key',
+      typeLabel: 'Key?',
+      description: 'Widget を見分ける印。並べ替えたときや、状態を引き継ぐときに使う',
     ),
   ],
   build: _build,

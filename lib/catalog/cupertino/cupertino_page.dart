@@ -2,7 +2,9 @@ import 'package:flutter/cupertino.dart';
 import 'package:widget_lab/catalog/demo/demo_navigator.dart';
 import 'package:widget_lab/catalog/model/demo_args.dart';
 import 'package:widget_lab/catalog/model/property_control.dart';
+import 'package:widget_lab/catalog/model/property_group.dart';
 import 'package:widget_lab/catalog/model/property_spec.dart';
+import 'package:widget_lab/catalog/model/reference_arg.dart';
 import 'package:widget_lab/catalog/model/widget_entry.dart';
 
 final cupertinoPageEntry = WidgetEntry(
@@ -20,23 +22,71 @@ final cupertinoPageEntry = WidgetEntry(
   properties: const [
     PropertySpec(
       name: 'title',
+      group: PropertyGroup.content,
       typeLabel: 'String?',
       description: '画面の題。CupertinoNavigationBar の真ん中と、戻るボタンの文字に使われる',
       control: TextControl(initialValue: '設定'),
     ),
     PropertySpec(
       name: 'fullscreenDialog',
+      group: PropertyGroup.behavior,
       typeLabel: 'bool',
       description: 'true なら下からせり上がり、戻るボタンの代わりに閉じるボタンが出る',
       initiallyOn: false,
       control: SwitchControl(initialValue: true),
     ),
     PropertySpec(
+      name: 'canPop',
+      group: PropertyGroup.behavior,
+      typeLabel: 'bool',
+      description: 'false なら、戻るボタンや左端から引く操作でこの画面から戻れなくなる',
+      initiallyOn: false,
+      control: SwitchControl(initialValue: false),
+    ),
+    PropertySpec(
       name: 'child',
+      group: PropertyGroup.content,
       typeLabel: 'Widget',
       description: '画面の中身',
       required: true,
       control: FixedControl(value: DemoNextPage(), source: 'const NextPage()'),
+    ),
+  ],
+  references: const [
+    ReferenceArg(
+      name: 'key',
+      typeLabel: 'LocalKey?',
+      description: 'Page を見分ける印。pages を並べ替えたときに、どの画面かを引き継ぐのに使う',
+    ),
+    ReferenceArg(
+      name: 'maintainState',
+      typeLabel: 'bool',
+      description: '上に別の画面が来て隠れている間も、この画面の状態を残しておくか',
+    ),
+    ReferenceArg(
+      name: 'allowSnapshotting',
+      typeLabel: 'bool',
+      description: '遷移の動きの間、画面を画像に写して軽く動かしてよいか',
+    ),
+    ReferenceArg(
+      name: 'onPopInvoked',
+      typeLabel: 'PopInvokedWithResultCallback<T>',
+      description: '戻る操作をしたときに呼ばれる。canPop が false で戻れなかったときも呼ばれる',
+    ),
+    ReferenceArg(
+      name: 'name',
+      typeLabel: 'String?',
+      description: 'Route の名前。Navigator の記録に使う',
+    ),
+    ReferenceArg(
+      name: 'arguments',
+      typeLabel: 'Object?',
+      description: 'Route に渡す引数',
+    ),
+    ReferenceArg(
+      name: 'restorationId',
+      typeLabel: 'String?',
+      description: 'アプリを作り直したときに、この画面を元に戻すための ID',
     ),
   ],
   build: _build,
@@ -46,6 +96,7 @@ final cupertinoPageEntry = WidgetEntry(
 Widget _build(DemoArgs args) => _PagesDemo(
   title: args.valueOf<String>('title'),
   fullscreenDialog: args.valueOf<bool>('fullscreenDialog') ?? false,
+  canPop: args.valueOf<bool>('canPop') ?? true,
   // 必須のプロパティなので、常に値がある
   child: args.valueOf<Widget>('child')!,
 );
@@ -55,11 +106,13 @@ class _PagesDemo extends StatefulWidget {
   const _PagesDemo({
     required this.title,
     required this.fullscreenDialog,
+    required this.canPop,
     required this.child,
   });
 
   final String? title;
   final bool fullscreenDialog;
+  final bool canPop;
   final Widget child;
 
   @override
@@ -89,6 +142,7 @@ class _PagesDemoState extends State<_PagesDemo> {
               key: const ValueKey('next'),
               title: widget.title,
               fullscreenDialog: widget.fullscreenDialog,
+              canPop: widget.canPop,
               child: widget.child,
             ),
         ],

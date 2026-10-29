@@ -2,7 +2,9 @@ import 'package:flutter/widgets.dart';
 import 'package:widget_lab/catalog/demo/demo_choices.dart';
 import 'package:widget_lab/catalog/model/demo_args.dart';
 import 'package:widget_lab/catalog/model/property_control.dart';
+import 'package:widget_lab/catalog/model/property_group.dart';
 import 'package:widget_lab/catalog/model/property_spec.dart';
+import 'package:widget_lab/catalog/model/reference_arg.dart';
 import 'package:widget_lab/catalog/model/widget_entry.dart';
 
 final limitedBoxEntry = WidgetEntry(
@@ -21,6 +23,7 @@ final limitedBoxEntry = WidgetEntry(
   properties: const [
     PropertySpec(
       name: 'maxWidth',
+      group: PropertyGroup.size,
       typeLabel: 'double',
       description: '幅に上限がないときの上限。既定は無限（上限なし）',
       control: SliderControl(
@@ -34,6 +37,7 @@ final limitedBoxEntry = WidgetEntry(
     ),
     PropertySpec(
       name: 'maxHeight',
+      group: PropertyGroup.size,
       typeLabel: 'double',
       description: '高さに上限がないときの上限。既定は無限（上限なし）',
       control: SliderControl(
@@ -47,12 +51,20 @@ final limitedBoxEntry = WidgetEntry(
     ),
     PropertySpec(
       name: 'child',
+      group: PropertyGroup.content,
       typeLabel: 'Widget?',
       description: '上限を受ける Widget。色だけの Container は使える広さいっぱいに広がる',
       control: FixedControl(
         value: ColoredBox(color: Color(0xFF1E50A2)),
         source: 'Container(color: Color(0xFF1E50A2))',
       ),
+    ),
+  ],
+  references: const [
+    ReferenceArg(
+      name: 'key',
+      typeLabel: 'Key?',
+      description: 'Widget を見分ける印。並べ替えたときや、状態を引き継ぐときに使う',
     ),
   ],
   build: _build,
