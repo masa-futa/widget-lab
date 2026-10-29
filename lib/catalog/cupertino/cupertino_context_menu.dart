@@ -1,7 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:widget_lab/catalog/model/demo_args.dart';
 import 'package:widget_lab/catalog/model/property_control.dart';
+import 'package:widget_lab/catalog/model/property_group.dart';
 import 'package:widget_lab/catalog/model/property_spec.dart';
+import 'package:widget_lab/catalog/model/reference_arg.dart';
 import 'package:widget_lab/catalog/model/widget_entry.dart';
 
 final cupertinoContextMenuEntry = WidgetEntry(
@@ -18,6 +20,7 @@ final cupertinoContextMenuEntry = WidgetEntry(
   properties: const [
     PropertySpec(
       name: 'actions',
+      group: PropertyGroup.content,
       typeLabel: 'List<Widget>',
       description: 'メニューの項目。ふつうは CupertinoContextMenuAction を並べる。空にはできない',
       required: true,
@@ -31,6 +34,7 @@ final cupertinoContextMenuEntry = WidgetEntry(
     ),
     PropertySpec(
       name: 'enableHapticFeedback',
+      group: PropertyGroup.behavior,
       typeLabel: 'bool',
       description: 'true なら、開いたときに端末を軽く震わせる',
       initiallyOn: false,
@@ -38,10 +42,18 @@ final cupertinoContextMenuEntry = WidgetEntry(
     ),
     PropertySpec(
       name: 'child',
+      group: PropertyGroup.content,
       typeLabel: 'Widget',
       description: '長押しする Widget。開くと浮き上がる',
       required: true,
       control: FixedControl(value: _Photo(), source: 'const Photo()'),
+    ),
+  ],
+  references: const [
+    ReferenceArg(
+      name: 'key',
+      typeLabel: 'Key?',
+      description: 'Widget を見分ける印。並べ替えたときや、状態を引き継ぐときに使う',
     ),
   ],
   build: _build,

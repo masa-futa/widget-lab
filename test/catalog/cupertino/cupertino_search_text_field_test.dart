@@ -22,5 +22,14 @@ void main() {
     expect(built.itemColor, defaults.itemColor);
     expect(built.suffixMode, defaults.suffixMode);
     expect(built.enabled, defaults.enabled);
+    expect(built.decoration, defaults.decoration);
+    expect(built.padding, defaults.padding);
+    expect(built.itemSize, defaults.itemSize);
+    expect(built.prefixInsets, defaults.prefixInsets);
+    expect(built.suffixInsets, defaults.suffixInsets);
+    expect(built.style, defaults.style);
+    expect(built.placeholderStyle, defaults.placeholderStyle);
+    expect(built.cursorWidth, defaults.cursorWidth);
+    expect(built.cursorRadius, defaults.cursorRadius);
   });
 }

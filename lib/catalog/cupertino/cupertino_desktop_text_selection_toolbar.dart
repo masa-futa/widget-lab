@@ -2,7 +2,9 @@ import 'package:flutter/cupertino.dart';
 import 'package:widget_lab/catalog/model/choice.dart';
 import 'package:widget_lab/catalog/model/demo_args.dart';
 import 'package:widget_lab/catalog/model/property_control.dart';
+import 'package:widget_lab/catalog/model/property_group.dart';
 import 'package:widget_lab/catalog/model/property_spec.dart';
+import 'package:widget_lab/catalog/model/reference_arg.dart';
 import 'package:widget_lab/catalog/model/widget_entry.dart';
 
 final cupertinoDesktopTextSelectionToolbarEntry = WidgetEntry(
@@ -20,6 +22,7 @@ final cupertinoDesktopTextSelectionToolbarEntry = WidgetEntry(
   properties: [
     PropertySpec(
       name: 'anchor',
+      group: PropertyGroup.layout,
       typeLabel: 'Offset',
       description: 'メニューの左上の角を置く点。ここでは横の位置を変える',
       required: true,
@@ -34,6 +37,7 @@ final cupertinoDesktopTextSelectionToolbarEntry = WidgetEntry(
     ),
     const PropertySpec(
       name: 'children',
+      group: PropertyGroup.content,
       typeLabel: 'List<Widget>',
       description: 'メニューの項目',
       required: true,
@@ -71,6 +75,13 @@ final cupertinoDesktopTextSelectionToolbarEntry = WidgetEntry(
           ),
         ],
       ),
+    ),
+  ],
+  references: const [
+    ReferenceArg(
+      name: 'key',
+      typeLabel: 'Key?',
+      description: 'Widget を見分ける印。並べ替えたときや、状態を引き継ぐときに使う',
     ),
   ],
   build: _build,

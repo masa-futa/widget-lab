@@ -3,7 +3,9 @@ import 'package:widget_lab/catalog/demo/demo_choices.dart';
 import 'package:widget_lab/catalog/model/choice.dart';
 import 'package:widget_lab/catalog/model/demo_args.dart';
 import 'package:widget_lab/catalog/model/property_control.dart';
+import 'package:widget_lab/catalog/model/property_group.dart';
 import 'package:widget_lab/catalog/model/property_spec.dart';
+import 'package:widget_lab/catalog/model/reference_arg.dart';
 import 'package:widget_lab/catalog/model/widget_entry.dart';
 
 final baselineEntry = WidgetEntry(
@@ -20,6 +22,7 @@ final baselineEntry = WidgetEntry(
   properties: const [
     PropertySpec(
       name: 'baseline',
+      group: PropertyGroup.layout,
       typeLabel: 'double',
       description: '上端からベースラインまでの距離',
       required: true,
@@ -34,6 +37,7 @@ final baselineEntry = WidgetEntry(
     ),
     PropertySpec(
       name: 'baselineType',
+      group: PropertyGroup.layout,
       typeLabel: 'TextBaseline',
       description: 'どのベースラインに合わせるか。alphabetic は欧文、ideographic は漢字の下端',
       required: true,
@@ -54,12 +58,20 @@ final baselineEntry = WidgetEntry(
     ),
     PropertySpec(
       name: 'child',
+      group: PropertyGroup.content,
       typeLabel: 'Widget?',
       description: 'ベースラインを合わせる Widget',
       control: FixedControl(
         value: Text('Baseline 字', style: TextStyle(fontSize: 24)),
         source: "Text('Baseline 字', style: TextStyle(fontSize: 24))",
       ),
+    ),
+  ],
+  references: const [
+    ReferenceArg(
+      name: 'key',
+      typeLabel: 'Key?',
+      description: 'Widget を見分ける印。並べ替えたときや、状態を引き継ぐときに使う',
     ),
   ],
   build: _build,

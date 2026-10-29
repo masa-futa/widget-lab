@@ -1,7 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:widget_lab/catalog/model/demo_args.dart';
 import 'package:widget_lab/catalog/model/property_control.dart';
+import 'package:widget_lab/catalog/model/property_group.dart';
 import 'package:widget_lab/catalog/model/property_spec.dart';
+import 'package:widget_lab/catalog/model/reference_arg.dart';
 import 'package:widget_lab/catalog/model/widget_entry.dart';
 
 final cupertinoSliverRefreshControlEntry = WidgetEntry(
@@ -19,6 +21,7 @@ final cupertinoSliverRefreshControlEntry = WidgetEntry(
   properties: [
     PropertySpec(
       name: 'refreshTriggerPullDistance',
+      group: PropertyGroup.behavior,
       typeLabel: 'double',
       description: 'どれだけ引くと読み込みを始めるか。指定しないと 100',
       initiallyOn: false,
@@ -33,6 +36,7 @@ final cupertinoSliverRefreshControlEntry = WidgetEntry(
     ),
     PropertySpec(
       name: 'refreshIndicatorExtent',
+      group: PropertyGroup.size,
       typeLabel: 'double',
       description: '読み込みの間、印のために空けておく高さ。指定しないと 60',
       initiallyOn: false,
@@ -46,7 +50,21 @@ final cupertinoSliverRefreshControlEntry = WidgetEntry(
       ),
     ),
     const PropertySpec(
+      name: 'builder',
+      group: PropertyGroup.content,
+      typeLabel: 'RefreshControlIndicatorBuilder?',
+      description: '引いている間に出す印を組み立てる。指定しないと、くるくる回る印',
+      initiallyOn: false,
+      control: FixedControl(
+        value: _indicator,
+        source:
+            '(context, mode, pulledExtent, triggerDistance, indicatorExtent) => '
+            'Center(child: Text(mode.name))',
+      ),
+    ),
+    const PropertySpec(
       name: 'onRefresh',
+      group: PropertyGroup.behavior,
       typeLabel: 'Future<void> Function()?',
       description: '引ききったときに呼ばれる。返した Future が終わるまで印が回る。null なら引いても読み込まない',
       control: FixedControl(
@@ -55,9 +73,24 @@ final cupertinoSliverRefreshControlEntry = WidgetEntry(
       ),
     ),
   ],
+  references: const [
+    ReferenceArg(
+      name: 'key',
+      typeLabel: 'Key?',
+      description: 'Widget を見分ける印。並べ替えたときや、状態を引き継ぐときに使う',
+    ),
+  ],
   build: _build,
   codeName: 'CupertinoSliverRefreshControl',
 );
+
+Widget _indicator(
+  BuildContext context,
+  RefreshIndicatorMode mode,
+  double pulledExtent,
+  double triggerDistance,
+  double indicatorExtent,
+) => Center(child: Text(mode.name));
 
 Future<void> _refresh() => Future.delayed(const Duration(seconds: 2));
 
@@ -76,6 +109,9 @@ Widget _build(DemoArgs args) => SizedBox(
         refreshIndicatorExtent:
             args.valueOf<double>('refreshIndicatorExtent') ?? 60,
         onRefresh: args.valueOf<Future<void> Function()>('onRefresh'),
+        builder:
+            args.valueOf<RefreshControlIndicatorBuilder>('builder') ??
+            CupertinoSliverRefreshControl.buildRefreshIndicator,
       ),
       SliverList.builder(
         itemCount: 20,

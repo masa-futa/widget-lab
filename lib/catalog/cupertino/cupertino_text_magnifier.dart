@@ -2,7 +2,9 @@ import 'package:flutter/cupertino.dart';
 import 'package:widget_lab/catalog/model/choice.dart';
 import 'package:widget_lab/catalog/model/demo_args.dart';
 import 'package:widget_lab/catalog/model/property_control.dart';
+import 'package:widget_lab/catalog/model/property_group.dart';
 import 'package:widget_lab/catalog/model/property_spec.dart';
+import 'package:widget_lab/catalog/model/reference_arg.dart';
 import 'package:widget_lab/catalog/model/widget_entry.dart';
 
 final cupertinoTextMagnifierEntry = WidgetEntry(
@@ -20,6 +22,7 @@ final cupertinoTextMagnifierEntry = WidgetEntry(
   properties: [
     PropertySpec(
       name: 'dragResistance',
+      group: PropertyGroup.behavior,
       typeLabel: 'double',
       description: '指の上下の動きにどれだけ遅れてついていくか。大きいほど動きにくい',
       initiallyOn: false,
@@ -34,6 +37,7 @@ final cupertinoTextMagnifierEntry = WidgetEntry(
     ),
     PropertySpec(
       name: 'hideBelowThreshold',
+      group: PropertyGroup.behavior,
       typeLabel: 'double',
       description: '指が文字の行からこれより下へ離れると消える',
       initiallyOn: false,
@@ -48,6 +52,7 @@ final cupertinoTextMagnifierEntry = WidgetEntry(
     ),
     PropertySpec(
       name: 'horizontalScreenEdgePadding',
+      group: PropertyGroup.spacing,
       typeLabel: 'double',
       description: '画面の左右の端から、これより内側に収める',
       initiallyOn: false,
@@ -62,6 +67,7 @@ final cupertinoTextMagnifierEntry = WidgetEntry(
     ),
     const PropertySpec(
       name: 'animationCurve',
+      group: PropertyGroup.behavior,
       typeLabel: 'Curve',
       description: '出るときと消えるときの動きの緩急',
       initiallyOn: false,
@@ -71,6 +77,23 @@ final cupertinoTextMagnifierEntry = WidgetEntry(
           Choice('linear', Curves.linear, 'Curves.linear'),
         ],
       ),
+    ),
+  ],
+  references: const [
+    ReferenceArg(
+      name: 'key',
+      typeLabel: 'Key?',
+      description: 'Widget を見分ける印。並べ替えたときや、状態を引き継ぐときに使う',
+    ),
+    ReferenceArg(
+      name: 'controller',
+      typeLabel: 'MagnifierController',
+      description: '拡大鏡を出したり消したりする係。magnifierBuilder から受け取ったものを渡す',
+    ),
+    ReferenceArg(
+      name: 'magnifierInfo',
+      typeLabel: 'ValueNotifier<MagnifierInfo>',
+      description: '指の位置や選んでいる行など、拡大鏡を置く場所の手がかり。magnifierBuilder から受け取ったものを渡す',
     ),
   ],
   build: _build,

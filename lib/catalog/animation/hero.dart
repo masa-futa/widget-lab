@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:widget_lab/catalog/animation/shared_specs.dart';
 import 'package:widget_lab/catalog/demo/demo_recorder.dart';
 import 'package:widget_lab/catalog/demo/demo_scope.dart';
 import 'package:widget_lab/catalog/model/choice.dart';
 import 'package:widget_lab/catalog/model/demo_args.dart';
 import 'package:widget_lab/catalog/model/property_control.dart';
+import 'package:widget_lab/catalog/model/property_group.dart';
 import 'package:widget_lab/catalog/model/property_spec.dart';
+import 'package:widget_lab/catalog/model/reference_arg.dart';
 import 'package:widget_lab/catalog/model/widget_entry.dart';
 
 /// Hero は同じ tag が木の中で一意であることを前提にするので、見本はアイコンにする
@@ -24,6 +27,7 @@ final heroEntry = WidgetEntry(
   properties: [
     const PropertySpec(
       name: 'tag',
+      group: PropertyGroup.behavior,
       typeLabel: 'Object',
       description: '前後の画面の Hero を結び付ける目印。両方の画面で同じ値にする',
       required: true,
@@ -31,6 +35,8 @@ final heroEntry = WidgetEntry(
     ),
     PropertySpec(
       name: 'curve',
+      group: PropertyGroup.behavior,
+      pairsWith: const ['reverseCurve'],
       typeLabel: 'Curve',
       description: '飛ぶ動きの速さの変わり方。指定しないと fastOutSlowIn',
       initiallyOn: false,
@@ -45,8 +51,48 @@ final heroEntry = WidgetEntry(
         ],
       ),
     ),
+    PropertySpec(
+      name: 'reverseCurve',
+      typeLabel: 'Curve?',
+      description: '戻るときの飛ぶ動きの速さの変わり方。指定しないと curve を逆にしたもの',
+      initiallyOn: false,
+      group: PropertyGroup.behavior,
+      pairsWith: const ['curve'],
+      control: ChoiceControl(
+        choices: [
+          for (final (name, curve) in const [
+            ('linear', Curves.linear),
+            ('easeInOutBack', Curves.easeInOutBack),
+            ('bounceOut', Curves.bounceOut),
+          ])
+            Choice(name, curve, 'Curves.$name'),
+        ],
+      ),
+    ),
+    const PropertySpec(
+      name: 'createRectTween',
+      typeLabel: 'CreateRectTween?',
+      description: '飛ぶ道すじを決める関数。指定しないと HeroController の決め方（Material では弧を描く）',
+      initiallyOn: false,
+      group: PropertyGroup.behavior,
+      control: ChoiceControl(
+        choices: [
+          Choice(
+            'まっすぐ',
+            _straight,
+            '(begin, end) => RectTween(begin: begin, end: end)',
+          ),
+          Choice(
+            '中心が弧を描く',
+            _centerArc,
+            '(begin, end) => MaterialRectCenterArcTween(begin: begin, end: end)',
+          ),
+        ],
+      ),
+    ),
     const PropertySpec(
       name: 'child',
+      group: PropertyGroup.content,
       typeLabel: 'Widget',
       description: '飛ばす Widget。前後の画面で見た目が違ってよい（大きさは画面ごとに決まる）',
       required: true,
@@ -56,19 +102,52 @@ final heroEntry = WidgetEntry(
       ),
     ),
   ],
+  references: const [
+    keyReference,
+    ReferenceArg(
+      name: 'flightShuttleBuilder',
+      typeLabel: 'HeroFlightShuttleBuilder?',
+      description: '飛んでいる間に見せる Widget を組み立てる関数。指定しないと行き先の画面の child',
+    ),
+    ReferenceArg(
+      name: 'placeholderBuilder',
+      typeLabel: 'HeroPlaceholderBuilder?',
+      description: '飛んでいる間、元の場所に置いておく Widget を組み立てる関数。指定しないと空の箱',
+    ),
+    ReferenceArg(
+      name: 'transitionOnUserGestures',
+      typeLabel: 'bool',
+      description: 'iOS の端からのスワイプで戻るときも飛ばすか。見本ではボタンで戻るので違いが見えない',
+    ),
+  ],
   build: _build,
   buildWithout: _buildWithout,
   codeName: 'Hero',
 );
 
+Tween<Rect?> _straight(Rect? begin, Rect? end) =>
+    RectTween(begin: begin, end: end);
+
+Tween<Rect?> _centerArc(Rect? begin, Rect? end) =>
+    MaterialRectCenterArcTween(begin: begin, end: end);
+
 Widget _build(DemoArgs args) {
   final curve = args.valueOf<Curve>('curve');
+  final reverseCurve = args.valueOf<Curve>('reverseCurve');
+  final createRectTween = args.valueOf<CreateRectTween>('createRectTween');
+  final extra = [
+    if (curve != null) 'curve: …',
+    if (reverseCurve != null) 'reverseCurve: …',
+    if (createRectTween != null) 'createRectTween: …',
+  ];
   return DemoScope(
-    label: 'Hero(tag: logo${curve == null ? '' : ', curve: …'})',
+    label: 'Hero(${['tag: logo', ...extra].join(', ')})',
     child: _HeroDemo(
       useHero: true,
       tag: args.valueOf<Object>('tag') ?? 'logo',
       curve: curve ?? Curves.fastOutSlowIn,
+      reverseCurve: reverseCurve,
+      createRectTween: createRectTween,
       child: args.valueOf<Widget>('child') ?? const FlutterLogo(),
     ),
   );
@@ -80,6 +159,8 @@ Widget _buildWithout(DemoArgs args) => DemoFit(
     useHero: false,
     tag: args.valueOf<Object>('tag') ?? 'logo',
     curve: Curves.fastOutSlowIn,
+    reverseCurve: null,
+    createRectTween: null,
     child: args.valueOf<Widget>('child') ?? const FlutterLogo(),
   ),
 );
@@ -90,12 +171,16 @@ class _HeroDemo extends StatefulWidget {
     required this.useHero,
     required this.tag,
     required this.curve,
+    required this.reverseCurve,
+    required this.createRectTween,
     required this.child,
   });
 
   final bool useHero;
   final Object tag;
   final Curve curve;
+  final Curve? reverseCurve;
+  final CreateRectTween? createRectTween;
   final Widget child;
 
   @override
@@ -117,7 +202,13 @@ class _HeroDemoState extends State<_HeroDemo> {
   Widget _logo(double size) {
     final logo = SizedBox.square(dimension: size, child: widget.child);
     if (!widget.useHero) return logo;
-    return Hero(tag: widget.tag, curve: widget.curve, child: logo);
+    return Hero(
+      tag: widget.tag,
+      curve: widget.curve,
+      reverseCurve: widget.reverseCurve,
+      createRectTween: widget.createRectTween,
+      child: logo,
+    );
   }
 
   @override

@@ -13,6 +13,8 @@ void main() {
     expect(built.alignment, isNull);
     expect(built.overflowSpacing, 0);
     expect(built.overflowAlignment, OverflowBarAlignment.start);
+    expect(built.overflowDirection, VerticalDirection.down);
+    expect(built.textDirection, isNull);
     expect(built.children, isEmpty);
   });
 }

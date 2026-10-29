@@ -1,7 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:widget_lab/catalog/model/demo_args.dart';
 import 'package:widget_lab/catalog/model/property_control.dart';
+import 'package:widget_lab/catalog/model/property_group.dart';
 import 'package:widget_lab/catalog/model/property_spec.dart';
+import 'package:widget_lab/catalog/model/reference_arg.dart';
 import 'package:widget_lab/catalog/model/widget_entry.dart';
 
 final cupertinoPopupSurfaceEntry = WidgetEntry(
@@ -18,6 +20,7 @@ final cupertinoPopupSurfaceEntry = WidgetEntry(
   properties: [
     PropertySpec(
       name: 'blurSigma',
+      group: PropertyGroup.paint,
       typeLabel: 'double',
       description: '下をぼかす強さ。0 ならぼかさない',
       control: SliderControl(
@@ -31,6 +34,7 @@ final cupertinoPopupSurfaceEntry = WidgetEntry(
     ),
     const PropertySpec(
       name: 'isSurfacePainted',
+      group: PropertyGroup.paint,
       typeLabel: 'bool',
       description: 'false なら半透明の色を塗らず、ぼかしだけにする',
       initiallyOn: false,
@@ -38,6 +42,7 @@ final cupertinoPopupSurfaceEntry = WidgetEntry(
     ),
     const PropertySpec(
       name: 'child',
+      group: PropertyGroup.content,
       typeLabel: 'Widget',
       description: '地の上に置く中身',
       required: true,
@@ -49,6 +54,13 @@ final cupertinoPopupSurfaceEntry = WidgetEntry(
         ),
         source: "const SizedBox(width: 200, height: 100, child: Center(child: Text('ポップアップ')))",
       ),
+    ),
+  ],
+  references: const [
+    ReferenceArg(
+      name: 'key',
+      typeLabel: 'Key?',
+      description: 'Widget を見分ける印。並べ替えたときや、状態を引き継ぐときに使う',
     ),
   ],
   build: _build,

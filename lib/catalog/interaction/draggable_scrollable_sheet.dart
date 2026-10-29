@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:widget_lab/catalog/demo/demo_choices.dart';
 import 'package:widget_lab/catalog/demo/demo_tile.dart';
+import 'package:widget_lab/catalog/model/choice.dart';
 import 'package:widget_lab/catalog/model/demo_args.dart';
 import 'package:widget_lab/catalog/model/property_control.dart';
+import 'package:widget_lab/catalog/model/property_group.dart';
 import 'package:widget_lab/catalog/model/property_spec.dart';
+import 'package:widget_lab/catalog/model/reference_arg.dart';
 import 'package:widget_lab/catalog/model/widget_entry.dart';
 
 final draggableScrollableSheetEntry = WidgetEntry(
@@ -21,6 +24,7 @@ final draggableScrollableSheetEntry = WidgetEntry(
   properties: const [
     PropertySpec(
       name: 'initialChildSize',
+      group: PropertyGroup.size,
       typeLabel: 'double',
       description: '開いたときの高さ（親の高さに対する割合）。既定は 0.5',
       control: SliderControl(
@@ -34,6 +38,7 @@ final draggableScrollableSheetEntry = WidgetEntry(
     ),
     PropertySpec(
       name: 'minChildSize',
+      group: PropertyGroup.size,
       typeLabel: 'double',
       description: '縮められる下限の高さ。既定は 0.25',
       initiallyOn: false,
@@ -48,6 +53,7 @@ final draggableScrollableSheetEntry = WidgetEntry(
     ),
     PropertySpec(
       name: 'maxChildSize',
+      group: PropertyGroup.size,
       typeLabel: 'double',
       description: '広げられる上限の高さ。既定は 1.0',
       initiallyOn: false,
@@ -61,14 +67,49 @@ final draggableScrollableSheetEntry = WidgetEntry(
       ),
     ),
     PropertySpec(
+      name: 'expand',
+      group: PropertyGroup.layout,
+      typeLabel: 'bool',
+      description: '親の広さいっぱいに広がって、下に寄せるか。false にすると自分の高さだけになり、親の置き方（ここでは Stack の左上）に従う。既定は true',
+      initiallyOn: false,
+      control: SwitchControl(initialValue: false),
+    ),
+    PropertySpec(
       name: 'snap',
+      group: PropertyGroup.behavior,
       typeLabel: 'bool',
       description: '指を離したら、下限か上限まで動かして止めるか。既定は false',
       initiallyOn: false,
       control: SwitchControl(initialValue: true),
     ),
     PropertySpec(
+      name: 'snapSizes',
+      group: PropertyGroup.behavior,
+      requires: 'snap',
+      typeLabel: 'List<double>?',
+      description: '下限と上限のほかに、止める高さ。小さい順に、下限と上限の間で書く',
+      initiallyOn: false,
+      control: ChoiceControl(
+        choices: [
+          Choice('0.6', [0.6], '[0.6]'),
+          Choice('0.5 と 0.7', [0.5, 0.7], '[0.5, 0.7]'),
+        ],
+      ),
+    ),
+    PropertySpec(
+      name: 'snapAnimationDuration',
+      group: PropertyGroup.behavior,
+      requires: 'snap',
+      typeLabel: 'Duration?',
+      description: '止める高さまで動く時間。指定しないと、はじいた速さから決める',
+      initiallyOn: false,
+      control: ChoiceControl(
+        choices: [Choice('1 秒', Duration(seconds: 1), 'Duration(seconds: 1)')],
+      ),
+    ),
+    PropertySpec(
       name: 'builder',
+      group: PropertyGroup.content,
       typeLabel: 'ScrollableWidgetBuilder',
       description: 'シートの中身を作る関数。渡る ScrollController を中のスクロールに渡す',
       required: true,
@@ -78,6 +119,23 @@ final draggableScrollableSheetEntry = WidgetEntry(
             '(context, scrollController) =>\n'
             '      ListView(controller: scrollController, children: tiles)',
       ),
+    ),
+  ],
+  references: const [
+    ReferenceArg(
+      name: 'key',
+      typeLabel: 'Key?',
+      description: 'Widget を見分ける印。並べ替えたときや、状態を引き継ぐときに使う',
+    ),
+    ReferenceArg(
+      name: 'controller',
+      typeLabel: 'DraggableScrollableController?',
+      description: 'シートの高さを読んだり、コードから動かしたりする',
+    ),
+    ReferenceArg(
+      name: 'shouldCloseOnMinExtent',
+      typeLabel: 'bool',
+      description: '下限まで縮めたときに、包んでいるボトムシートを閉じるか。BottomSheet の中で使うときだけ効く',
     ),
   ],
   build: _build,
@@ -91,7 +149,10 @@ Widget _build(DemoArgs args) => Stack(
       initialChildSize: args.valueOf<double>('initialChildSize') ?? 0.5,
       minChildSize: args.valueOf<double>('minChildSize') ?? 0.25,
       maxChildSize: args.valueOf<double>('maxChildSize') ?? 1,
+      expand: args.valueOf<bool>('expand') ?? true,
       snap: args.valueOf<bool>('snap') ?? false,
+      snapSizes: args.valueOf<List<double>>('snapSizes'),
+      snapAnimationDuration: args.valueOf<Duration>('snapAnimationDuration'),
       // 必須のプロパティなので、常に値がある
       builder: args.valueOf<ScrollableWidgetBuilder>('builder')!,
     ),

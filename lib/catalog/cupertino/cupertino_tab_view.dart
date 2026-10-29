@@ -2,7 +2,9 @@ import 'package:flutter/cupertino.dart';
 import 'package:widget_lab/catalog/demo/demo_navigator.dart';
 import 'package:widget_lab/catalog/model/demo_args.dart';
 import 'package:widget_lab/catalog/model/property_control.dart';
+import 'package:widget_lab/catalog/model/property_group.dart';
 import 'package:widget_lab/catalog/model/property_spec.dart';
+import 'package:widget_lab/catalog/model/reference_arg.dart';
 import 'package:widget_lab/catalog/model/widget_entry.dart';
 
 final cupertinoTabViewEntry = WidgetEntry(
@@ -20,9 +22,52 @@ final cupertinoTabViewEntry = WidgetEntry(
   properties: const [
     PropertySpec(
       name: 'defaultTitle',
+      group: PropertyGroup.content,
       typeLabel: 'String?',
       description: '最初の画面の題。ナビゲーションバーの真ん中と、次の画面の戻るボタンの文字に使われる',
       control: TextControl(initialValue: 'ホーム'),
+    ),
+  ],
+  references: const [
+    ReferenceArg(
+      name: 'key',
+      typeLabel: 'Key?',
+      description: 'Widget を見分ける印。並べ替えたときや、状態を引き継ぐときに使う',
+    ),
+    ReferenceArg(
+      name: 'builder',
+      typeLabel: 'WidgetBuilder?',
+      description: 'タブの最初の画面を組み立てる。routes の / の代わりに使う',
+    ),
+    ReferenceArg(
+      name: 'navigatorKey',
+      typeLabel: 'GlobalKey<NavigatorState>?',
+      description: 'このタブの Navigator を外から操作するための鍵',
+    ),
+    ReferenceArg(
+      name: 'routes',
+      typeLabel: 'Map<String, WidgetBuilder>?',
+      description: '名前で push する画面の一覧',
+    ),
+    ReferenceArg(
+      name: 'onGenerateRoute',
+      typeLabel: 'RouteFactory?',
+      description: 'routes にない名前で push したときに Route を作る',
+    ),
+    ReferenceArg(
+      name: 'onUnknownRoute',
+      typeLabel: 'RouteFactory?',
+      description: 'onGenerateRoute でも作れなかったときに Route を作る',
+    ),
+    ReferenceArg(
+      name: 'navigatorObservers',
+      typeLabel: 'List<NavigatorObserver>',
+      description: 'このタブの Navigator の push・pop を見張る',
+    ),
+    ReferenceArg(
+      name: 'restorationScopeId',
+      typeLabel: 'String?',
+      description: 'アプリを作り直したときに、このタブの画面の重なりを戻すための ID',
     ),
   ],
   build: _build,

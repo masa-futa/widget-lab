@@ -7,6 +7,7 @@ import 'package:widget_lab/catalog/demo/rebuild_counter.dart';
 import 'package:widget_lab/catalog/model/choice.dart';
 import 'package:widget_lab/catalog/model/demo_args.dart';
 import 'package:widget_lab/catalog/model/property_control.dart';
+import 'package:widget_lab/catalog/model/property_group.dart';
 import 'package:widget_lab/catalog/model/property_spec.dart';
 import 'package:widget_lab/catalog/model/widget_entry.dart';
 
@@ -28,6 +29,7 @@ final animatedWidgetEntry = WidgetEntry(
   properties: const [
     PropertySpec(
       name: 'turns',
+      group: PropertyGroup.transform,
       typeLabel: 'Animation<double>',
       description:
           'サブクラスが super(listenable: turns) で渡す Animation。'

@@ -1,9 +1,11 @@
 import 'package:flutter/widgets.dart';
+import 'package:widget_lab/catalog/animation/shared_specs.dart';
 import 'package:widget_lab/catalog/animation/transition_curves.dart';
 import 'package:widget_lab/catalog/demo/demo_animation.dart';
 import 'package:widget_lab/catalog/model/choice.dart';
 import 'package:widget_lab/catalog/model/demo_args.dart';
 import 'package:widget_lab/catalog/model/property_control.dart';
+import 'package:widget_lab/catalog/model/property_group.dart';
 import 'package:widget_lab/catalog/model/property_spec.dart';
 import 'package:widget_lab/catalog/model/widget_entry.dart';
 
@@ -25,6 +27,7 @@ final defaultTextStyleTransitionEntry = WidgetEntry(
   properties: [
     PropertySpec(
       name: 'style',
+      group: PropertyGroup.text,
       typeLabel: 'Animation<TextStyle>',
       description: 'スタイルの Animation。ここでは TextStyle(fontSize: 20, color: Color(0xFF1E50A2)) から動かす',
       required: true,
@@ -64,6 +67,7 @@ final defaultTextStyleTransitionEntry = WidgetEntry(
     ),
     PropertySpec(
       name: 'textAlign',
+      group: PropertyGroup.text,
       typeLabel: 'TextAlign?',
       description: '子孫の Text の、行の中での横の揃え方',
       initiallyOn: false,
@@ -81,6 +85,7 @@ final defaultTextStyleTransitionEntry = WidgetEntry(
     ),
     PropertySpec(
       name: 'maxLines',
+      group: PropertyGroup.text,
       typeLabel: 'int?',
       description: '子孫の Text の行数の上限',
       initiallyOn: false,
@@ -94,7 +99,30 @@ final defaultTextStyleTransitionEntry = WidgetEntry(
       ),
     ),
     const PropertySpec(
+      name: 'softWrap',
+      typeLabel: 'bool',
+      description: '子孫の Text を、幅が足りないときに折り返すか。false なら 1 行のまま伸ばす',
+      initiallyOn: false,
+      group: PropertyGroup.text,
+      control: SwitchControl(initialValue: false),
+    ),
+    PropertySpec(
+      name: 'overflow',
+      typeLabel: 'TextOverflow',
+      description: '子孫の Text の、入りきらない文字の見せ方。指定しないと切る（TextOverflow.clip）',
+      initiallyOn: false,
+      group: PropertyGroup.text,
+      control: ChoiceControl(
+        initialIndex: 2,
+        choices: [
+          for (final value in TextOverflow.values)
+            Choice(value.name, value, 'TextOverflow.${value.name}'),
+        ],
+      ),
+    ),
+    const PropertySpec(
       name: 'child',
+      group: PropertyGroup.content,
       typeLabel: 'Widget',
       description: 'スタイルを受ける Widget。中の Text はスタイルを指定しない',
       required: true,
@@ -104,6 +132,7 @@ final defaultTextStyleTransitionEntry = WidgetEntry(
       ),
     ),
   ],
+  references: const [keyReference],
   build: _build,
   codeName: 'DefaultTextStyleTransition',
 );
@@ -114,6 +143,8 @@ Widget _build(DemoArgs args) => DemoAnimation(
       controller,
     ),
     textAlign: args.valueOf<TextAlign>('textAlign'),
+    softWrap: args.valueOf<bool>('softWrap') ?? true,
+    overflow: args.valueOf<TextOverflow>('overflow') ?? TextOverflow.clip,
     maxLines: args.valueOf<int>('maxLines'),
     child: args.valueOf<Widget>('child') ?? const SizedBox.shrink(),
   ),
