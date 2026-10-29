@@ -6,7 +6,9 @@ import 'package:widget_lab/catalog/demo/rebuild_counter.dart';
 import 'package:widget_lab/catalog/model/choice.dart';
 import 'package:widget_lab/catalog/model/demo_args.dart';
 import 'package:widget_lab/catalog/model/property_control.dart';
+import 'package:widget_lab/catalog/model/property_group.dart';
 import 'package:widget_lab/catalog/model/property_spec.dart';
+import 'package:widget_lab/catalog/model/reference_arg.dart';
 import 'package:widget_lab/catalog/model/widget_entry.dart';
 
 final layoutBuilderEntry = WidgetEntry(
@@ -25,6 +27,7 @@ final layoutBuilderEntry = WidgetEntry(
   properties: const [
     PropertySpec(
       name: 'builder',
+      group: PropertyGroup.content,
       typeLabel: 'Widget Function(BuildContext, BoxConstraints)',
       description:
           '制約を受けて子を返す関数。ここでは使える幅がしきい値より狭ければ縦に、'
@@ -38,6 +41,13 @@ final layoutBuilderEntry = WidgetEntry(
           Choice('幅 320 未満で縦', 320.0, _builderCode320),
         ],
       ),
+    ),
+  ],
+  references: const [
+    ReferenceArg(
+      name: 'key',
+      typeLabel: 'Key?',
+      description: 'Widget を見分ける印。並べ替えたときや、状態を引き継ぐときに使う',
     ),
   ],
   build: _build,

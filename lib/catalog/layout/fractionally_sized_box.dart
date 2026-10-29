@@ -3,7 +3,9 @@ import 'package:widget_lab/catalog/demo/demo_choices.dart';
 import 'package:widget_lab/catalog/demo/demo_tile.dart';
 import 'package:widget_lab/catalog/model/demo_args.dart';
 import 'package:widget_lab/catalog/model/property_control.dart';
+import 'package:widget_lab/catalog/model/property_group.dart';
 import 'package:widget_lab/catalog/model/property_spec.dart';
+import 'package:widget_lab/catalog/model/reference_arg.dart';
 import 'package:widget_lab/catalog/model/widget_entry.dart';
 
 final fractionallySizedBoxEntry = WidgetEntry(
@@ -20,6 +22,7 @@ final fractionallySizedBoxEntry = WidgetEntry(
   properties: const [
     PropertySpec(
       name: 'widthFactor',
+      group: PropertyGroup.size,
       typeLabel: 'double?',
       description: '使える幅の何割にするか。指定しないと子の幅のまま',
       control: SliderControl(
@@ -33,6 +36,7 @@ final fractionallySizedBoxEntry = WidgetEntry(
     ),
     PropertySpec(
       name: 'heightFactor',
+      group: PropertyGroup.size,
       typeLabel: 'double?',
       description: '使える高さの何割にするか。指定しないと子の高さのまま',
       initiallyOn: false,
@@ -47,6 +51,7 @@ final fractionallySizedBoxEntry = WidgetEntry(
     ),
     PropertySpec(
       name: 'alignment',
+      group: PropertyGroup.layout,
       typeLabel: 'AlignmentGeometry',
       description: '子を置く位置。既定は center',
       initiallyOn: false,
@@ -54,9 +59,17 @@ final fractionallySizedBoxEntry = WidgetEntry(
     ),
     PropertySpec(
       name: 'child',
+      group: PropertyGroup.content,
       typeLabel: 'Widget?',
       description: '割合の大きさにする Widget（高さ 40）',
       control: FixedControl(value: DemoTile(1, height: 40), source: 'Tile(1)'),
+    ),
+  ],
+  references: const [
+    ReferenceArg(
+      name: 'key',
+      typeLabel: 'Key?',
+      description: 'Widget を見分ける印。並べ替えたときや、状態を引き継ぐときに使う',
     ),
   ],
   build: _build,
