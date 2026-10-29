@@ -3,7 +3,9 @@ import 'package:widget_lab/catalog/demo/demo_stage.dart';
 import 'package:widget_lab/catalog/model/choice.dart';
 import 'package:widget_lab/catalog/model/demo_args.dart';
 import 'package:widget_lab/catalog/model/property_control.dart';
+import 'package:widget_lab/catalog/model/property_group.dart';
 import 'package:widget_lab/catalog/model/property_spec.dart';
+import 'package:widget_lab/catalog/model/reference_arg.dart';
 import 'package:widget_lab/catalog/model/widget_entry.dart';
 
 final dividerEntry = WidgetEntry(
@@ -20,6 +22,7 @@ final dividerEntry = WidgetEntry(
   properties: [
     PropertySpec(
       name: 'height',
+      group: PropertyGroup.size,
       typeLabel: 'double?',
       description: '線を含む枠の高さ。線の上下の余白が変わる。指定しないと 16',
       control: SliderControl(
@@ -33,6 +36,7 @@ final dividerEntry = WidgetEntry(
     ),
     PropertySpec(
       name: 'thickness',
+      group: PropertyGroup.size,
       typeLabel: 'double?',
       description: '線の太さ。指定しないと 1',
       initiallyOn: false,
@@ -47,6 +51,7 @@ final dividerEntry = WidgetEntry(
     ),
     PropertySpec(
       name: 'indent',
+      group: PropertyGroup.spacing,
       typeLabel: 'double?',
       description: '線の左の空き',
       initiallyOn: false,
@@ -61,6 +66,7 @@ final dividerEntry = WidgetEntry(
     ),
     PropertySpec(
       name: 'endIndent',
+      group: PropertyGroup.spacing,
       typeLabel: 'double?',
       description: '線の右の空き',
       initiallyOn: false,
@@ -75,6 +81,7 @@ final dividerEntry = WidgetEntry(
     ),
     PropertySpec(
       name: 'color',
+      group: PropertyGroup.paint,
       typeLabel: 'Color?',
       description: '線の色。指定しないとテーマの outlineVariant',
       initiallyOn: false,
@@ -85,6 +92,28 @@ final dividerEntry = WidgetEntry(
           Choice.color('墨', const Color(0xFF18181B)),
         ],
       ),
+    ),
+    PropertySpec(
+      name: 'radius',
+      group: PropertyGroup.paint,
+      typeLabel: 'BorderRadiusGeometry?',
+      description: '線の角の丸み。thickness を太くすると見える。指定しないと角は丸まらない',
+      initiallyOn: false,
+      control: SliderControl(
+        min: 0,
+        max: 4,
+        divisions: 4,
+        initialValue: 2,
+        resolve: BorderRadius.circular,
+        code: (v) => 'BorderRadius.circular($v)',
+      ),
+    ),
+  ],
+  references: const [
+    ReferenceArg(
+      name: 'key',
+      typeLabel: 'Key?',
+      description: 'Widget を見分ける印。並べ替えたときや、状態を引き継ぐときに使う',
     ),
   ],
   build: _build,
@@ -105,6 +134,7 @@ Widget _build(DemoArgs args) => DemoStage(
         indent: args.valueOf<double>('indent'),
         endIndent: args.valueOf<double>('endIndent'),
         color: args.valueOf<Color>('color'),
+        radius: args.valueOf<BorderRadiusGeometry>('radius'),
       ),
       const Text('下の文'),
     ],

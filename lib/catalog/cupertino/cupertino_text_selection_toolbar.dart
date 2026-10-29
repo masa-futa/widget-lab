@@ -2,7 +2,9 @@ import 'package:flutter/cupertino.dart';
 import 'package:widget_lab/catalog/model/choice.dart';
 import 'package:widget_lab/catalog/model/demo_args.dart';
 import 'package:widget_lab/catalog/model/property_control.dart';
+import 'package:widget_lab/catalog/model/property_group.dart';
 import 'package:widget_lab/catalog/model/property_spec.dart';
+import 'package:widget_lab/catalog/model/reference_arg.dart';
 import 'package:widget_lab/catalog/model/widget_entry.dart';
 
 final cupertinoTextSelectionToolbarEntry = WidgetEntry(
@@ -20,6 +22,7 @@ final cupertinoTextSelectionToolbarEntry = WidgetEntry(
   properties: [
     PropertySpec(
       name: 'anchorAbove',
+      group: PropertyGroup.layout,
       typeLabel: 'Offset',
       description: 'メニューの矢印が指す点（メニューを上に出すとき）。ここでは横の位置を変える',
       required: true,
@@ -34,6 +37,7 @@ final cupertinoTextSelectionToolbarEntry = WidgetEntry(
     ),
     const PropertySpec(
       name: 'anchorBelow',
+      group: PropertyGroup.layout,
       typeLabel: 'Offset',
       description: '上に場所がないときに、メニューの矢印が指す点（メニューは下に出る）',
       required: true,
@@ -44,6 +48,7 @@ final cupertinoTextSelectionToolbarEntry = WidgetEntry(
     ),
     const PropertySpec(
       name: 'children',
+      group: PropertyGroup.content,
       typeLabel: 'List<Widget>',
       description: 'メニューのボタン。入り切らないと、矢印で次の頁へ送る',
       required: true,
@@ -82,6 +87,21 @@ final cupertinoTextSelectionToolbarEntry = WidgetEntry(
         ],
       ),
     ),
+    const PropertySpec(
+      name: 'toolbarBuilder',
+      group: PropertyGroup.paint,
+      typeLabel: 'CupertinoToolbarBuilder',
+      description: 'ボタンの列を包むメニューの地を組み立てる。指定しないと矢印つきの黒っぽい地',
+      initiallyOn: false,
+      control: FixedControl(value: _toolbar, source: _toolbarSource),
+    ),
+  ],
+  references: const [
+    ReferenceArg(
+      name: 'key',
+      typeLabel: 'Key?',
+      description: 'Widget を見分ける印。並べ替えたときや、状態を引き継ぐときに使う',
+    ),
   ],
   build: _build,
   codeName: 'CupertinoTextSelectionToolbar',
@@ -89,15 +109,48 @@ final cupertinoTextSelectionToolbarEntry = WidgetEntry(
 
 void _pressed() {}
 
+Widget _toolbar(
+  BuildContext context,
+  Offset anchorAbove,
+  Offset anchorBelow,
+  Widget child,
+) => DecoratedBox(
+  decoration: BoxDecoration(
+    color: const Color(0xFF1E50A2),
+    borderRadius: BorderRadius.circular(16),
+  ),
+  child: child,
+);
+const _toolbarSource =
+    '(context, anchorAbove, anchorBelow, child) => DecoratedBox('
+    'decoration: BoxDecoration(color: Color(0xFF1E50A2), '
+    'borderRadius: BorderRadius.circular(16)), child: child)';
+
 /// メニューを描く箱の大きさ。アンカーはこの箱の中の座標。
 const _box = Size(300, 120);
 
-Widget _build(DemoArgs args) => SizedBox.fromSize(
-  size: _box,
+Widget _build(DemoArgs args) {
   // どれも必須のプロパティなので、常に値がある
-  child: CupertinoTextSelectionToolbar(
-    anchorAbove: args.valueOf<Offset>('anchorAbove')!,
-    anchorBelow: args.valueOf<Offset>('anchorBelow')!,
-    children: args.valueOf<List<Widget>>('children')!,
-  ),
-);
+  final anchorAbove = args.valueOf<Offset>('anchorAbove')!;
+  final anchorBelow = args.valueOf<Offset>('anchorBelow')!;
+  final children = args.valueOf<List<Widget>>('children')!;
+  final toolbarBuilder = args.valueOf<CupertinoToolbarBuilder>(
+    'toolbarBuilder',
+  );
+  return SizedBox.fromSize(
+    size: _box,
+    // toolbarBuilder の既定は SDK の中の関数で渡せないので、OFF なら省く
+    child: toolbarBuilder == null
+        ? CupertinoTextSelectionToolbar(
+            anchorAbove: anchorAbove,
+            anchorBelow: anchorBelow,
+            children: children,
+          )
+        : CupertinoTextSelectionToolbar(
+            anchorAbove: anchorAbove,
+            anchorBelow: anchorBelow,
+            toolbarBuilder: toolbarBuilder,
+            children: children,
+          ),
+  );
+}

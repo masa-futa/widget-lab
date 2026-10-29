@@ -1,6 +1,8 @@
 import 'package:flutter/cupertino.dart';
+import 'package:widget_lab/catalog/cupertino/cupertino_text_field.dart';
 import 'package:widget_lab/catalog/model/demo_args.dart';
 import 'package:widget_lab/catalog/model/property_control.dart';
+import 'package:widget_lab/catalog/model/property_group.dart';
 import 'package:widget_lab/catalog/model/property_spec.dart';
 import 'package:widget_lab/catalog/model/widget_entry.dart';
 
@@ -13,13 +15,15 @@ final cupertinoTextSelectionControlsEntry = WidgetEntry(
       'Widget ではなく、入力欄の selectionControls に渡すクラスです。文字を選んだときの'
       'つまみ（ハンドル）とメニューを iOS の見た目で描きます。'
       'CupertinoTextField は iOS・Android では指定しなくても iOS の見た目なので、'
-      '違いが出るのは macOS などのデスクトップです（プレビューの文字をダブルタップで選べる）。',
+      '違いが出るのは macOS などのデスクトップです（プレビューの文字をダブルタップで選べる）。'
+      '入力欄のほかの引数は、CupertinoTextField の収録で触れます。',
   docUrl: Uri.parse(
     'https://api.flutter.dev/flutter/cupertino/CupertinoTextSelectionControls-class.html',
   ),
   properties: [
     PropertySpec(
       name: 'selectionControls',
+      group: PropertyGroup.behavior,
       typeLabel: 'TextSelectionControls?',
       description: '文字を選んだときのつまみとメニューを描くもの。指定しないと端末に合わせる',
       control: FixedControl(
@@ -28,6 +32,8 @@ final cupertinoTextSelectionControlsEntry = WidgetEntry(
       ),
     ),
   ],
+  // 入力欄そのものの引数は CupertinoTextField の収録で触れるので、ここでは補足に載せる
+  references: textFieldArgsAsReferences(except: const {'selectionControls'}),
   build: _build,
   codeName: 'CupertinoTextField',
   codeArguments: const ['controller: controller'],

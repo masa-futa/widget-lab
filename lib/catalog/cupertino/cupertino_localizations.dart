@@ -3,7 +3,9 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:widget_lab/catalog/model/choice.dart';
 import 'package:widget_lab/catalog/model/demo_args.dart';
 import 'package:widget_lab/catalog/model/property_control.dart';
+import 'package:widget_lab/catalog/model/property_group.dart';
 import 'package:widget_lab/catalog/model/property_spec.dart';
+import 'package:widget_lab/catalog/model/reference_arg.dart';
 import 'package:widget_lab/catalog/model/widget_entry.dart';
 
 final cupertinoLocalizationsEntry = WidgetEntry(
@@ -22,6 +24,7 @@ final cupertinoLocalizationsEntry = WidgetEntry(
   properties: const [
     PropertySpec(
       name: 'locale',
+      group: PropertyGroup.text,
       typeLabel: 'Locale?',
       description: '文言の言語',
       required: true,
@@ -31,6 +34,28 @@ final cupertinoLocalizationsEntry = WidgetEntry(
           Choice('en', Locale('en'), "Locale('en')"),
         ],
       ),
+    ),
+  ],
+  references: const [
+    ReferenceArg(
+      name: 'key',
+      typeLabel: 'Key?',
+      description: 'Widget を見分ける印。並べ替えたときや、状態を引き継ぐときに使う',
+    ),
+    ReferenceArg(
+      name: 'context',
+      typeLabel: 'BuildContext',
+      description: '上の Localizations を探す場所。そこの delegates を引き継いで足す',
+    ),
+    ReferenceArg(
+      name: 'delegates',
+      typeLabel: 'List<LocalizationsDelegate<dynamic>>?',
+      description: '足す文言の読み込み役。ここでは GlobalCupertinoLocalizations.delegates',
+    ),
+    ReferenceArg(
+      name: 'child',
+      typeLabel: 'Widget?',
+      description: '言語を変える範囲の Widget。ここでは文言を並べる子',
     ),
   ],
   build: _build,

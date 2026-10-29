@@ -3,6 +3,7 @@ import 'package:widget_lab/catalog/demo/demo_scope.dart';
 import 'package:widget_lab/catalog/demo/demo_value.dart';
 import 'package:widget_lab/catalog/demo/semantics_readout.dart';
 import 'package:widget_lab/catalog/model/demo_args.dart';
+import 'package:widget_lab/catalog/model/reference_arg.dart';
 import 'package:widget_lab/catalog/model/widget_entry.dart';
 
 final mergeSemanticsEntry = WidgetEntry(
@@ -19,6 +20,19 @@ final mergeSemanticsEntry = WidgetEntry(
   ),
   kind: EntryKind.behavior,
   properties: const [],
+  references: const [
+    ReferenceArg(
+      name: 'key',
+      typeLabel: 'Key?',
+      description: 'Widget を見分ける印。並べ替えたときや、状態を引き継ぐときに使う',
+    ),
+    ReferenceArg(
+      name: 'child',
+      typeLabel: 'Widget',
+      description:
+          '読み上げを 1 つにまとめる子孫。ここではチェックボックスと説明の文の組（コードでは const CheckRow()）',
+    ),
+  ],
   build: _build,
   buildWithout: _buildWithout,
   codeName: 'MergeSemantics',

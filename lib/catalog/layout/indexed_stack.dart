@@ -4,7 +4,9 @@ import 'package:widget_lab/catalog/demo/demo_tile.dart';
 import 'package:widget_lab/catalog/model/choice.dart';
 import 'package:widget_lab/catalog/model/demo_args.dart';
 import 'package:widget_lab/catalog/model/property_control.dart';
+import 'package:widget_lab/catalog/model/property_group.dart';
 import 'package:widget_lab/catalog/model/property_spec.dart';
+import 'package:widget_lab/catalog/model/reference_arg.dart';
 import 'package:widget_lab/catalog/model/widget_entry.dart';
 
 final indexedStackEntry = WidgetEntry(
@@ -22,6 +24,7 @@ final indexedStackEntry = WidgetEntry(
   properties: const [
     PropertySpec(
       name: 'index',
+      group: PropertyGroup.content,
       typeLabel: 'int?',
       description: '見せる子の番号（0 から）。既定は 0',
       control: SliderControl(
@@ -35,6 +38,7 @@ final indexedStackEntry = WidgetEntry(
     ),
     PropertySpec(
       name: 'alignment',
+      group: PropertyGroup.layout,
       typeLabel: 'AlignmentGeometry',
       description: '子を置く位置。既定は topStart（左上）',
       initiallyOn: false,
@@ -44,7 +48,36 @@ final indexedStackEntry = WidgetEntry(
       ),
     ),
     PropertySpec(
+      name: 'textDirection',
+      group: PropertyGroup.layout,
+      typeLabel: 'TextDirection?',
+      description: 'alignment の start・end を左右のどちらとみるか。alignment が OFF（topStart）のとき、rtl で右上に寄る',
+      initiallyOn: false,
+      control: ChoiceControl(
+        initialIndex: 1,
+        choices: [
+          Choice('ltr', TextDirection.ltr, 'TextDirection.ltr'),
+          Choice('rtl', TextDirection.rtl, 'TextDirection.rtl'),
+        ],
+      ),
+    ),
+    PropertySpec(
+      name: 'clipBehavior',
+      group: PropertyGroup.transform,
+      typeLabel: 'Clip',
+      description: '自分の外にはみ出した子を切るか。既定は hardEdge（切る）',
+      initiallyOn: false,
+      control: ChoiceControl(
+        choices: [
+          Choice('none', Clip.none, 'Clip.none'),
+          Choice('hardEdge', Clip.hardEdge, 'Clip.hardEdge'),
+          Choice('antiAlias', Clip.antiAlias, 'Clip.antiAlias'),
+        ],
+      ),
+    ),
+    PropertySpec(
       name: 'sizing',
+      group: PropertyGroup.size,
       typeLabel: 'StackFit',
       description: '子に渡す制約。expand は自分の大きさいっぱいにする',
       initiallyOn: false,
@@ -58,6 +91,7 @@ final indexedStackEntry = WidgetEntry(
     ),
     PropertySpec(
       name: 'children',
+      group: PropertyGroup.content,
       typeLabel: 'List<Widget>',
       description: '重ねる子（大きさが違う 3 つ）',
       control: FixedControl(
@@ -70,6 +104,13 @@ final indexedStackEntry = WidgetEntry(
       ),
     ),
   ],
+  references: const [
+    ReferenceArg(
+      name: 'key',
+      typeLabel: 'Key?',
+      description: 'Widget を見分ける印。並べ替えたときや、状態を引き継ぐときに使う',
+    ),
+  ],
   build: _build,
   codeName: 'IndexedStack',
 );
@@ -79,6 +120,8 @@ Widget _build(DemoArgs args) => IndexedStack(
   alignment:
       args.valueOf<AlignmentGeometry>('alignment') ??
       AlignmentDirectional.topStart,
+  textDirection: args.valueOf<TextDirection>('textDirection'),
+  clipBehavior: args.valueOf<Clip>('clipBehavior') ?? Clip.hardEdge,
   sizing: args.valueOf<StackFit>('sizing') ?? StackFit.loose,
   children: args.valueOf<List<Widget>>('children') ?? const [],
 );

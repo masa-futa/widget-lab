@@ -2,7 +2,9 @@ import 'package:flutter/cupertino.dart';
 import 'package:widget_lab/catalog/model/choice.dart';
 import 'package:widget_lab/catalog/model/demo_args.dart';
 import 'package:widget_lab/catalog/model/property_control.dart';
+import 'package:widget_lab/catalog/model/property_group.dart';
 import 'package:widget_lab/catalog/model/property_spec.dart';
+import 'package:widget_lab/catalog/model/reference_arg.dart';
 import 'package:widget_lab/catalog/model/widget_entry.dart';
 
 final cupertinoTextThemeDataEntry = WidgetEntry(
@@ -19,13 +21,36 @@ final cupertinoTextThemeDataEntry = WidgetEntry(
   ),
   properties: const [
     PropertySpec(
+      name: 'primaryColor',
+      group: PropertyGroup.text,
+      typeLabel: 'Color',
+      description: '押せる文字の既定の色。ここでは戻るボタンの文字に出る。指定しないと systemBlue',
+      initiallyOn: false,
+      control: ColorControl(
+        palette: [
+          Choice(
+            'systemPink',
+            CupertinoColors.systemPink,
+            'CupertinoColors.systemPink',
+          ),
+          Choice(
+            'systemGreen',
+            CupertinoColors.systemGreen,
+            'CupertinoColors.systemGreen',
+          ),
+        ],
+      ),
+    ),
+    PropertySpec(
       name: 'textStyle',
+      group: PropertyGroup.text,
       typeLabel: 'TextStyle?',
       description: '本文の文字。指定しないと 17 の label 色',
       control: ChoiceControl(choices: _styles),
     ),
     PropertySpec(
       name: 'actionTextStyle',
+      group: PropertyGroup.text,
       typeLabel: 'TextStyle?',
       description: 'CupertinoButton など、押せる文字。指定しないと主な色',
       initiallyOn: false,
@@ -33,10 +58,50 @@ final cupertinoTextThemeDataEntry = WidgetEntry(
     ),
     PropertySpec(
       name: 'navTitleTextStyle',
+      group: PropertyGroup.text,
       typeLabel: 'TextStyle?',
       description: 'ナビゲーションバーの真ん中の題',
       initiallyOn: false,
       control: ChoiceControl(choices: _styles, initialIndex: 2),
+    ),
+    PropertySpec(
+      name: 'actionSmallTextStyle',
+      group: PropertyGroup.text,
+      typeLabel: 'TextStyle?',
+      description: '小さい CupertinoButton（sizeStyle が small）の文字',
+      initiallyOn: false,
+      control: ChoiceControl(choices: _styles, initialIndex: 2),
+    ),
+    PropertySpec(
+      name: 'navActionTextStyle',
+      group: PropertyGroup.text,
+      typeLabel: 'TextStyle?',
+      description: 'ナビゲーションバーの戻るボタンの文字',
+      initiallyOn: false,
+      control: ChoiceControl(choices: _styles),
+    ),
+  ],
+  references: const [
+    ReferenceArg(
+      name: 'tabLabelTextStyle',
+      typeLabel: 'TextStyle?',
+      description: 'CupertinoTabBar のタブの名前の文字（プレビューにはタブバーを置いていない）',
+    ),
+    ReferenceArg(
+      name: 'navLargeTitleTextStyle',
+      typeLabel: 'TextStyle?',
+      description: 'CupertinoSliverNavigationBar の大きな題の文字（プレビューには置いていない）',
+    ),
+    ReferenceArg(
+      name: 'pickerTextStyle',
+      typeLabel: 'TextStyle?',
+      description: 'CupertinoPicker の行の文字（プレビューには置いていない）',
+    ),
+    ReferenceArg(
+      name: 'dateTimePickerTextStyle',
+      typeLabel: 'TextStyle?',
+      description:
+          'CupertinoDatePicker・CupertinoTimerPicker の行の文字（プレビューには置いていない）',
     ),
   ],
   build: _build,
@@ -66,14 +131,18 @@ Widget _build(DemoArgs args) => FittedBox(
   fit: BoxFit.scaleDown,
   child: _Sample(
     textTheme: CupertinoTextThemeData(
+      primaryColor:
+          args.valueOf<Color>('primaryColor') ?? CupertinoColors.systemBlue,
       textStyle: args.valueOf<TextStyle>('textStyle'),
       actionTextStyle: args.valueOf<TextStyle>('actionTextStyle'),
       navTitleTextStyle: args.valueOf<TextStyle>('navTitleTextStyle'),
+      actionSmallTextStyle: args.valueOf<TextStyle>('actionSmallTextStyle'),
+      navActionTextStyle: args.valueOf<TextStyle>('navActionTextStyle'),
     ),
   ),
 );
 
-/// 文字のテーマを受ける小さな画面（デモの部品）。題・本文・ボタン。
+/// 文字のテーマを受ける小さな画面（デモの部品）。戻るボタン・題・本文・ボタン・小さいボタン。
 class _Sample extends StatelessWidget {
   const _Sample({required this.textTheme});
 
@@ -85,10 +154,15 @@ class _Sample extends StatelessWidget {
     data: CupertinoTheme.of(context).copyWith(textTheme: textTheme),
     child: SizedBox(
       width: 300,
-      height: 160,
+      height: 200,
       child: CupertinoPageScaffold(
-        navigationBar: const CupertinoNavigationBar(
-          middle: Text('題の文字'),
+        navigationBar: CupertinoNavigationBar(
+          // 前の画面はないので、押しても何もしない戻るボタンを置く
+          leading: CupertinoNavigationBarBackButton(
+            previousPageTitle: '戻る',
+            onPressed: () {},
+          ),
+          middle: const Text('題の文字'),
           // 一覧の見本や比較で同じ Route に並ぶと Hero の tag が重なるので、Hero で飛ばさない
           transitionBetweenRoutes: false,
         ),
@@ -99,6 +173,11 @@ class _Sample extends StatelessWidget {
             children: [
               const Text('本文の文字'),
               CupertinoButton(onPressed: () {}, child: const Text('ボタンの文字')),
+              CupertinoButton(
+                sizeStyle: CupertinoButtonSize.small,
+                onPressed: () {},
+                child: const Text('小さいボタン'),
+              ),
             ],
           ),
         ),
