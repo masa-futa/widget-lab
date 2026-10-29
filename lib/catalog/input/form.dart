@@ -3,7 +3,9 @@ import 'package:widget_lab/catalog/demo/demo_stage.dart';
 import 'package:widget_lab/catalog/model/choice.dart';
 import 'package:widget_lab/catalog/model/demo_args.dart';
 import 'package:widget_lab/catalog/model/property_control.dart';
+import 'package:widget_lab/catalog/model/property_group.dart';
 import 'package:widget_lab/catalog/model/property_spec.dart';
+import 'package:widget_lab/catalog/model/reference_arg.dart';
 import 'package:widget_lab/catalog/model/widget_entry.dart';
 
 final formEntry = WidgetEntry(
@@ -19,6 +21,7 @@ final formEntry = WidgetEntry(
   properties: [
     PropertySpec(
       name: 'autovalidateMode',
+      group: PropertyGroup.behavior,
       typeLabel: 'AutovalidateMode?',
       description:
           'いつ検証するか。always は最初から、onUserInteraction は入力のたび、'
@@ -34,10 +37,43 @@ final formEntry = WidgetEntry(
     ),
     const PropertySpec(
       name: 'child',
+      group: PropertyGroup.content,
       typeLabel: 'Widget',
       description: '中に置く Widget。ここでは名前とメールの欄と「送信」ボタン',
       required: true,
       control: FixedControl(value: _Fields(), source: 'const Fields()'),
+    ),
+  ],
+  references: const [
+    ReferenceArg(
+      name: 'key',
+      typeLabel: 'Key?',
+      description: 'Widget を見分ける印。並べ替えたときや、状態を引き継ぐときに使う',
+    ),
+    ReferenceArg(
+      name: 'onChanged',
+      typeLabel: 'VoidCallback?',
+      description: '中のどれかの欄の値が変わったときに呼ばれる',
+    ),
+    ReferenceArg(
+      name: 'canPop',
+      typeLabel: 'bool?',
+      description: '戻る操作で画面を閉じてよいか。入力の途中で閉じないようにするときに false にする',
+    ),
+    ReferenceArg(
+      name: 'onPopInvokedWithResult',
+      typeLabel: 'PopInvokedWithResultCallback<Object?>?',
+      description: '戻る操作が起きたときに呼ばれる。閉じなかったときに確かめの画面を出すのに使う',
+    ),
+    ReferenceArg(
+      name: 'onPopInvoked',
+      typeLabel: 'PopInvokedCallback?',
+      description: '非推奨。代わりに onPopInvokedWithResult を使う',
+    ),
+    ReferenceArg(
+      name: 'onWillPop',
+      typeLabel: 'WillPopCallback?',
+      description: '非推奨。代わりに canPop と onPopInvokedWithResult を使う',
     ),
   ],
   build: _build,
