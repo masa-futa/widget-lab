@@ -1,0 +1,17 @@
+# リポジトリ全体に効くものだけ。アプリごとのものは各ディレクトリの .gitignore に置く
+
+# Miscellaneous
+.DS_Store
+
+# Secrets (never commit)。アプリの .gitignore にも同じ行を置く
+.env
+*.env
+*.jks
+*.keystore
+key.properties
+*.p8
+*.p12
+*.mobileprovision
+
+# ブレインストーミングの見本（visual companion）
+.superpowers/
