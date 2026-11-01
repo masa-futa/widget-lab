@@ -17,6 +17,7 @@ struct HomeScreen: View {
                             } label: {
                                 TopicRow(summary: summary)
                             }
+                            .buttonStyle(.navigationRow)
                             .accessibilityIdentifier("topic-\(summary.topic.rawValue)")
                         }
                     }
@@ -30,6 +31,7 @@ struct HomeScreen: View {
                     } label: {
                         EntryRow(entry: entry)
                     }
+                    .buttonStyle(.navigationRow)
                     .accessibilityIdentifier("entry-\(entry.id)")
                 }
             }

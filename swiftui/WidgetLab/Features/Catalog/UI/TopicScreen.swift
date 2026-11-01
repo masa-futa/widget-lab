@@ -13,6 +13,7 @@ struct TopicScreen: View {
             } label: {
                 EntryRow(entry: entry)
             }
+            .buttonStyle(.navigationRow)
             .accessibilityIdentifier("entry-\(entry.id)")
         }
         .navigationTitle(topic.title)
