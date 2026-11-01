@@ -14,15 +14,20 @@ struct PreviewArea: View {
                 preview(viewModel.current)
             }
             if viewModel.selected != nil {
-                Toggle("比べる", isOn: Binding(get: { viewModel.isComparing }, set: { viewModel.isComparing = $0 }))
-                    .toggleStyle(.button)
-                    .padding(12)
-                    .accessibilityIdentifier("compare")
+                Toggle(isOn: Binding(get: { viewModel.isComparing }, set: { viewModel.isComparing = $0 })) {
+                    // 押せる範囲は label の大きさになるので、ここで 44pt 以上にする
+                    Text("比べる").frame(minWidth: 44, minHeight: 44)
+                }
+                .toggleStyle(.button)
+                .padding(12)
+                .accessibilityIdentifier("compare")
             }
         }
-        .background(.background.secondary)
+        .background(Self.areaBackground)
         .clipped()
     }
+
+    private static let areaBackground = Color(.secondarySystemBackground)
 
     private func preview(_ values: PropertyValues) -> some View {
         viewModel.entry.build(values)
@@ -35,7 +40,7 @@ struct PreviewArea: View {
             ZStack(alignment: .topLeading) {
                 preview(with)
                 preview(without)
-                    .background(.background.secondary)
+                    .background(Self.areaBackground)
                     .mask(alignment: .leading) { Rectangle().frame(width: x) }
                 Rectangle()
                     .fill(.tint)

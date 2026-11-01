@@ -12,6 +12,12 @@ struct NavigationRowButtonStyle: ButtonStyle {
         }
         .foregroundStyle(.primary)
         .contentShape(.rect)
+        .background {
+            if configuration.isPressed {
+                // 行の余白まで塗る（はみ出した分は行の枠で切れる）
+                Color(.systemFill).padding(.horizontal, -20).padding(.vertical, -12)
+            }
+        }
     }
 }
 

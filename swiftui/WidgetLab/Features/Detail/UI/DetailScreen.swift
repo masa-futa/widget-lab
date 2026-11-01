@@ -51,7 +51,7 @@ private struct CodeStrip: View {
                     .font(.footnote)
             }
             .padding(.horizontal, 16)
-            .padding(.vertical, 10)
+            .frame(minHeight: 44)
             .background(.fill.tertiary)
         }
         .buttonStyle(.plain)
