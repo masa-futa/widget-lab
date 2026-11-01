@@ -31,7 +31,7 @@ SwiftUI から離れたあとでも、部品の挙動を数十秒で思い出せ
 - 種類は 4 つ: View（`View` に準拠する struct）、modifier（`View` の拡張のメソッド）、プロパティラッパー（`DynamicProperty` に準拠する型）、ジェスチャーの型（`Gesture` に準拠する型）
 - リファレンスの同じ節に View がある modifier は、その View のプロパティにする。View のいない節の modifier は 1 件ずつ収録する。オーバーロードは名前でまとめる
 - 型の都合の型（`AnyView`・`ModifiedContent`・`TupleView` など）と、スタイル・設定の型は収録しない（スタイルの型はプロパティの選択肢にする）
-- 数え方は tools/make_manifest.py が実装し、WidgetLab/Catalog/Generated/Manifest.swift に一覧を書き出す。2026-10-31 時点で 41 トピック・458 件
+- 数え方は tools/make_manifest.py が実装し、WidgetLab/Catalog/Generated/Manifest.swift に一覧を書き出す。2026-11-01 時点で 41 トピック・458 件
 
 ### 一覧（大分類 → トピック）
 - ホームは大分類を節にし、その下にトピックの行（件数・代表の名前）を並べる

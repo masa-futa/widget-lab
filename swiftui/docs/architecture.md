@@ -16,10 +16,10 @@ WidgetLab/
     Catalog.swift           全件の一覧（Catalog.all）
     <トピック>/             1 件 = 1 ファイルの収録データ（<名前>Entry.swift）
   Features/
-    Catalog/{UI,ViewModel}  ホーム（大分類ごとのトピックと検索）とトピック画面
+    Catalog/{UI,ViewModel}  ホーム（大分類ごとのトピックと検索）とトピック画面。一覧の行の見た目（文字の色・右の矢印・押したときの地）は NavigationRowButtonStyle にまとめる
     Detail/{UI,ViewModel}   詳細（プレビュー・コードの 1 行・チップ・編集パネル・比べる・説明とコードのシート）
 WidgetLabTests/             Swift Testing。WidgetLab と同じ形（Catalog/・Features/<機能>/）と、fake を置く Support/
-WidgetLabUITests/           XCTest の UI テスト（起動 → 検索 → 詳細 → コピーの 1 本）
+WidgetLabUITests/           XCTest の UI テスト（起動 → 検索 → 詳細 → コピーと、詳細で比べるを開いて左右が出ることの 2 本）
 tools/                      manifest を作る道具（Python 3.9 以上、標準ライブラリだけ）とそのテスト
 ```
 
