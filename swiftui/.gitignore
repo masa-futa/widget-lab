@@ -1,0 +1,17 @@
+# Xcode
+build/
+DerivedData/
+xcuserdata/
+*.xcuserstate
+*.xcresult
+
+# manifest を作る道具のキャッシュ
+tools/.cache/
+__pycache__/
+
+# 秘密（ルートの .gitignore にもある。どちらかを消しても漏れないように残す）
+.env
+*.env
+*.p8
+*.p12
+*.mobileprovision
