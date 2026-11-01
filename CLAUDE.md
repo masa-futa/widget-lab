@@ -4,7 +4,7 @@ UI フレームワークの部品を触って比べるアプリ群。フレー�
 
 ## アプリ
 - `flutter/`: Flutter 版（iOS / Android）。作業の前に flutter/CLAUDE.md を読む
-- `swiftui/`: SwiftUI 版（iOS）。準備中
+- `swiftui/`: SwiftUI 版（iOS）。作成中。作業の前に swiftui/CLAUDE.md を読む
 - `compose/`: Jetpack Compose 版（Android）。準備中
 
 ## 決まり

@@ -5,7 +5,7 @@ UI フレームワークの部品を、プロパティを付けた／付けな�
 | アプリ | ディレクトリ | 対象 | 状態 |
 | --- | --- | --- | --- |
 | Flutter 版 | [flutter/](flutter/README.md) | iOS / Android | あり |
-| SwiftUI 版 | swiftui/ | iOS | 準備中 |
+| SwiftUI 版 | [swiftui/](swiftui/README.md) | iOS | 作成中 |
 | Jetpack Compose 版 | compose/ | Android | 準備中 |
 
 - 構想: [docs/concept/brief.md](docs/concept/brief.md)
