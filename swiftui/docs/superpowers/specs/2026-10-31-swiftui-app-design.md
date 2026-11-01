@@ -25,13 +25,13 @@ SwiftUI の API リファレンス（https://developer.apple.com/documentation/s
 1. 上の 6 つの大分類のトピックのページに載っている
 2. iOS で使え、iOS では非推奨でなく、iOS の導入の版が 27.0 以下（最低の版に合わせる。27.1 以降のものは最低の版を上げたときに足す）
 3. 種類が次のどれか
-   - **View**: `View` に準拠する struct。ただし型の都合の View（`AnyView`・`ModifiedContent`・`TupleView`・`EmptyView`・`Subview` などの、manifest を作る道具の除外の一覧に書いたもの）は除く
+   - **View**: `View` に準拠する struct。ただし型の都合の型（`AnyView`・`ModifiedContent`・`TupleView`・`EmptyView`・`Subview`・`AnyGesture` などの、manifest を作る道具の除外の一覧 `EXCLUDED_TYPES` に書いたもの）は除く。ジェスチャーの型にも同じ一覧を当てる
    - **modifier**: `View` の拡張のメソッド。リファレンスの同じ節（topic section）に View があれば、その節の modifier はその View のプロパティにして、単独では収録しない。View のいない節の modifier は 1 件ずつ収録する。オーバーロードは名前（`(` より前）でまとめて 1 件にする
    - **プロパティラッパー**: `DynamicProperty` に準拠する型（`State`・`Binding`・`Environment`・`FocusState`・`AppStorage`・`Namespace`・`ScaledMetric` など）
    - **ジェスチャーの型**: `Gesture` に準拠する型（`TapGesture`・`DragGesture`・`MagnifyGesture` など）
 4. スタイルの型（`BorderedButtonStyle` など）・設定の型・列挙型は収録しない。`.buttonStyle` などのプロパティの選択肢として使う
 
-2026-10-31 に数えた件数（型の都合の View を除く前）: View 103・単独の modifier 344・プロパティラッパー 19・ジェスチャーの型 14。除いたあとは約 460 件の見込み。正確な数は manifest を作ったときに決まる。
+2026-10-31 に数えた件数（型の都合の View を除く前）: View 103・単独の modifier 344・プロパティラッパー 19・ジェスチャーの型 14。除いたあとは約 460 件の見込み。正確な数は manifest を作ったときに決まる。道具で数えた結果（2026-11-01）は 41 トピック・458 件（View 73・modifier 354・プロパティラッパー 19・ジェスチャーの型 12）。
 
 複数のトピックに載る記号は、リファレンスの順で最初に載ったトピックに置く（Flutter 版の「最初のジャンルに置く」と同じ）。
 
@@ -77,7 +77,7 @@ struct CatalogEntry: Identifiable, Sendable {
 }
 ```
 
-- `PropertySpec`: 名前・置き場所（`.argument` = イニシャライザの引数／`.modifier`）・操作部品（`PropertyControl`）・最初に ON にするか・一言の説明
+- `PropertySpec`: 名前・置き場所（`.argument` = イニシャライザの引数／`.modifier`）・操作部品（`PropertyControl`）・最初に ON にするか・一言の説明。省くとコードが成り立たない引数（Text の文字など）は `required` にし、いつも ON にする
 - `PropertyControl`: スライダー・スイッチ・選択・色・文字・固定の 6 種。種類ごとに値の型とコードの書き方を持つ。選択肢は表示の名前とコードの文字列（`.borderedProminent` など）の組
 - `PropertyValues`: プロパティの id ごとの値。`nil` が OFF
 - `Topic`: リファレンスのトピックの列挙型。大分類・表示の名前・並びを持つ
@@ -106,7 +106,7 @@ struct CatalogEntry: Identifiable, Sendable {
 - `UI → ViewModel → Repository`。逆向きと、機能をまたぐ直接の参照はしない。共通のものは `Core/` に置く
 - `Features/Catalog/`（ホーム・トピック画面）と `Features/Detail/`
 - `Core/Data/CatalogRepository` が `Catalog.all` を読む。UI は収録データの型を、プレビューを組み立てるためにだけ使う
-- クリップボードと URL を開く処理は、小さなプロトコルで包み、テストで差し替える
+- クリップボードは小さなプロトコル（`ClipboardClient`）で包み、テストで差し替える。公式ページは SwiftUI の `Link` で開く（ViewModel を通らないので包まない）
 - ViewModel は `@MainActor @Observable` のクラス。詳細の値・比較の状態・選んでいるプロパティは詳細の ViewModel に持つ。仕切りの位置など画面の中だけの状態は `@State` に持つ
 - 遷移は `NavigationStack` と値つきの `navigationDestination`。ホームとトピック画面は「行が押された」を知らせるだけにし、詳細への遷移はアプリの組み立て役（`WidgetLabApp`）が渡す
 
