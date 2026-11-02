@@ -2,6 +2,7 @@ import SwiftUI
 
 /// プレビュー。比べるときは、左に「付けない」、右に「付けた」を出す
 /// 見た目のもの（.card）は重ねて仕切りで見比べ、見た目を持たないもの（.behavior）は左右に並べて下に記録を出す
+/// 説明だけのもの（.note）は、見本の代わりに試せない理由を出す
 struct PreviewArea: View {
     let viewModel: DetailViewModel
     /// 仕切りの位置（左端 0 〜 右端 1）
@@ -43,7 +44,9 @@ struct PreviewArea: View {
     @ViewBuilder
     private var content: some View {
         let pair = viewModel.comparison
-        if viewModel.entry.stage == .behavior {
+        if case .note(let reason) = viewModel.entry.stage {
+            NoteView(reason: reason)
+        } else if viewModel.entry.stage == .behavior {
             if let pair {
                 HStack(spacing: 0) {
                     behavior(pair.without, side: .without, showsSide: true)
@@ -124,6 +127,30 @@ struct PreviewArea: View {
                     }
             }
         }
+    }
+}
+
+/// 説明だけの収録で、見本の代わりに出す。ここで試せない理由
+private struct NoteView: View {
+    let reason: String
+
+    var body: some View {
+        VStack(spacing: 8) {
+            Image(systemName: "text.page")
+                .font(.title)
+                .foregroundStyle(.secondary)
+                .accessibilityHidden(true)
+            Text("ここでは試せません")
+                .font(.headline)
+            Text(reason)
+                .font(.subheadline)
+                .foregroundStyle(.secondary)
+                .multilineTextAlignment(.center)
+        }
+        .padding(24)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .accessibilityElement(children: .combine)
+        .accessibilityIdentifier("note")
     }
 }
 

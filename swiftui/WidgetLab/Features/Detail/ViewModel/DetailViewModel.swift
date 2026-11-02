@@ -82,9 +82,10 @@ final class DetailViewModel {
         PropertyValues(values.filter { enabled.contains($0.key) })
     }
 
-    /// 選んでいるプロパティを比べられるか（required は付けない状態がないので比べられない）
+    /// 選んでいるプロパティを比べられるか（required は付けない状態がないので比べられない。説明だけの収録は見本がない）
     var canCompare: Bool {
-        selected.map { !$0.isRequired } ?? false
+        if case .note = entry.stage { return false }
+        return selected.map { !$0.isRequired } ?? false
     }
 
     /// 比べるときの 2 つ（選んでいるプロパティを付けない／付けた。ほかは同じ）
