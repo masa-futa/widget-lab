@@ -101,6 +101,7 @@ final class DetailViewModel {
     func valueLabel(_ id: String) -> String {
         guard let spec = entry.properties.first(where: { $0.id == id }), enabled.contains(id), let value = values[id]
         else { return "OFF" }
+        if spec.placement == .wrapper { return "ON" }
         if case .text(let s) = value { return s }
         return spec.control.code(for: value)
     }

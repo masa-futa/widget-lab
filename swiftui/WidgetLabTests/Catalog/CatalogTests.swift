@@ -28,8 +28,12 @@ struct CatalogTests {
     func buildsAllCombinations(id: String) throws {
         let entry = try #require(Catalog.all.first { $0.id == id })
         for values in Self.combinations(of: entry) {
-            let renderer = ImageRenderer(content: entry.build(values).frame(width: 320, height: 240))
-            #expect(renderer.uiImage != nil, "\(id) を \(values) で描けない")
+            let view = entry.build(values)
+            // .full・.behavior は組み立てだけ（全画面や記録の窓口がないと、描いても確かめられない）
+            if entry.stage == .card {
+                let renderer = ImageRenderer(content: view.frame(width: 320, height: 240))
+                #expect(renderer.uiImage != nil, "\(id) を \(values) で描けない")
+            }
             _ = CodeGenerator.lines(template: entry.code, properties: entry.properties, values: values)
         }
     }

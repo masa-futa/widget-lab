@@ -141,4 +141,18 @@ struct DetailViewModelTests {
         viewModel.selectedID = "tint"
         #expect(viewModel.recorder.lines.isEmpty)
     }
+
+    @Test func stateEntrySelectsWrapperAndComparesWithAndWithout() {
+        let viewModel = DetailViewModel(entry: .state, clipboard: clipboard)
+        #expect(viewModel.selectedID == "State")
+        #expect(viewModel.canCompare)
+        #expect(viewModel.valueLabel("State") == "ON")
+        #expect(viewModel.selectedLine?.text == "@State private var count = 0")
+        viewModel.isComparing = true
+        #expect(viewModel.comparison?.without["State"] == nil)
+        #expect(viewModel.comparison?.with["State"] != nil)
+        viewModel.setOn("State", false)
+        #expect(viewModel.valueLabel("State") == "OFF")
+        #expect(viewModel.selectedLine?.text == "private let box = Box()  // SwiftUI が見張らない参照型")
+    }
 }
