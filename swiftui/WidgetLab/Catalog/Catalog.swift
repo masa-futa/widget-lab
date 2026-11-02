@@ -14,5 +14,10 @@ nonisolated enum Catalog {
         .grid,
         .gridRow,
         .zStack,
+        .lazyHGrid,
+        .lazyVGrid,
+        .viewThatFits,
+        .spacer,
+        .divider,
     ]
 }
