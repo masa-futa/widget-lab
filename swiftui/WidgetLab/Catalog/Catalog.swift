@@ -19,5 +19,12 @@ nonisolated enum Catalog {
         .viewThatFits,
         .spacer,
         .divider,
+        .scenePadding,
+        .frame,
+        .containerRelativeFrame,
+        .fixedSize,
+        .layoutPriority,
+        .position,
+        .offset,
     ]
 }
