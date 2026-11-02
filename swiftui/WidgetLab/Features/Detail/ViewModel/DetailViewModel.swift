@@ -21,7 +21,11 @@ final class DetailViewModel {
         self.clipboard = clipboard
         values = Dictionary(uniqueKeysWithValues: entry.properties.map { ($0.id, $0.control.initialValue) })
         enabled = entry.initialValues.ids
-        selectedID = entry.properties.first(where: \.initiallyOn)?.id ?? entry.properties.first?.id
+        // required のプロパティは付けない状態がないので、比べられるものを先に選ぶ
+        let properties = entry.properties
+        selectedID =
+            (properties.first { $0.initiallyOn && !$0.isRequired } ?? properties.first { !$0.isRequired }
+            ?? properties.first)?.id
     }
 
     var selected: PropertySpec? {
@@ -35,6 +39,7 @@ final class DetailViewModel {
     func setOn(_ id: String, _ on: Bool) {
         guard entry.properties.first(where: { $0.id == id })?.isRequired != true else { return }
         if on { enabled.insert(id) } else { enabled.remove(id) }
+        didCopy = false
     }
 
     func value(_ id: String) -> PropertyValue? {
@@ -45,12 +50,14 @@ final class DetailViewModel {
     func setValue(_ id: String, _ value: PropertyValue) {
         values[id] = value
         enabled.insert(id)
+        didCopy = false
     }
 
     func reset() {
         values = Dictionary(uniqueKeysWithValues: entry.properties.map { ($0.id, $0.control.initialValue) })
         enabled = entry.initialValues.ids
         isComparing = false
+        didCopy = false
     }
 
     /// プレビューに渡す値（ON のものだけ）
@@ -58,9 +65,14 @@ final class DetailViewModel {
         PropertyValues(values.filter { enabled.contains($0.key) })
     }
 
+    /// 選んでいるプロパティを比べられるか（required は付けない状態がないので比べられない）
+    var canCompare: Bool {
+        selected.map { !$0.isRequired } ?? false
+    }
+
     /// 比べるときの 2 つ（選んでいるプロパティを付けない／付けた。ほかは同じ）
     var comparison: (without: PropertyValues, with: PropertyValues)? {
-        guard isComparing, let id = selectedID else { return nil }
+        guard isComparing, canCompare, let id = selectedID else { return nil }
         var without = current
         var with = current
         without[id] = nil

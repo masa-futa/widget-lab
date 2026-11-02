@@ -13,7 +13,7 @@ struct PreviewArea: View {
             } else {
                 preview(viewModel.current)
             }
-            if viewModel.selected != nil {
+            if viewModel.canCompare {
                 Toggle(isOn: Binding(get: { viewModel.isComparing }, set: { viewModel.isComparing = $0 })) {
                     // 押せる範囲は label の大きさになるので、ここで 44pt 以上にする
                     Text("比べる").frame(minWidth: 44, minHeight: 44)
@@ -42,6 +42,7 @@ struct PreviewArea: View {
                 preview(without)
                     .background(Self.areaBackground)
                     .mask(alignment: .leading) { Rectangle().frame(width: x) }
+                    .accessibilityHidden(true)
                 Rectangle()
                     .fill(.tint)
                     .frame(width: 2)
@@ -61,13 +62,21 @@ struct PreviewArea: View {
                     split = min(max(value.location.x / geometry.size.width, 0), 1)
                 }
             )
-            .accessibilityElement(children: .contain)
-            .accessibilityAdjustableAction { direction in
-                switch direction {
-                case .increment: split = min(split + 0.1, 1)
-                case .decrement: split = max(split - 0.1, 0)
-                @unknown default: break
-                }
+            .overlay(alignment: .topLeading) {
+                // VoiceOver で操作できるよう、仕切りだけを 1 つの要素にする
+                Color.clear
+                    .frame(width: 44, height: geometry.size.height)
+                    .offset(x: x - 22)
+                    .accessibilityElement()
+                    .accessibilityLabel("仕切り")
+                    .accessibilityValue("付けた側 \(Int(((1 - split) * 100).rounded()))%")
+                    .accessibilityAdjustableAction { direction in
+                        switch direction {
+                        case .increment: split = max(split - 0.1, 0)
+                        case .decrement: split = min(split + 0.1, 1)
+                        @unknown default: break
+                        }
+                    }
             }
         }
     }

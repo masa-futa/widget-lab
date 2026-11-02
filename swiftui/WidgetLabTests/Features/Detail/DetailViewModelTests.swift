@@ -52,6 +52,39 @@ struct DetailViewModelTests {
         #expect(pair.with == PropertyValues(["size": .number(4), "tint": .color(1)]))
     }
 
+    @Test func textEntrySelectsFirstNonRequiredProperty() {
+        let viewModel = DetailViewModel(entry: .text, clipboard: clipboard)
+        #expect(viewModel.selectedID == "font")
+        #expect(viewModel.canCompare)
+    }
+
+    @Test func requiredPropertyCannotBeCompared() {
+        let viewModel = DetailViewModel(entry: .text, clipboard: clipboard)
+        viewModel.selectedID = "content"
+        viewModel.isComparing = true
+        #expect(viewModel.canCompare == false)
+        #expect(viewModel.comparison == nil)
+    }
+
+    @Test func nonRequiredPropertyCanBeCompared() {
+        let viewModel = makeViewModel()
+        viewModel.selectedID = "tint"
+        #expect(viewModel.canCompare)
+    }
+
+    @Test func editingResetsCopiedState() {
+        let viewModel = makeViewModel()
+        viewModel.copyCode()
+        viewModel.setValue("size", .number(7))
+        #expect(viewModel.didCopy == false)
+        viewModel.copyCode()
+        viewModel.setOn("size", false)
+        #expect(viewModel.didCopy == false)
+        viewModel.copyCode()
+        viewModel.reset()
+        #expect(viewModel.didCopy == false)
+    }
+
     @Test func comparisonIsNilWhenNotComparing() {
         #expect(makeViewModel().comparison == nil)
     }
