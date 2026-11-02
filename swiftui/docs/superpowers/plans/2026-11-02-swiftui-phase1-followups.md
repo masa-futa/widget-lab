@@ -13,10 +13,10 @@
 ## Phase 2 の計画の前に決める・直す
 | こと | 場所 | 中身 |
 |---|---|---|
-| 一覧の見本を stage で分ける | `Features/Catalog/UI/TopicScreen.swift`（`EntryRow`）、`WidgetLabTests/Catalog/CatalogTests.swift` | `.full`・`.behavior` は一覧の行で組み立てない（sheet が行から出る・NavigationStack が入れ子になる・記録の窓口がない）。SF Symbols の代わりの絵にする。全件のテストも `.full`・`.behavior` は描かずに組み立てだけにする（spec のとおり） |
-| `DemoRecorder` を組み立ての関数に渡す方法 | `CatalogEntry.build` | 型は変えず、SwiftUI の Environment で渡す案が有力（依存が「詳細 → 収録データ」の一方向のまま） |
-| 検索を表示の名前でも当てる | `CatalogViewModel.results` | 今は id だけで当てるので、`.pad` や `@State` で見つからない。id と `displayName` の両方で当てる |
-| 「検索中か」を ViewModel に持たせる | `HomeScreen`・`CatalogViewModel` | 空白を除く判定が 2 か所にある |
+| 済: 一覧の見本を stage で分ける | `Features/Catalog/UI/TopicScreen.swift`（`EntryRow`）、`WidgetLabTests/Catalog/CatalogTests.swift` | `.full`・`.behavior` は一覧の行で組み立てない（sheet が行から出る・NavigationStack が入れ子になる・記録の窓口がない）。SF Symbols の代わりの絵にする。全件のテストも `.full`・`.behavior` は描かずに組み立てだけにする（spec のとおり） |
+| 済: `DemoRecorder` を組み立ての関数に渡す方法 | `CatalogEntry.build` | 型は変えず、SwiftUI の Environment で渡す案が有力（依存が「詳細 → 収録データ」の一方向のまま）。→ Environment で渡した（ADR-0002） |
+| 済: 検索を表示の名前でも当てる | `CatalogViewModel.results` | 今は id だけで当てるので、`.pad` や `@State` で見つからない。id と `displayName` の両方で当てる |
+| 済: 「検索中か」を ViewModel に持たせる | `HomeScreen`・`CatalogViewModel` | 空白を除く判定が 2 か所にある |
 
 ## Phase 3 の最初の PR の前に決める・直す
 | こと | 場所 | 中身 |
@@ -29,6 +29,17 @@
 | `sections` の作り直し | `CatalogViewModel` | 収録は変わらないので、`init` で 1 回だけ作る |
 | `pick` の選択肢の数の確認 | 収録データ | 選択肢と、`pick` に渡す配列の数が合っているかを、デバッグのときだけ確かめる |
 | テストの抜け | `CodeGeneratorTests`・`DetailViewModelTests` | ラベル付きの modifier、required の引数、複数行の末尾のクロージャの印、`changedIDs` が空のとき、`selectedLine` の代わりの行、`entry(id:)` |
+
+## Phase 2 のレビューで、次の段に回したこと
+| こと | 場所 | 中身 |
+|---|---|---|
+| ラッパーの宣言の行の見つけ方 | `CodeGenerator.wrapperLines` | `contains("@" + id)` は部分一致なので、`@StateObject` を足すと `@State` に当たる。語として一致させる |
+| ラッパーのコードとプロパティの組み合わせの確認 | `CatalogTests` | `code.wrapper` があるのに `.wrapper` のプロパティがないと、黙って普通の形になる。テストの条件にする |
+| `.behavior` の見本も描いて確かめる | `CatalogTests` | いまは組み立てだけで、Binding・TapGesture の body はテストで評価されない。窓口が nil なら記録しないので、`ImageRenderer` で描ける。`.full` だけ組み立てだけにする（spec も直す） |
+| TapGesture のコードの行のテスト | `DetailViewModelTests` | `TapGesture(count: 2)` と、OFF のときの `TapGesture()` |
+| VoiceOver での複数回のタップ | `TapGestureEntry` | VoiceOver の操作では 1 回しか届かない。`accessibilityAction` を足すか、説明に書く |
+| UI テストで左右を確かめる | `LaunchUITests` | 今は「+1」を並びの番号で押し、`count: 1` がどちら側かを見ていない。左右の列の中で探す。付けた側の描き直しが増えることも確かめる |
+| 記録の欄の高さ | `PreviewArea`（`RecordPanel` の 90pt） | 文字を大きくすると見出しが伸びて、ログが 3 行入らない。Binding の Stepper も半分の幅からはみ出すことがある |
 
 ## 時間のあるときに直す
 - 道具: キャッシュを一時ファイルに書いてから置き換える（取り出しが途中で切れても壊れたキャッシュが残らない）。記号の JSON が欠けたら件数を警告に出す。前のトピックで見た View がある節の modifier の数え方を、テストで確かめる

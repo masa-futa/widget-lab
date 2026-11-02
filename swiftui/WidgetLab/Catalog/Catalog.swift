@@ -5,5 +5,8 @@ nonisolated enum Catalog {
         .text,
         .vStack,
         .padding,
+        .state,
+        .binding,
+        .tapGesture,
     ]
 }

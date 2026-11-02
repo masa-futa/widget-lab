@@ -8,7 +8,7 @@ struct HomeScreen: View {
 
     var body: some View {
         List {
-            if viewModel.query.trimmingCharacters(in: .whitespaces).isEmpty {
+            if !viewModel.isSearching {
                 ForEach(viewModel.sections) { section in
                     Section(section.category.rawValue) {
                         ForEach(section.topics) { summary in

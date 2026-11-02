@@ -19,10 +19,12 @@ final class FakeClipboard: ClipboardClient, @unchecked Sendable {
 
 extension CatalogEntry {
     /// テスト用の収録データ。引数 1 つ（size）と modifier 2 つ（tint・hidden）
-    static func fake(id: String = "Sample", topic: Topic = .controlsAndIndicators) -> CatalogEntry {
+    static func fake(id: String = "Sample", kind: EntryKind = .view, topic: Topic = .controlsAndIndicators)
+        -> CatalogEntry
+    {
         CatalogEntry(
             id: id,
-            kind: .view,
+            kind: kind,
             topic: topic,
             summary: "テスト用",
             docURL: URL(string: "https://example.com")!,

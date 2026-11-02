@@ -41,14 +41,24 @@ final class CatalogViewModel {
         }
     }
 
-    /// 検索の結果。query が空なら空。名前の部分一致（大文字・小文字を区別しない）で、id の ABC 順
+    /// 検索中か（前後の空白を除いて、query が空でない）
+    var isSearching: Bool {
+        !trimmedQuery.isEmpty
+    }
+
+    /// 検索の結果。検索中でなければ空。表示の名前（"@State"・".padding"。id を含む）の部分一致で、
+    /// 大文字・小文字を区別せず、id の ABC 順
     var results: [CatalogEntry] {
-        let trimmed = query.trimmingCharacters(in: .whitespaces)
-        guard !trimmed.isEmpty else { return [] }
+        guard isSearching else { return [] }
+        let trimmed = trimmedQuery
         return
             entries
-            .filter { $0.id.localizedCaseInsensitiveContains(trimmed) }
+            .filter { $0.displayName.localizedCaseInsensitiveContains(trimmed) }
             .sorted { $0.id.localizedCaseInsensitiveCompare($1.id) == .orderedAscending }
+    }
+
+    private var trimmedQuery: String {
+        query.trimmingCharacters(in: .whitespaces)
     }
 
     func entries(in topic: Topic) -> [CatalogEntry] {

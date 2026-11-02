@@ -21,18 +21,14 @@ struct TopicScreen: View {
     }
 }
 
-/// 収録 1 件の行。最初の値で組み立てて縮めた見本・名前・種類の印
+/// 収録 1 件の行。見本（.card は最初の値で組み立てて縮めたもの、ほかは絵）・名前・種類の印
 struct EntryRow: View {
     let entry: CatalogEntry
 
     var body: some View {
         HStack(spacing: 12) {
-            entry.build(entry.initialValues)
-                .frame(width: 200, height: 120)
-                .scaleEffect(0.4)
+            thumbnail
                 .frame(width: 80, height: 48)
-                .clipped()
-                .allowsHitTesting(false)
                 .accessibilityHidden(true)
             VStack(alignment: .leading, spacing: 4) {
                 Text(entry.displayName)
@@ -46,6 +42,32 @@ struct EntryRow: View {
             KindBadge(kind: entry.kind)
         }
         .contentShape(.rect)
+    }
+}
+
+private extension EntryRow {
+    /// .full・.behavior は行で組み立てない（sheet が行から出る・NavigationStack が入れ子になる・記録の窓口がない）
+    @ViewBuilder
+    var thumbnail: some View {
+        switch entry.stage {
+        case .card:
+            entry.build(entry.initialValues)
+                .frame(width: 200, height: 120)
+                .scaleEffect(0.4)
+                .frame(width: 80, height: 48)
+                .clipped()
+                .allowsHitTesting(false)
+        case .full:
+            symbol("rectangle.portrait")
+        case .behavior:
+            symbol(entry.kind == .propertyWrapper ? "at" : "hand.tap")
+        }
+    }
+
+    func symbol(_ name: String) -> some View {
+        Image(systemName: name)
+            .font(.title2)
+            .foregroundStyle(.secondary)
     }
 }
 

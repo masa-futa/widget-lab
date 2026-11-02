@@ -25,6 +25,16 @@ struct DetailViewModelTests {
         #expect(viewModel.current["size"] == .number(8))
     }
 
+    @Test func reselectingSameValueKeepsRecords() {
+        let viewModel = makeViewModel()
+        viewModel.recorder.recorder(for: .with).log("タップ")
+        let generation = viewModel.demoGeneration
+        viewModel.selectedID = viewModel.selectedID
+        viewModel.isComparing = false
+        #expect(viewModel.recorder.lines.count == 1)
+        #expect(viewModel.demoGeneration == generation)
+    }
+
     @Test func settingValueTurnsPropertyOn() {
         let viewModel = makeViewModel()
         viewModel.setValue("tint", .color(2))
@@ -110,5 +120,49 @@ struct DetailViewModelTests {
         viewModel.copyCode()
         #expect(clipboard.copied == ["Sample(size: 4)"])
         #expect(viewModel.didCopy)
+    }
+
+    @Test func editingAndResettingClearRecordsAndRestartDemo() {
+        let viewModel = makeViewModel()
+        viewModel.recorder.recorder(for: .with).log("タップ")
+        let start = viewModel.demoGeneration
+        viewModel.setValue("size", .number(8))
+        #expect(viewModel.recorder.lines.isEmpty)
+        #expect(viewModel.demoGeneration > start)
+
+        viewModel.recorder.recorder(for: .without).bodyEvaluated("見本")
+        viewModel.setOn("tint", true)
+        #expect(viewModel.recorder.bodyCounts(.without).isEmpty)
+
+        viewModel.recorder.recorder(for: .with).log("タップ")
+        let beforeReset = viewModel.demoGeneration
+        viewModel.reset()
+        #expect(viewModel.recorder.lines.isEmpty)
+        #expect(viewModel.demoGeneration > beforeReset)
+    }
+
+    @Test func togglingCompareOrSelectingClearsRecords() {
+        let viewModel = makeViewModel()
+        viewModel.recorder.recorder(for: .with).log("タップ")
+        viewModel.isComparing = true
+        #expect(viewModel.recorder.lines.isEmpty)
+
+        viewModel.recorder.recorder(for: .with).log("タップ")
+        viewModel.selectedID = "tint"
+        #expect(viewModel.recorder.lines.isEmpty)
+    }
+
+    @Test func stateEntrySelectsWrapperAndComparesWithAndWithout() {
+        let viewModel = DetailViewModel(entry: .state, clipboard: clipboard)
+        #expect(viewModel.selectedID == "State")
+        #expect(viewModel.canCompare)
+        #expect(viewModel.valueLabel("State") == "ON")
+        #expect(viewModel.selectedLine?.text == "@State private var count = 0")
+        viewModel.isComparing = true
+        #expect(viewModel.comparison?.without["State"] == nil)
+        #expect(viewModel.comparison?.with["State"] != nil)
+        viewModel.setOn("State", false)
+        #expect(viewModel.valueLabel("State") == "OFF")
+        #expect(viewModel.selectedLine?.text == "private let box = Box()  // SwiftUI が見張らない参照型")
     }
 }
