@@ -111,8 +111,8 @@ struct CatalogEntry: Identifiable, Sendable {
 - 遷移は `NavigationStack` と値つきの `navigationDestination`。ホームとトピック画面は「行が押された」を知らせるだけにし、詳細への遷移はアプリの組み立て役（`WidgetLabApp`）が渡す
 
 ## テスト
-- manifest の突き合わせ: `Catalog.all` の id と `Manifest.swift` を照らす。まだ収録していないものは、進み具合として件数を出す（失敗にしない）。重複と、manifest にない id は失敗にする。全部埋まったら「抜け 0」を条件にする
-- 全件の組み立て: どの収録データも、全部 OFF・全部 ON・選択肢ごとに組み立てて落ちないこと。`ImageRenderer` で描いて確かめる（`.full`・`.behavior` は組み立てだけ）
+- manifest の突き合わせ: `Catalog.all` の id と `Manifest.swift` を照らす。まだ収録していないものは失敗にしない（進み具合は tools/catalog_progress.py で出す）。重複と、manifest にない id は失敗にする。全部埋まったら「抜け 0」を条件にする
+- 全件の組み立て: どの収録データも、全部 OFF・全部 ON・選択肢ごとに組み立てて落ちないこと。`ImageRenderer` で描いて確かめる（`.full` は組み立てだけ、`.note` は見本がないので組み立てない）
 - コードの生成: 引数の穴埋めと、modifier の並び順
 - ViewModel: 検索・ON/OFF・初期状態に戻す・比較・選んでいるプロパティ。Repository は fake に差し替える
 - UI テスト: 起動 → 検索 → 詳細 → コピーの 1 本だけ
