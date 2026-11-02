@@ -13,10 +13,10 @@
 ## Phase 2 の計画の前に決める・直す
 | こと | 場所 | 中身 |
 |---|---|---|
-| 一覧の見本を stage で分ける | `Features/Catalog/UI/TopicScreen.swift`（`EntryRow`）、`WidgetLabTests/Catalog/CatalogTests.swift` | `.full`・`.behavior` は一覧の行で組み立てない（sheet が行から出る・NavigationStack が入れ子になる・記録の窓口がない）。SF Symbols の代わりの絵にする。全件のテストも `.full`・`.behavior` は描かずに組み立てだけにする（spec のとおり） |
-| `DemoRecorder` を組み立ての関数に渡す方法 | `CatalogEntry.build` | 型は変えず、SwiftUI の Environment で渡す案が有力（依存が「詳細 → 収録データ」の一方向のまま） |
-| 検索を表示の名前でも当てる | `CatalogViewModel.results` | 今は id だけで当てるので、`.pad` や `@State` で見つからない。id と `displayName` の両方で当てる |
-| 「検索中か」を ViewModel に持たせる | `HomeScreen`・`CatalogViewModel` | 空白を除く判定が 2 か所にある |
+| 済: 一覧の見本を stage で分ける | `Features/Catalog/UI/TopicScreen.swift`（`EntryRow`）、`WidgetLabTests/Catalog/CatalogTests.swift` | `.full`・`.behavior` は一覧の行で組み立てない（sheet が行から出る・NavigationStack が入れ子になる・記録の窓口がない）。SF Symbols の代わりの絵にする。全件のテストも `.full`・`.behavior` は描かずに組み立てだけにする（spec のとおり） |
+| 済: `DemoRecorder` を組み立ての関数に渡す方法 | `CatalogEntry.build` | 型は変えず、SwiftUI の Environment で渡す案が有力（依存が「詳細 → 収録データ」の一方向のまま）。→ Environment で渡した（ADR-0002） |
+| 済: 検索を表示の名前でも当てる | `CatalogViewModel.results` | 今は id だけで当てるので、`.pad` や `@State` で見つからない。id と `displayName` の両方で当てる |
+| 済: 「検索中か」を ViewModel に持たせる | `HomeScreen`・`CatalogViewModel` | 空白を除く判定が 2 か所にある |
 
 ## Phase 3 の最初の PR の前に決める・直す
 | こと | 場所 | 中身 |
