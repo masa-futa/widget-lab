@@ -8,5 +8,11 @@ nonisolated enum Catalog {
         .state,
         .binding,
         .tapGesture,
+        .hStack,
+        .lazyHStack,
+        .lazyVStack,
+        .grid,
+        .gridRow,
+        .zStack,
     ]
 }
