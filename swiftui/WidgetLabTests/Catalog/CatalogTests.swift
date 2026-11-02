@@ -14,7 +14,6 @@ struct CatalogTests {
             #expect(expected?.kind == entry.kind, "\(entry.id) の種類が Manifest と違う")
             #expect(expected?.topic == entry.topic, "\(entry.id) のトピックが Manifest と違う")
         }
-        print("収録の進み具合: \(ids.count) / \(Manifest.entries.count)")
     }
 
     @Test func propertyIDsAreUniqueInEachEntry() {
