@@ -15,8 +15,10 @@ SwiftUI の API リファレンスに載る View・modifier・プロパティラ
     && python3 -m unittest discover tools \
     && xcodebuild test -project WidgetLab.xcodeproj -scheme WidgetLab \
        -destination 'platform=iOS Simulator,name=iPhone 17,OS=27.0' \
-       -derivedDataPath build CODE_SIGNING_ALLOWED=NO
+       -derivedDataPath build CODE_SIGNING_ALLOWED=NO \
+       -test-timeouts-enabled YES -maximum-test-execution-time-allowance 120
   ```
+  UI テストは時間の上限を付けて実行する（要素が見つからないと待ち続けて止まるため）。`Toggle` を `.toggleStyle(.button)` にしたものは、UI テストでは `app.switches[...]` で探す
 - 整形: `xcrun swift-format format -i -r WidgetLab WidgetLabTests WidgetLabUITests`
 - manifest を作り直す: `python3 tools/make_manifest.py`（`--refresh` でリファレンスを取り直す）。生成した `WidgetLab/Catalog/Generated/` はコミットする
 - 起動: Xcode で `WidgetLab.xcodeproj` を開いて実行する
