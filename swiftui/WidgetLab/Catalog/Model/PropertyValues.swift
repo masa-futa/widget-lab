@@ -42,9 +42,15 @@ nonisolated struct PropertyValues: Equatable, Sendable {
         if case .color(let i) = storage[id] { Palette.colors[i].color } else { nil }
     }
 
-    /// 選択肢の番号に合う値を options から取り出す（options は選択肢と同じ並び）
+    /// 選択肢の番号に合う値を options から取り出す（options は選択肢と同じ並び）。
+    /// options が選択肢より少ないのは収録データの誤りなので、デバッグのときは止める
     func pick<T>(_ id: String, from options: [T]) -> T? {
-        if case .choice(let i) = storage[id] { options[i] } else { nil }
+        guard case .choice(let i) = storage[id] else { return nil }
+        guard options.indices.contains(i) else {
+            assertionFailure("\(id) の選択肢 \(i) 番に合う値が options（\(options.count) 件）にない")
+            return nil
+        }
+        return options[i]
     }
 }
 

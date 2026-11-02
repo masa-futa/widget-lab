@@ -113,6 +113,17 @@ struct CodeGeneratorTests {
         #expect(lines.map(\.text) == ["Text(\"A\")", "    .frame(maxWidth: .infinity)"])
     }
 
+    @Test func wrapperDeclarationMatchesWholeWord() {
+        let code = WrapperCode(
+            withWrapper: ["@StateObject private var model = Model()", "@State private var count = 0"],
+            withoutWrapper: ["@StateObject private var model = Model()", "private var count = 0"])
+        let spec = PropertySpec.wrapper("State", summary: "")
+        let lines = CodeGenerator.lines(
+            template: CodeTemplate(call: "State", wrapper: code), properties: [spec],
+            values: PropertyValues(["State": spec.control.initialValue]))
+        #expect(lines.map(\.propertyIDs) == [[], ["State"]])
+    }
+
     private let wrapperCode = WrapperCode(
         withWrapper: ["@State private var count = 0", "", "var body: some View {", "    Text(\"\\(count)\")", "}"],
         withoutWrapper: ["private let box = Box()", "", "var body: some View {", "    Text(\"\\(box.count)\")", "}"])

@@ -97,7 +97,8 @@ nonisolated enum CodeGenerator {
     private static func wrapperLines(_ code: WrapperCode, id: String, isOn: Bool, isChanged: Bool) -> [CodeLine] {
         if isOn {
             return code.withWrapper.map { text in
-                let isDeclaration = text.contains("@" + id)
+                // 語として一致させる（@State で @StateObject の行に当たらないように）
+                let isDeclaration = text.range(of: "@\(id)\\b", options: .regularExpression) != nil
                 return CodeLine(
                     text: text, propertyIDs: isDeclaration ? [id] : [], isChanged: isDeclaration && isChanged)
             }
