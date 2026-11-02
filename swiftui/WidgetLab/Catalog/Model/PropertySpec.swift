@@ -20,11 +20,12 @@ nonisolated struct PropertySpec: Identifiable, Sendable {
     /// 一言の説明（日本語）
     let summary: String
 
-    /// チップと編集パネルに出す名前（例: "role"、".tint"）
+    /// チップと編集パネルに出す名前（例: "role"、".tint"）。同じ modifier に複数のプロパティを付けるとき
+    /// （id が modifier の名前と違うとき）は、引数のラベルまで出す（例: ".frame(width:)"）
     var displayName: String {
         switch placement {
         case .argument: id
-        case .modifier(let name, _): "." + name
+        case .modifier(let name, let label): id == name ? "." + name : ".\(name)(\(label ?? "_"):)"
         case .wrapper: "@" + id
         }
     }
@@ -39,12 +40,16 @@ nonisolated struct PropertySpec: Identifiable, Sendable {
             isRequired: required, summary: summary)
     }
 
+    /// modifier のプロパティ。id を省くと modifier の名前を id にする。同じ modifier に複数のプロパティを付けるときは
+    /// id を分ける（例: "frame.width"・"frame.height"）。コードでは同じ modifier のプロパティを 1 行にまとめる。
+    /// required の引数は、OFF にできず、同じ modifier のほかのプロパティが ON のときだけコードに書く
     static func modifier(
-        _ name: String, label: String? = nil, _ control: PropertyControl, on: Bool = false, summary: String
+        _ name: String, id: String? = nil, label: String? = nil, _ control: PropertyControl, on: Bool = false,
+        required: Bool = false, summary: String
     ) -> PropertySpec {
         PropertySpec(
-            id: name, placement: .modifier(name: name, label: label), control: control, initiallyOn: on,
-            summary: summary)
+            id: id ?? name, placement: .modifier(name: name, label: label), control: control,
+            initiallyOn: on || required, isRequired: required, summary: summary)
     }
 
     /// プロパティラッパーそのもの。いつも最初は ON。コードは CodeTemplate.wrapper の 2 つの形を使う

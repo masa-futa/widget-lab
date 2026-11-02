@@ -56,6 +56,58 @@ struct CodeGeneratorTests {
         #expect(lines.map(\.text) == ["Rectangle()", "    .gesture(TapGesture().onEnded { })"])
     }
 
+    @Test func groupsArgumentsOfSameModifierIntoOneLine() {
+        let frame: [PropertySpec] = [
+            .modifier(
+                "frame", id: "frame.width", label: "width", .slider(range: 0...200, step: 10, initial: 120),
+                summary: ""),
+            .modifier("tint", .color(initial: 0), summary: ""),
+            .modifier(
+                "frame", id: "frame.height", label: "height", .slider(range: 0...200, step: 10, initial: 80),
+                summary: ""),
+        ]
+        #expect(frame.map(\.displayName) == [".frame(width:)", ".tint", ".frame(height:)"])
+        let values = PropertyValues(["frame.width": .number(120), "frame.height": .number(80), "tint": .color(0)])
+        let lines = CodeGenerator.lines(
+            template: CodeTemplate(call: "Rectangle"), properties: frame, values: values, changed: ["frame.height"])
+        #expect(lines.map(\.text) == ["Rectangle()", "    .frame(width: 120, height: 80)", "    .tint(.red)"])
+        #expect(lines[1].propertyIDs == ["frame.width", "frame.height"])
+        #expect(lines.map(\.isChanged) == [false, true, false])
+
+        let heightOnly = CodeGenerator.lines(
+            template: CodeTemplate(call: "Rectangle"), properties: frame,
+            values: PropertyValues(["frame.height": .number(80)]))
+        #expect(heightOnly.map(\.text) == ["Rectangle()", "    .frame(height: 80)"])
+    }
+
+    @Test func requiredModifierArgumentIsWrittenOnlyWithOtherArgumentsOfSameModifier() {
+        let shadow: [PropertySpec] = [
+            .modifier("shadow", id: "shadow.color", label: "color", .color(initial: 7), summary: ""),
+            .modifier(
+                "shadow", id: "shadow.radius", label: "radius", .slider(range: 0...20, step: 1, initial: 4),
+                required: true, summary: ""),
+        ]
+        #expect(shadow[1].isRequired && shadow[1].initiallyOn)
+        let template = CodeTemplate(call: "Circle")
+        let off = CodeGenerator.lines(
+            template: template, properties: shadow, values: PropertyValues(["shadow.radius": .number(4)]))
+        #expect(off.map(\.text) == ["Circle()"])
+        let on = CodeGenerator.lines(
+            template: template, properties: shadow,
+            values: PropertyValues(["shadow.color": .color(7), "shadow.radius": .number(4)]))
+        #expect(on.map(\.text) == ["Circle()", "    .shadow(color: .gray, radius: 4)"])
+    }
+
+    @Test func labeledModifierWritesLabel() {
+        let spec = PropertySpec.modifier("frame", label: "maxWidth", .fixed(code: ".infinity"), summary: "")
+        #expect(spec.id == "frame")
+        #expect(spec.displayName == ".frame")
+        let lines = CodeGenerator.lines(
+            template: CodeTemplate(call: "Text", fixedArguments: ["\"A\""]), properties: [spec],
+            values: PropertyValues(["frame": .flag(true)]))
+        #expect(lines.map(\.text) == ["Text(\"A\")", "    .frame(maxWidth: .infinity)"])
+    }
+
     private let wrapperCode = WrapperCode(
         withWrapper: ["@State private var count = 0", "", "var body: some View {", "    Text(\"\\(count)\")", "}"],
         withoutWrapper: ["private let box = Box()", "", "var body: some View {", "    Text(\"\\(box.count)\")", "}"])
