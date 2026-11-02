@@ -9,7 +9,7 @@ nonisolated extension CatalogEntry {
         docURL: URL(string: "https://developer.apple.com/documentation/swiftui/binding")!,
         stage: .behavior,
         properties: [
-            .wrapper("Binding", summary: "外して値のコピーを持つと、子で変えても親に届かない")
+            .wrapper("Binding", summary: "外して値のコピーを持つと、子で変えても親に届かない。描き直しの回数は、SwiftUI の都合で 1〜2 回ずれることがある")
         ],
         code: CodeTemplate(
             call: "Binding",

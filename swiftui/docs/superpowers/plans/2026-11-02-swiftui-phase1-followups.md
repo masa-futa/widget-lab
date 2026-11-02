@@ -30,6 +30,17 @@
 | `pick` の選択肢の数の確認 | 収録データ | 選択肢と、`pick` に渡す配列の数が合っているかを、デバッグのときだけ確かめる |
 | テストの抜け | `CodeGeneratorTests`・`DetailViewModelTests` | ラベル付きの modifier、required の引数、複数行の末尾のクロージャの印、`changedIDs` が空のとき、`selectedLine` の代わりの行、`entry(id:)` |
 
+## Phase 2 のレビューで、次の段に回したこと
+| こと | 場所 | 中身 |
+|---|---|---|
+| ラッパーの宣言の行の見つけ方 | `CodeGenerator.wrapperLines` | `contains("@" + id)` は部分一致なので、`@StateObject` を足すと `@State` に当たる。語として一致させる |
+| ラッパーのコードとプロパティの組み合わせの確認 | `CatalogTests` | `code.wrapper` があるのに `.wrapper` のプロパティがないと、黙って普通の形になる。テストの条件にする |
+| `.behavior` の見本も描いて確かめる | `CatalogTests` | いまは組み立てだけで、Binding・TapGesture の body はテストで評価されない。窓口が nil なら記録しないので、`ImageRenderer` で描ける。`.full` だけ組み立てだけにする（spec も直す） |
+| TapGesture のコードの行のテスト | `DetailViewModelTests` | `TapGesture(count: 2)` と、OFF のときの `TapGesture()` |
+| VoiceOver での複数回のタップ | `TapGestureEntry` | VoiceOver の操作では 1 回しか届かない。`accessibilityAction` を足すか、説明に書く |
+| UI テストで左右を確かめる | `LaunchUITests` | 今は「+1」を並びの番号で押し、`count: 1` がどちら側かを見ていない。左右の列の中で探す。付けた側の描き直しが増えることも確かめる |
+| 記録の欄の高さ | `PreviewArea`（`RecordPanel` の 90pt） | 文字を大きくすると見出しが伸びて、ログが 3 行入らない。Binding の Stepper も半分の幅からはみ出すことがある |
+
 ## 時間のあるときに直す
 - 道具: キャッシュを一時ファイルに書いてから置き換える（取り出しが途中で切れても壊れたキャッシュが残らない）。記号の JSON が欠けたら件数を警告に出す。前のトピックで見た View がある節の modifier の数え方を、テストで確かめる
 - 一覧の行の押したときの地は、余白を決め打ち（-20 / -12）で広げている。iPad や読みやすい幅の余白では足りないことがある

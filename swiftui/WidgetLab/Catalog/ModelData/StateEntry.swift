@@ -9,7 +9,7 @@ nonisolated extension CatalogEntry {
         docURL: URL(string: "https://developer.apple.com/documentation/swiftui/state")!,
         stage: .behavior,
         properties: [
-            .wrapper("State", summary: "外すと、値は変わっても SwiftUI が見張らないので、表示が描き直されない")
+            .wrapper("State", summary: "外すと、値は変わっても SwiftUI が見張らないので、表示が描き直されない。描き直しの回数は、SwiftUI の都合で 1〜2 回ずれることがある")
         ],
         code: CodeTemplate(
             call: "State",
@@ -29,6 +29,8 @@ nonisolated extension CatalogEntry {
                     "    Button(\"+1\") { box.count += 1 }",
                     "    Text(\"count: \\(box.count)\")",
                     "}",
+                    "",
+                    "final class Box { var count = 0 }",
                 ])),
         build: { v in
             v["State"] != nil ? AnyView(StateDemo.WithState()) : AnyView(StateDemo.WithoutState())
@@ -62,6 +64,7 @@ private enum StateDemo {
     }
 
     struct WithoutState: View {
+        // プレビュー（PreviewArea）が記録を読まないので、見本を作り直すまで同じ箱が残る
         private let box = Box()
         @Environment(\.demoRecorder) private var recorder
 

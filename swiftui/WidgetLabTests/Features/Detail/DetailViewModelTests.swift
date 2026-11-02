@@ -25,6 +25,16 @@ struct DetailViewModelTests {
         #expect(viewModel.current["size"] == .number(8))
     }
 
+    @Test func reselectingSameValueKeepsRecords() {
+        let viewModel = makeViewModel()
+        viewModel.recorder.recorder(for: .with).log("タップ")
+        let generation = viewModel.demoGeneration
+        viewModel.selectedID = viewModel.selectedID
+        viewModel.isComparing = false
+        #expect(viewModel.recorder.lines.count == 1)
+        #expect(viewModel.demoGeneration == generation)
+    }
+
     @Test func settingValueTurnsPropertyOn() {
         let viewModel = makeViewModel()
         viewModel.setValue("tint", .color(2))

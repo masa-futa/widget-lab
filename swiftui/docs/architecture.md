@@ -36,7 +36,7 @@ UI → ViewModel → Repository。逆向きと、機能をまたぐ直接の参�
 - 詳細のプロパティの値・選んでいるプロパティ・比べるかどうかは `DetailViewModel` に持つ（プレビュー・チップ・編集パネル・コードの 4 か所で共有するため）
 - 比べるの仕切りの位置、シートを出しているかなど、画面の中だけの一時的な状態は View の `@State` に持つ
 - Repository とクリップボードはプロトコルで受け取り、テストでは fake を渡す（WidgetLabTests/Support/Fakes.swift）
-- 見た目を持たないものの記録は、詳細の ViewModel が DetailRecorder を持ち、側ごとの窓口を Environment で見本に渡す。見本は窓口に書くだけで読まない。プロパティや比べるを変えたら、記録を消して見本を作り直す（demoGeneration を見本の id にする）
+- 見た目を持たないものの記録は、詳細の ViewModel が DetailRecorder を持ち、側ごとの窓口を Environment で見本に渡す。見本は窓口に書くだけで読まない。プロパティや比べるを変えたら、記録を消して見本を作り直す（demoGeneration を見本の id にする）。PreviewArea は記録の値を読まない（読むと見本が描き直され、@State を外した側の箱が作り直される）。
 
 ## 遷移
 `NavigationStack(path:)` と値つきの `navigationDestination(for: Route.self)`。ホーム → トピック → 詳細、またはホームの検索の結果 → 詳細。
@@ -44,5 +44,7 @@ UI → ViewModel → Repository。逆向きと、機能をまたぐ直接の参�
 
 ## コードの生成
 `CodeGenerator.lines` が、`CodeTemplate`（呼び出しの名前・いつも書く引数・末尾のクロージャ・前後の行）に、付けた引数と modifier を定義の順で埋めて、行ごと（`CodeLine`）に返す。最初の値から変えたプロパティの行には `isChanged` が付く。
+
+プロパティラッパーの収録は、`CodeTemplate.wrapper`（`WrapperCode`）の付けた形と外した形の行をそのまま使う。外した形では、付けた形にない行に `isChanged` が付く。引数のない呼び出しの括弧を省くのは、末尾が " {" で始まるクロージャのときだけ（`.gesture(TapGesture().onEnded { })` では省かない）。
 
 決めた理由は docs/adr/ の ADR-0001（構成と規約）と ADR-0002（収録データから組み立てる）。

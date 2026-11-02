@@ -7,10 +7,10 @@ final class DetailViewModel {
     let entry: CatalogEntry
     /// 選んでいるプロパティの id
     var selectedID: String? {
-        didSet { restartDemo() }
+        didSet { if oldValue != selectedID { restartDemo() } }
     }
     var isComparing = false {
-        didSet { restartDemo() }
+        didSet { if oldValue != isComparing { restartDemo() } }
     }
     /// コードをコピーした直後に true
     private(set) var didCopy = false
