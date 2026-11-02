@@ -26,5 +26,11 @@ nonisolated enum Catalog {
         .layoutPriority,
         .position,
         .offset,
+        .alignmentGuide,
+        .contentMargins,
+        .ignoresSafeArea,
+        .safeAreaInset,
+        .safeAreaPadding,
+        .layoutDirectionBehavior,
     ]
 }
