@@ -37,5 +37,9 @@ nonisolated enum Catalog {
         .section,
         .forEach,
         .containerValue,
+        .groupBox,
+        .form,
+        .labeledContent,
+        .controlGroup,
     ]
 }
