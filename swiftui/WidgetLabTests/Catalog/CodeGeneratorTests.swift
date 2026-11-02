@@ -46,6 +46,11 @@ struct CodeGeneratorTests {
     @Test func formatsValues() {
         #expect(PropertyControl.slider(range: 0...10, step: 1, initial: 0).code(for: .number(8)) == "8")
         #expect(PropertyControl.slider(range: 0...1, step: 0.1, initial: 0).code(for: .number(0.5)) == "0.5")
+        #expect(PropertyControl.slider(range: 0...1, step: 0.1, initial: 0).code(for: .number(0.1 + 0.2)) == "0.3")
+        #expect(PropertyControl.slider(range: 0...1, step: 0.25, initial: 0).code(for: .number(0.25)) == "0.25")
+        #expect(PropertyControl.slider(range: 0...1, step: 0.25, initial: 0).code(for: .number(0.5)) == "0.5")
+        #expect(PropertyControl.slider(range: 0...1, step: 0.25, initial: 0).code(for: .number(1)) == "1")
+        #expect(PropertyControl.slider(range: -10...10, step: 0.5, initial: 0).code(for: .number(-2.5)) == "-2.5")
         #expect(PropertyControl.text(initial: "").code(for: .text("a\"b")) == "\"a\\\"b\"")
         #expect(PropertyControl.fixed(code: ".infinity").code(for: .flag(true)) == ".infinity")
     }

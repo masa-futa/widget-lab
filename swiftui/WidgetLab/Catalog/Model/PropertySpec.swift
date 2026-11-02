@@ -82,8 +82,8 @@ nonisolated enum PropertyControl: Sendable {
     /// 値を Swift のコードの文字列にする
     func code(for value: PropertyValue) -> String {
         switch (self, value) {
-        case (.slider, .number(let n)):
-            n.rounded() == n ? String(Int(n)) : String(format: "%.1f", n)
+        case (.slider(_, let step, _), .number(let n)):
+            Self.decimal(n, digits: Self.fractionDigits(of: step))
         case (.toggle, .flag(let b)):
             b ? "true" : "false"
         case (.choice(let choices, _), .choice(let i)):
@@ -97,6 +97,29 @@ nonisolated enum PropertyControl: Sendable {
         default:
             preconditionFailure("操作部品と値の種類が合わない: \(self) / \(value)")
         }
+    }
+}
+
+nonisolated private extension PropertyControl {
+    /// step の小数の桁数（1 → 0、0.1 → 1、0.25 → 2）
+    static func fractionDigits(of step: Double) -> Int {
+        var digits = 0
+        var scaled = step
+        while digits < 6, (scaled - scaled.rounded()).magnitude > 1e-9 {
+            digits += 1
+            scaled *= 10
+        }
+        return digits
+    }
+
+    /// digits 桁までの小数で書き、末尾の 0 は省く（0.50 → "0.5"、2.0 → "2"）
+    static func decimal(_ n: Double, digits: Int) -> String {
+        var text = String(format: "%.\(digits)f", n)
+        if text.contains(".") {
+            while text.hasSuffix("0") { text.removeLast() }
+            if text.hasSuffix(".") { text.removeLast() }
+        }
+        return text == "-0" ? "0" : text
     }
 }
 
