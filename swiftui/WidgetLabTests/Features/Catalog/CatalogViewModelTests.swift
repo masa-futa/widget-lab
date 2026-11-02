@@ -21,6 +21,12 @@ struct CatalogViewModelTests {
         #expect(sections[0].topics[0].sampleNames == ["Button", "Toggle"])
     }
 
+    @Test func findsEntryByID() {
+        let viewModel = makeViewModel()
+        #expect(viewModel.entry(id: "padding")?.kind == .modifier)
+        #expect(viewModel.entry(id: "Nope") == nil)
+    }
+
     @Test func searchMatchesPartOfNameIgnoringCaseInAlphabeticalOrder() {
         let viewModel = makeViewModel()
         viewModel.query = "T"

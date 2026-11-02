@@ -109,6 +109,19 @@ struct DetailViewModelTests {
         #expect(viewModel.selectedLine?.text == "    .tint(.red)")
     }
 
+    @Test func selectedLineFallsBackToCallLineWhenSelectedPropertyIsOff() {
+        let viewModel = makeViewModel()
+        viewModel.selectedID = "tint"
+        #expect(viewModel.selectedLine?.text == "Sample(size: 4)")
+    }
+
+    @Test func tapGestureCodeWritesCountAndOmitsItWhenOff() {
+        let viewModel = DetailViewModel(entry: .tapGesture, clipboard: clipboard)
+        #expect(viewModel.codeLines.map(\.text).last == "    .gesture(TapGesture(count: 2).onEnded { })")
+        viewModel.setOn("count", false)
+        #expect(viewModel.codeLines.map(\.text).last == "    .gesture(TapGesture().onEnded { })")
+    }
+
     @Test func noteEntryCannotCompareButWritesCode() {
         let entry = CatalogEntry(
             id: "widgetLabel", kind: .modifier, topic: .appExtensions, summary: "テスト用",

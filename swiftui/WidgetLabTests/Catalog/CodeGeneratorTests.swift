@@ -124,6 +124,22 @@ struct CodeGeneratorTests {
         #expect(lines.map(\.propertyIDs) == [[], ["State"]])
     }
 
+    @Test func multilineTrailingClosureMarksOnlyCallLine() {
+        let spec = PropertySpec.argument("spacing", .slider(range: 0...20, step: 1, initial: 8), summary: "")
+        let lines = CodeGenerator.lines(
+            template: CodeTemplate(call: "VStack", trailing: " {\n    Text(\"A\")\n}"), properties: [spec],
+            values: PropertyValues(["spacing": .number(12)]), changed: ["spacing"])
+        #expect(lines.map(\.text) == ["VStack(spacing: 12) {", "    Text(\"A\")", "}"])
+        #expect(lines.map(\.isChanged) == [true, false, false])
+        #expect(lines.map(\.propertyIDs) == [["spacing"], [], []])
+    }
+
+    @Test func nothingIsMarkedWhenNothingChanged() {
+        let values = PropertyValues(["role": .choice(0), "title": .text("保存"), "tint": .color(4)])
+        let lines = CodeGenerator.lines(template: CodeTemplate(call: "Button"), properties: properties, values: values)
+        #expect(lines.allSatisfy { !$0.isChanged })
+    }
+
     private let wrapperCode = WrapperCode(
         withWrapper: ["@State private var count = 0", "", "var body: some View {", "    Text(\"\\(count)\")", "}"],
         withoutWrapper: ["private let box = Box()", "", "var body: some View {", "    Text(\"\\(box.count)\")", "}"])

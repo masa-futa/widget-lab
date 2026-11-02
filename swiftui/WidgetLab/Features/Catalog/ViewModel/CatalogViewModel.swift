@@ -24,16 +24,16 @@ struct TopicSummary: Identifiable, Equatable {
 final class CatalogViewModel {
     var query = ""
     private let entries: [CatalogEntry]
+    /// 収録が 1 件以上あるトピックを、大分類ごとに並べる（並びは TopicCategory・Topic の宣言の順）。
+    /// 収録は変わらないので、init で 1 回だけ作る
+    let sections: [CategorySection]
 
     init(repository: any CatalogRepository) {
-        entries = repository.allEntries()
-    }
-
-    /// 収録が 1 件以上あるトピックを、大分類ごとに並べる（並びは TopicCategory・Topic の宣言の順）
-    var sections: [CategorySection] {
-        TopicCategory.allCases.compactMap { category in
+        let entries = repository.allEntries()
+        self.entries = entries
+        sections = TopicCategory.allCases.compactMap { category in
             let topics = Topic.allCases.filter { $0.category == category }.compactMap { topic -> TopicSummary? in
-                let names = entries(in: topic).map(\.displayName)
+                let names = entries.filter { $0.topic == topic }.map(\.displayName)
                 return names.isEmpty
                     ? nil : TopicSummary(topic: topic, count: names.count, sampleNames: Array(names.prefix(3)))
             }
