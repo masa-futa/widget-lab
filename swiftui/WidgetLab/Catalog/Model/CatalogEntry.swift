@@ -1,13 +1,15 @@
 import SwiftUI
 
 /// プレビューの出し方
-nonisolated enum DemoStage: Sendable {
+nonisolated enum DemoStage: Equatable, Sendable {
     /// 詳細のプレビューの枠に収まるもの
     case card
     /// 画面より大きいもの・sheet など。プレビューの「試す」から全画面で開く（Phase 3 で使う）
     case full
     /// 見た目を持たないもの。記録を出す（Phase 2 で使う）
     case behavior
+    /// アプリの画面では試せないもの（アプリ拡張の中で効く・iOS では効かないなど）。見本の代わりに reason を出す
+    case note(reason: String)
 }
 
 /// 収録の 1 件。1 件 = 1 ファイル（Catalog/<トピック>/<名前>Entry.swift）
@@ -38,5 +40,17 @@ nonisolated struct CatalogEntry: Identifiable, Sendable {
         PropertyValues(
             Dictionary(uniqueKeysWithValues: properties.filter(\.initiallyOn).map { ($0.id, $0.control.initialValue) })
         )
+    }
+}
+
+nonisolated extension CatalogEntry {
+    /// 説明だけの収録（stage は .note）。見本を組み立てないので build を書かない
+    init(
+        id: String, kind: EntryKind, topic: Topic, summary: String, docURL: URL, noteReason: String,
+        properties: [PropertySpec], code: CodeTemplate
+    ) {
+        self.init(
+            id: id, kind: kind, topic: topic, summary: summary, docURL: docURL, stage: .note(reason: noteReason),
+            properties: properties, code: code, build: { _ in AnyView(EmptyView()) })
     }
 }

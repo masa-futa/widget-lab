@@ -1,7 +1,7 @@
 // 生成: tools/make_manifest.py（手で直さない）
 
 /// リファレンスの大分類。並びはホームに出す順
-nonisolated enum Category: String, CaseIterable, Sendable {
+nonisolated enum TopicCategory: String, CaseIterable, Sendable {
     case views = "Views"
     case viewLayout = "View layout"
     case appStructure = "App structure"
@@ -100,7 +100,7 @@ nonisolated enum Topic: String, CaseIterable, Sendable {
         }
     }
 
-    var category: Category {
+    var category: TopicCategory {
         switch self {
         case .appOrganization: .appStructure
         case .scenes: .appStructure

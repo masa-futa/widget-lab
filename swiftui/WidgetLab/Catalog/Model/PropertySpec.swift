@@ -20,11 +20,14 @@ nonisolated struct PropertySpec: Identifiable, Sendable {
     /// 一言の説明（日本語）
     let summary: String
 
-    /// チップと編集パネルに出す名前（例: "role"、".tint"）
+    /// チップと編集パネルに出す名前（例: "role"、".tint"）。同じ modifier に複数のプロパティを付けるとき
+    /// （id が modifier の名前と違うとき）は、引数のラベルまで出す（例: ".frame(width:)"）。
+    /// ラベルがない引数は、名前が重ならないよう id を使う（例: id "padding.edges" → ".padding.edges"）
     var displayName: String {
         switch placement {
         case .argument: id
-        case .modifier(let name, _): "." + name
+        case .modifier(let name, let label):
+            if id == name { "." + name } else if let label { ".\(name)(\(label):)" } else { "." + id }
         case .wrapper: "@" + id
         }
     }
@@ -39,12 +42,16 @@ nonisolated struct PropertySpec: Identifiable, Sendable {
             isRequired: required, summary: summary)
     }
 
+    /// modifier のプロパティ。id を省くと modifier の名前を id にする。同じ modifier に複数のプロパティを付けるときは
+    /// id を分ける（例: "frame.width"・"frame.height"）。コードでは同じ modifier のプロパティを 1 行にまとめる。
+    /// required の引数は、OFF にできず、同じ modifier のほかのプロパティが ON のときだけコードに書く
     static func modifier(
-        _ name: String, label: String? = nil, _ control: PropertyControl, on: Bool = false, summary: String
+        _ name: String, id: String? = nil, label: String? = nil, _ control: PropertyControl, on: Bool = false,
+        required: Bool = false, summary: String
     ) -> PropertySpec {
         PropertySpec(
-            id: name, placement: .modifier(name: name, label: label), control: control, initiallyOn: on,
-            summary: summary)
+            id: id ?? name, placement: .modifier(name: name, label: label), control: control,
+            initiallyOn: on || required, isRequired: required, summary: summary)
     }
 
     /// プロパティラッパーそのもの。いつも最初は ON。コードは CodeTemplate.wrapper の 2 つの形を使う
@@ -77,8 +84,8 @@ nonisolated enum PropertyControl: Sendable {
     /// 値を Swift のコードの文字列にする
     func code(for value: PropertyValue) -> String {
         switch (self, value) {
-        case (.slider, .number(let n)):
-            n.rounded() == n ? String(Int(n)) : String(format: "%.1f", n)
+        case (.slider(_, let step, _), .number(let n)):
+            Self.decimal(n, digits: Self.fractionDigits(of: step))
         case (.toggle, .flag(let b)):
             b ? "true" : "false"
         case (.choice(let choices, _), .choice(let i)):
@@ -92,6 +99,29 @@ nonisolated enum PropertyControl: Sendable {
         default:
             preconditionFailure("操作部品と値の種類が合わない: \(self) / \(value)")
         }
+    }
+}
+
+nonisolated private extension PropertyControl {
+    /// step の小数の桁数（1 → 0、0.1 → 1、0.25 → 2）
+    static func fractionDigits(of step: Double) -> Int {
+        var digits = 0
+        var scaled = step
+        while digits < 6, (scaled - scaled.rounded()).magnitude > 1e-9 {
+            digits += 1
+            scaled *= 10
+        }
+        return digits
+    }
+
+    /// digits 桁までの小数で書き、末尾の 0 は省く（0.50 → "0.5"、2.0 → "2"）
+    static func decimal(_ n: Double, digits: Int) -> String {
+        var text = String(format: "%.\(digits)f", n)
+        if text.contains(".") {
+            while text.hasSuffix("0") { text.removeLast() }
+            if text.hasSuffix(".") { text.removeLast() }
+        }
+        return text == "-0" ? "0" : text
     }
 }
 

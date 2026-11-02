@@ -1,3 +1,4 @@
+import Foundation
 import Testing
 @testable import WidgetLab
 
@@ -106,6 +107,33 @@ struct DetailViewModelTests {
         #expect(viewModel.codeLines.map(\.text) == ["Sample(size: 4)", "    .tint(.red)"])
         #expect(viewModel.codeLines.map(\.isChanged) == [false, true])
         #expect(viewModel.selectedLine?.text == "    .tint(.red)")
+    }
+
+    @Test func selectedLineFallsBackToCallLineWhenSelectedPropertyIsOff() {
+        let viewModel = makeViewModel()
+        viewModel.selectedID = "tint"
+        #expect(viewModel.selectedLine?.text == "Sample(size: 4)")
+    }
+
+    @Test func tapGestureCodeWritesCountAndOmitsItWhenOff() {
+        let viewModel = DetailViewModel(entry: .tapGesture, clipboard: clipboard)
+        #expect(viewModel.codeLines.map(\.text).last == "    .gesture(TapGesture(count: 2).onEnded { })")
+        viewModel.setOn("count", false)
+        #expect(viewModel.codeLines.map(\.text).last == "    .gesture(TapGesture().onEnded { })")
+    }
+
+    @Test func noteEntryCannotCompareButWritesCode() {
+        let entry = CatalogEntry(
+            id: "widgetLabel", kind: .modifier, topic: .appExtensions, summary: "テスト用",
+            docURL: URL(string: "https://example.com")!, noteReason: "ウィジェットの中で効く",
+            properties: [.argument("label", unlabeled: true, .text(initial: "見出し"), on: true, summary: "")],
+            code: CodeTemplate(prefix: ["Gauge(value: 0.5) { }"], call: ".widgetLabel"))
+        #expect(entry.stage == .note(reason: "ウィジェットの中で効く"))
+        let viewModel = DetailViewModel(entry: entry, clipboard: clipboard)
+        #expect(viewModel.canCompare == false)
+        viewModel.isComparing = true
+        #expect(viewModel.comparison == nil)
+        #expect(viewModel.codeText == "Gauge(value: 0.5) { }\n    .widgetLabel(\"見出し\")")
     }
 
     @Test func requiredPropertyCannotBeTurnedOff() {

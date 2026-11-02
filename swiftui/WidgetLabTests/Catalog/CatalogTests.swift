@@ -14,7 +14,6 @@ struct CatalogTests {
             #expect(expected?.kind == entry.kind, "\(entry.id) の種類が Manifest と違う")
             #expect(expected?.topic == entry.topic, "\(entry.id) のトピックが Manifest と違う")
         }
-        print("収録の進み具合: \(ids.count) / \(Manifest.entries.count)")
     }
 
     @Test func propertyIDsAreUniqueInEachEntry() {
@@ -24,15 +23,55 @@ struct CatalogTests {
         }
     }
 
+    @Test func displayNamesAreUniqueInEachEntry() {
+        for entry in Catalog.all {
+            let names = entry.properties.map(\.displayName)
+            #expect(Set(names).count == names.count, "\(entry.id) のチップの名前が重複している")
+        }
+    }
+
+    @Test func requiredModifierArgumentsHaveNonRequiredSibling() {
+        for entry in Catalog.all {
+            for spec in entry.properties where spec.isRequired {
+                guard case .modifier(let name, _) = spec.placement else { continue }
+                let hasSibling = entry.properties.contains {
+                    guard case .modifier(let other, _) = $0.placement else { return false }
+                    return other == name && !$0.isRequired
+                }
+                #expect(hasSibling, "\(entry.id): \(spec.id) は required だが、同じ .\(name) に required でない引数がない")
+            }
+        }
+    }
+
+    @Test func noteReasonsAreNotEmpty() {
+        for entry in Catalog.all {
+            guard case .note(let reason) = entry.stage else { continue }
+            #expect(!reason.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty, "\(entry.id) の理由が空")
+        }
+    }
+
+    @Test func wrapperCodeGoesWithWrapperProperty() {
+        for entry in Catalog.all {
+            let hasWrapperProperty = entry.properties.contains { $0.placement == .wrapper }
+            #expect(
+                (entry.code.wrapper != nil) == hasWrapperProperty,
+                "\(entry.id): CodeTemplate.wrapper と .wrapper のプロパティは、両方あるか両方ないかにする")
+        }
+    }
+
     @Test(arguments: Catalog.all.map(\.id))
     func buildsAllCombinations(id: String) throws {
         let entry = try #require(Catalog.all.first { $0.id == id })
         for values in Self.combinations(of: entry) {
             let view = entry.build(values)
-            // .full・.behavior は組み立てだけ（全画面や記録の窓口がないと、描いても確かめられない）
-            if entry.stage == .card {
+            // .full は組み立てだけ（全画面で開くもので、枠の中に描いても確かめられない）。.note は見本がない。
+            // .behavior は記録の窓口が nil なら記録しないので、そのまま描ける
+            switch entry.stage {
+            case .card, .behavior:
                 let renderer = ImageRenderer(content: view.frame(width: 320, height: 240))
                 #expect(renderer.uiImage != nil, "\(id) を \(values) で描けない")
+            case .full, .note:
+                break
             }
             _ = CodeGenerator.lines(template: entry.code, properties: entry.properties, values: values)
         }

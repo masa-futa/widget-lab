@@ -46,7 +46,7 @@ struct EntryRow: View {
 }
 
 private extension EntryRow {
-    /// .full・.behavior は行で組み立てない（sheet が行から出る・NavigationStack が入れ子になる・記録の窓口がない）
+    /// .full・.behavior・.note は行で組み立てない（.note は見本がない。sheet が行から出る・NavigationStack が入れ子になる・記録の窓口がない）
     @ViewBuilder
     var thumbnail: some View {
         switch entry.stage {
@@ -61,6 +61,8 @@ private extension EntryRow {
             symbol("rectangle.portrait")
         case .behavior:
             symbol(entry.kind == .propertyWrapper ? "at" : "hand.tap")
+        case .note:
+            symbol("text.page")
         }
     }
 

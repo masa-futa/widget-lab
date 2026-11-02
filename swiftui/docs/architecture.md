@@ -43,7 +43,9 @@ UI → ViewModel → Repository。逆向きと、機能をまたぐ直接の参�
 ホーム（`HomeScreen`）とトピック画面（`TopicScreen`）は行を押したことを `onTopicTapped` / `onEntryTapped` で知らせるだけで、詳細画面を直接参照しない。`DetailScreen` を組み立てるのは `RootView`。
 
 ## コードの生成
-`CodeGenerator.lines` が、`CodeTemplate`（呼び出しの名前・いつも書く引数・末尾のクロージャ・前後の行）に、付けた引数と modifier を定義の順で埋めて、行ごと（`CodeLine`）に返す。最初の値から変えたプロパティの行には `isChanged` が付く。
+`CodeGenerator.lines` が、`CodeTemplate`（呼び出しの名前・いつも書く引数・末尾のクロージャ・前後の行）に、付けた引数と modifier を定義の順で埋めて、行ごと（`CodeLine`）に返す。最初の値から変えたプロパティの行には `isChanged` が付く。同じ modifier の名前を持つプロパティは 1 行にまとめる（`.frame(width:height:)` など）。
+
+プレビューの出し方は `DemoStage` で決める。`.card` は枠に収まる見本、`.full` は全画面で開くもの、`.behavior` は見た目を持たないもの（左右に並べて記録を出す）、`.note` はアプリの画面では試せないもの（見本の代わりに理由を出し、比べるは出さない）。
 
 プロパティラッパーの収録は、`CodeTemplate.wrapper`（`WrapperCode`）の付けた形と外した形の行をそのまま使う。外した形では、付けた形にない行に `isChanged` が付く。引数のない呼び出しの括弧を省くのは、末尾が " {" で始まるクロージャのときだけ（`.gesture(TapGesture().onEnded { })` では省かない）。
 

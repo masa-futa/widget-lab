@@ -63,20 +63,44 @@ nonisolated enum CodeGenerator {
             CodeLine(text: text, propertyIDs: index == 0 ? argumentIDs : [], isChanged: index == 0 && callChanged)
         }
 
-        for spec in properties {
-            guard case .modifier(let name, let label) = spec.placement, let value = values[spec.id] else { continue }
-            let text = "    .\(name)(" + argument(label: label, code: spec.control.code(for: value)) + ")"
-            result.append(CodeLine(text: text, propertyIDs: [spec.id], isChanged: changed.contains(spec.id)))
-        }
+        result += modifierLines(properties: properties, values: values, changed: changed)
         result += template.suffix.map { CodeLine(text: "    " + $0, propertyIDs: [], isChanged: false) }
         return result
+    }
+
+    /// modifier のプロパティを、modifier の名前ごとに 1 行にまとめる（並びは最初に出てきた順、引数は定義の順）。
+    /// required でない引数が 1 つも ON でない modifier は書かない
+    private static func modifierLines(properties: [PropertySpec], values: PropertyValues, changed: Set<String>)
+        -> [CodeLine]
+    {
+        var names: [String] = []
+        var groups: [String: [(spec: PropertySpec, label: String?)]] = [:]
+        for spec in properties {
+            guard case .modifier(let name, let label) = spec.placement else { continue }
+            if groups[name] == nil { names.append(name) }
+            groups[name, default: []].append((spec, label))
+        }
+        return names.compactMap { name in
+            let members = groups[name, default: []].compactMap { member in
+                values[member.spec.id].map { (spec: member.spec, label: member.label, value: $0) }
+            }
+            guard members.contains(where: { !$0.spec.isRequired }) else { return nil }
+            let arguments = members.map { argument(label: $0.label, code: $0.spec.control.code(for: $0.value)) }
+            let ids = members.map(\.spec.id)
+            return CodeLine(
+                text: "    .\(name)(" + arguments.joined(separator: ", ") + ")", propertyIDs: ids,
+                isChanged: !changed.isDisjoint(with: ids))
+        }
     }
 
     /// 付けた形では宣言の行に、外した形では付けた形と違う行に、ラッパーの id を付ける
     private static func wrapperLines(_ code: WrapperCode, id: String, isOn: Bool, isChanged: Bool) -> [CodeLine] {
         if isOn {
             return code.withWrapper.map { text in
-                let isDeclaration = text.contains("@" + id)
+                // 語として一致させる（@State で @StateObject の行に当たらないように）
+                let isDeclaration =
+                    text.range(of: "@\(NSRegularExpression.escapedPattern(for: id))\\b", options: .regularExpression)
+                    != nil
                 return CodeLine(
                     text: text, propertyIDs: isDeclaration ? [id] : [], isChanged: isDeclaration && isChanged)
             }

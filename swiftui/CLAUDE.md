@@ -21,6 +21,7 @@ SwiftUI の API リファレンスに載る View・modifier・プロパティラ
   UI テストは時間の上限を付けて実行する（要素が見つからないと待ち続けて止まるため）。`Toggle` を `.toggleStyle(.button)` にしたものは、UI テストでは `app.switches[...]` で探す
 - 整形: `xcrun swift-format format -i -r WidgetLab WidgetLabTests WidgetLabUITests`
 - manifest を作り直す: `python3 tools/make_manifest.py`（`--refresh` でリファレンスを取り直す）。生成した `WidgetLab/Catalog/Generated/` はコミットする
+- 収録の進み具合: `python3 tools/catalog_progress.py`（トピックの slug を渡すと、そのトピックだけ。抜けがあれば終了コード 1）
 - 起動: Xcode で `WidgetLab.xcodeproj` を開いて実行する
 
 ## 規約

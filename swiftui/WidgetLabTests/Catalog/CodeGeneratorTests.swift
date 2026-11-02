@@ -46,14 +46,105 @@ struct CodeGeneratorTests {
     @Test func formatsValues() {
         #expect(PropertyControl.slider(range: 0...10, step: 1, initial: 0).code(for: .number(8)) == "8")
         #expect(PropertyControl.slider(range: 0...1, step: 0.1, initial: 0).code(for: .number(0.5)) == "0.5")
+        #expect(PropertyControl.slider(range: 0...1, step: 0.1, initial: 0).code(for: .number(0.1 + 0.2)) == "0.3")
+        #expect(PropertyControl.slider(range: 0...1, step: 0.25, initial: 0).code(for: .number(0.25)) == "0.25")
+        #expect(PropertyControl.slider(range: 0...1, step: 0.25, initial: 0).code(for: .number(0.5)) == "0.5")
+        #expect(PropertyControl.slider(range: 0...1, step: 0.25, initial: 0).code(for: .number(1)) == "1")
+        #expect(PropertyControl.slider(range: -10...10, step: 0.5, initial: 0).code(for: .number(-2.5)) == "-2.5")
+        #expect(PropertyControl.slider(range: -1...1, step: 0.1, initial: 0).code(for: .number(-0.04)) == "0")
         #expect(PropertyControl.text(initial: "").code(for: .text("a\"b")) == "\"a\\\"b\"")
         #expect(PropertyControl.fixed(code: ".infinity").code(for: .flag(true)) == ".infinity")
+    }
+
+    @Test func displayNameUsesIDForUnlabeledGroupedModifierArgument() {
+        let spec = PropertySpec.modifier(
+            "padding", id: "padding.edges", .choice([Choice(".all")], initial: 0), summary: "")
+        #expect(spec.displayName == ".padding.edges")
     }
 
     @Test func keepsParenthesesWhenTrailingIsNotClosure() {
         let template = CodeTemplate(prefix: ["Rectangle()"], call: ".gesture(TapGesture", trailing: ".onEnded { })")
         let lines = CodeGenerator.lines(template: template, properties: [], values: PropertyValues())
         #expect(lines.map(\.text) == ["Rectangle()", "    .gesture(TapGesture().onEnded { })"])
+    }
+
+    @Test func groupsArgumentsOfSameModifierIntoOneLine() {
+        let frame: [PropertySpec] = [
+            .modifier(
+                "frame", id: "frame.width", label: "width", .slider(range: 0...200, step: 10, initial: 120),
+                summary: ""),
+            .modifier("tint", .color(initial: 0), summary: ""),
+            .modifier(
+                "frame", id: "frame.height", label: "height", .slider(range: 0...200, step: 10, initial: 80),
+                summary: ""),
+        ]
+        #expect(frame.map(\.displayName) == [".frame(width:)", ".tint", ".frame(height:)"])
+        let values = PropertyValues(["frame.width": .number(120), "frame.height": .number(80), "tint": .color(0)])
+        let lines = CodeGenerator.lines(
+            template: CodeTemplate(call: "Rectangle"), properties: frame, values: values, changed: ["frame.height"])
+        #expect(lines.map(\.text) == ["Rectangle()", "    .frame(width: 120, height: 80)", "    .tint(.red)"])
+        #expect(lines[1].propertyIDs == ["frame.width", "frame.height"])
+        #expect(lines.map(\.isChanged) == [false, true, false])
+
+        let heightOnly = CodeGenerator.lines(
+            template: CodeTemplate(call: "Rectangle"), properties: frame,
+            values: PropertyValues(["frame.height": .number(80)]))
+        #expect(heightOnly.map(\.text) == ["Rectangle()", "    .frame(height: 80)"])
+    }
+
+    @Test func requiredModifierArgumentIsWrittenOnlyWithOtherArgumentsOfSameModifier() {
+        let shadow: [PropertySpec] = [
+            .modifier("shadow", id: "shadow.color", label: "color", .color(initial: 7), summary: ""),
+            .modifier(
+                "shadow", id: "shadow.radius", label: "radius", .slider(range: 0...20, step: 1, initial: 4),
+                required: true, summary: ""),
+        ]
+        #expect(shadow[1].isRequired && shadow[1].initiallyOn)
+        let template = CodeTemplate(call: "Circle")
+        let off = CodeGenerator.lines(
+            template: template, properties: shadow, values: PropertyValues(["shadow.radius": .number(4)]))
+        #expect(off.map(\.text) == ["Circle()"])
+        let on = CodeGenerator.lines(
+            template: template, properties: shadow,
+            values: PropertyValues(["shadow.color": .color(7), "shadow.radius": .number(4)]))
+        #expect(on.map(\.text) == ["Circle()", "    .shadow(color: .gray, radius: 4)"])
+    }
+
+    @Test func labeledModifierWritesLabel() {
+        let spec = PropertySpec.modifier("frame", label: "maxWidth", .fixed(code: ".infinity"), summary: "")
+        #expect(spec.id == "frame")
+        #expect(spec.displayName == ".frame")
+        let lines = CodeGenerator.lines(
+            template: CodeTemplate(call: "Text", fixedArguments: ["\"A\""]), properties: [spec],
+            values: PropertyValues(["frame": .flag(true)]))
+        #expect(lines.map(\.text) == ["Text(\"A\")", "    .frame(maxWidth: .infinity)"])
+    }
+
+    @Test func wrapperDeclarationMatchesWholeWord() {
+        let code = WrapperCode(
+            withWrapper: ["@StateObject private var model = Model()", "@State private var count = 0"],
+            withoutWrapper: ["@StateObject private var model = Model()", "private var count = 0"])
+        let spec = PropertySpec.wrapper("State", summary: "")
+        let lines = CodeGenerator.lines(
+            template: CodeTemplate(call: "State", wrapper: code), properties: [spec],
+            values: PropertyValues(["State": spec.control.initialValue]))
+        #expect(lines.map(\.propertyIDs) == [[], ["State"]])
+    }
+
+    @Test func multilineTrailingClosureMarksOnlyCallLine() {
+        let spec = PropertySpec.argument("spacing", .slider(range: 0...20, step: 1, initial: 8), summary: "")
+        let lines = CodeGenerator.lines(
+            template: CodeTemplate(call: "VStack", trailing: " {\n    Text(\"A\")\n}"), properties: [spec],
+            values: PropertyValues(["spacing": .number(12)]), changed: ["spacing"])
+        #expect(lines.map(\.text) == ["VStack(spacing: 12) {", "    Text(\"A\")", "}"])
+        #expect(lines.map(\.isChanged) == [true, false, false])
+        #expect(lines.map(\.propertyIDs) == [["spacing"], [], []])
+    }
+
+    @Test func nothingIsMarkedWhenNothingChanged() {
+        let values = PropertyValues(["role": .choice(0), "title": .text("保存"), "tint": .color(4)])
+        let lines = CodeGenerator.lines(template: CodeTemplate(call: "Button"), properties: properties, values: values)
+        #expect(lines.allSatisfy { !$0.isChanged })
     }
 
     private let wrapperCode = WrapperCode(
