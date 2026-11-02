@@ -35,7 +35,8 @@ SwiftUI 版は、リファレンスから数えた 458 件を収録する（Flut
 ## 全トピックの収録に向けて（2026-11-02 追加）
 - modifier のプロパティは id を名前と分けられる（`PropertySpec.modifier(_:id:label:...)`、例: `frame.width`・`frame.height`）。同じ modifier のプロパティは、コードで 1 行にまとめる（`.frame(width: 120, height: 80)`）。チップと ON / OFF は引数ごと。required の引数は、同じ modifier のほかの引数が ON のときだけ書く
 - 組み立ての関数（build）も、コードと同じく、その modifier の required でない引数が 1 つ以上 ON のときだけ modifier をかける（required の引数の値はいつも入っているので、それだけで判断しない）。例: `shadow` なら `shadow.color` が nil でないときだけ `.shadow(...)` をかける。収録ごとに、required でない引数が 1 つ以上あることをテストが確かめる
-- 同じ modifier を 2 回かける書き方（`.frame(width:)` のあとに `.frame(maxWidth:)`、`.padding` を 2 回）は 1 行にまとまるので表せない。組み合わせられないラベル（`maxWidth` と `width` など）を同じ modifier に付けない。要るときは束 1 で決める
+- 同じ modifier を 2 回かけるとき（`.frame(width:)` のあとに `.frame(maxWidth:)`）は、`PropertySpec.modifier` の `line:` で行の鍵を分ける。省けば modifier の名前でまとめる。組み合わせられないラベル（`maxWidth` と `width` など）は同じ行に入れない（2026-11-03 束 1 で決定。選ばなかった案: `frame` は決めた大きさだけにする。いちばんよく使う `.frame(maxWidth: .infinity)` が抜けるため）
+- コードの形に、prefix で開いた括弧を閉じる後ろの行（`CodeTemplate.closing`）と、呼び出しの字下げ（`CodeTemplate.indent`）を足す（2026-11-03）。並びや入れ物の中に置く View（`Spacer`・`GridRow`・`Section`）と、入れ子の中の View にかける modifier（`containerRelativeFrame`）を、そのまま写せる形で見せるため
 - 引数の並びは、定義の順 = Swift の引数の順 = チップの順のまま。分けると収録を書く手間と間違いが増えるため
 - アプリの画面では試せないもの（アプリ拡張の中で効く・iOS では効かない・外の仕組みが要る）は、`DemoStage.note(reason:)` で収録する。見本の代わりに理由を出し、チップとコードはふつうに動く。manifest の数は変えない
 - 選ばなかった案: 1 つのプロパティに複数の値を持たせる（操作部品が増え、編集パネルが複雑になる）／試せないものを manifest から外す（数え方と PRD を直すことになる）／試せないものも本物を作る（Core Data の土台・拡張のターゲットが増える）

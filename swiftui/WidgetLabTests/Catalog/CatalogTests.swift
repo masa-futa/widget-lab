@@ -34,11 +34,12 @@ struct CatalogTests {
         for entry in Catalog.all {
             for spec in entry.properties where spec.isRequired {
                 guard case .modifier(let name, _) = spec.placement else { continue }
+                let key = spec.line ?? name
                 let hasSibling = entry.properties.contains {
                     guard case .modifier(let other, _) = $0.placement else { return false }
-                    return other == name && !$0.isRequired
+                    return ($0.line ?? other) == key && !$0.isRequired
                 }
-                #expect(hasSibling, "\(entry.id): \(spec.id) は required だが、同じ .\(name) に required でない引数がない")
+                #expect(hasSibling, "\(entry.id): \(spec.id) は required だが、同じ行の .\(name) に required でない引数がない")
             }
         }
     }

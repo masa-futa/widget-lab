@@ -171,4 +171,77 @@ struct CodeGeneratorTests {
         #expect(lines.map(\.isChanged) == [true, false, false, true, false])
         #expect(lines.map(\.propertyIDs) == [["State"], [], [], ["State"], []])
     }
+
+    @Test func lineKeySplitsSameModifierIntoTwoLines() {
+        let frame: [PropertySpec] = [
+            .modifier(
+                "frame", id: "frame.width", label: "width", .slider(range: 0...200, step: 10, initial: 120),
+                summary: ""),
+            .modifier(
+                "frame", id: "frame.maxWidth", label: "maxWidth", line: "frame.max", .fixed(code: ".infinity"),
+                summary: ""),
+        ]
+        #expect(frame.map(\.displayName) == [".frame(width:)", ".frame(maxWidth:)"])
+        let template = CodeTemplate(call: "Text", fixedArguments: ["\"A\""])
+        let both = CodeGenerator.lines(
+            template: template, properties: frame,
+            values: PropertyValues(["frame.width": .number(120), "frame.maxWidth": .flag(true)]),
+            changed: ["frame.maxWidth"])
+        #expect(both.map(\.text) == ["Text(\"A\")", "    .frame(width: 120)", "    .frame(maxWidth: .infinity)"])
+        #expect(both.map(\.propertyIDs) == [[], ["frame.width"], ["frame.maxWidth"]])
+        #expect(both.map(\.isChanged) == [false, false, true])
+
+        let maxOnly = CodeGenerator.lines(
+            template: template, properties: frame, values: PropertyValues(["frame.maxWidth": .flag(true)]))
+        #expect(maxOnly.map(\.text) == ["Text(\"A\")", "    .frame(maxWidth: .infinity)"])
+    }
+
+    @Test func closingLinesComeLastWithoutIndent() {
+        let spec = PropertySpec.argument("minLength", .slider(range: 0...40, step: 4, initial: 8), summary: "")
+        let template = CodeTemplate(
+            prefix: ["HStack {", "    Text(\"左\")"], call: "Spacer", closing: ["    Text(\"右\")", "}"])
+        let lines = CodeGenerator.lines(
+            template: template, properties: [spec], values: PropertyValues(["minLength": .number(8)]))
+        #expect(
+            lines.map(\.text) == ["HStack {", "    Text(\"左\")", "    Spacer(minLength: 8)", "    Text(\"右\")", "}"])
+        #expect(lines.map(\.propertyIDs) == [[], [], ["minLength"], [], []])
+    }
+
+    @Test func indentsModifiersOneLevelDeeperThanViewCall() {
+        let spec = PropertySpec.modifier(
+            "layoutPriority", .slider(range: -1...2, step: 1, initial: 1), summary: "")
+        let template = CodeTemplate(
+            prefix: ["HStack {", "    Text(\"左\")"], call: "Text", fixedArguments: ["\"右\""],
+            suffix: [".lineLimit(1)"], closing: ["}"])
+        let lines = CodeGenerator.lines(
+            template: template, properties: [spec], values: PropertyValues(["layoutPriority": .number(1)]))
+        #expect(
+            lines.map(\.text) == [
+                "HStack {", "    Text(\"左\")", "    Text(\"右\")", "        .layoutPriority(1)", "        .lineLimit(1)",
+                "}",
+            ])
+    }
+
+    @Test func explicitIndentPlacesModifierCall() {
+        let template = CodeTemplate(
+            prefix: ["ScrollView {", "    Text(\"A\")", "}"], indent: 0, call: ".contentMargins",
+            fixedArguments: ["24"])
+        let lines = CodeGenerator.lines(template: template, properties: [], values: PropertyValues())
+        #expect(lines.map(\.text) == ["ScrollView {", "    Text(\"A\")", "}", ".contentMargins(24)"])
+    }
+
+    @Test func modifiersAfterMultilineTrailingClosureAlignWithClosingBrace() {
+        let spec = PropertySpec.modifier("font", .choice([Choice(".title")], initial: 0), summary: "")
+        let values = PropertyValues(["font": .choice(0)])
+        let top = CodeGenerator.lines(
+            template: CodeTemplate(call: "Group", trailing: " {\n    Text(\"A\")\n}"), properties: [spec],
+            values: values)
+        #expect(top.map(\.text) == ["Group {", "    Text(\"A\")", "}", ".font(.title)"])
+        let nested = CodeGenerator.lines(
+            template: CodeTemplate(
+                prefix: ["VStack {"], call: "Group", trailing: " {\n        Text(\"A\")\n    }", closing: ["}"]),
+            properties: [spec], values: values)
+        #expect(
+            nested.map(\.text) == ["VStack {", "    Group {", "        Text(\"A\")", "    }", "    .font(.title)", "}"])
+    }
 }
