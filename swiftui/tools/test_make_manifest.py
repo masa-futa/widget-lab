@@ -109,6 +109,13 @@ class RenderTests(unittest.TestCase):
         text = mm.render_manifest([{"id": "Button", "kind": "view", "topic": "Controls-and-indicators"}])
         self.assertIn('ManifestEntry(id: "Button", kind: .view, topic: .controlsAndIndicators),', text)
 
+    def test_render_topics_names_category_enum_topic_category(self):
+        # Objective-C のランタイムの Category と名前がぶつからないように
+        text = mm.render_topics([{"slug": "controls", "title": "Controls", "category": "Views"}])
+        self.assertIn("nonisolated enum TopicCategory: String, CaseIterable, Sendable {", text)
+        self.assertIn("    var category: TopicCategory {", text)
+        self.assertNotIn("enum Category", text)
+
 
 if __name__ == "__main__":
     unittest.main()

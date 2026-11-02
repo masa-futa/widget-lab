@@ -184,7 +184,7 @@ def swift_string(text):
 
 def render_topics(topic_list):
     lines = [HEADER.rstrip("\n"), "", "/// リファレンスの大分類。並びはホームに出す順"]
-    lines.append("nonisolated enum Category: String, CaseIterable, Sendable {")
+    lines.append("nonisolated enum TopicCategory: String, CaseIterable, Sendable {")
     for name in CATEGORIES:
         if any(t["category"] == name for t in topic_list):
             lines.append("    case {} = {}".format(topic_case(name.replace(" ", "-")), swift_string(name)))
@@ -195,7 +195,7 @@ def render_topics(topic_list):
     lines += ["", "    var title: String {", "        switch self {"]
     for t in topic_list:
         lines.append("        case .{}: {}".format(topic_case(t["slug"]), swift_string(t["title"])))
-    lines += ["        }", "    }", "", "    var category: Category {", "        switch self {"]
+    lines += ["        }", "    }", "", "    var category: TopicCategory {", "        switch self {"]
     for t in topic_list:
         lines.append(
             "        case .{}: .{}".format(topic_case(t["slug"]), topic_case(t["category"].replace(" ", "-")))

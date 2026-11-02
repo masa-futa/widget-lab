@@ -3,10 +3,10 @@ import Observation
 
 /// ホームの大分類の節 1 つ
 struct CategorySection: Identifiable, Equatable {
-    let category: Category
+    let category: TopicCategory
     let topics: [TopicSummary]
 
-    var id: Category { category }
+    var id: TopicCategory { category }
 }
 
 /// ホームのトピックの行 1 つ
@@ -29,9 +29,9 @@ final class CatalogViewModel {
         entries = repository.allEntries()
     }
 
-    /// 収録が 1 件以上あるトピックを、大分類ごとに並べる（並びは Category・Topic の宣言の順）
+    /// 収録が 1 件以上あるトピックを、大分類ごとに並べる（並びは TopicCategory・Topic の宣言の順）
     var sections: [CategorySection] {
-        Category.allCases.compactMap { category in
+        TopicCategory.allCases.compactMap { category in
             let topics = Topic.allCases.filter { $0.category == category }.compactMap { topic -> TopicSummary? in
                 let names = entries(in: topic).map(\.displayName)
                 return names.isEmpty
