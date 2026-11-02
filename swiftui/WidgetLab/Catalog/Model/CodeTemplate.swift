@@ -15,6 +15,15 @@ nonisolated struct CodeTemplate: Sendable {
     var trailing: String = ""
     /// いちばん最後に付ける modifier の行（例: [".background(.yellow)"]）
     var suffix: [String] = []
+    /// プロパティラッパーの収録のコード。あるときは、ここまでの穴埋めの形の代わりに使う
+    var wrapper: WrapperCode?
+}
+
+/// プロパティラッパーの収録のコード。宣言と body を、付けた形と外した形の 2 通りで持つ
+/// （ラッパーを外すと、宣言だけでなく使う側の行も変わるため）
+nonisolated struct WrapperCode: Sendable {
+    let withWrapper: [String]
+    let withoutWrapper: [String]
 }
 
 /// コードの 1 行
@@ -31,6 +40,10 @@ nonisolated enum CodeGenerator {
     static func lines(
         template: CodeTemplate, properties: [PropertySpec], values: PropertyValues, changed: Set<String> = []
     ) -> [CodeLine] {
+        if let wrapper = template.wrapper, let spec = properties.first(where: { $0.placement == .wrapper }) {
+            return wrapperLines(
+                wrapper, id: spec.id, isOn: values[spec.id] != nil, isChanged: changed.contains(spec.id))
+        }
         let indent = template.prefix.isEmpty ? "" : "    "
         var result = template.prefix.map { CodeLine(text: $0, propertyIDs: [], isChanged: false) }
 
@@ -41,8 +54,9 @@ nonisolated enum CodeGenerator {
             arguments.append(argument(label: label, code: spec.control.code(for: value)))
             argumentIDs.append(spec.id)
         }
+        // 末尾のクロージャだけなら括弧を省く（Button { } など）。.onEnded { } のような続きなら省かない
         let parentheses =
-            arguments.isEmpty && !template.trailing.isEmpty ? "" : "(" + arguments.joined(separator: ", ") + ")"
+            arguments.isEmpty && template.trailing.hasPrefix(" {") ? "" : "(" + arguments.joined(separator: ", ") + ")"
         let callLines = (indent + template.call + parentheses + template.trailing).components(separatedBy: "\n")
         let callChanged = !changed.isDisjoint(with: argumentIDs)
         result += callLines.enumerated().map { index, text in
@@ -56,6 +70,21 @@ nonisolated enum CodeGenerator {
         }
         result += template.suffix.map { CodeLine(text: "    " + $0, propertyIDs: [], isChanged: false) }
         return result
+    }
+
+    /// 付けた形では宣言の行に、外した形では付けた形と違う行に、ラッパーの id を付ける
+    private static func wrapperLines(_ code: WrapperCode, id: String, isOn: Bool, isChanged: Bool) -> [CodeLine] {
+        if isOn {
+            return code.withWrapper.map { text in
+                let isDeclaration = text.contains("@" + id)
+                return CodeLine(
+                    text: text, propertyIDs: isDeclaration ? [id] : [], isChanged: isDeclaration && isChanged)
+            }
+        }
+        return code.withoutWrapper.map { text in
+            let differs = !code.withWrapper.contains(text)
+            return CodeLine(text: text, propertyIDs: differs ? [id] : [], isChanged: differs && isChanged)
+        }
     }
 
     private static func argument(label: String?, code: String) -> String {

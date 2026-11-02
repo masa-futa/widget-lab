@@ -7,6 +7,8 @@ nonisolated struct PropertySpec: Identifiable, Sendable {
         case argument(label: String?)
         /// modifier。label が nil なら名前なしの引数
         case modifier(name: String, label: String?)
+        /// プロパティラッパーそのもの（宣言の頭の @State など）。OFF にすると、ラッパーを外した書き方になる
+        case wrapper
     }
 
     let id: String
@@ -23,6 +25,7 @@ nonisolated struct PropertySpec: Identifiable, Sendable {
         switch placement {
         case .argument: id
         case .modifier(let name, _): "." + name
+        case .wrapper: "@" + id
         }
     }
 
@@ -42,6 +45,11 @@ nonisolated struct PropertySpec: Identifiable, Sendable {
         PropertySpec(
             id: name, placement: .modifier(name: name, label: label), control: control, initiallyOn: on,
             summary: summary)
+    }
+
+    /// プロパティラッパーそのもの。いつも最初は ON。コードは CodeTemplate.wrapper の 2 つの形を使う
+    static func wrapper(_ id: String, summary: String) -> PropertySpec {
+        PropertySpec(id: id, placement: .wrapper, control: .fixed(code: "@" + id), initiallyOn: true, summary: summary)
     }
 }
 

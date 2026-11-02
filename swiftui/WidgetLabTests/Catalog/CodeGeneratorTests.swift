@@ -49,4 +49,35 @@ struct CodeGeneratorTests {
         #expect(PropertyControl.text(initial: "").code(for: .text("a\"b")) == "\"a\\\"b\"")
         #expect(PropertyControl.fixed(code: ".infinity").code(for: .flag(true)) == ".infinity")
     }
+
+    @Test func keepsParenthesesWhenTrailingIsNotClosure() {
+        let template = CodeTemplate(prefix: ["Rectangle()"], call: ".gesture(TapGesture", trailing: ".onEnded { })")
+        let lines = CodeGenerator.lines(template: template, properties: [], values: PropertyValues())
+        #expect(lines.map(\.text) == ["Rectangle()", "    .gesture(TapGesture().onEnded { })"])
+    }
+
+    private let wrapperCode = WrapperCode(
+        withWrapper: ["@State private var count = 0", "", "var body: some View {", "    Text(\"\\(count)\")", "}"],
+        withoutWrapper: ["private let box = Box()", "", "var body: some View {", "    Text(\"\\(box.count)\")", "}"])
+
+    @Test func wrapperOnUsesWrappedFormAndPointsAtDeclaration() {
+        let spec = PropertySpec.wrapper("State", summary: "")
+        #expect(spec.displayName == "@State")
+        let lines = CodeGenerator.lines(
+            template: CodeTemplate(call: "State", wrapper: wrapperCode), properties: [spec],
+            values: PropertyValues(["State": spec.control.initialValue]))
+        #expect(lines.map(\.text) == wrapperCode.withWrapper)
+        #expect(lines.map(\.propertyIDs) == [["State"], [], [], [], []])
+        #expect(lines.allSatisfy { !$0.isChanged })
+    }
+
+    @Test func wrapperOffUsesUnwrappedFormAndMarksDifferentLines() {
+        let spec = PropertySpec.wrapper("State", summary: "")
+        let lines = CodeGenerator.lines(
+            template: CodeTemplate(call: "State", wrapper: wrapperCode), properties: [spec], values: PropertyValues(),
+            changed: ["State"])
+        #expect(lines.map(\.text) == wrapperCode.withoutWrapper)
+        #expect(lines.map(\.isChanged) == [true, false, false, true, false])
+        #expect(lines.map(\.propertyIDs) == [["State"], [], [], ["State"], []])
+    }
 }
