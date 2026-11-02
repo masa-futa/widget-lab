@@ -18,7 +18,8 @@
 ## 型に足すもの
 
 - `PropertySpec.Placement` に `.wrapper` を足す。コードでは宣言の頭の `@State` などに当たる。`PropertySpec.wrapper(_ id:, summary:)` で作り、操作部品は `.fixed(code: "@" + id)`、最初は ON
-- `CodeTemplate` に `withoutWrapper: CodeTemplate?` を足す。`.wrapper` のプロパティが OFF のとき、`CodeGenerator` はこちらの形でコード全体を作る。ラッパーを外すと、宣言だけでなく使う側の行（`box.count += 1` など）も変わるため。`withoutWrapper` の行のうち、元の形と文字が違う行に「変えた」の印（`isChanged`）を付ける
+- `CodeTemplate` に `wrapper: WrapperCode?` を足す。`WrapperCode` は、付けた形（`withWrapper`）と外した形（`withoutWrapper`）のコードを行の配列で持つ。`CodeGenerator` は、`.wrapper` のプロパティが ON なら付けた形、OFF なら外した形でコード全体を作る。ラッパーを外すと、宣言だけでなく使う側の行（`box.count += 1` など）も変わるため。外した形の行のうち、付けた形にない行に「変えた」の印（`isChanged`）を付ける（`CodeTemplate` は struct なので、自分と同じ型の `withoutWrapper: CodeTemplate?` は持てない）
+- 括弧を省くのは、末尾が `" {"` で始まるクロージャのときだけにする（`.gesture(TapGesture().onEnded { })` で `()` が要るため）
 - プロパティラッパーのコードは、`struct` の中身（宣言と `body`）を数行で書く:
 
 ```swift
@@ -48,7 +49,7 @@ extension EnvironmentValues {
 ```
 
 - 窓口は SwiftUI の Environment で渡す。`CatalogEntry.build` の型は変えない。依存は「詳細 → 収録データ」の一方向のまま
-- `BodyCounter(_ name:)`: 見本の body の中に置く小さな View。窓口に知らせるのは `Task { @MainActor in … }` で body のあとに遅らせる（body の中で見張られた値を書くと、描き直しが止まらなくなるため）。窓口が `nil`（一覧の行・テスト）のときは何もしない
+- `reportBody(_ recorder:, _ name:)`: 見本の body の中で `let _ = reportBody(recorder, "見本")` と呼ぶ関数。窓口に知らせるのは `Task` で body のあとに遅らせる（body の中で見張られた値を書くと、描き直しが止まらなくなるため）。窓口が `nil`（一覧の行・テスト）のときは何もしない。body の中に小さな View を置く形は採らない（親の body が評価されても、入力が同じ子の View の body は評価されないので数えられない）
 - 詳細の側の実装 `DetailRecorder`（`Features/Detail/ViewModel/`）: `@Observable`。名前ごとの回数と、新しい順で最大 20 行のログを持つ。比べるときは左右に 1 つずつ作る。ログの行には「付けた」「付けない」の側を付ける
 - 回数とログを読むのは、記録を出す View だけ。見本の View は窓口に書くだけで、読まない（記録が増えても見本が描き直されないように）
 - プロパティを変えたとき・初期状態に戻したときに、両側の記録を消し、見本を作り直す（回数は 0 から）
@@ -60,12 +61,12 @@ extension EnvironmentValues {
 
 ```
 ┌───────────────────────────┐
-│ 付けた           付けない   │  ← 比べるが ON のとき（OFF なら 1 つだけ、全幅）
+│ 付けない          付けた    │  ← 比べるが ON のとき（OFF なら 1 つだけ、全幅）
 │ [ +1 ]         [ +1 ]     │
 │ count: 3       count: 3   │
 │ 描き直し 4 回   描き直し 1 回 │
 ├───────────────────────────┤
-│ 記録              [消す]   │  ← 新しい順に 3 行見え、スクロールで 20 行
+│ 記録       [比べる] [消す] │  ← 新しい順に 3 行見え、スクロールで 20 行
 │ 付けた: 見本を描き直した     │
 │ 付けない: タップを認識（2 回）│
 └───────────────────────────┘
@@ -73,7 +74,8 @@ extension EnvironmentValues {
 ```
 
 - プレビューの枠の高さ（280pt）は変えず、`.behavior` ではそのうち下の約 90pt を記録の欄にする
-- 比べるは左右に並べ、どちらも押せる。仕切りは使わない。比べるの切り替えと、required のプロパティでは出さない決まりは `.card` と同じ
+- 比べるは左右に並べ（`.card` と同じく左が付けない、右が付けた）、どちらも押せる。仕切りは使わない。required のプロパティでは出さない決まりは `.card` と同じ
+- 比べるの切り替えは、見本に重ならないよう記録の欄の見出しの行に置く（`.card` はいまのとおりプレビューの右下）
 - VoiceOver: 回数は「付けた側、描き直し 4 回」と読む。記録の欄は行ごとに読める。「消す」は 44pt 以上
 
 ### 一覧の行の見本
