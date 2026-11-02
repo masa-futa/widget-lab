@@ -44,6 +44,19 @@ struct CatalogTests {
         }
     }
 
+    @Test func eachModifierLineUsesOneModifierName() {
+        for entry in Catalog.all {
+            var names: [String: String] = [:]
+            for spec in entry.properties {
+                guard case .modifier(let name, _) = spec.placement else { continue }
+                let key = spec.line ?? name
+                let first = names[key, default: name]
+                #expect(first == name, "\(entry.id): 行 \(key) に .\(first) と .\(name) が混ざっている")
+                names[key] = first
+            }
+        }
+    }
+
     @Test func noteReasonsAreNotEmpty() {
         for entry in Catalog.all {
             guard case .note(let reason) = entry.stage else { continue }

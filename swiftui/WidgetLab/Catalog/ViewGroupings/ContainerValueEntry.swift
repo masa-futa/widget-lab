@@ -35,7 +35,7 @@ nonisolated extension CatalogEntry {
     )
 }
 
-extension ContainerValues {
+nonisolated extension ContainerValues {
     /// 行の頭に付ける印の色
     @Entry var markColor: Color? = nil
 }

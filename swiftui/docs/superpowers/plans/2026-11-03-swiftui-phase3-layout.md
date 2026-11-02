@@ -74,7 +74,7 @@ stage は 33 件とも `.card`。`.note` にするものはない（`ignoresSafe
 | layoutValue | custom-layout | 付け外し | .layoutValue(key:) R（Rank.self 固定）・.layoutValue(value:)*（0〜3） | `RankedHStack { Text("A")…・Text("B").layoutValue(key: Rank.self, value: 3)・Text("C")… }` |
 | Group | view-groupings | View | .font*・.foregroundStyle・.border* | `VStack { Group { Text・Text }.font(.title).border(.red)・Text("Group の外") }` |
 | Section | view-groupings | View | title*（文字）・.headerProminence・.listSectionSpacing | `List { Section("見出し") { 2 行 } Section("次の節") { … } }` |
-| ForEach | view-groupings | View | data R（0..<3・0..<5・1...8）・id*（\.self 固定） | `VStack { ForEach(0..<3, id: \.self) { i in Text("行 \(i)") } }` |
+| ForEach | view-groupings | View | data R（0..<3・0..<5・1..<9）・id*（\.self 固定） | `VStack { ForEach(0..<3, id: \.self) { i in Text("行 \(i)") } }` |
 | containerValue | view-groupings | 付け外し | .containerValue.keyPath R（\.markColor 固定）・.containerValue.value*（色） | `MarkedList { Text("A")・Text("B").containerValue(\.markColor, .red)・Text("C") }` |
 | GroupBox | view-groupings | View | title*（文字）・.backgroundStyle*（色） | `GroupBox("設定") { Text("通知を受け取る") }.backgroundStyle(.yellow)` |
 | Form | view-groupings | View | .formStyle*（.automatic・.grouped・.columns）・.scrollContentBackground・.disabled | `Form { Toggle・LabeledContent }.formStyle(.columns)` |
@@ -97,11 +97,12 @@ stage は 33 件とも `.card`。`.note` にするものはない（`ignoresSafe
 2. `.note` の基準と例: アプリ拡張の中で効く・iOS で効かない窓の modifier・外の仕組み（Core Data など）が要る。理由には、使う場所を一言入れる（例: 「ウィジェットの中で効く」）。迷ったら束の計画で 1 件ずつ決める
 3. プロパティの選び方: 1 件に 3〜6 個を目安に、よく使う引数と、同じ節の modifier から選ぶ。API が小さいもの（`GridRow`・`ZStack`・`Spacer`）は 1〜2 個でよい
 4. 形の選び方: 上の「View」「引数」「付け外し」の 3 つと、それぞれの見本（`VStack`・`padding`・`frame`）
-5. コードの形: `prefix`・`indent`・`call`・`fixedArguments`・`trailing`・`suffix`・`closing` の書き方。入れ子の見本（`containerRelativeFrame`・`GridRow`・`Spacer`）。複数行の `trailing` は 2 行目から字下げを自分で書く
+5. コードの形: `prefix`・`indent`・`call`・`fixedArguments`・`trailing`・`suffix`・`closing` の書き方。入れ子の見本（`containerRelativeFrame`・`GridRow`・`Spacer`）。複数行の `trailing` は 2 行目から字下げを自分で書く。複数行の `trailing` は、最後の行を閉じ括弧 `}` だけにする（modifier の字下げを `}` に揃える決まりが、そう書いてあることを前提にしている）
 6. required の modifier の引数: build でも、その行の required でない引数が 1 つ以上 ON のときだけ modifier をかける。`line` で行を分けたときは行ごとに
 7. 上の「試作でわかったこと」
 8. テスト: `CatalogTests` が全件を組み立てて確かめるので、収録ごとのテストは書かない。新しい型の使い方を足したときだけ `CodeGeneratorTests` に足す。見た目は代表の 1〜2 件をスクリーンショットで見る
-9. 進め方: 計画に表を書く → scratchpad のコピーで試作 → `ImageRenderer` の画像とスクリーンショットで見る → 計画に写す
+9. Void の Optional で modifier をかけ分ける書き方（`.apply(cond ? () : nil) { view, _ in … }`）は `frame`・`ignoresSafeArea` の 2 件だけ。広がるなら `apply` の横に条件だけを取る補助を足す
+10. 進め方: 計画に表を書く → scratchpad のコピーで試作 → `ImageRenderer` の画像とスクリーンショットで見る → 計画に写す
 
 ---
 
@@ -2011,7 +2012,7 @@ nonisolated extension CatalogEntry {
         stage: .card,
         properties: [
             .argument(
-                "data", unlabeled: true, .choice([Choice("0..<3"), Choice("0..<5"), Choice("1...8")], initial: 0),
+                "data", unlabeled: true, .choice([Choice("0..<3"), Choice("0..<5"), Choice("1..<9")], initial: 0),
                 required: true, summary: "並べるデータ"),
             .argument(
                 "id", .fixed(code: "\\.self"), on: true,
@@ -2021,7 +2022,7 @@ nonisolated extension CatalogEntry {
             prefix: ["VStack {"], call: "ForEach", trailing: " { i in\n        Text(\"行 \\(i)\")\n    }", closing: ["}"]
         ),
         build: { v in
-            let data = v.pick("data", from: [Array(0..<3), Array(0..<5), Array(1...8)]) ?? []
+            let data = v.pick("data", from: [Array(0..<3), Array(0..<5), Array(1..<9)]) ?? []
             return AnyView(
                 VStack {
                     ForEach(data, id: \.self) { i in
