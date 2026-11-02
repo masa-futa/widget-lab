@@ -23,6 +23,33 @@ struct CatalogTests {
         }
     }
 
+    @Test func displayNamesAreUniqueInEachEntry() {
+        for entry in Catalog.all {
+            let names = entry.properties.map(\.displayName)
+            #expect(Set(names).count == names.count, "\(entry.id) のチップの名前が重複している")
+        }
+    }
+
+    @Test func requiredModifierArgumentsHaveNonRequiredSibling() {
+        for entry in Catalog.all {
+            for spec in entry.properties where spec.isRequired {
+                guard case .modifier(let name, _) = spec.placement else { continue }
+                let hasSibling = entry.properties.contains {
+                    guard case .modifier(let other, _) = $0.placement else { return false }
+                    return other == name && !$0.isRequired
+                }
+                #expect(hasSibling, "\(entry.id): \(spec.id) は required だが、同じ .\(name) に required でない引数がない")
+            }
+        }
+    }
+
+    @Test func noteReasonsAreNotEmpty() {
+        for entry in Catalog.all {
+            guard case .note(let reason) = entry.stage else { continue }
+            #expect(!reason.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty, "\(entry.id) の理由が空")
+        }
+    }
+
     @Test func wrapperCodeGoesWithWrapperProperty() {
         for entry in Catalog.all {
             let hasWrapperProperty = entry.properties.contains { $0.placement == .wrapper }

@@ -21,11 +21,13 @@ nonisolated struct PropertySpec: Identifiable, Sendable {
     let summary: String
 
     /// チップと編集パネルに出す名前（例: "role"、".tint"）。同じ modifier に複数のプロパティを付けるとき
-    /// （id が modifier の名前と違うとき）は、引数のラベルまで出す（例: ".frame(width:)"）
+    /// （id が modifier の名前と違うとき）は、引数のラベルまで出す（例: ".frame(width:)"）。
+    /// ラベルがない引数は、名前が重ならないよう id を使う（例: id "padding.edges" → ".padding.edges"）
     var displayName: String {
         switch placement {
         case .argument: id
-        case .modifier(let name, let label): id == name ? "." + name : ".\(name)(\(label ?? "_"):)"
+        case .modifier(let name, let label):
+            if id == name { "." + name } else if let label { ".\(name)(\(label):)" } else { "." + id }
         case .wrapper: "@" + id
         }
     }

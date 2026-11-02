@@ -51,8 +51,15 @@ struct CodeGeneratorTests {
         #expect(PropertyControl.slider(range: 0...1, step: 0.25, initial: 0).code(for: .number(0.5)) == "0.5")
         #expect(PropertyControl.slider(range: 0...1, step: 0.25, initial: 0).code(for: .number(1)) == "1")
         #expect(PropertyControl.slider(range: -10...10, step: 0.5, initial: 0).code(for: .number(-2.5)) == "-2.5")
+        #expect(PropertyControl.slider(range: -1...1, step: 0.1, initial: 0).code(for: .number(-0.04)) == "0")
         #expect(PropertyControl.text(initial: "").code(for: .text("a\"b")) == "\"a\\\"b\"")
         #expect(PropertyControl.fixed(code: ".infinity").code(for: .flag(true)) == ".infinity")
+    }
+
+    @Test func displayNameUsesIDForUnlabeledGroupedModifierArgument() {
+        let spec = PropertySpec.modifier(
+            "padding", id: "padding.edges", .choice([Choice(".all")], initial: 0), summary: "")
+        #expect(spec.displayName == ".padding.edges")
     }
 
     @Test func keepsParenthesesWhenTrailingIsNotClosure() {

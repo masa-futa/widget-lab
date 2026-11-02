@@ -98,7 +98,9 @@ nonisolated enum CodeGenerator {
         if isOn {
             return code.withWrapper.map { text in
                 // 語として一致させる（@State で @StateObject の行に当たらないように）
-                let isDeclaration = text.range(of: "@\(id)\\b", options: .regularExpression) != nil
+                let isDeclaration =
+                    text.range(of: "@\(NSRegularExpression.escapedPattern(for: id))\\b", options: .regularExpression)
+                    != nil
                 return CodeLine(
                     text: text, propertyIDs: isDeclaration ? [id] : [], isChanged: isDeclaration && isChanged)
             }

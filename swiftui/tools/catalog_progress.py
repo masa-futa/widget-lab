@@ -16,7 +16,9 @@ APP_DIR = os.path.join(HERE, "..", "WidgetLab")
 MANIFEST_ENTRY = re.compile(r'ManifestEntry\(id: "([^"]+)", kind: \.\w+, topic: \.(\w+)\)')
 TOPIC_CASE = re.compile(r'case (\w+) = "([^"]+)"')
 # 収録の 1 件の id（プロパティの id: と区別するため、CatalogEntry( の直後のものだけ）
-CATALOG_ID = re.compile(r'CatalogEntry\(\s*id:\s*"([^"]+)"')
+CATALOG_ID = re.compile(r'static let (\w+) = CatalogEntry\(\s*id:\s*"([^"]+)"')
+# Catalog.all の並びの行（`.vStack,`）
+ALL_NAME = re.compile(r'^\s*\.(\w+),\s*$', re.MULTILINE)
 
 
 def read_manifest(app_dir):
@@ -29,12 +31,19 @@ def read_manifest(app_dir):
 
 
 def read_catalog_ids(app_dir):
-    """収録データのファイルに書いた id の集合"""
-    ids = set()
+    """(Catalog.all に並べた収録の id の集合, ファイルはあるが all にない id のリスト)"""
+    declared = {}
     for path in glob.glob(os.path.join(app_dir, "Catalog", "*", "*Entry.swift")):
         with open(path, encoding="utf-8") as f:
-            ids.update(CATALOG_ID.findall(f.read()))
-    return ids
+            for name, entry_id in CATALOG_ID.findall(f.read()):
+                declared[name] = entry_id
+    with open(os.path.join(app_dir, "Catalog", "Catalog.swift"), encoding="utf-8") as f:
+        text = f.read()
+    start = text.find("static let all")
+    listed = set(ALL_NAME.findall(text[start:] if start >= 0 else ""))
+    ids = {entry_id for name, entry_id in declared.items() if name in listed}
+    unlisted = sorted(entry_id for name, entry_id in declared.items() if name not in listed)
+    return ids, unlisted
 
 
 def progress(manifest, catalog_ids):
@@ -50,12 +59,14 @@ def progress(manifest, catalog_ids):
     return result
 
 
-def report(rows):
+def report(rows, unlisted=()):
     lines = []
     for slug, (done, total, missing) in rows.items():
         lines.append("{:<28} {:>3} / {:<3}".format(slug, done, total))
         if missing:
             lines.append("    抜け: " + ", ".join(missing))
+    if unlisted:
+        lines.append("Catalog.all にない: " + ", ".join(unlisted))
     done = sum(r[0] for r in rows.values())
     total = sum(r[1] for r in rows.values())
     lines.append("合計 {} / {}（抜け {}）".format(done, total, total - done))
@@ -66,15 +77,16 @@ def main(argv=None, app_dir=APP_DIR):
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("topics", nargs="*", help="トピックの slug（例: layout-fundamentals）。省くと全部")
     args = parser.parse_args(argv)
-    rows = progress(read_manifest(app_dir), read_catalog_ids(app_dir))
+    catalog_ids, unlisted = read_catalog_ids(app_dir)
+    rows = progress(read_manifest(app_dir), catalog_ids)
     unknown = [t for t in args.topics if t not in rows]
     if unknown:
         print("Manifest にないトピック: " + ", ".join(unknown), file=sys.stderr)
         return 2
     if args.topics:
         rows = {slug: rows[slug] for slug in args.topics}
-    print(report(rows))
-    return 1 if args.topics and any(r[2] for r in rows.values()) else 0
+    print(report(rows, unlisted))
+    return 1 if unlisted or (args.topics and any(r[2] for r in rows.values())) else 0
 
 
 if __name__ == "__main__":
