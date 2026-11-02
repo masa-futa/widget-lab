@@ -32,5 +32,10 @@ nonisolated enum Catalog {
         .safeAreaInset,
         .safeAreaPadding,
         .layoutDirectionBehavior,
+        .layoutValue,
+        .group,
+        .section,
+        .forEach,
+        .containerValue,
     ]
 }
