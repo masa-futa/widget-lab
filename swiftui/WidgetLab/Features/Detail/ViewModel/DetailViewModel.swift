@@ -6,10 +6,18 @@ import Observation
 final class DetailViewModel {
     let entry: CatalogEntry
     /// 選んでいるプロパティの id
-    var selectedID: String?
-    var isComparing = false
+    var selectedID: String? {
+        didSet { restartDemo() }
+    }
+    var isComparing = false {
+        didSet { restartDemo() }
+    }
     /// コードをコピーした直後に true
     private(set) var didCopy = false
+    /// 見本の記録（見た目を持たないものの見本が書く）
+    let recorder = DetailRecorder()
+    /// 見本を作り直すたびに増える。プレビューが見本の id に使う
+    private(set) var demoGeneration = 0
 
     /// 全プロパティの今の値（OFF のものも、ON に戻したときのために値を覚えておく）
     private var values: [String: PropertyValue]
@@ -40,6 +48,7 @@ final class DetailViewModel {
         guard entry.properties.first(where: { $0.id == id })?.isRequired != true else { return }
         if on { enabled.insert(id) } else { enabled.remove(id) }
         didCopy = false
+        restartDemo()
     }
 
     func value(_ id: String) -> PropertyValue? {
@@ -51,6 +60,7 @@ final class DetailViewModel {
         values[id] = value
         enabled.insert(id)
         didCopy = false
+        restartDemo()
     }
 
     func reset() {
@@ -58,6 +68,13 @@ final class DetailViewModel {
         enabled = entry.initialValues.ids
         isComparing = false
         didCopy = false
+        restartDemo()
+    }
+
+    /// 記録を消して、見本を作り直す（回数を 0 から数え直す）
+    private func restartDemo() {
+        recorder.clear()
+        demoGeneration += 1
     }
 
     /// プレビューに渡す値（ON のものだけ）

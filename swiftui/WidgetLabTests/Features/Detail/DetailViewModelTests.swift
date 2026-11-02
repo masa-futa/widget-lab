@@ -111,4 +111,34 @@ struct DetailViewModelTests {
         #expect(clipboard.copied == ["Sample(size: 4)"])
         #expect(viewModel.didCopy)
     }
+
+    @Test func editingAndResettingClearRecordsAndRestartDemo() {
+        let viewModel = makeViewModel()
+        viewModel.recorder.recorder(for: .with).log("タップ")
+        let start = viewModel.demoGeneration
+        viewModel.setValue("size", .number(8))
+        #expect(viewModel.recorder.lines.isEmpty)
+        #expect(viewModel.demoGeneration > start)
+
+        viewModel.recorder.recorder(for: .without).bodyEvaluated("見本")
+        viewModel.setOn("tint", true)
+        #expect(viewModel.recorder.bodyCounts(.without).isEmpty)
+
+        viewModel.recorder.recorder(for: .with).log("タップ")
+        let beforeReset = viewModel.demoGeneration
+        viewModel.reset()
+        #expect(viewModel.recorder.lines.isEmpty)
+        #expect(viewModel.demoGeneration > beforeReset)
+    }
+
+    @Test func togglingCompareOrSelectingClearsRecords() {
+        let viewModel = makeViewModel()
+        viewModel.recorder.recorder(for: .with).log("タップ")
+        viewModel.isComparing = true
+        #expect(viewModel.recorder.lines.isEmpty)
+
+        viewModel.recorder.recorder(for: .with).log("タップ")
+        viewModel.selectedID = "tint"
+        #expect(viewModel.recorder.lines.isEmpty)
+    }
 }
