@@ -75,7 +75,7 @@ nonisolated extension CatalogEntry {
 | `.note(reason:)` | アプリの 1 画面の中で、効き目を見ることも触ることもできないもの | なし |
 | `.full` | 全画面・sheet で開くもの | なし |
 
-**`.note` の基準**は、アプリ拡張の中で効くもの、iOS では効かない窓の modifier、外の仕組み（Core Data など）が要るもの。理由には使う場所を一言入れる（例: 「ウィジェットの中で効く」）。`.note` は `build` を書かない初期化（`noteReason:` を渡すもの）で書ける。チップとコードはふつうに動く。迷ったら束の計画で 1 件ずつ決める。
+**`.note` の基準**は、アプリ拡張の中で効くもの、iOS では効かない窓の modifier、外の仕組み（Core Data など）が要るもの。理由には使う場所を一言入れる（例: 「ウィジェットの中で効く」）。`.note` は `build` を書かない初期化（`noteReason:` を渡すもの）で書ける。チップとコードはふつうに動く。迷ったら束の計画で 1 件ずつ決める。束 4 では `materialActiveAppearance` を `.note` にした（iOS では `.inactive` が使えず、窓もいつも手前にあるので、見た目が変わらない）。
 
 `.note` にしたくなっても、まず枠の中で見せる方法を探す。束 1 の `ignoresSafeArea` は、親に `.safeAreaPadding(.vertical, 40)` をかけて安全な領域を作り、`.card` で見せられた。`.note` が全体の 1 割を超えたら ADR-0002 を見直す約束になっている。
 
@@ -151,6 +151,18 @@ modifier と suffix の字下げは、呼び出しで決まる。呼び出しが
 **一覧の行の見本が崩れていないか気になる → トピック画面を撮る。** `.card` の見本は、一覧の行でも最初の値で組み立てて縮めて出す。束 1 では List や Form の入れ子も崩れなかったが、試作のときに一度は見る。
 
 **テストが何分も進まない → 最初のビルドとシミュレータの複製を待つ。** 試作では 5〜10 分かかったが、テストそのものは数秒だった。本当に止まったときは `pkill -f "xcodebuild test"` → `xcrun simctl shutdown all` → もう一度。それでも止まるなら `-parallel-testing-enabled NO` を付ける。
+
+**かける相手の modifier のあとに、付け外しの modifier を並べたい → `call` を相手の最後の modifier にする。** prefix に相手の View を書き、`call: ".frame", fixedArguments: ["width: 200", "height: 80"]` のようにすると、ON の modifier はその下に同じ桁で並ぶ（束 4 の `brightness` ほか色の modifier・`clipped`・`shadow`）。
+
+**複数の収録で使う補助がある → トピックのフォルダに `<名前>Demo.swift` で置く。** `Entry` で終わらない名前にすれば、`catalog_progress.py` は数えない（束 4 の `ShapeStyleDemo`・`ScaledToDemo`）。
+
+**シェーダーを使う → `Catalog/DrawingAndGraphics/Shaders.metal` に関数を足し、`ShaderLibrary.<関数名>(…)` で呼ぶ。** ビルドに Metal Toolchain が要る（swiftui/CLAUDE.md）。シェーダーと `maxSampleOffset` は required にし、`isEnabled` を付け外しの相手にする。シェーダーを OFF にできると `.colorEffect(isEnabled: true)` という書けないコードになるため。
+
+**`.fill` のあとに `.stroke` をかける → 線の色を required にする。** `.fill` のあとは `Shape` でなく `ShapeView` になり、`.stroke(lineWidth:)` の色を省けない（書いたコードがビルドできない）。束 4 の `Rectangle`・`Path` は、線の色を required にして、線の太さが ON のときだけ `.stroke(.red, lineWidth: 6)` と書く。
+
+**ImageRenderer の画像に出ない効き目がある → シミュレータで撮る。** ScrollView・List・Form のほか、`Canvas(opaque: true)` の黒い地と、`drawingGroup` が枠の外を描かないことも、テストの画像には出ず、シミュレータでは出た。
+
+**比べるで違いが見えない → 効き目を左半分に出す。** 比べるは左半分が「付けない」側になる。`drawingGroup` の円は、はじめ枠の右にはみ出させていて違いが見えなかったので、左にはみ出させた。
 
 ## 用語
 

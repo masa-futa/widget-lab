@@ -4,6 +4,7 @@ SwiftUI の API リファレンスに載る View・modifier・プロパティラ
 
 ## スタック
 - Xcode 27.0 / Swift 6（言語モード 6、既定の分離は MainActor）。外部のパッケージは使わない
+- シェーダー（`WidgetLab/Catalog/DrawingAndGraphics/Shaders.metal`）のビルドに Metal Toolchain が要る。Xcode 27 には入っていないので、`xcrun metal --version` が失敗するなら `xcodebuild -downloadComponent MetalToolchain` を一度実行する
 - 状態: `@Observable` / 遷移: `NavigationStack` / 文言: String Catalog（日本語のみ）/ テスト: Swift Testing（UI テストだけ XCTest）
 - 対象: iPhone、iOS 27.0 以上（iPad はスマホと同じ 1 カラム）。オフラインのみ
 

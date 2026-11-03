@@ -1,0 +1,27 @@
+import SwiftUI
+
+nonisolated extension CatalogEntry {
+    static let scaledToFit = CatalogEntry(
+        id: "scaledToFit",
+        kind: .modifier,
+        topic: .drawingAndGraphics,
+        summary: "View を、縦横比を保ったまま、置かれた枠に収まる大きさにする modifier。",
+        docURL: URL(string: "https://developer.apple.com/documentation/swiftui/view/scaledtofit()")!,
+        stage: .card,
+        properties: [
+            .modifier("resizable", .fixed(code: ""), on: true, summary: "画像を、置かれた大きさに伸び縮みさせる（OFF なら元の大きさ）"),
+            .modifier("scaledToFit", .fixed(code: ""), on: true, summary: "枠に収まる大きさにする（はみ出さない）"),
+        ],
+        code: CodeTemplate(
+            call: "Image", fixedArguments: ["systemName: \"car.fill\""], suffix: [".frame(width: 200, height: 80)"]),
+        build: { v in
+            AnyView(
+                ScaledToDemo.image(
+                    resizable: v.flag("resizable") != nil, contentMode: v.flag("scaledToFit") != nil ? .fit : nil
+                )
+                .frame(width: 200, height: 80)
+                .border(.secondary)
+            )
+        }
+    )
+}
