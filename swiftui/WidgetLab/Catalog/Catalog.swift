@@ -61,5 +61,12 @@ nonisolated enum Catalog {
         .contextMenu,
         .menuActionDismissBehavior,
         .menuOrder,
+        .modifier,
+        .onAppear,
+        .onDisappear,
+        .task,
+        .id,
+        .tag,
+        .equatable,
     ]
 }
