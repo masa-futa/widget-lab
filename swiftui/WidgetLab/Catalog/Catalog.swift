@@ -55,5 +55,11 @@ nonisolated enum Catalog {
         .gauge,
         .progressView,
         .contentUnavailableView,
+        .sensoryFeedback,
+        .controlSize,
+        .menu,
+        .contextMenu,
+        .menuActionDismissBehavior,
+        .menuOrder,
     ]
 }
