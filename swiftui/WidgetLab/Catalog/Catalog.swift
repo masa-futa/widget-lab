@@ -61,5 +61,11 @@ nonisolated enum Catalog {
         .textCase,
         .monospaced,
         .monospacedDigit,
+        .truncationMode,
+        .allowsTightening,
+        .minimumScaleFactor,
+        .baselineOffset,
+        .kerning,
+        .tracking,
     ]
 }
