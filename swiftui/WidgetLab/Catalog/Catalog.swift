@@ -73,5 +73,11 @@ nonisolated enum Catalog {
         .lineSpacing,
         .multilineTextAlignment,
         .typesettingLanguage,
+        .autocorrectionDisabled,
+        .keyboardType,
+        .scrollDismissesKeyboard,
+        .textInputAutocapitalization,
+        .textInputBorderShape,
+        .textContentType,
     ]
 }
