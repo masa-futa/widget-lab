@@ -68,5 +68,13 @@ nonisolated enum Catalog {
         .id,
         .tag,
         .equatable,
+        .opacity,
+        .hidden,
+        .labelsHidden,
+        .labelsVisibility,
+        .menuIndicator,
+        .persistentSystemOverlays,
+        .statusBarHidden,
+        .disabled,
     ]
 }
