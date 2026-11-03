@@ -54,5 +54,12 @@ nonisolated enum Catalog {
         .textScale,
         .dynamicTypeSize,
         .scaledMetric,
+        .bold,
+        .italic,
+        .underline,
+        .strikethrough,
+        .textCase,
+        .monospaced,
+        .monospacedDigit,
     ]
 }
