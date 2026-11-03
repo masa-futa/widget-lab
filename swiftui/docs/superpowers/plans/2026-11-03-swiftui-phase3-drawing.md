@@ -114,10 +114,10 @@
 
 計画の下のコードは、直したあとのもの（実装と同じ）。
 
-- ・:  のあとの  は色を省けず、 というビルドできないコードが出ていた。線の色を required にし、線の太さが ON のときだけ  と書く。 から  の枝を消した。収録の手引きの 7 章にも足した
-- :  の既定は （ と書いていた）。OFF のときの値と説明を直した
-- :  は升の中央（最大で升の半分、7pt 離れた点）の色を取るので、 を  から  にした
-- : 4 つの半径の説明に「OFF なら 0」をそろえた。 の「ぼかす」は、上へ出た行で半径が負にならないよう  にした
+- `Rectangle`・`Path`: `.fill` のあとの `.stroke(lineWidth:)` は色を省けず、`.fill(.blue).stroke(lineWidth: 6)` というビルドできないコードが出ていた。線の色を required にし、線の太さが ON のときだけ `.stroke(.red, lineWidth: 6)` と書く。`ShapeStyleDemo` から `.stroke(.foreground, …)` の枝を消した。収録の手引きの 7 章にも足した
+- `Capsule`: `style` の既定は `.continuous`（`.circular` と書いていた）。OFF のときの値と説明を直した
+- `layerEffect`: `pixelate` は升の中央（最大で升の半分、7pt 離れた点）の色を取るので、`maxSampleOffset` を `.zero` から `CGSize(width: 7, height: 7)` にした
+- `UnevenRoundedRectangle`: 4 つの半径の説明に「OFF なら 0」をそろえた。`visualEffect` の「ぼかす」は、上へ出た行で半径が負にならないよう `max(0, …)` にした
 
 ---
 
