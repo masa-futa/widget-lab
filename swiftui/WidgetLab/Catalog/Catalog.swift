@@ -41,5 +41,11 @@ nonisolated enum Catalog {
         .form,
         .labeledContent,
         .controlGroup,
+        .label,
+        .textField,
+        .secureField,
+        .textEditor,
+        .textSelection,
+        .textSelectionAffinity,
     ]
 }
