@@ -770,6 +770,7 @@ nonisolated extension CatalogEntry {
                     "            Image(systemName: \"star.fill\")",
                     "                .resizable()",
                     "                .frame(width: size, height: size)",
+                    "                .foregroundStyle(.yellow)",
                     "            Text(\"お気に入り\")",
                     "        }",
                     "    }",
@@ -787,6 +788,7 @@ nonisolated extension CatalogEntry {
                     "            Image(systemName: \"star.fill\")",
                     "                .resizable()",
                     "                .frame(width: size, height: size)",
+                    "                .foregroundStyle(.yellow)",
                     "            Text(\"お気に入り\")",
                     "        }",
                     "    }",
@@ -1532,7 +1534,7 @@ nonisolated extension CatalogEntry {
                 on: true, summary: "描き方（波: 字ごとに上下にずらす、影: 赤い影を足す）")
         ],
         code: CodeTemplate(
-            prefix: ["// WaveRenderer・ShadowRenderer: draw(layout:in:) で字や行を描く TextRenderer"], call: "Text",
+            prefix: ["// WaveRenderer・ShadowRenderer: draw(layout:in:) で字や行を描く TextRenderer"], indent: 0, call: "Text",
             fixedArguments: ["\"文字の描き方を変える\""], suffix: [".font(.title)"]),
         build: { v in
             AnyView(
@@ -2107,7 +2109,7 @@ nonisolated extension CatalogEntry {
                 required: true, summary: "出す場所（.contextMenu は選んだときのメニュー、.inputAssistant はキーボードの上）"),
         ],
         code: CodeTemplate(
-            prefix: ["// memo は AttributedString（書式を付けられる文字）"], call: "TextEditor",
+            prefix: ["// memo は AttributedString（書式を付けられる文字）"], indent: 0, call: "TextEditor",
             fixedArguments: ["text: $memo"], suffix: [".frame(height: 120)"]),
         build: { v in
             let placement = v.pick(
@@ -2333,6 +2335,14 @@ git add WidgetLab/Catalog/TextInputAndOutput/TextInputFormattingControlVisibilit
   docs/cataloging-guide.md
 git commit -m "feat: textInputFormattingControlVisibility・searchDictationBehavior・writingToolsBehavior・writingToolsAffordanceVisibility・typeSelectEquivalent を収録する"
 ```
+
+## 最終レビューで直したこと
+
+- `textRenderer`・`textInputFormattingControlVisibility` の `CodeTemplate` に `indent: 0` を足した。`prefix` がコメントの行だけなのに、呼び出しが 4 桁下がっていた（手引きの 7 章に足した）
+- `ScaledMetric` のコードの 2 つの形に `.foregroundStyle(.yellow)` を足した。プレビューの星は黄色なのに、コードでは既定の色だった
+- UI テスト `testTextEntriesShowPreview` で、keyboardType のアプリも閉じる（`field.terminate()`）
+- 手引きの「条件だけで modifier をかけ分けたい」の件数を 4 件に直した（`underline`・`strikethrough` が増えた）。補助を足すのは `Model/` を変えるので、並列の束が落ち着いてから決める
+- 直さなかったもの: `TextFieldEntry` と `SecureFieldEntry` の `textFieldStyle` の切り替えの重複（1 件 1 ファイルで閉じる書き方を優先した）。`typeSelectEquivalent` の理由に iPad を足す案（iPad で効くかを確かめていない）
 
 ## 終わったら
 

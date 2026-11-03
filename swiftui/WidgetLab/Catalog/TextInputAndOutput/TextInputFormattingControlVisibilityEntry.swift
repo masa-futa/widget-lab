@@ -21,7 +21,7 @@ nonisolated extension CatalogEntry {
                 required: true, summary: "出す場所（.contextMenu は選んだときのメニュー、.inputAssistant はキーボードの上）"),
         ],
         code: CodeTemplate(
-            prefix: ["// memo は AttributedString（書式を付けられる文字）"], call: "TextEditor",
+            prefix: ["// memo は AttributedString（書式を付けられる文字）"], indent: 0, call: "TextEditor",
             fixedArguments: ["text: $memo"], suffix: [".frame(height: 120)"]),
         build: { v in
             let placement = v.pick(

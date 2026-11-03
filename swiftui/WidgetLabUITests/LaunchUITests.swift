@@ -55,6 +55,7 @@ final class LaunchUITests: XCTestCase {
         // ハードウェアキーボードをつないだシミュレータでは出ないので、出るのを待つだけにする
         _ = field.keyboards.firstMatch.waitForExistence(timeout: 5)
         attachScreenshot(field, name: "keyboardType")
+        field.terminate()
     }
 
     /// 起動して、検索の結果から詳細を開く

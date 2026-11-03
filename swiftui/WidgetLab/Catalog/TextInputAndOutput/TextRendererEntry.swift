@@ -16,7 +16,7 @@ nonisolated extension CatalogEntry {
                 on: true, summary: "描き方（波: 字ごとに上下にずらす、影: 赤い影を足す）")
         ],
         code: CodeTemplate(
-            prefix: ["// WaveRenderer・ShadowRenderer: draw(layout:in:) で字や行を描く TextRenderer"], call: "Text",
+            prefix: ["// WaveRenderer・ShadowRenderer: draw(layout:in:) で字や行を描く TextRenderer"], indent: 0, call: "Text",
             fixedArguments: ["\"文字の描き方を変える\""], suffix: [".font(.title)"]),
         build: { v in
             AnyView(
