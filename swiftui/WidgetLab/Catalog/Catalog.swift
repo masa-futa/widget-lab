@@ -81,5 +81,8 @@ nonisolated enum Catalog {
         .drawingGroup,
         .geometryReader,
         .onGeometryChange,
+        .colorEffect,
+        .distortionEffect,
+        .layerEffect,
     ]
 }
