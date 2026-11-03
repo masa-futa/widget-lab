@@ -20,7 +20,7 @@ WidgetLab/
     Catalog/{UI,ViewModel}  ホーム（大分類ごとのトピックと検索）とトピック画面。一覧の行の見た目（文字の色・右の矢印・押したときの地）は NavigationRowButtonStyle にまとめる
     Detail/{UI,ViewModel}   詳細（プレビュー・コードの 1 行・チップ・編集パネル・比べる・説明とコードのシート・見た目を持たないものの記録 DetailRecorder と RecordPanel）
 WidgetLabTests/             Swift Testing。WidgetLab と同じ形（Catalog/・Features/<機能>/）と、fake を置く Support/
-WidgetLabUITests/           XCTest の UI テスト（起動 → 検索 → 詳細 → コピー、詳細で比べるを開いて左右が出ること、`@State` を比べて付けた側だけ表示が変わること、レイアウトの代表 2 件のスクリーンショットの 4 本）
+WidgetLabUITests/           XCTest の UI テスト（起動 → 検索 → 詳細 → コピー、詳細で比べるを開いて左右が出ること、`@State` を比べて付けた側だけ表示が変わること、レイアウトの代表 2 件と操作の部品の代表 2 件のスクリーンショットの 5 本）
 tools/                      manifest を作る道具（Python 3.9 以上、標準ライブラリだけ）とそのテスト
 ```
 

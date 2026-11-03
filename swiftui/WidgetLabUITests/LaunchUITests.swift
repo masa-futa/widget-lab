@@ -45,6 +45,15 @@ final class LaunchUITests: XCTestCase {
         }
     }
 
+    @MainActor
+    func testControlEntriesShowPreview() {
+        for (id, title) in [("Picker", "Picker"), ("MultiDatePicker", "MultiDatePicker")] {
+            let app = openDetail(searching: id, entryID: id, title: title)
+            attachScreenshot(app, name: id)
+            app.terminate()
+        }
+    }
+
     /// 起動して、検索の結果から詳細を開く
     @MainActor
     private func openDetail(searching text: String, entryID: String, title: String) -> XCUIApplication {

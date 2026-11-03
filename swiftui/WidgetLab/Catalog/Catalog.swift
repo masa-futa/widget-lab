@@ -76,5 +76,12 @@ nonisolated enum Catalog {
         .persistentSystemOverlays,
         .statusBarHidden,
         .disabled,
+        .interactionActivityTrackingTag,
+        .invalidatableContent,
+        .help,
+        .preferredColorScheme,
+        .privacySensitive,
+        .redacted,
+        .unredacted,
     ]
 }
