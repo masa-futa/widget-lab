@@ -46,5 +46,12 @@ nonisolated enum Catalog {
         .unevenRoundedRectangle,
         .concentricRectangle,
         .circle,
+        .ellipse,
+        .capsule,
+        .path,
+        .containerRelativeShape,
+        .canvas,
+        .color,
+        .meshGradient,
     ]
 }
