@@ -17,6 +17,8 @@ nonisolated struct PropertySpec: Identifiable, Sendable {
     let initiallyOn: Bool
     /// OFF にできない（Text の文字など、省くとコードが成り立たない引数）
     var isRequired: Bool = false
+    /// modifier のプロパティを、コードで 1 行にまとめる鍵。nil なら modifier の名前でまとめる
+    var line: String? = nil
     /// 一言の説明（日本語）
     let summary: String
 
@@ -44,14 +46,15 @@ nonisolated struct PropertySpec: Identifiable, Sendable {
 
     /// modifier のプロパティ。id を省くと modifier の名前を id にする。同じ modifier に複数のプロパティを付けるときは
     /// id を分ける（例: "frame.width"・"frame.height"）。コードでは同じ modifier のプロパティを 1 行にまとめる。
-    /// required の引数は、OFF にできず、同じ modifier のほかのプロパティが ON のときだけコードに書く
+    /// required の引数は、OFF にできず、同じ modifier のほかのプロパティが ON のときだけコードに書く。
+    /// 同じ modifier を 2 回かけるとき（.frame(width:) のあとの .frame(maxWidth:) など）は、line で行を分ける
     static func modifier(
-        _ name: String, id: String? = nil, label: String? = nil, _ control: PropertyControl, on: Bool = false,
-        required: Bool = false, summary: String
+        _ name: String, id: String? = nil, label: String? = nil, line: String? = nil, _ control: PropertyControl,
+        on: Bool = false, required: Bool = false, summary: String
     ) -> PropertySpec {
         PropertySpec(
             id: id ?? name, placement: .modifier(name: name, label: label), control: control,
-            initiallyOn: on || required, isRequired: required, summary: summary)
+            initiallyOn: on || required, isRequired: required, line: line, summary: summary)
     }
 
     /// プロパティラッパーそのもの。いつも最初は ON。コードは CodeTemplate.wrapper の 2 つの形を使う

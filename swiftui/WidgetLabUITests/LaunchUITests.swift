@@ -36,6 +36,15 @@ final class LaunchUITests: XCTestCase {
         attachScreenshot(app, name: "state-compare")
     }
 
+    @MainActor
+    func testLayoutEntriesShowPreview() {
+        for (id, title) in [("frame", ".frame"), ("LazyVGrid", "LazyVGrid")] {
+            let app = openDetail(searching: id, entryID: id, title: title)
+            attachScreenshot(app, name: id)
+            app.terminate()
+        }
+    }
+
     /// 起動して、検索の結果から詳細を開く
     @MainActor
     private func openDetail(searching text: String, entryID: String, title: String) -> XCUIApplication {

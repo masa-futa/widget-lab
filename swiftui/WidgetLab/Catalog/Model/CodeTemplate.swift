@@ -7,6 +7,9 @@ import Foundation
 nonisolated struct CodeTemplate: Sendable {
     /// 呼び出しより前の行（modifier の収録で、かける相手の見本。例: ["Text(\"見本\")"]）
     var prefix: [String] = []
+    /// 呼び出しの行の字下げの桁数。nil なら、prefix があるとき 4、ないとき 0
+    /// （入れ子の中の View にかける modifier の収録で、prefix の最後の行に合わせて決める）
+    var indent: Int? = nil
     /// 呼び出しの名前（例: "Button"、".padding"）
     var call: String
     /// いつも書く引数（ON の引数のプロパティより前に並ぶ）
@@ -15,6 +18,8 @@ nonisolated struct CodeTemplate: Sendable {
     var trailing: String = ""
     /// いちばん最後に付ける modifier の行（例: [".background(.yellow)"]）
     var suffix: [String] = []
+    /// suffix のあとに、字下げせずにそのまま書く行（prefix で開いた括弧を閉じる "}" など）
+    var closing: [String] = []
     /// プロパティラッパーの収録のコード。あるときは、ここまでの穴埋めの形の代わりに使う
     var wrapper: WrapperCode?
 }
@@ -44,7 +49,10 @@ nonisolated enum CodeGenerator {
             return wrapperLines(
                 wrapper, id: spec.id, isOn: values[spec.id] != nil, isChanged: changed.contains(spec.id))
         }
-        let indent = template.prefix.isEmpty ? "" : "    "
+        let indent = String(repeating: " ", count: template.indent ?? (template.prefix.isEmpty ? 0 : 4))
+        // modifier と suffix の字下げ。呼び出しが modifier（"." で始まる）か、末尾のクロージャが複数行（"}" で閉じる）なら
+        // 呼び出しと同じ桁、ほかは 1 段深く
+        let chain = template.call.hasPrefix(".") || template.trailing.contains("\n") ? indent : indent + "    "
         var result = template.prefix.map { CodeLine(text: $0, propertyIDs: [], isChanged: false) }
 
         var arguments = template.fixedArguments
@@ -63,32 +71,34 @@ nonisolated enum CodeGenerator {
             CodeLine(text: text, propertyIDs: index == 0 ? argumentIDs : [], isChanged: index == 0 && callChanged)
         }
 
-        result += modifierLines(properties: properties, values: values, changed: changed)
-        result += template.suffix.map { CodeLine(text: "    " + $0, propertyIDs: [], isChanged: false) }
+        result += modifierLines(properties: properties, values: values, changed: changed, indent: chain)
+        result += template.suffix.map { CodeLine(text: chain + $0, propertyIDs: [], isChanged: false) }
+        result += template.closing.map { CodeLine(text: $0, propertyIDs: [], isChanged: false) }
         return result
     }
 
-    /// modifier のプロパティを、modifier の名前ごとに 1 行にまとめる（並びは最初に出てきた順、引数は定義の順）。
-    /// required でない引数が 1 つも ON でない modifier は書かない
-    private static func modifierLines(properties: [PropertySpec], values: PropertyValues, changed: Set<String>)
-        -> [CodeLine]
-    {
-        var names: [String] = []
+    /// modifier のプロパティを、行の鍵（line、なければ modifier の名前）ごとに 1 行にまとめる
+    /// （並びは最初に出てきた順、引数は定義の順）。required でない引数が 1 つも ON でない行は書かない
+    private static func modifierLines(
+        properties: [PropertySpec], values: PropertyValues, changed: Set<String>, indent: String
+    ) -> [CodeLine] {
+        var keys: [(key: String, name: String)] = []
         var groups: [String: [(spec: PropertySpec, label: String?)]] = [:]
         for spec in properties {
             guard case .modifier(let name, let label) = spec.placement else { continue }
-            if groups[name] == nil { names.append(name) }
-            groups[name, default: []].append((spec, label))
+            let key = spec.line ?? name
+            if groups[key] == nil { keys.append((key, name)) }
+            groups[key, default: []].append((spec, label))
         }
-        return names.compactMap { name in
-            let members = groups[name, default: []].compactMap { member in
+        return keys.compactMap { key, name in
+            let members = groups[key, default: []].compactMap { member in
                 values[member.spec.id].map { (spec: member.spec, label: member.label, value: $0) }
             }
             guard members.contains(where: { !$0.spec.isRequired }) else { return nil }
             let arguments = members.map { argument(label: $0.label, code: $0.spec.control.code(for: $0.value)) }
             let ids = members.map(\.spec.id)
             return CodeLine(
-                text: "    .\(name)(" + arguments.joined(separator: ", ") + ")", propertyIDs: ids,
+                text: indent + ".\(name)(" + arguments.joined(separator: ", ") + ")", propertyIDs: ids,
                 isChanged: !changed.isDisjoint(with: ids))
         }
     }
