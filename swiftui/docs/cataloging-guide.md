@@ -152,6 +152,18 @@ modifier と suffix の字下げは、呼び出しで決まる。呼び出しが
 
 **テストが何分も進まない → 最初のビルドとシミュレータの複製を待つ。** 試作では 5〜10 分かかったが、テストそのものは数秒だった。本当に止まったときは `pkill -f "xcodebuild test"` → `xcrun simctl shutdown all` → もう一度。それでも止まるなら `-parallel-testing-enabled NO` を付ける。
 
+**入力欄の見本が禁止の印になる → シミュレータで撮る。** TextField・SecureField・TextEditor（UIKit で描く入力欄）は、`ImageRenderer` では黄色の地に赤い禁止の印で描かれる。エラーにはならないので、5 章の ScrollView と同じく、一時的な UI テストで詳細画面を撮って見る。
+
+**入力した値を持つ見本 → `TextInputDemo` に包む。** `build` の中では `@State` を持てないので、`TextInputDemo("") { text in TextField("名前", text: text) }` のように、値を持つ入れ物（`Catalog/TextInputAndOutput/TextInputDemo.swift`）から Binding を受け取る。String でも AttributedString でも使える。
+
+**公式の要約と URL → リファレンスの JSON で確かめる。** `https://developer.apple.com/tutorials/data/documentation/swiftui/<トピックの slug>.json` の `references` に、記号ごとの URL と要約（`abstract`）がある。OS ごとに同じ名前の記号があるもの（`textContentType(_:)`）は、素の URL が macOS 版のことがあるので、iOS 版の URL（`textcontenttype(_:)-ufdv`）を使う。
+
+**効き目が出るか怪しいもの → 公式の説明と試作で確かめてから `.note` にする。** 束 2 では、公式に「visionOS で効く」「macOS・Mac Catalyst で効く」とあるもの（`searchDictationBehavior`・`writingToolsAffordanceVisibility`）、iOS 27.0 の iPhone で試して変わらなかったもの（`textInputBorderShape`）、Mac のキーボード操作で効くもの（`typeSelectEquivalent`）の 4 件を `.note` にした。
+
+**入力欄の枠 → `.textFieldStyle(.bordered)`。** iOS 27 の SDK では、`.roundedBorder` が `.bordered` と `textInputBorderShape(.roundedRectangle)` に置き換える予定になっている。
+
+**違いが幅に左右されるもの → 幅を刻んで描き比べる。** `allowsTightening` は、詰めれば収まり、付けなければ省かれる幅でないと違いが見えない。一時的なテストで幅を 2 ずつ変えて描き、206 に決めた。
+
 ## 用語
 
 - **収録**: 1 つの API（View・modifier・プロパティラッパー・ジェスチャー）を 1 件として `CatalogEntry` に書いたもの

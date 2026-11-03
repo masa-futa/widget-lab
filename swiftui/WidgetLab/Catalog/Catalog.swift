@@ -79,5 +79,10 @@ nonisolated enum Catalog {
         .textInputAutocapitalization,
         .textInputBorderShape,
         .textContentType,
+        .textInputFormattingControlVisibility,
+        .searchDictationBehavior,
+        .writingToolsBehavior,
+        .writingToolsAffordanceVisibility,
+        .typeSelectEquivalent,
     ]
 }
