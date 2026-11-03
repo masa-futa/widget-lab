@@ -29,7 +29,7 @@ SwiftUI の API リファレンスに載る View・modifier・プロパティラ
 - 決めた理由: docs/adr/
 - フォルダはファイルと同期する（Xcode 16 以降の同期グループ）。ファイルを足すときに project.pbxproj を直す必要はない
 - 新しい画面は WidgetLab/Features/<機能>/{UI,ViewModel} に置き、WidgetLabTests/Features/<機能>/ にテストを置く
-- 収録データは WidgetLab/Catalog/<トピック>/<名前>Entry.swift に置き、Catalog.swift の `all` に並べる。id・種類・トピックは Generated/Manifest.swift に合わせる
+- 収録データは WidgetLab/Catalog/<トピック>/<名前>Entry.swift に置き、Catalog.swift の `all` に 1 行に 1 件ずつ並べる。id・種類・トピックは Generated/Manifest.swift に合わせる。書き方（stage・形・コードの形）は docs/cataloging-guide.md
 - 収録データの型（WidgetLab/Catalog/）は `nonisolated` にする。組み立ての関数だけが `@MainActor`
 
 ## 公開について
