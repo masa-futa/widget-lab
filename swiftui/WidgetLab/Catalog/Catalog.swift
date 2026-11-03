@@ -53,5 +53,13 @@ nonisolated enum Catalog {
         .canvas,
         .color,
         .meshGradient,
+        .brightness,
+        .contrast,
+        .colorInvert,
+        .colorMultiply,
+        .saturation,
+        .grayscale,
+        .hueRotation,
+        .luminanceToAlpha,
     ]
 }
