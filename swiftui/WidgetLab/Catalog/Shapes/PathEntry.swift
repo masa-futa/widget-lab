@@ -10,7 +10,9 @@ nonisolated extension CatalogEntry {
         stage: .card,
         properties: [
             .modifier("fill", .color(initial: 1), on: true, summary: "中を塗る色（OFF なら前景の色）"),
-            .modifier("stroke", .color(initial: 4), summary: "縁の線の色"),
+            .modifier(
+                "stroke", .color(initial: 4), required: true,
+                summary: "縁の線の色（線の太さが ON のときだけ書く）"),
             .modifier(
                 "stroke", id: "stroke.lineWidth", label: "lineWidth", .slider(range: 1...16, step: 1, initial: 6),
                 summary: "縁の線の太さ"),
@@ -31,7 +33,8 @@ nonisolated extension CatalogEntry {
                         path.addQuadCurve(to: CGPoint(x: 180, y: 100), control: CGPoint(x: 180, y: 20))
                         path.closeSubpath()
                     },
-                    fill: v.color("fill"), stroke: v.color("stroke"), lineWidth: v.number("stroke.lineWidth")
+                    fill: v.color("fill"), stroke: v.number("stroke.lineWidth") != nil ? v.color("stroke") : nil,
+                    lineWidth: v.number("stroke.lineWidth")
                 )
                 .frame(width: 200, height: 120)
             )

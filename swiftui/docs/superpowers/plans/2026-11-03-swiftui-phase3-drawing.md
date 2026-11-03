@@ -45,14 +45,14 @@
 
 | id | トピック | 形 | プロパティ（チップの順） | コードの形（最初の値） |
 |---|---|---|---|---|
-| Rectangle | shapes | View | .fill*・.stroke・.stroke(lineWidth:) | `Rectangle().fill(.blue).frame(width: 160, height: 100)` |
+| Rectangle | shapes | View | .fill*・.stroke R（線の太さが ON のときだけ書く）・.stroke(lineWidth:) | `Rectangle().fill(.blue).frame(width: 160, height: 100)` |
 | RoundedRectangle | shapes | View | cornerRadius R・style・.fill* | `RoundedRectangle(cornerRadius: 25).fill(.blue).frame(…)` |
 | UnevenRoundedRectangle | shapes | View | topLeadingRadius*・bottomLeadingRadius・bottomTrailingRadius*・topTrailingRadius・style | `UnevenRoundedRectangle(topLeadingRadius: 40, bottomTrailingRadius: 40).fill(.blue).frame(…)` |
 | ConcentricRectangle | shapes | View（入れ子） | corners R（同心・下限あり・固定）・.fill*・.padding* | `ZStack { ConcentricRectangle(corners: .concentric).fill(.blue).padding(12) }.frame(…).background(…).containerShape(.rect(cornerRadius: 40))` |
 | Circle | shapes | View | .trim(to:)*・.stroke*・.stroke(lineWidth:)* | `Circle().trim(to: 0.75).stroke(.blue, lineWidth: 12).frame(width: 120, height: 120)` |
 | Ellipse | shapes | View | .fill*・.frame(width:)*・.frame(height:)* | `Ellipse().fill(.green).frame(width: 200, height: 100)` |
-| Capsule | shapes | View | style・.fill*・.frame(width:)*・.frame(height:)* | `Capsule().fill(.purple).frame(width: 200, height: 60)` |
-| Path | shapes | View | .fill*・.stroke・.stroke(lineWidth:) | `Path { path in move・addLine・addQuadCurve・closeSubpath }.fill(.orange).frame(…)` |
+| Capsule | shapes | View | style（OFF なら .continuous）・.fill*・.frame(width:)*・.frame(height:)* | `Capsule().fill(.purple).frame(width: 200, height: 60)` |
+| Path | shapes | View | .fill*・.stroke R（線の太さが ON のときだけ書く）・.stroke(lineWidth:) | `Path { path in move・addLine・addQuadCurve・closeSubpath }.fill(.orange).frame(…)` |
 | ContainerRelativeShape | shapes | View（入れ子） | .fill*・.padding* | `ZStack { ContainerRelativeShape().fill(.blue).padding(12) }…containerShape(.rect(cornerRadius: 40))` |
 | Canvas | drawing-and-graphics | View | opaque*・colorMode | `Canvas(opaque: true) { context, size in グラデーションの帯と赤い楕円 }.frame(…)` |
 | Color | drawing-and-graphics | View | red R・green R・blue R・opacity | `Color(red: 0.2, green: 0.6, blue: 0.9).frame(…)` |
@@ -87,7 +87,7 @@
 | onGeometryChange | drawing-and-graphics | 引数 | of R（幅・高さ・左端の x） | `Text("見本")….onGeometryChange(for: CGFloat.self, of: { proxy in proxy.size.width }) { value in … }` |
 | colorEffect | drawing-and-graphics | 付け外し | .colorEffect.shader R（細い縞・太い縞・白と黒）・.colorEffect(isEnabled:)* | `LinearGradient(…).frame(…).colorEffect(ShaderLibrary.stripes(.float(6)), isEnabled: true)` |
 | distortionEffect | drawing-and-graphics | 付け外し | .distortionEffect.shader R・.distortionEffect(maxSampleOffset:) R・.distortionEffect(isEnabled:)* | `Text("Widget Lab")….distortionEffect(ShaderLibrary.wave(.float(4), .float(40)), maxSampleOffset: CGSize(width: 0, height: 10), isEnabled: true)` |
-| layerEffect | drawing-and-graphics | 付け外し | .layerEffect.shader R・.layerEffect(maxSampleOffset:) R・.layerEffect(isEnabled:)* | `Image(systemName: "car.fill")….layerEffect(ShaderLibrary.pixelate(.float(6)), maxSampleOffset: .zero, isEnabled: true)` |
+| layerEffect | drawing-and-graphics | 付け外し | .layerEffect.shader R・.layerEffect(maxSampleOffset:) R・.layerEffect(isEnabled:)* | `Image(systemName: "car.fill")….layerEffect(ShaderLibrary.pixelate(.float(6)), maxSampleOffset: CGSize(width: 7, height: 7), isEnabled: true)` |
 
 ### `.note` にするもの（1 件、全体の 2%）
 
@@ -109,6 +109,15 @@
 - **比べるの「付けない」側は左半分。** 効き目が右半分にしか出ない見本だと、比べるで違いが見えない。`drawingGroup` の円は、はじめ右にはみ出させていて比べるで違いが見えなかったので、左にはみ出させた
 - **シェーダーの引数は required にし、`isEnabled` を付け外しの相手にする。** `shader` を OFF にすると `.colorEffect(isEnabled: true)` という書けないコードになるため。`maxSampleOffset` も省けないので required の `.fixed`
 - **`blur(radius:opaque:)` の `opaque` は入れない。** `radius` を OFF にして `opaque` だけ ON にすると、書けないコード（`.blur(opaque: true)`）になる。`radius` を required にすると、`opaque` を ON にしないとぼかしが出ない
+
+### 束の最終レビュー（opus）で直したこと
+
+計画の下のコードは、直したあとのもの（実装と同じ）。
+
+- ・:  のあとの  は色を省けず、 というビルドできないコードが出ていた。線の色を required にし、線の太さが ON のときだけ  と書く。 から  の枝を消した。収録の手引きの 7 章にも足した
+- :  の既定は （ と書いていた）。OFF のときの値と説明を直した
+- :  は升の中央（最大で升の半分、7pt 離れた点）の色を取るので、 を  から  にした
+- : 4 つの半径の説明に「OFF なら 0」をそろえた。 の「ぼかす」は、上へ出た行で半径が負にならないよう  にした
 
 ---
 
@@ -141,18 +150,15 @@ Expected: 終了コード 1。抜けに Rectangle・RoundedRectangle・UnevenRou
 ```swift
 import SwiftUI
 
-/// Shape に、ON の .fill と .stroke だけをかける（Rectangle・Circle・Path の見本で使う）
+/// Shape に、ON の .fill と .stroke だけをかける（Rectangle・Circle・Path の見本で使う）。
+/// .fill のあとの .stroke は色を省けない（ShapeView の stroke）ので、fill と線を両方かけるのは stroke の色があるときだけ
 enum ShapeStyleDemo {
     @ViewBuilder
     static func styled(_ shape: some Shape, fill: Color?, stroke: Color?, lineWidth: Double?) -> some View {
         let hasStroke = stroke != nil || lineWidth != nil
         let width = CGFloat(lineWidth ?? 1)
-        if let fill, hasStroke {
-            if let stroke {
-                shape.fill(fill).stroke(stroke, lineWidth: width)
-            } else {
-                shape.fill(fill).stroke(.foreground, lineWidth: width)
-            }
+        if let fill, let stroke {
+            shape.fill(fill).stroke(stroke, lineWidth: width)
         } else if let fill {
             shape.fill(fill)
         } else if hasStroke {
@@ -183,7 +189,9 @@ nonisolated extension CatalogEntry {
         stage: .card,
         properties: [
             .modifier("fill", .color(initial: 4), on: true, summary: "中を塗る色（OFF なら前景の色）"),
-            .modifier("stroke", .color(initial: 0), summary: "縁の線の色"),
+            .modifier(
+                "stroke", .color(initial: 0), required: true,
+                summary: "縁の線の色（線の太さが ON のときだけ書く）"),
             .modifier(
                 "stroke", id: "stroke.lineWidth", label: "lineWidth", .slider(range: 1...16, step: 1, initial: 6),
                 summary: "縁の線の太さ"),
@@ -192,7 +200,8 @@ nonisolated extension CatalogEntry {
         build: { v in
             AnyView(
                 ShapeStyleDemo.styled(
-                    Rectangle(), fill: v.color("fill"), stroke: v.color("stroke"),
+                    Rectangle(), fill: v.color("fill"),
+                    stroke: v.number("stroke.lineWidth") != nil ? v.color("stroke") : nil,
                     lineWidth: v.number("stroke.lineWidth")
                 )
                 .frame(width: 160, height: 100)
@@ -255,10 +264,12 @@ nonisolated extension CatalogEntry {
             .argument(
                 "topLeadingRadius", .slider(range: 0...50, step: 5, initial: 40), on: true,
                 summary: "左上の角の半径（OFF なら 0）"),
-            .argument("bottomLeadingRadius", .slider(range: 0...50, step: 5, initial: 10), summary: "左下の角の半径"),
             .argument(
-                "bottomTrailingRadius", .slider(range: 0...50, step: 5, initial: 40), on: true, summary: "右下の角の半径"),
-            .argument("topTrailingRadius", .slider(range: 0...50, step: 5, initial: 10), summary: "右上の角の半径"),
+                "bottomLeadingRadius", .slider(range: 0...50, step: 5, initial: 10), summary: "左下の角の半径（OFF なら 0）"),
+            .argument(
+                "bottomTrailingRadius", .slider(range: 0...50, step: 5, initial: 40), on: true,
+                summary: "右下の角の半径（OFF なら 0）"),
+            .argument("topTrailingRadius", .slider(range: 0...50, step: 5, initial: 10), summary: "右上の角の半径（OFF なら 0）"),
             .argument(
                 "style", .choice([Choice(".circular"), Choice(".continuous")], initial: 0),
                 summary: "丸みの形（OFF なら .continuous）"),
@@ -475,7 +486,7 @@ nonisolated extension CatalogEntry {
         properties: [
             .argument(
                 "style", .choice([Choice(".circular"), Choice(".continuous")], initial: 0),
-                summary: "丸みの形（OFF なら .circular）"),
+                summary: "丸みの形（OFF なら .continuous）"),
             .modifier("fill", .color(initial: 5), on: true, summary: "中を塗る色"),
             .modifier(
                 "frame", id: "frame.width", label: "width", .slider(range: 40...240, step: 20, initial: 200), on: true,
@@ -487,7 +498,7 @@ nonisolated extension CatalogEntry {
         code: CodeTemplate(call: "Capsule"),
         build: { v in
             AnyView(
-                Capsule(style: v.pick("style", from: [RoundedCornerStyle.circular, .continuous]) ?? .circular)
+                Capsule(style: v.pick("style", from: [RoundedCornerStyle.circular, .continuous]) ?? .continuous)
                     .apply(v.color("fill")) { $0.fill($1) }
                     .frame(
                         width: v.number("frame.width").map { CGFloat($0) },
@@ -513,7 +524,9 @@ nonisolated extension CatalogEntry {
         stage: .card,
         properties: [
             .modifier("fill", .color(initial: 1), on: true, summary: "中を塗る色（OFF なら前景の色）"),
-            .modifier("stroke", .color(initial: 4), summary: "縁の線の色"),
+            .modifier(
+                "stroke", .color(initial: 4), required: true,
+                summary: "縁の線の色（線の太さが ON のときだけ書く）"),
             .modifier(
                 "stroke", id: "stroke.lineWidth", label: "lineWidth", .slider(range: 1...16, step: 1, initial: 6),
                 summary: "縁の線の太さ"),
@@ -534,7 +547,8 @@ nonisolated extension CatalogEntry {
                         path.addQuadCurve(to: CGPoint(x: 180, y: 100), control: CGPoint(x: 180, y: 20))
                         path.closeSubpath()
                     },
-                    fill: v.color("fill"), stroke: v.color("stroke"), lineWidth: v.number("stroke.lineWidth")
+                    fill: v.color("fill"), stroke: v.number("stroke.lineWidth") != nil ? v.color("stroke") : nil,
+                    lineWidth: v.number("stroke.lineWidth")
                 )
                 .frame(width: 200, height: 120)
             )
@@ -1865,7 +1879,9 @@ nonisolated extension CatalogEntry {
                             code: "{ content, proxy in content.offset(x: proxy.frame(in: .scrollView).minY / 4) }"),
                         Choice(
                             "ぼかす",
-                            code: "{ content, proxy in content.blur(radius: proxy.frame(in: .scrollView).minY / 40) }"),
+                            code:
+                                "{ content, proxy in content.blur(radius: max(0, proxy.frame(in: .scrollView).minY / 40)) }"
+                        ),
                     ],
                     initial: 0),
                 on: true, summary: "かける効果（スクロールの枠の中の縦の位置で変える）")
@@ -1896,7 +1912,8 @@ private enum VisualEffectDemo {
         switch effect {
         case 0: view.visualEffect { content, proxy in content.hueRotation(.degrees(proxy.frame(in: .scrollView).minY)) }
         case 1: view.visualEffect { content, proxy in content.offset(x: proxy.frame(in: .scrollView).minY / 4) }
-        case 2: view.visualEffect { content, proxy in content.blur(radius: proxy.frame(in: .scrollView).minY / 40) }
+        case 2:
+            view.visualEffect { content, proxy in content.blur(radius: max(0, proxy.frame(in: .scrollView).minY / 40)) }
         default: view
         }
     }
@@ -2356,7 +2373,8 @@ nonisolated extension CatalogEntry {
                     initial: 0),
                 required: true, summary: "かけるシェーダー（升の大きさ）"),
             .modifier(
-                "layerEffect", id: "layerEffect.maxSampleOffset", label: "maxSampleOffset", .fixed(code: ".zero"),
+                "layerEffect", id: "layerEffect.maxSampleOffset", label: "maxSampleOffset",
+                .fixed(code: "CGSize(width: 7, height: 7)"),
                 required: true, summary: "元の場所から、どれだけ離れた点の色を取るか（の上限）"),
             .modifier(
                 "layerEffect", id: "layerEffect.isEnabled", label: "isEnabled", .toggle(initial: true), on: true,
@@ -2374,7 +2392,8 @@ nonisolated extension CatalogEntry {
                     .foregroundStyle(.blue)
                     .apply(v.flag("layerEffect.isEnabled")) {
                         $0.layerEffect(
-                            shader ?? ShaderLibrary.pixelate(.float(6)), maxSampleOffset: .zero, isEnabled: $1)
+                            shader ?? ShaderLibrary.pixelate(.float(6)), maxSampleOffset: CGSize(width: 7, height: 7),
+                            isEnabled: $1)
                     }
             )
         }
@@ -2409,7 +2428,7 @@ nonisolated extension CatalogEntry {
 
 - [ ] **Step 5: 文書を直す**
 
-次の 4 か所を置き換える（置き換える前の文字列は、それぞれのファイルの中に 1 つだけある）。
+次の 4 か所を、左の文字列（ファイルの中に 1 つだけある）から右の文字列に置き換える。
 
 `CLAUDE.md` の
 
@@ -2481,7 +2500,7 @@ nonisolated extension CatalogEntry {
 - [ ] **Step 6: 通ることを確かめる**
 
 Run: `xcrun swift-format format -i -r WidgetLab WidgetLabTests WidgetLabUITests` のあと、Global Constraints の確かめのコマンドから `-only-testing:WidgetLabTests` を外したもの（UI テストまで）
-Expected: lint・道具のテスト・単体テスト・UI テスト（5 本）が全部通る
+Expected: lint・道具のテスト・単体テスト・UI テスト（6 本）が全部通る
 
 Run: `python3 tools/catalog_progress.py drawing-and-graphics shapes`
 Expected: 終了コード 0。`合計 43 / 43（抜け 0）`

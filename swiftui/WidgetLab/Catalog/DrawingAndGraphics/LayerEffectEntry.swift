@@ -20,7 +20,8 @@ nonisolated extension CatalogEntry {
                     initial: 0),
                 required: true, summary: "かけるシェーダー（升の大きさ）"),
             .modifier(
-                "layerEffect", id: "layerEffect.maxSampleOffset", label: "maxSampleOffset", .fixed(code: ".zero"),
+                "layerEffect", id: "layerEffect.maxSampleOffset", label: "maxSampleOffset",
+                .fixed(code: "CGSize(width: 7, height: 7)"),
                 required: true, summary: "元の場所から、どれだけ離れた点の色を取るか（の上限）"),
             .modifier(
                 "layerEffect", id: "layerEffect.isEnabled", label: "isEnabled", .toggle(initial: true), on: true,
@@ -38,7 +39,8 @@ nonisolated extension CatalogEntry {
                     .foregroundStyle(.blue)
                     .apply(v.flag("layerEffect.isEnabled")) {
                         $0.layerEffect(
-                            shader ?? ShaderLibrary.pixelate(.float(6)), maxSampleOffset: .zero, isEnabled: $1)
+                            shader ?? ShaderLibrary.pixelate(.float(6)), maxSampleOffset: CGSize(width: 7, height: 7),
+                            isEnabled: $1)
                     }
             )
         }

@@ -23,7 +23,9 @@ nonisolated extension CatalogEntry {
                             code: "{ content, proxy in content.offset(x: proxy.frame(in: .scrollView).minY / 4) }"),
                         Choice(
                             "ぼかす",
-                            code: "{ content, proxy in content.blur(radius: proxy.frame(in: .scrollView).minY / 40) }"),
+                            code:
+                                "{ content, proxy in content.blur(radius: max(0, proxy.frame(in: .scrollView).minY / 40)) }"
+                        ),
                     ],
                     initial: 0),
                 on: true, summary: "かける効果（スクロールの枠の中の縦の位置で変える）")
@@ -54,7 +56,8 @@ private enum VisualEffectDemo {
         switch effect {
         case 0: view.visualEffect { content, proxy in content.hueRotation(.degrees(proxy.frame(in: .scrollView).minY)) }
         case 1: view.visualEffect { content, proxy in content.offset(x: proxy.frame(in: .scrollView).minY / 4) }
-        case 2: view.visualEffect { content, proxy in content.blur(radius: proxy.frame(in: .scrollView).minY / 40) }
+        case 2:
+            view.visualEffect { content, proxy in content.blur(radius: max(0, proxy.frame(in: .scrollView).minY / 40)) }
         default: view
         }
     }

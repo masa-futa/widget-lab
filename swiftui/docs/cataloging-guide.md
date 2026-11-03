@@ -158,6 +158,8 @@ modifier と suffix の字下げは、呼び出しで決まる。呼び出しが
 
 **シェーダーを使う → `Catalog/DrawingAndGraphics/Shaders.metal` に関数を足し、`ShaderLibrary.<関数名>(…)` で呼ぶ。** ビルドに Metal Toolchain が要る（swiftui/CLAUDE.md）。シェーダーと `maxSampleOffset` は required にし、`isEnabled` を付け外しの相手にする。シェーダーを OFF にできると `.colorEffect(isEnabled: true)` という書けないコードになるため。
 
+**`.fill` のあとに `.stroke` をかける → 線の色を required にする。** `.fill` のあとは `Shape` でなく `ShapeView` になり、`.stroke(lineWidth:)` の色を省けない（書いたコードがビルドできない）。束 4 の `Rectangle`・`Path` は、線の色を required にして、線の太さが ON のときだけ `.stroke(.red, lineWidth: 6)` と書く。
+
 **ImageRenderer の画像に出ない効き目がある → シミュレータで撮る。** ScrollView・List・Form のほか、`Canvas(opaque: true)` の黒い地と、`drawingGroup` が枠の外を描かないことも、テストの画像には出ず、シミュレータでは出た。
 
 **比べるで違いが見えない → 効き目を左半分に出す。** 比べるは左半分が「付けない」側になる。`drawingGroup` の円は、はじめ枠の右にはみ出させていて違いが見えなかったので、左にはみ出させた。
