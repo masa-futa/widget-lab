@@ -41,5 +41,10 @@ nonisolated enum Catalog {
         .form,
         .labeledContent,
         .controlGroup,
+        .rectangle,
+        .roundedRectangle,
+        .unevenRoundedRectangle,
+        .concentricRectangle,
+        .circle,
     ]
 }
