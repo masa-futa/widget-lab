@@ -41,5 +41,12 @@ nonisolated enum Catalog {
         .form,
         .labeledContent,
         .controlGroup,
+        .editButton,
+        .pasteButton,
+        .link,
+        .shareLink,
+        .slider,
+        .stepper,
+        .toggle,
     ]
 }
