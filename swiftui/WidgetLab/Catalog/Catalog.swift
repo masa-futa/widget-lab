@@ -61,5 +61,12 @@ nonisolated enum Catalog {
         .grayscale,
         .hueRotation,
         .luminanceToAlpha,
+        .materialActiveAppearance,
+        .scaledToFill,
+        .scaledToFit,
+        .scaleEffect,
+        .aspectRatio,
+        .rotationEffect,
+        .rotation3DEffect,
     ]
 }
