@@ -55,6 +55,15 @@ final class LaunchUITests: XCTestCase {
     }
 
     @MainActor
+    func testControlEntriesShowPreview() {
+        for (id, title) in [("Picker", "Picker"), ("MultiDatePicker", "MultiDatePicker")] {
+            let app = openDetail(searching: id, entryID: id, title: title)
+            attachScreenshot(app, name: id)
+            app.terminate()
+        }
+    }
+
+    @MainActor
     func testTextEntriesShowPreview() {
         let editor = openDetail(searching: "TextEditor", entryID: "TextEditor", title: "TextEditor")
         attachScreenshot(editor, name: "TextEditor")

@@ -79,7 +79,7 @@ nonisolated extension CatalogEntry {
 
 `.note` にしたくなっても、まず枠の中で見せる方法を探す。束 1 の `ignoresSafeArea` は、親に `.safeAreaPadding(.vertical, 40)` をかけて安全な領域を作り、`.card` で見せられた。`.note` が全体の 1 割を超えたら ADR-0002 を見直す約束になっている。
 
-**`.full` はまだ動かない（2026-11-03 時点）。** 型にはあるが、詳細画面の「試す」から全画面で開く仕組みを作っていない。今は `.card` と同じく枠の中に描かれる。最初に `.full` を使う束（束 7 の画面の行き来が候補）で、その仕組みも作る。
+**`.full` はまだ動かない（2026-11-03 時点）。** 型にはあるが、詳細画面の「試す」から全画面で開く仕組みを作っていない。今は `.card` と同じく枠の中に描かれる。仕組みは束 7（画面の行き来）で作る。束 3 では、表示の単位（presentation）ぜんたいに効く modifier（`preferredColorScheme`・`statusBarHidden`・`persistentSystemOverlays`）を、仕組みより先に `.full` にした（2026-11-03 オーナーが決定）。`.card` にすると一覧の行の見本からも効いてしまい（行が見えただけでアプリ全体が暗くなる）、押し込んだ詳細画面からではステータスバーが消えないため。仕組みができるまでは、比べるで付けた側の効き目が画面全体にかかり（`preferredColorScheme` は左右とも暗くなる）、`statusBarHidden`・`persistentSystemOverlays` は効き目が見えない。
 
 ## 4. 形は 3 つ。modifier を消して比べたいなら「付け外し」
 
@@ -105,7 +105,7 @@ modifier の収録は、まず「引数」の形を考える。引数がどれ�
 
 `CatalogTests` の `buildsAllCombinations` が、全件を全部 OFF・全部 ON・選択肢ごとに組み立て、`.card` と `.behavior` は `ImageRenderer` で描く。id と Manifest の一致、チップの名前の重なり、required の引数に兄弟があるか、1 つの行の鍵に違う modifier の名前が混ざっていないかも見ている。だから収録ごとのテストは書かない。新しい型の使い方を足したときだけ `CodeGeneratorTests` に足す。
 
-ただし `ImageRenderer` は、ScrollView・List・Form・GroupBox・ControlGroup を白く描く。エラーにはならないので、テストが通っても見た目は確かめられていない。これらは一時的な UI テストで詳細画面を撮って見る。束の終わりには、代表の 1〜2 件を撮る UI テストを残す（束 1 は `testLayoutEntriesShowPreview`）。
+ただし `ImageRenderer` は、ScrollView・List・Form・GroupBox・ControlGroup を白く描き、UIKit で描くコントロール（Toggle・Slider・Stepper・Picker・DatePicker・ColorPicker・Menu など）を黄色の地に禁止の印で描く。エラーにはならないので、テストが通っても見た目は確かめられていない。これらは一時的な UI テストで詳細画面を撮って見る。束の終わりには、代表の 1〜2 件を撮る UI テストを残す（束 1 は `testLayoutEntriesShowPreview`、束 2 は `testTextEntriesShowPreview`、束 3 は `testControlEntriesShowPreview`、束 4 は `testDrawingEntriesShowPreview`）。
 
 撮った画像は `xcrun xcresulttool export attachments --path <最新の build/Logs/Test/*.xcresult> --output-path build/shots` で取り出せる。名前と画像のファイルの対応は `build/shots/manifest.json` にある。
 
@@ -150,6 +150,14 @@ modifier と suffix の字下げは、呼び出しで決まる。呼び出しが
 
 **一覧の行の見本が崩れていないか気になる → トピック画面を撮る。** `.card` の見本は、一覧の行でも最初の値で組み立てて縮めて出す。束 1 では List や Form の入れ子も崩れなかったが、試作のときに一度は見る。
 
+**高いコントロールで一覧の行が伸びる → 見本を ScrollView に入れる。** `MultiDatePicker` のカレンダーは、行の見本の枠に収まらず、行が高くなって押す場所がずれた。見本を `ScrollView` に入れると、行にも詳細のプレビューにも収まる。スタイルで高さが変わるもの（`DatePicker` の `.graphical`）は、`ViewThatFits(in: .vertical) { 見本; ScrollView { 見本 } }` で、収まらないときだけスクロールにする。
+
+**画面ぜんたいに効く modifier がある → `.full` にする。** `.card` の見本は一覧の行でも組み立てるので、表示の単位に効くもの（`preferredColorScheme` など）は、行が見えただけで効いてしまう（3 章）。
+
+**クロージャを渡す modifier を付け外ししたい → ラベル付きの引数にクロージャごと書く。** `CodeGenerator` は modifier を末尾のクロージャの形では書けないので、`.onAppear(perform: { … })`・`.contextMenu(menuItems: { … })` の形にする。`task` のように、引数の組でやり直すきっかけが変わるものは、`Choice("count が変わるたび", code: "id: count, { await load(count) }")` のように組で選ぶ。
+
+**見本の View を Equatable にする → `nonisolated struct` にする。** 既定の分離が MainActor だと、Equatable への準拠も MainActor に閉じ、SwiftUI が `==` を使わない（`equatable` の見本で、付けた側も毎回描き直された）。念のため、`@Environment(\.demoRecorder)` も読まず、記録の窓口は親から引く（`EquatableEntry.swift` の `recorders`）。
+
 **テストが何分も進まない → 最初のビルドとシミュレータの複製を待つ。** 試作では 5〜10 分かかったが、テストそのものは数秒だった。本当に止まったときは `pkill -f "xcodebuild test"` → `xcrun simctl shutdown all` → もう一度。それでも止まるなら `-parallel-testing-enabled NO` を付ける。
 
 **かける相手の modifier のあとに、付け外しの modifier を並べたい → `call` を相手の最後の modifier にする。** prefix に相手の View を書き、`call: ".frame", fixedArguments: ["width: 200", "height: 80"]` のようにすると、ON の modifier はその下に同じ桁で並ぶ（束 4 の `brightness` ほか色の modifier・`clipped`・`shadow`）。
@@ -188,4 +196,4 @@ modifier と suffix の字下げは、呼び出しで決まる。呼び出しが
 
 この手引きで決まらないことは、束の計画で決め、決めたことをここに足す。型を変える判断は ADR-0002 に書く。
 
-最終更新: 2026-11-03（束 1 のあと）
+最終更新: 2026-11-04（束 2・3・4 のあと）
