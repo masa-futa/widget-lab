@@ -47,5 +47,12 @@ nonisolated enum Catalog {
         .textEditor,
         .textSelection,
         .textSelectionAffinity,
+        .font,
+        .fontDesign,
+        .fontWeight,
+        .fontWidth,
+        .textScale,
+        .dynamicTypeSize,
+        .scaledMetric,
     ]
 }
