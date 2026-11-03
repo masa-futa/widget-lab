@@ -75,5 +75,11 @@ nonisolated enum Catalog {
         .clipShape,
         .blur,
         .shadow,
+        .visualEffect,
+        .blendMode,
+        .compositingGroup,
+        .drawingGroup,
+        .geometryReader,
+        .onGeometryChange,
     ]
 }
