@@ -144,7 +144,7 @@ modifier と suffix の字下げは、呼び出しで決まる。呼び出しが
 
 **省けない modifier の引数がある → `required: true` にし、build でも「required でない引数が 1 つ以上 ON のとき」だけかける。** コードの側は、行の required でない引数がどれも OFF なら、その行を書かない。build も同じ条件にしないと、プレビューとコードが食い違う。例は `AlignmentGuideEntry.swift`（`.leading` が required、`computeValue` が ON のときだけかける）。`line` で行を分けたときは、行ごとに判断する。
 
-**条件だけで modifier をかけ分けたい → 今は `.apply(cond ? () : nil) { view, _ in … }` と書く。** `apply` は値が nil でないときだけかける補助なので、Void の Optional で条件を渡している。使っているのは `frame`・`ignoresSafeArea` の 2 件だけ。広がるようなら、`apply` の横に条件だけを取る補助を足す。
+**条件だけで modifier をかけ分けたい → 今は `.apply(cond ? () : nil) { view, _ in … }` と書く。** `apply` は値が nil でないときだけかける補助なので、Void の Optional で条件を渡している。使っているのは `frame`・`ignoresSafeArea`・`underline`・`strikethrough` の 4 件（束 2 のあと）。補助を足すには `Model/` を変えるので、並列の束が落ち着いてから決める。
 
 **見本が地に溶けて見えない → 背景の modifier を最初から ON にする。** `GroupBox` の箱は、プレビューの地（`secondarySystemBackground`）と同じ色で、OFF では箱が見えなかった。`.backgroundStyle` を `on: true` にして直した。
 
@@ -163,6 +163,20 @@ modifier と suffix の字下げは、呼び出しで決まる。呼び出しが
 **ImageRenderer の画像に出ない効き目がある → シミュレータで撮る。** ScrollView・List・Form のほか、`Canvas(opaque: true)` の黒い地と、`drawingGroup` が枠の外を描かないことも、テストの画像には出ず、シミュレータでは出た。
 
 **比べるで違いが見えない → 効き目を左半分に出す。** 比べるは左半分が「付けない」側になる。`drawingGroup` の円は、はじめ枠の右にはみ出させていて違いが見えなかったので、左にはみ出させた。
+
+**入力欄の見本が禁止の印になる → シミュレータで撮る。** TextField・SecureField・TextEditor（UIKit で描く入力欄）は、`ImageRenderer` では黄色の地に赤い禁止の印で描かれる。エラーにはならないので、5 章の ScrollView と同じく、一時的な UI テストで詳細画面を撮って見る。
+
+**入力した値を持つ見本 → `TextInputDemo` に包む。** `build` の中では `@State` を持てないので、`TextInputDemo("") { text in TextField("名前", text: text) }` のように、値を持つ入れ物（`Catalog/TextInputAndOutput/TextInputDemo.swift`）から Binding を受け取る。String でも AttributedString でも使える。
+
+**公式の要約と URL → リファレンスの JSON で確かめる。** `https://developer.apple.com/tutorials/data/documentation/swiftui/<トピックの slug>.json` の `references` に、記号ごとの URL と要約（`abstract`）がある。OS ごとに同じ名前の記号があるもの（`textContentType(_:)`）は、素の URL が macOS 版のことがあるので、iOS 版の URL（`textcontenttype(_:)-ufdv`）を使う。
+
+**効き目が出るか怪しいもの → 公式の説明と試作で確かめてから `.note` にする。** 束 2 では、公式に「visionOS で効く」「macOS・Mac Catalyst で効く」とあるもの（`searchDictationBehavior`・`writingToolsAffordanceVisibility`）、iOS 27.0 の iPhone で試して変わらなかったもの（`textInputBorderShape`）、Mac のキーボード操作で効くもの（`typeSelectEquivalent`）の 4 件を `.note` にした。
+
+**入力欄の枠 → `.textFieldStyle(.bordered)`。** iOS 27 の SDK では、`.roundedBorder` が `.bordered` と `textInputBorderShape(.roundedRectangle)` に置き換える予定になっている。
+
+**コードの頭に説明のコメントを置きたい → `prefix` にコメントの行を書き、`indent: 0` にする。** `prefix` があると呼び出しは 4 桁下がる（入れ物の中に置く前提のため）。コメントだけなら入れ物ではないので、`indent: 0` で頭をそろえる（`TextRendererEntry.swift`・`TextInputFormattingControlVisibilityEntry.swift`）。
+
+**違いが幅に左右されるもの → 幅を刻んで描き比べる。** `allowsTightening` は、詰めれば収まり、付けなければ省かれる幅でないと違いが見えない。一時的なテストで幅を 2 ずつ変えて描き、206 に決めた。
 
 ## 用語
 

@@ -54,6 +54,19 @@ final class LaunchUITests: XCTestCase {
         }
     }
 
+    @MainActor
+    func testTextEntriesShowPreview() {
+        let editor = openDetail(searching: "TextEditor", entryID: "TextEditor", title: "TextEditor")
+        attachScreenshot(editor, name: "TextEditor")
+        editor.terminate()
+        let field = openDetail(searching: "keyboardType", entryID: "keyboardType", title: ".keyboardType")
+        field.textFields.firstMatch.tap()
+        // ハードウェアキーボードをつないだシミュレータでは出ないので、出るのを待つだけにする
+        _ = field.keyboards.firstMatch.waitForExistence(timeout: 5)
+        attachScreenshot(field, name: "keyboardType")
+        field.terminate()
+    }
+
     /// 起動して、検索の結果から詳細を開く
     @MainActor
     private func openDetail(searching text: String, entryID: String, title: String) -> XCUIApplication {
