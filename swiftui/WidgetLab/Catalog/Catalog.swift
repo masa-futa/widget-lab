@@ -48,5 +48,12 @@ nonisolated enum Catalog {
         .slider,
         .stepper,
         .toggle,
+        .picker,
+        .datePicker,
+        .multiDatePicker,
+        .colorPicker,
+        .gauge,
+        .progressView,
+        .contentUnavailableView,
     ]
 }
