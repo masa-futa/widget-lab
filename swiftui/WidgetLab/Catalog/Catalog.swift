@@ -68,5 +68,12 @@ nonisolated enum Catalog {
         .aspectRatio,
         .rotationEffect,
         .rotation3DEffect,
+        .transformEffect,
+        .projectionEffect,
+        .mask,
+        .clipped,
+        .clipShape,
+        .blur,
+        .shadow,
     ]
 }
