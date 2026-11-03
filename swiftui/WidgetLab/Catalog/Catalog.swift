@@ -67,5 +67,11 @@ nonisolated enum Catalog {
         .baselineOffset,
         .kerning,
         .tracking,
+        .flipsForRightToLeftLayoutDirection,
+        .textRenderer,
+        .lineLimit,
+        .lineSpacing,
+        .multilineTextAlignment,
+        .typesettingLanguage,
     ]
 }
