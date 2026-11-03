@@ -23,6 +23,7 @@ nonisolated extension CatalogEntry {
                 "            .onDelete { items.remove(atOffsets: $0) }",
                 "    }",
                 "}",
+                ".environment(\\.editMode, $editMode)",
             ]),
         build: { v in
             AnyView(
@@ -40,6 +41,8 @@ private struct EditButtonDemo: View {
     let style: Style?
     let tint: Color?
     @State private var items = ["りんご", "みかん", "ぶどう"]
+    /// 編集モードをこの見本の中だけに持つ（詳細画面の NavigationStack の編集モードを切り替えないように）
+    @State private var editMode = EditMode.inactive
 
     var body: some View {
         VStack {
@@ -57,5 +60,6 @@ private struct EditButtonDemo: View {
                     .onDelete { items.remove(atOffsets: $0) }
             }
         }
+        .environment(\.editMode, $editMode)
     }
 }

@@ -43,6 +43,8 @@ private struct MultiDatePickerDemo: View {
             }
             .frame(maxWidth: 320)
         }
+        // 最後の週が、プレビューの右下の「比べる」に隠れないようにする
+        .contentMargins(.bottom, 60, for: .scrollContent)
     }
 
     @ViewBuilder

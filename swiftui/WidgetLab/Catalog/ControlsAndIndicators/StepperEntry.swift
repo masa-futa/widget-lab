@@ -5,7 +5,7 @@ nonisolated extension CatalogEntry {
         id: "Stepper",
         kind: .view,
         topic: .controlsAndIndicators,
-        summary: "＋と−のボタンで、値を 1 刻みずつ増やしたり減らしたりするコントロール。",
+        summary: "＋と−のボタンで、値を増やしたり減らしたりするコントロール。",
         docURL: URL(string: "https://developer.apple.com/documentation/swiftui/stepper")!,
         stage: .card,
         properties: [

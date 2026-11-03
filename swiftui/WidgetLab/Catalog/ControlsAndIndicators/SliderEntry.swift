@@ -40,6 +40,8 @@ private struct SliderDemo: View {
                 .monospacedDigit()
         }
         .frame(width: 260)
+        // 範囲を狭めたとき、値を範囲の中に入れ直す（表示の数字がつまみの位置と食い違わないように）
+        .onChange(of: range, initial: true) { volume = min(max(volume, range.lowerBound), range.upperBound) }
     }
 
     @ViewBuilder

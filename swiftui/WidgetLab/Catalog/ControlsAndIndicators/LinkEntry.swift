@@ -17,7 +17,7 @@ nonisolated extension CatalogEntry {
                 "buttonStyle",
                 .choice([Choice(".automatic"), Choice(".bordered"), Choice(".borderedProminent")], initial: 1),
                 summary: "見た目のスタイル。ボタンと同じスタイルが使える"),
-            .modifier("tint", .color(initial: 5), on: true, summary: "文字の色"),
+            .modifier("tint", .color(initial: 5), on: true, summary: "強調の色（文字、.borderedProminent なら地の色）"),
         ],
         code: CodeTemplate(call: "Link"),
         build: { v in

@@ -79,7 +79,7 @@ nonisolated extension CatalogEntry {
 
 `.note` にしたくなっても、まず枠の中で見せる方法を探す。束 1 の `ignoresSafeArea` は、親に `.safeAreaPadding(.vertical, 40)` をかけて安全な領域を作り、`.card` で見せられた。`.note` が全体の 1 割を超えたら ADR-0002 を見直す約束になっている。
 
-**`.full` はまだ動かない（2026-11-03 時点）。** 型にはあるが、詳細画面の「試す」から全画面で開く仕組みを作っていない。今は `.card` と同じく枠の中に描かれる。仕組みは束 7（画面の行き来）で作る。束 3 では、表示の単位（presentation）ぜんたいに効く modifier（`preferredColorScheme`・`statusBarHidden`・`persistentSystemOverlays`）を、仕組みより先に `.full` にした（2026-11-03 オーナーが決定）。`.card` にすると一覧の行の見本からも効いてしまい（行が見えただけでアプリ全体が暗くなる）、押し込んだ詳細画面からではステータスバーが消えないため。
+**`.full` はまだ動かない（2026-11-03 時点）。** 型にはあるが、詳細画面の「試す」から全画面で開く仕組みを作っていない。今は `.card` と同じく枠の中に描かれる。仕組みは束 7（画面の行き来）で作る。束 3 では、表示の単位（presentation）ぜんたいに効く modifier（`preferredColorScheme`・`statusBarHidden`・`persistentSystemOverlays`）を、仕組みより先に `.full` にした（2026-11-03 オーナーが決定）。`.card` にすると一覧の行の見本からも効いてしまい（行が見えただけでアプリ全体が暗くなる）、押し込んだ詳細画面からではステータスバーが消えないため。仕組みができるまでは、比べるで付けた側の効き目が画面全体にかかり（`preferredColorScheme` は左右とも暗くなる）、`statusBarHidden`・`persistentSystemOverlays` は効き目が見えない。
 
 ## 4. 形は 3 つ。modifier を消して比べたいなら「付け外し」
 
@@ -155,6 +155,8 @@ modifier と suffix の字下げは、呼び出しで決まる。呼び出しが
 **画面ぜんたいに効く modifier がある → `.full` にする。** `.card` の見本は一覧の行でも組み立てるので、表示の単位に効くもの（`preferredColorScheme` など）は、行が見えただけで効いてしまう（3 章）。
 
 **クロージャを渡す modifier を付け外ししたい → ラベル付きの引数にクロージャごと書く。** `CodeGenerator` は modifier を末尾のクロージャの形では書けないので、`.onAppear(perform: { … })`・`.contextMenu(menuItems: { … })` の形にする。`task` のように、引数の組でやり直すきっかけが変わるものは、`Choice("count が変わるたび", code: "id: count, { await load(count) }")` のように組で選ぶ。
+
+**見本の View を Equatable にする → `nonisolated struct` にする。** 既定の分離が MainActor だと、Equatable への準拠も MainActor に閉じ、SwiftUI が `==` を使わない（`equatable` の見本で、付けた側も毎回描き直された）。念のため、`@Environment(\.demoRecorder)` も読まず、記録の窓口は親から引く（`EquatableEntry.swift` の `recorders`）。
 
 **テストが何分も進まない → 最初のビルドとシミュレータの複製を待つ。** 試作では 5〜10 分かかったが、テストそのものは数秒だった。本当に止まったときは `pkill -f "xcodebuild test"` → `xcrun simctl shutdown all` → もう一度。それでも止まるなら `-parallel-testing-enabled NO` を付ける。
 

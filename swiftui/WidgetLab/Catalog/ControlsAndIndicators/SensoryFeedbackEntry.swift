@@ -5,7 +5,7 @@ nonisolated extension CatalogEntry {
         id: "sensoryFeedback",
         kind: .modifier,
         topic: .controlsAndIndicators,
-        summary: "trigger の値が変わるたびに、触覚（と音）のフィードバックを鳴らす modifier。実機で震える。シミュレータでは震えない。",
+        summary: "trigger の値が変わるたびに、触覚のフィードバックを鳴らす modifier。実機で震える。シミュレータでは震えない。",
         docURL: URL(string: "https://developer.apple.com/documentation/swiftui/view/sensoryfeedback(_:trigger:)")!,
         stage: .behavior,
         properties: [

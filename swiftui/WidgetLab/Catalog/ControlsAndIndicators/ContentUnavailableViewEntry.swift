@@ -14,7 +14,7 @@ nonisolated extension CatalogEntry {
                 "systemImage",
                 .choice([Choice("\"tray\""), Choice("\"magnifyingglass\""), Choice("\"wifi.slash\"")], initial: 0),
                 required: true, summary: "SF Symbols のアイコンの名前"),
-            .argument("description", .fixed(code: "Text(\"右上の + で足せます\")"), on: true, summary: "見出しの下の説明"),
+            .argument("description", .fixed(code: "Text(\"項目を足すと、ここに並びます\")"), on: true, summary: "見出しの下の説明"),
         ],
         code: CodeTemplate(call: "ContentUnavailableView"),
         build: { v in
@@ -22,7 +22,7 @@ nonisolated extension CatalogEntry {
                 ContentUnavailableView(
                     v.text("title") ?? "",
                     systemImage: v.pick("systemImage", from: ["tray", "magnifyingglass", "wifi.slash"]) ?? "tray",
-                    description: v["description"] != nil ? Text("右上の + で足せます") : nil)
+                    description: v["description"] != nil ? Text("項目を足すと、ここに並びます") : nil)
             )
         }
     )
