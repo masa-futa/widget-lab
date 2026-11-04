@@ -311,5 +311,10 @@ nonisolated enum Catalog {
         .toolbarRole,
         .toolbarColorScheme,
         .toolbarBackground,
+        .toolbarTitleDisplayMode,
+        .toolbarTitleMenu,
+        .toolbarMinimizationBehavior,
+        .toolbarMinimizationRestoration,
+        .toolbarMinimizationSafeAreaAdjustment,
     ]
 }
