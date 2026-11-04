@@ -204,5 +204,10 @@ nonisolated enum Catalog {
         .transition,
         .contentTransition,
         .transaction,
+        .matchedGeometryEffect,
+        .namespace,
+        .geometryGroup,
+        .matchedTransitionSource,
+        .navigationTransition,
     ]
 }

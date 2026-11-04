@@ -75,7 +75,7 @@ nonisolated extension CatalogEntry {
 | `.note(reason:)` | アプリの 1 画面の中で、効き目を見ることも触ることもできないもの | なし |
 | `.full` | 全画面・sheet で開くもの | なし |
 
-**`.note` の基準**は、アプリ拡張の中で効くもの、iOS では効かない窓の modifier、外の仕組み（Core Data など）が要るもの。理由には使う場所を一言入れる（例: 「ウィジェットの中で効く」）。`.note` は `build` を書かない初期化（`noteReason:` を渡すもの）で書ける。チップとコードはふつうに動く。迷ったら束の計画で 1 件ずつ決める。束 4 では `materialActiveAppearance` を `.note` にした（iOS では `.inactive` が使えず、窓もいつも手前にあるので、見た目が変わらない）。
+**`.note` の基準**は、アプリ拡張の中で効くもの、iOS では効かない窓の modifier、外の仕組み（Core Data など）が要るもの。理由には使う場所を一言入れる（例: 「ウィジェットの中で効く」）。`.note` は `build` を書かない初期化（`noteReason:` を渡すもの）で書ける。チップとコードはふつうに動く。迷ったら束の計画で 1 件ずつ決める。束 4 では `materialActiveAppearance` を `.note` にした（iOS では `.inactive` が使えず、窓もいつも手前にあるので、見た目が変わらない）。束 5 では `textEditorStyle`・`tableStyle` を `.note` にした（iPhone では選べる既製のスタイルがどれも同じ見た目になり、`TextEditorStyleConfiguration` は中身を渡さないので自作のスタイルも作れない）。
 
 `.note` にしたくなっても、まず枠の中で見せる方法を探す。束 1 の `ignoresSafeArea` は、親に `.safeAreaPadding(.vertical, 40)` をかけて安全な領域を作り、`.card` で見せられた。`.note` が全体の 1 割を超えたら ADR-0002 を見直す約束になっている。
 
@@ -105,7 +105,7 @@ modifier の収録は、まず「引数」の形を考える。引数がどれ�
 
 `CatalogTests` の `buildsAllCombinations` が、全件を全部 OFF・全部 ON・選択肢ごとに組み立て、`.card` と `.behavior` は `ImageRenderer` で描く。id と Manifest の一致、チップの名前の重なり、required の引数に兄弟があるか、1 つの行の鍵に違う modifier の名前が混ざっていないかも見ている。だから収録ごとのテストは書かない。新しい型の使い方を足したときだけ `CodeGeneratorTests` に足す。
 
-ただし `ImageRenderer` は、ScrollView・List・Form・GroupBox・ControlGroup を白く描き、UIKit で描くコントロール（Toggle・Slider・Stepper・Picker・DatePicker・ColorPicker・Menu など）を黄色の地に禁止の印で描く。エラーにはならないので、テストが通っても見た目は確かめられていない。これらは一時的な UI テストで詳細画面を撮って見る。束の終わりには、代表の 1〜2 件を撮る UI テストを残す（束 1 は `testLayoutEntriesShowPreview`、束 2 は `testTextEntriesShowPreview`、束 3 は `testControlEntriesShowPreview`、束 4 は `testDrawingEntriesShowPreview`）。
+ただし `ImageRenderer` は、ScrollView・List・Form・GroupBox・ControlGroup を白く描き、UIKit で描くコントロール（Toggle・Slider・Stepper・Picker・DatePicker・ColorPicker・Menu など）を黄色の地に禁止の印で描く。エラーにはならないので、テストが通っても見た目は確かめられていない。これらは一時的な UI テストで詳細画面を撮って見る。束の終わりには、代表の 1〜2 件を撮る UI テストを残す（束 1 は `testLayoutEntriesShowPreview`、束 2 は `testTextEntriesShowPreview`、束 3 は `testControlEntriesShowPreview`、束 4 は `testDrawingEntriesShowPreview`、束 5 は `testStyleEntriesShowPreview`）。
 
 撮った画像は `xcrun xcresulttool export attachments --path <最新の build/Logs/Test/*.xcresult> --output-path build/shots` で取り出せる。名前と画像のファイルの対応は `build/shots/manifest.json` にある。
 
@@ -186,6 +186,14 @@ modifier と suffix の字下げは、呼び出しで決まる。呼び出しが
 
 **違いが幅に左右されるもの → 幅を刻んで描き比べる。** `allowsTightening` は、詰めれば収まり、付けなければ省かれる幅でないと違いが見えない。一時的なテストで幅を 2 ずつ変えて描き、206 に決めた。
 
+**既製のスタイルが `.automatic` だけ → 自作のスタイルと比べる。** `disclosureGroupStyle`・`groupBoxStyle`・`labeledContentStyle` は、iOS の既製のスタイルが `.automatic` しかない。選択肢を `.automatic` と `Choice("自作", code: "TintedGroupBoxStyle()")` にし、自作のスタイルの struct を `closing` に空の行をはさんで書く（コードに定義まで出る）。見本の側では同じ名前の `private struct` を使う。
+
+**アニメーションの見本 → 値と動かすボタンを、見本の `private struct` に持たせる。** `build` の中では `@State` を持てないので、`AnimationDemo` のように struct に `@State` とボタンを置く。コードはボタンまで書く（`closing` に `Button(…)` と `}`）。テストの画像では動きが見えないので、一時的な UI テストでボタンを押して 0.4〜0.5 秒後に撮る。比べるは左右で 2 つの見本が重なり、途中の見た目が読みにくいので、チップの「付ける」を切って片方ずつ撮る。
+
+**ネットから読む見本 → 端末の一時フォルダに書いたファイルの URL を渡す。** アプリはオフラインで動くので、`AsyncImage` は `AsyncImageDemo` が `ImageRenderer` で書き出した PNG の file URL を読む。コードには `https://example.com/…` と書き、要約にそのことを書く。
+
+**UI テストで編集パネルの選択肢を押す → 名前（label）で探す。** 選択肢は `staticTexts[".automatic"]` では見つからない。`app.descendants(matching: .any).matching(NSPredicate(format: "label == %@", ".automatic")).firstMatch` で押す。チップを OFF にするのは、`app.buttons["chip-<id>"]` を押してから `app.switches["editor-on"]` を押す。
+
 ## 用語
 
 - **収録**: 1 つの API（View・modifier・プロパティラッパー・ジェスチャー）を 1 件として `CatalogEntry` に書いたもの
@@ -196,4 +204,4 @@ modifier と suffix の字下げは、呼び出しで決まる。呼び出しが
 
 この手引きで決まらないことは、束の計画で決め、決めたことをここに足す。型を変える判断は ADR-0002 に書く。
 
-最終更新: 2026-11-04（束 2・3・4 のあと）
+最終更新: 2026-11-04（束 2・3・4・5 のあと）
