@@ -337,5 +337,11 @@ nonisolated enum Catalog {
         .defaultHoverEffect,
         .onContinuousHover,
         .onCameraCaptureEvent,
+        .draggable,
+        .onDrag,
+        .onDrop,
+        .itemProvider,
+        .dragConfiguration,
+        .dropConfiguration,
     ]
 }
