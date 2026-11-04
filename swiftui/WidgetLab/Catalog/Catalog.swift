@@ -392,5 +392,12 @@ nonisolated enum Catalog {
         .accessibilityActivationPoint,
         .accessibilityDragPoint,
         .accessibilityDropPoint,
+        .accessibilityDirectTouch,
+        .accessibilityZoomAction,
+        .accessibilityFocused,
+        .accessibilityFocusState,
+        .accessibilityRespondsToUserInteraction,
+        .accessibilityLabel,
+        .accessibilityInputLabels,
     ]
 }
