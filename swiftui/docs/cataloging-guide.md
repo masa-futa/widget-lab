@@ -77,7 +77,7 @@ nonisolated extension CatalogEntry {
 
 **`.note` の基準**は、アプリ拡張の中で効くもの、iOS では効かない窓の modifier、外の仕組み（Core Data など）が要るもの。理由には使う場所を一言入れる（例: 「ウィジェットの中で効く」）。`.note` は `build` を書かない初期化（`noteReason:` を渡すもの）で書ける。チップとコードはふつうに動く。迷ったら束の計画で 1 件ずつ決める。束 4 では `materialActiveAppearance` を `.note` にした（iOS では `.inactive` が使えず、窓もいつも手前にあるので、見た目が変わらない）。
 
-`.note` にしたくなっても、まず枠の中で見せる方法を探す。束 1 の `ignoresSafeArea` は、親に `.safeAreaPadding(.vertical, 40)` をかけて安全な領域を作り、`.card` で見せられた。`.note` が全体の 1 割を超えたら ADR-0002 を見直す約束になっている。
+`.note` にしたくなっても、まず枠の中で見せる方法を探す。束 1 の `ignoresSafeArea` は、親に `.safeAreaPadding(.vertical, 40)` をかけて安全な領域を作り、`.card` で見せられた。`.note` のうち、iPhone で見せる工夫が足りずに `.note` にしたものが全体の 1 割を超えたら、ADR-0002 を見直す約束になっている。iPhone では効かないと公式か試作で確かめたもの（iPad・Mac・Apple Watch だけで効くもの、アプリ拡張の中で効くもの）は数えない（2026-11-04 束 7 で決定。束 7 の 19 件で、`.note` が全体の 13% になったため）。
 
 **`.full` は、詳細の「試す」から全画面で開く（束 7 で作った）。** 枠には見本を描かず「試す」のボタンだけを出し、押すと見本を画面いっぱいに出す。下の帯の「付けない｜付けた」で、選んでいるプロパティを外した見本に切り替え、「閉じる」で詳細に戻る。値を変えるときは、詳細のチップと編集パネルで変えてから、もう一度「試す」を押す。一覧の行は絵にする。束 3 では、表示の単位（presentation）ぜんたいに効く modifier（`preferredColorScheme`・`statusBarHidden`・`persistentSystemOverlays`）を `.full` にした（2026-11-03 オーナーが決定）。`.card` にすると一覧の行の見本からも効いてしまい（行が見えただけでアプリ全体が暗くなる）、押し込んだ詳細画面からではステータスバーが消えないため。全画面で開けば、その表示の単位でだけ効く。
 
@@ -105,7 +105,7 @@ modifier の収録は、まず「引数」の形を考える。引数がどれ�
 
 `CatalogTests` の `buildsAllCombinations` が、全件を全部 OFF・全部 ON・選択肢ごとに組み立て、`.card` と `.behavior` は `ImageRenderer` で描く。id と Manifest の一致、チップの名前の重なり、required の引数に兄弟があるか、1 つの行の鍵に違う modifier の名前が混ざっていないかも見ている。だから収録ごとのテストは書かない。新しい型の使い方を足したときだけ `CodeGeneratorTests` に足す。
 
-ただし `ImageRenderer` は、ScrollView・List・Form・GroupBox・ControlGroup を白く描き、UIKit で描くコントロール（Toggle・Slider・Stepper・Picker・DatePicker・ColorPicker・Menu など）を黄色の地に禁止の印で描く。エラーにはならないので、テストが通っても見た目は確かめられていない。これらは一時的な UI テストで詳細画面を撮って見る。束の終わりには、代表の 1〜2 件を撮る UI テストを残す（束 1 は `testLayoutEntriesShowPreview`、束 2 は `testTextEntriesShowPreview`、束 3 は `testControlEntriesShowPreview`、束 4 は `testDrawingEntriesShowPreview`）。
+ただし `ImageRenderer` は、ScrollView・List・Form・GroupBox・ControlGroup を白く描き、UIKit で描くコントロール（Toggle・Slider・Stepper・Picker・DatePicker・ColorPicker・Menu など）を黄色の地に禁止の印で描く。エラーにはならないので、テストが通っても見た目は確かめられていない。これらは一時的な UI テストで詳細画面を撮って見る。束の終わりには、代表の 1〜2 件を撮る UI テストを残す（束 1 は `testLayoutEntriesShowPreview`、束 2 は `testTextEntriesShowPreview`、束 3 は `testControlEntriesShowPreview`、束 4 は `testDrawingEntriesShowPreview`、束 7 は `testNavigationEntriesShowPreview`）。
 
 撮った画像は `xcrun xcresulttool export attachments --path <最新の build/Logs/Test/*.xcresult> --output-path build/shots` で取り出せる。名前と画像のファイルの対応は `build/shots/manifest.json` にある。
 
@@ -186,6 +186,16 @@ modifier と suffix の字下げは、呼び出しで決まる。呼び出しが
 
 **違いが幅に左右されるもの → 幅を刻んで描き比べる。** `allowsTightening` は、詰めれば収まり、付けなければ省かれる幅でないと違いが見えない。一時的なテストで幅を 2 ずつ変えて描き、206 に決めた。
 
+**画面を重ねて出すもの → `.card` でボタンから出す。** sheet・alert・popover・fileImporter などは、見本をボタンにすると、押したときに詳細の画面の上に出る。比べるでは、仕切りの右（付けた側）のボタンを押したときだけ出る。シートの中身にかける modifier（`presentationDetents` など）は、`Catalog/ModalPresentations/ModalDemo.swift` の `SheetModifierDemo` で開き、コードは `CodeTemplate.inSheet()`（`Button` → `.sheet {` → 中身の `Text` に modifier）の形にする（束 7）。
+
+**画面の行き来の入れ物 → `.full` にする。** NavigationStack・TabView などを枠の中に描くと、詳細の NavigationStack の中に入れ子になる。全画面で開けば、題名・戻るボタン・タブバーがふつうに出る。中の画面にかける modifier（`navigationTitle` など）も同じ（束 7）。
+
+**iPhone では出ないもの（束 7 で `.note` にした）:** TabView のサイドバー（`defaultTabBarPlacement(.sidebar)` でも、iOS 27.0 の iPhone 18 Pro ではタブバーのまま。サイドバーにかける modifier は見えない）、シートの大きさと置き場所（`presentationSizing`・`presentationPlacement`。iPhone のシートはいつも幅いっぱい）、`dismissalConfirmationDialog`（シートを下げても出なかった）。`sectionActions` は List の Section でも効くので `.card` にした。
+
+**システムのファイルの画面を撮る → 押してから 5 秒ほど待つ。** fileImporter・fileExporter・fileMover の画面は、出るまで数秒かかる。
+
+**`preferredColorScheme` を全画面で試す → 「付けない」に切り替えても暗いまま。** 表示の単位が最後の値を覚えているため。閉じれば詳細は元の見た目に戻る。
+
 ## 用語
 
 - **収録**: 1 つの API（View・modifier・プロパティラッパー・ジェスチャー）を 1 件として `CatalogEntry` に書いたもの
@@ -196,4 +206,4 @@ modifier と suffix の字下げは、呼び出しで決まる。呼び出しが
 
 この手引きで決まらないことは、束の計画で決め、決めたことをここに足す。型を変える判断は ADR-0002 に書く。
 
-最終更新: 2026-11-04（束 2・3・4 のあと）
+最終更新: 2026-11-04（束 7 のあと）

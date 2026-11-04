@@ -213,5 +213,10 @@ nonisolated enum Catalog {
         .fileMover,
         .fileDialogDefaultDirectory,
         .fileDialogBrowserOptions,
+        .fileDialogConfirmationLabel,
+        .fileDialogCustomizationID,
+        .fileDialogImportsUnresolvedAliases,
+        .fileDialogMessage,
+        .fileDialogURLEnabled,
     ]
 }

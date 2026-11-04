@@ -91,6 +91,22 @@ final class LaunchUITests: XCTestCase {
         XCTAssertTrue(app.navigationBars[".statusBarHidden"].waitForExistence(timeout: 5), app.debugDescription)
     }
 
+    @MainActor
+    func testNavigationEntriesShowPreview() {
+        let sheet = openDetail(
+            searching: "presentationDetents", entryID: "presentationDetents", title: ".presentationDetents")
+        sheet.buttons["シートを開く"].tap()
+        XCTAssertTrue(sheet.staticTexts["シートの中身"].waitForExistence(timeout: 5), sheet.debugDescription)
+        attachScreenshot(sheet, name: "presentationDetents")
+        sheet.terminate()
+        let stack = openDetail(searching: "NavigationStack", entryID: "NavigationStack", title: "NavigationStack")
+        stack.buttons["try-full"].tap()
+        stack.buttons["ぶどうの先まで"].tap()
+        XCTAssertTrue(stack.staticTexts["ぶどうの先"].waitForExistence(timeout: 5), stack.debugDescription)
+        attachScreenshot(stack, name: "NavigationStack")
+        stack.terminate()
+    }
+
     /// 起動して、検索の結果から詳細を開く
     @MainActor
     private func openDetail(searching text: String, entryID: String, title: String) -> XCUIApplication {
