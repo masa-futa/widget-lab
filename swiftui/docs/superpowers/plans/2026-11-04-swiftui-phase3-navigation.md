@@ -129,7 +129,7 @@
 | dialogSuppressionToggle | .note | 付け外し | .dialogSuppressionToggle*（固定） | `Button("削除").alert(…) { … }.dialogSuppressionToggle("今後は確かめない", isSuppressed: $suppressed)` |
 | fileExporter | .card | 付け外し | .fileExporter の 6 つの引数（isPresented R・item R・contentTypes*・defaultFilename*・onCompletion R・onCancellation R） | `Button("書き出す") { … }.fileExporter(isPresented: $shows, item: "買い物: 牛乳・卵", contentTypes: [.plainText], defaultFilename: "買い物メモ", onCompletion: { … }, onCancellation: { … })` |
 | fileExporterFilenameLabel | .note | 付け外し | .fileExporterFilenameLabel*（固定） | `Button("書き出す").fileExporter(…) { _ in }.fileExporterFilenameLabel(Text("メモの名前"))` |
-| fileImporter | .card | 付け外し | .fileImporter の 4 つの引数（isPresented R・allowedContentTypes*（3 つ）・allowsMultipleSelection・onCompletion R） | `Button("ファイルを選ぶ") { … }.fileImporter(isPresented: $shows, allowedContentTypes: [.image], onCompletion: { … })` |
+| fileImporter | .card | 付け外し | .fileImporter の 4 つの引数（isPresented R・allowedContentTypes R（3 つ）・allowsMultipleSelection*・onCompletion R） | `Button("ファイルを選ぶ") { … }.fileImporter(isPresented: $shows, allowedContentTypes: [.image], onCompletion: { … })` |
 | fileMover | .card | 付け外し | .fileMover*（固定） | `Button("メモを動かす") { … }.fileMover(isPresented: $shows, file: memoURL, onCompletion: { … })`。押すたびに一時フォルダにファイルを作る |
 | fileDialogBrowserOptions | .note | 付け外し | .fileDialogBrowserOptions*（3 つ） | `Button("ファイルを選ぶ").fileImporter(…) { _ in }.fileDialogBrowserOptions(.includeHiddenFiles)` |
 | fileDialogConfirmationLabel | .note | 付け外し | .fileDialogConfirmationLabel*（文字） | 同じ形で `.fileDialogConfirmationLabel("読み込む")` |
@@ -154,7 +154,8 @@ NavigationStack・NavigationLink・NavigationView・NavigationSplitView・naviga
 
 | id | 理由（`noteReason`） |
 |---|---|
-| defaultAdaptableTabBarPlacement | iPad だけで効く（タブバーとサイドバーを切り替えられるのが iPad だけのため）。iPhone では defaultTabBarPlacement を使う |
+| defaultTabBarPlacement | iOS 27.0 の iPhone 18 Pro で .sidebar にしても、タブバーのままで変わらなかった。Mac・Apple TV・Vision Pro で、サイドバーかタブバーのどちらかに決まるときに効く |
+| defaultAdaptableTabBarPlacement | iPad だけで効く（タブバーとサイドバーを切り替えられるのが iPad だけのため） |
 | tabViewSidebarHeader | iPhone ではタブがサイドバーで出ないので見えない。iPad と Mac で、タブをサイドバーで出しているときに出る |
 | tabViewSidebarFooter | iPhone ではタブがサイドバーで出ないので見えない。iPad と Mac で、タブをサイドバーで出しているときに出る |
 | tabViewSidebarBottomBar | iPhone ではタブがサイドバーで出ないので見えない。iPad と Mac で、タブをサイドバーで出しているときに出る |

@@ -11,7 +11,7 @@ nonisolated extension CatalogEntry {
         properties: [
             .argument(
                 "path", .fixed(code: "$path"), on: true,
-                summary: "積んだ画面の値の配列の Binding。書き換えると、コードから進んだり戻ったりできる"),
+                summary: "積んだ画面の値の配列の Binding。書き換えると、コードから進んだり戻ったりできる（OFF のとき、コードの toolbar の行は使えない。見本ではボタンを消している）"),
             .modifier("tint", .color(initial: 3), summary: "戻るボタンなどの色"),
         ],
         code: CodeTemplate(

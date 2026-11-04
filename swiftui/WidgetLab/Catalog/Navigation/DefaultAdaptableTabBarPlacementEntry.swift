@@ -8,7 +8,7 @@ nonisolated extension CatalogEntry {
         summary: "sidebarAdaptable のタブを、はじめにタブバーとサイドバーのどちらで出すかを決める modifier。タブバーとサイドバーを行き来できる iPad で効く。",
         docURL: URL(
             string: "https://developer.apple.com/documentation/swiftui/view/defaultadaptabletabbarplacement(_:)")!,
-        noteReason: "iPad だけで効く（タブバーとサイドバーを切り替えられるのが iPad だけのため）。iPhone では defaultTabBarPlacement を使う",
+        noteReason: "iPad だけで効く（タブバーとサイドバーを切り替えられるのが iPad だけのため）",
         properties: [
             .modifier(
                 "defaultAdaptableTabBarPlacement",

@@ -174,6 +174,12 @@ private struct FullTrialScreen: View {
             Divider()
             HStack(spacing: 12) {
                 if viewModel.canCompare, let selected = viewModel.selected {
+                    // どのプロパティを切り替えるかを目で見えるようにする（VoiceOver は Picker のラベルで読める）
+                    Text(selected.displayName)
+                        .font(.caption.monospaced())
+                        .foregroundStyle(.secondary)
+                        .lineLimit(1)
+                        .accessibilityHidden(true)
                     Picker(
                         selected.displayName,
                         selection: Binding(get: { viewModel.trialShowsWith }, set: { viewModel.trialShowsWith = $0 })

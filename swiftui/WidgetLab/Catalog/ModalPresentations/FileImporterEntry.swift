@@ -18,11 +18,12 @@ nonisolated extension CatalogEntry {
                 required: true, summary: "出すかどうかの Binding"),
             .modifier(
                 "fileImporter", id: "fileImporter.allowedContentTypes", label: "allowedContentTypes",
-                .choice([Choice("[.item]"), Choice("[.image]"), Choice("[.plainText, .pdf]")], initial: 1), on: true,
+                .choice([Choice("[.item]"), Choice("[.image]"), Choice("[.plainText, .pdf]")], initial: 1),
+                required: true,
                 summary: "選べるファイルの種類。ほかの種類は薄く出て選べない"),
             .modifier(
                 "fileImporter", id: "fileImporter.allowsMultipleSelection", label: "allowsMultipleSelection",
-                .toggle(initial: true), summary: "true なら複数を選べる"),
+                .toggle(initial: true), on: true, summary: "true なら複数を選べる"),
             .modifier(
                 "fileImporter", id: "fileImporter.onCompletion", label: "onCompletion",
                 .fixed(code: "{ result = \"\\($0)\" }"), required: true, summary: "選んだあと（やめたときも）に呼ばれる"),
@@ -48,11 +49,11 @@ private struct FileImporterDemo: View {
         VStack(spacing: 12) {
             Button("ファイルを選ぶ") { shows = true }
                 .buttonStyle(.borderedProminent)
-                // required でない引数（allowedContentTypes・allowsMultipleSelection）がどれも OFF なら、modifier ごと付けない
-                .apply(types != nil || multiple != nil ? () : nil) { view, _ in
+                // required でない引数（allowsMultipleSelection）が OFF なら、modifier ごと付けない
+                .apply(types.flatMap { t in multiple.map { (t, $0) } }) { view, args in
                     view.fileImporter(
-                        isPresented: $shows, allowedContentTypes: types ?? [],
-                        allowsMultipleSelection: multiple ?? false
+                        isPresented: $shows, allowedContentTypes: args.0,
+                        allowsMultipleSelection: args.1
                     ) { outcome in
                         result = (try? outcome.get()).map { "選んだ: \($0.count) 件" } ?? "やめた・失敗した"
                     }

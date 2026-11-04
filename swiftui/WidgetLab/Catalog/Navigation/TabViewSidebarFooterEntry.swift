@@ -5,7 +5,7 @@ nonisolated extension CatalogEntry {
         id: "tabViewSidebarFooter",
         kind: .modifier,
         topic: .navigation,
-        summary: "TabView のサイドバーのタブの後ろに、好きな View を足す modifier。 サイドバーを出しているときだけ見える。",
+        summary: "TabView のサイドバーのタブの後ろに、好きな View を足す modifier。サイドバーを出しているときだけ見える。",
         docURL: URL(string: "https://developer.apple.com/documentation/swiftui/view/tabviewsidebarfooter(content:)")!,
         noteReason: "iPhone ではタブがサイドバーで出ないので見えない。iPad と Mac で、タブをサイドバーで出しているときに出る",
         properties: [

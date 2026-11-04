@@ -14,7 +14,7 @@ nonisolated extension CatalogEntry {
         code: CodeTemplate(
             prefix: ["NavigationStack {"], call: "List(fruits, id: \\.self)",
             trailing: " { NavigationLink($0, value: $0) }",
-            closing: ["}"]),
+            suffix: [".navigationDestination(for: String.self) { Text($0) }"], closing: ["}"]),
         build: { v in
             AnyView(FruitStack { $0.apply(v.text("navigationTitle")) { $0.navigationTitle($1) } })
         }

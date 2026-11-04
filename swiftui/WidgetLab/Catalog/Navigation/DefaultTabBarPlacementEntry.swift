@@ -5,7 +5,7 @@ nonisolated extension CatalogEntry {
         id: "defaultTabBarPlacement",
         kind: .modifier,
         topic: .navigation,
-        summary: "sidebarAdaptable のタブを、タブバーとサイドバーのどちらで出すかを決める modifier。iPhone のように、片方しか出せないところで効く。",
+        summary: "sidebarAdaptable のタブを、タブバーとサイドバーのどちらで出すかを決める modifier。Mac・Apple TV・Vision Pro のように、片方しか出せないところで効く。",
         docURL: URL(string: "https://developer.apple.com/documentation/swiftui/view/defaulttabbarplacement(_:)")!,
         noteReason:
             "iOS 27.0 の iPhone 18 Pro で .sidebar にしても、タブバーのままで変わらなかった。Mac・Apple TV・Vision Pro で、サイドバーかタブバーのどちらかに決まるときに効く",
@@ -13,7 +13,7 @@ nonisolated extension CatalogEntry {
             .modifier(
                 "defaultTabBarPlacement",
                 .choice([Choice(".automatic"), Choice(".tabBar"), Choice(".sidebar")], initial: 2),
-                on: true, summary: "タブの出し方。.sidebar なら iPhone でもサイドバーで出す")
+                on: true, summary: "タブの出し方")
         ],
         code: CodeTemplate(
             call: "TabView",

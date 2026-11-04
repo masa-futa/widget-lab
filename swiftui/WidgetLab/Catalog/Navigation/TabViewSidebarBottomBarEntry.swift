@@ -5,7 +5,7 @@ nonisolated extension CatalogEntry {
         id: "tabViewSidebarBottomBar",
         kind: .modifier,
         topic: .navigation,
-        summary: "TabView のサイドバーのいちばん下に、スクロールしないバーを足す modifier。 サイドバーを出しているときだけ見える。",
+        summary: "TabView のサイドバーのいちばん下に、スクロールしないバーを足す modifier。サイドバーを出しているときだけ見える。",
         docURL: URL(
             string: "https://developer.apple.com/documentation/swiftui/view/tabviewsidebarbottombar(content:)")!,
         noteReason: "iPhone ではタブがサイドバーで出ないので見えない。iPad と Mac で、タブをサイドバーで出しているときに出る",

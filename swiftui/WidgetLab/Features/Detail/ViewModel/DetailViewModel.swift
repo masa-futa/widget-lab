@@ -111,12 +111,12 @@ final class DetailViewModel {
         return (without, with)
     }
 
-    /// 全画面で試すときに渡す値。付けない側なら、選んでいるプロパティだけ外す
+    /// 全画面で試すときに渡す値。付けた側は選んでいるプロパティを付け、付けない側は外す（ほかは今の値）
     var trialValues: PropertyValues {
-        guard !trialShowsWith, canCompare, let id = selectedID else { return current }
-        var values = current
-        values[id] = nil
-        return values
+        guard canCompare, let id = selectedID else { return current }
+        var trial = current
+        trial[id] = trialShowsWith ? values[id] : nil
+        return trial
     }
 
     /// チップに出す今の値（OFF なら "OFF"）

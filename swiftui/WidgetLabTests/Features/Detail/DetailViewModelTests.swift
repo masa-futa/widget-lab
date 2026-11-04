@@ -221,4 +221,14 @@ struct DetailViewModelTests {
         viewModel.trialShowsWith = false
         #expect(viewModel.trialValues == viewModel.current)
     }
+
+    @Test func fullTrialWithSideTurnsOnSelectedPropertyThatIsOff() {
+        let viewModel = DetailViewModel(entry: .navigationLink, clipboard: clipboard)
+        viewModel.selectedID = "disabled"
+        #expect(viewModel.current["disabled"] == nil)
+        viewModel.trialShowsWith = true
+        #expect(viewModel.trialValues["disabled"] != nil)
+        viewModel.trialShowsWith = false
+        #expect(viewModel.trialValues["disabled"] == nil)
+    }
 }
