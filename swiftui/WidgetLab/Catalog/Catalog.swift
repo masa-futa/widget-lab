@@ -377,5 +377,13 @@ nonisolated enum Catalog {
         .copyable,
         .cuttable,
         .pasteDestination,
+        .accessibilityElement,
+        .accessibilityChildren,
+        .accessibilityRepresentation,
+        .accessibilityIdentifier,
+        .accessibilityHidden,
+        .accessibilityIgnoresInvertColors,
+        .accessibilityShowsLargeContentViewer,
+        .assistiveAccessNavigationIcon,
     ]
 }
