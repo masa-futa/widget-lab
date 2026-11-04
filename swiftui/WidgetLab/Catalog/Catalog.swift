@@ -198,5 +198,13 @@ nonisolated enum Catalog {
         .presentationPlacement,
         .presentationCornerRadius,
         .presentationBackground,
+        .presentationBackgroundInteraction,
+        .interactiveDismissDisabled,
+        .alert,
+        .confirmationDialog,
+        .dismissalConfirmationDialog,
+        .dialogIcon,
+        .dialogSuppressionToggle,
+        .inspector,
     ]
 }
