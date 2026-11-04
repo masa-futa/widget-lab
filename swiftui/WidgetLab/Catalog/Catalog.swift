@@ -183,5 +183,12 @@ nonisolated enum Catalog {
         .textFieldStyle,
         .textEditorStyle,
         .listStyle,
+        .tableStyle,
+        .disclosureGroupStyle,
+        .controlGroupStyle,
+        .formStyle,
+        .groupBoxStyle,
+        .indexViewStyle,
+        .labeledContentStyle,
     ]
 }
