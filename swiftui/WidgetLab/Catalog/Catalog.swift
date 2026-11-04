@@ -304,5 +304,11 @@ nonisolated enum Catalog {
         .fileDialogImportsUnresolvedAliases,
         .fileDialogMessage,
         .fileDialogURLEnabled,
+        .stateObject,
+        .observedObject,
+        .onChange,
+        .onReceive,
+        .environmentObject,
+        .environmentObjectWrapper,
     ]
 }
