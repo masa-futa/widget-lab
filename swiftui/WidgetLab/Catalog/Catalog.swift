@@ -406,5 +406,11 @@ nonisolated enum Catalog {
         .accessibilityChartDescriptor,
         .accessibilityCustomContent,
         .accessibilityAddTraits,
+        .accessibilityRemoveTraits,
+        .accessibilityHint,
+        .speechAdjustedPitch,
+        .speechAlwaysIncludesPunctuation,
+        .speechAnnouncementsQueued,
+        .speechSpellsOutCharacters,
     ]
 }
