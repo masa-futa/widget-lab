@@ -16,6 +16,12 @@ struct CatalogTests {
         }
     }
 
+    @Test func everyManifestEntryIsCataloged() {
+        let cataloged = Set(Catalog.all.map(\.id))
+        let missing = Manifest.entries.map(\.id).filter { !cataloged.contains($0) }
+        #expect(missing.isEmpty, "Catalog.all にない Manifest の id（収録の抜け）: \(missing.joined(separator: ", "))")
+    }
+
     @Test func propertyIDsAreUniqueInEachEntry() {
         for entry in Catalog.all {
             let ids = entry.properties.map(\.id)
