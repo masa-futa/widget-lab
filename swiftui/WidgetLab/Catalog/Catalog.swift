@@ -203,5 +203,12 @@ nonisolated enum Catalog {
         .scrollTransition,
         .onScrollGeometryChange,
         .onScrollTargetVisibilityChange,
+        .onScrollVisibilityChange,
+        .onScrollPhaseChange,
+        .scrollIndicatorsFlash,
+        .scrollIndicators,
+        .scrollContentBackground,
+        .scrollClipDisabled,
+        .scrollDisabled,
     ]
 }
