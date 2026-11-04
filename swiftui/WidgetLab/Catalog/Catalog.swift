@@ -325,5 +325,11 @@ nonisolated enum Catalog {
         .handGestureShortcut,
         .onPencilDoubleTap,
         .onPencilSqueeze,
+        .onKeyPress,
+        .keyboardShortcut,
+        .onSubmit,
+        .submitScope,
+        .submitLabel,
+        .contentShape,
     ]
 }
