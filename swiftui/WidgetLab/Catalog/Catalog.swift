@@ -176,5 +176,12 @@ nonisolated enum Catalog {
         .navigationTitle,
         .navigationSubtitle,
         .navigationDocument,
+        .navigationBarBackButtonHidden,
+        .navigationBarTitleDisplayMode,
+        .tabView,
+        .tabBarMinimizeBehavior,
+        .defaultTabBarPlacement,
+        .defaultAdaptableTabBarPlacement,
+        .sectionActions,
     ]
 }
