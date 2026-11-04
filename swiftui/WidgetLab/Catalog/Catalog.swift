@@ -331,5 +331,11 @@ nonisolated enum Catalog {
         .submitScope,
         .submitLabel,
         .contentShape,
+        .onHover,
+        .hoverEffect,
+        .hoverEffectDisabled,
+        .defaultHoverEffect,
+        .onContinuousHover,
+        .onCameraCaptureEvent,
     ]
 }
