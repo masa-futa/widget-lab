@@ -196,5 +196,12 @@ nonisolated enum Catalog {
         .tableColumnHeaders,
         .scrollView,
         .scrollViewReader,
+        .scrollPosition,
+        .defaultScrollAnchor,
+        .scrollTargetBehavior,
+        .scrollTargetLayout,
+        .scrollTransition,
+        .onScrollGeometryChange,
+        .onScrollTargetVisibilityChange,
     ]
 }
