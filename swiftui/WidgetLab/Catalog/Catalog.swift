@@ -324,5 +324,12 @@ nonisolated enum Catalog {
         .findNavigator,
         .findDisabled,
         .replaceDisabled,
+        .uiApplicationDelegateAdaptor,
+        .sceneAccessory,
+        .windowToolbarFullScreenVisibility,
+        .allowsWindowActivationEvents,
+        .documentLaunchView,
+        .newDocumentButton,
+        .renameButton,
     ]
 }
