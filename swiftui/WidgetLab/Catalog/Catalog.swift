@@ -318,5 +318,12 @@ nonisolated enum Catalog {
         .sceneStorage,
         .fetchRequest,
         .sectionedFetchRequest,
+        .preference,
+        .transformPreference,
+        .anchorPreference,
+        .transformAnchorPreference,
+        .onPreferenceChange,
+        .backgroundPreferenceValue,
+        .overlayPreferenceValue,
     ]
 }
