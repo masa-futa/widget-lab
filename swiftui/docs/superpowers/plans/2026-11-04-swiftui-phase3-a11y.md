@@ -2,7 +2,7 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** accessibility-fundamentals・accessible-appearance・accessible-controls・accessible-descriptions・accessible-navigation の 39 件を収録して、5 トピックの抜けを 0 にする。
+**Goal:** accessibility-fundamentals・accessible-appearance・accessible-controls・accessible-descriptions・accessible-navigation の 39 件を収録して、5 トピックの抜けを 0 にする。main（束 10 までマージ済み）を取り込み、「抜け 0」を `CatalogTests` の条件にする（spec の「束 11 で」）。
 
 **Architecture:** 1 件 = 1 ファイルの収録データを 4〜8 件ずつ足し、`Catalog.all` に並べる。収録の型（`WidgetLab/Catalog/Model/`）と `CodeGenerator`、詳細画面は変えない。VoiceOver などの支援技術がないと効き目が見えないので、見本の下に「支援技術に渡る中身」の札（`A11yDemo`）を出す。札は見本に渡したのと同じ値から書き、中身は試作で UI テストのアクセシビリティの木と突き合わせた。stage は `.card` が 38 件、`.note` が 1 件。
 
@@ -2914,15 +2914,85 @@ accessibilityRotor・accessibilityRotorEntry・accessibilityLinkedGroup・access
 Co-Authored-By: Claude <実装したモデルの名前> <noreply@anthropic.com>"
 ```
 
+### Task 7: main を取り込み、「抜け 0」をテストの条件にする
+
+計画を書いた時点では束 10 が main に入っておらず、このテストは足さない予定だった。作業中に束 10（`cf73ae0`）が main にマージされ、main で抜けているのがこの束の 39 件だけになったので、オーナーの判断（2026-11-04）でこの束で足す。
+
+**Files:**
+- Modify: `WidgetLabTests/Catalog/CatalogTests.swift`（テストを 1 本足す）
+- Modify: `docs/cataloging-guide.md`（5 章の 1 か所）
+- Merge: `main` をこのブランチに取り込む（ぶつかったファイルを直す）
+
+**Interfaces:**
+- Consumes: `Catalog.all`・`Manifest.entries`（どちらも今のまま）
+- Produces: `CatalogTests.everyManifestEntryIsCataloged()`
+
+- [ ] **Step 1: 失敗するテストを書く**
+
+`WidgetLabTests/Catalog/CatalogTests.swift` の `idsAreUniqueAndListedInManifestWithSameKindAndTopic()` の閉じ括弧のあと（`propertyIDsAreUniqueInEachEntry()` の前）に、空行を挟んで足す:
+
+```swift
+    @Test func everyManifestEntryIsCataloged() {
+        let cataloged = Set(Catalog.all.map(\.id))
+        let missing = Manifest.entries.map(\.id).filter { !cataloged.contains($0) }
+        #expect(missing.isEmpty, "Catalog.all にない Manifest の id（収録の抜け）: \(missing.joined(separator: ", "))")
+    }
+```
+
+- [ ] **Step 2: 失敗することを確かめる**
+
+Run: Global Constraints の確かめのコマンドの `-only-testing:WidgetLabTests` を `-only-testing:WidgetLabTests/CatalogTests/everyManifestEntryIsCataloged` に変えたもの
+Expected: 失敗する。メッセージに束 10 の id（`DragGesture`・`onDrop` など 43 件）が並ぶ（このブランチには束 10 がまだないため）
+
+- [ ] **Step 3: テストをコミットし、main を取り込む**
+
+```bash
+git add WidgetLabTests/Catalog/CatalogTests.swift
+git commit -m "test: Manifest の全件が収録されていること（抜け 0）を CatalogTests の条件にする
+
+Co-Authored-By: Claude <実装したモデルの名前> <noreply@anthropic.com>"
+git merge --no-ff main -m "Merge branch 'main' into feat/swiftui-p3-a11y: 束 10 を取り込む"
+```
+
+ぶつかったら、両方の行を残して直す:
+- `WidgetLab/Catalog/Catalog.swift`: `all` の最後に、main の側（束 10）の行を先に、この束の 39 行をあとに並べる。1 行に 1 件
+- `docs/architecture.md`: `WidgetLabUITests/` の行の並びに「入力」と「アクセシビリティ」の両方を残し、本数は main の本数に 1 を足す
+- `docs/cataloging-guide.md`: 5 章の UI テストの並びに両方の束を残す。7 章の段落は両方を残す（main の段落が先）。最後の「最終更新」の行は、括弧の中に両方の束の番号を入れる
+- `WidgetLabUITests/LaunchUITests.swift`: 両方のテストの関数を残す
+
+直したら `git add` で解消を記録し、`git commit --no-edit` でマージを終える
+
+- [ ] **Step 4: 手引きに書く**
+
+`docs/cataloging-guide.md` の 5 章の「id と Manifest の一致、」を「id と Manifest の一致、Manifest の全件が `Catalog.all` にあること（抜け 0。束 11 から）、」に置き換える（ほかの行は変えない）
+
+- [ ] **Step 5: 通ることを確かめる**
+
+Run: `xcrun swift-format format -i -r WidgetLab WidgetLabTests WidgetLabUITests` のあと、Global Constraints の確かめのコマンドから `-only-testing:WidgetLabTests` を外したもの（UI テストまで）
+Expected: lint は何も出さない。道具のテストは `OK`。`result` が `Passed`、`failedTests` が 0（`everyManifestEntryIsCataloged` も通る）
+
+Run: `python3 tools/catalog_progress.py`
+Expected: 最後の行が `合計 458 / 458（抜け 0）`、終了コード 0
+
+- [ ] **Step 6: コミットする**
+
+```bash
+git add docs/cataloging-guide.md
+git commit -m "docs: 収録の手引きに、抜け 0 がテストの条件になったことを書く
+
+Co-Authored-By: Claude <実装したモデルの名前> <noreply@anthropic.com>"
+```
+
 ## 残したこと
 
-- **「抜け 0」をテストの条件にすること（spec では束 11 で入れる）は、この束では足さない。** 束 10（gestures・input-events・drag-and-drop の 43 件）がまだ main に入っていないので、今テストにすると落ちる。束 10 と束 11 の両方が main に入ったあとで、`CatalogTests` に「Manifest の id がすべて `Catalog.all` にある」テストを足す（束 12 の仕上げか、束 10 のマージのあとの小さな PR）。オーナーに伝える
 - **大きく出す画面（`accessibilityShowsLargeContentViewer`）とスマート反転（`accessibilityIgnoresInvertColors`）の見た目は、画像で確かめていない。** UI テストの長押しでは大きく出す画面が出ず、スマート反転はシミュレータの設定を UI テストから入れられない。札の環境の値（「今は使える」）が文字の大きさで変わることは確かめた。実機かシミュレータの設定で、手で一度見る
 - **VoiceOver の実際の読み上げ・操作（speech の 4 件・ローター・操作の一覧・カーソルの移動）は、耳と手では確かめていない。** UI テストの木で確かめたのは、ラベル・値・識別子・`.combine`・並び・子まで。束 12 の仕上げで、VoiceOver を入れて代表を触る
 - 比べるでは、左右の札が仕切りで切れて重なる。ほかの束と同じ見え方（仕切りを動かして読む）なので、そのままにした
+- `CatalogTests` で「FocusState の値を View の body の外で読んだ」という実行時の警告が出る（失敗ではない）。ImageRenderer で `@FocusState`・`@AccessibilityFocusState` を持つ見本を描くため。束 9 の SceneStorage の警告と同じ種類
 
 ## 終わったら
 
 - 束の最終レビュー（opus）を通す
+- Task 7 で main を取り込んであるので、マージの前に main がそのあと進んでいないかを `git log feat/swiftui-p3-a11y..main` で見る（進んでいたら、もう一度取り込んでテストを通す）
 - `~/dev/widget-lab`（main）で、`git -C ~/dev/widget-lab status` がきれい（`.claude/` の未追跡は元からある）で、ほかの束がマージの途中でない（`git -C ~/dev/widget-lab rev-parse -q --verify MERGE_HEAD` が何も出さない）ことを確かめてから、`git merge --no-ff feat/swiftui-p3-a11y` する。`Catalog.swift`・`docs/architecture.md`・`docs/cataloging-guide.md`・`WidgetLabUITests/LaunchUITests.swift` がぶつかったら両方の行を残す
 - マージのあと、main の `swiftui/` で lint と単体テスト（Global Constraints の確かめのコマンド）を通してから push する。ブランチは消さない
