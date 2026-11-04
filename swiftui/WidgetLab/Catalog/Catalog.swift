@@ -206,5 +206,12 @@ nonisolated enum Catalog {
         .dialogIcon,
         .dialogSuppressionToggle,
         .inspector,
+        .inspectorColumnWidth,
+        .fileExporter,
+        .fileExporterFilenameLabel,
+        .fileImporter,
+        .fileMover,
+        .fileDialogDefaultDirectory,
+        .fileDialogBrowserOptions,
     ]
 }
