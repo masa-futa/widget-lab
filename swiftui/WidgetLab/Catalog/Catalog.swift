@@ -304,5 +304,12 @@ nonisolated enum Catalog {
         .fileDialogImportsUnresolvedAliases,
         .fileDialogMessage,
         .fileDialogURLEnabled,
+        .onTapGesture,
+        .spatialTapGesture,
+        .onLongPressGesture,
+        .longPressGesture,
+        .spatialEventGesture,
+        .gesture,
+        .dragGesture,
     ]
 }
