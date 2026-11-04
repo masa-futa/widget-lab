@@ -44,7 +44,7 @@
 
 | id | トピック | 形 | プロパティ（チップの順） | コードの形（最初の値） |
 |---|---|---|---|---|
-| GlassEffectContainer | view-styles | View | spacing* | `GlassEffectContainer(spacing: 40) { HStack(spacing: 20) { Image(…).frame(…).glassEffect() ×2 } }` |
+| GlassEffectContainer | view-styles | View | spacing* | `GlassEffectContainer(spacing: 40) { HStack(spacing: 20) { Image(…).frame(…).glassEffect() ×2 }.font(.title2) }` |
 | buttonStyle | view-styles | 付け外し | .buttonStyle*（7 つ）・.buttonBorderShape・.controlSize・.tint | `VStack { Button("保存") { }; Button("削除", role: .destructive) { } }.buttonStyle(.borderedProminent)` |
 | signInWithAppleButtonStyle | view-styles | 付け外し | .signInWithAppleButtonStyle*（.black・.white・.whiteOutline） | `// import AuthenticationServices が要る` + `SignInWithAppleButton(.signIn) { … } onCompletion: { … }.signInWithAppleButtonStyle(.black).frame(width: 260, height: 48)` |
 | buttonSizing | view-styles | 付け外し | .buttonSizing*（.automatic・.fitted・.flexible） | `HStack { Button("戻る"); Button("次へ") }.buttonSizing(.flexible).buttonStyle(.borderedProminent).frame(width: 300)` |
@@ -73,7 +73,7 @@
 | symbolEffectsRemoved | images | 付け外し（入れ子、indent 8） | .symbolEffectsRemoved*（true） | `HStack { bell; star.foregroundStyle(.orange).symbolEffectsRemoved(true) }.font(…).symbolEffect(.pulse)` |
 | symbolRenderingMode | images | 付け外し | .symbolRenderingMode*（4 つ）・.foregroundStyle*（1 色・3 色） | `Image(systemName: "cloud.sun.rain.fill").symbolRenderingMode(.palette).foregroundStyle(.blue, .yellow, .gray).font(…)` |
 | animation | animations | 付け外し（入れ子、indent 8） | .animation*（6 つ）・value R | `VStack { Circle()….offset(x: moved ? 80 : -80).animation(.spring(duration: 1, bounce: 0.5), value: moved); Button("動かす") }` |
-| PhaseAnimator | animations | View（入れ子） | phases R（2 段・3 段）・trigger | `PhaseAnimator([1.0, 1.4]) { scale in ハート } animation: { _ in .bouncy }` + `Button("+1")` |
+| PhaseAnimator | animations | View（入れ子） | phases R（2 段・3 段）・trigger* | `PhaseAnimator([1.0, 1.4], trigger: count) { scale in ハート } animation: { _ in .bouncy }` + `Button("+1")` |
 | KeyframeAnimator | animations | View（入れ子） | initialValue R・trigger R（`trigger: count`・`repeating: true`） | `KeyframeAnimator(initialValue: 1.0, trigger: count) { scale in 星 } keyframes: { _ in KeyframeTrack { … } }` + `Button("+1")` |
 | TimelineView | animations | View | schedule R（4 つ） | `TimelineView(.periodic(from: .now, by: 1)) { context in 時刻と秒針 }` |
 | transition | animations | 付け外し（入れ子、indent 12） | .transition*（6 つ） | `VStack { Button("出し入れ"); if isShown { Text("見本").padding().background(.yellow).transition(.slide) } }` |
@@ -108,6 +108,18 @@
 - **`GlassEffectContainer` の溶け合いはシミュレータでだけ見える。** `spacing: 0` では 2 つの円が離れ、`spacing: 40` では間がつながった。ImageRenderer では両方とも離れて描かれる
 - **UI テストで編集パネルの選択肢を押すときは、`label` で探す。** `staticTexts[".automatic"]` では見つからない
 - **`List`・`Table` の見本を `.frame(height: 220)` にすると、一覧の行が高くなりすぎた。** 160 にした
+
+### 束の最終レビュー（opus）で直したこと
+
+計画の下のコードは、直したあとのもの（実装と同じ）。収録の手引きには、Task 6 の置き換えのあとに 2 つ足した（コミット「fix: 束 5 の最終レビューの指摘を直す」）。
+
+- `buttonStyle`: 要約の「押したときの動きはそのまま」は誤り（押したときの見た目もスタイルが決める）。「押したときに呼ぶ処理（action）はそのまま」にした
+- `signInWithAppleButtonStyle`: OFF の説明「画面の明るさに合わせる」は試作で確かめていない（暗い画面で見ていない）ので、「既定の見た目」にした
+- `AsyncImage`: 画像の書き出しに失敗すると `readableURL` が nil になり、回る印が出続けた。読めない URL に倒し、失敗の印を出すようにした
+- `PhaseAnimator`: `trigger` が最初 OFF で、一覧の行でずっと動き続けていた。最初から ON にした（`KeyframeAnimator` と同じ）
+- `GlassEffectContainer`: 見本の `.font(.title2)` がコードに出ていなかった。コードにも書いた
+- `@Namespace`: コードの `ForEach(names, …)` を、matchedGeometryEffect の収録と同じ `["りんご", "みかん", "ぶどう"]` にそろえた
+- 収録の手引き: 「sheet を開く見本は、押したときだけ開く」の段落と、「ずっと動き続ける見本は最初の値で止めておく」の 1 文を足した
 
 ---
 
@@ -162,7 +174,7 @@ nonisolated extension CatalogEntry {
             trailing: " {\n    HStack(spacing: 20) {\n        Image(systemName: \"pencil\")\n"
                 + "            .frame(width: 56, height: 56)\n            .glassEffect()\n"
                 + "        Image(systemName: \"eraser\")\n            .frame(width: 56, height: 56)\n"
-                + "            .glassEffect()\n    }\n}"),
+                + "            .glassEffect()\n    }\n    .font(.title2)\n}"),
         build: { v in
             AnyView(
                 GlassEffectContainerDemo.container(spacing: v.number("spacing"))
@@ -208,7 +220,7 @@ nonisolated extension CatalogEntry {
         id: "buttonStyle",
         kind: .modifier,
         topic: .viewStyles,
-        summary: "この View の中のボタンの見た目を、まとめて決める modifier。押したときの動きはそのまま。",
+        summary: "この View の中のボタンの見た目を、まとめて決める modifier。押したときに呼ぶ処理（action）はそのまま。",
         docURL: URL(string: "https://developer.apple.com/documentation/swiftui/view/buttonstyle(_:)")!,
         stage: .card,
         properties: [
@@ -287,7 +299,7 @@ nonisolated extension CatalogEntry {
             .modifier(
                 "signInWithAppleButtonStyle",
                 .choice([Choice(".black"), Choice(".white"), Choice(".whiteOutline")], initial: 0), on: true,
-                summary: "ボタンの色（OFF なら画面の明るさに合わせる）")
+                summary: "ボタンの色（OFF なら既定の見た目）")
         ],
         code: CodeTemplate(
             prefix: ["// import AuthenticationServices が要る"], indent: 0, call: "SignInWithAppleButton",
@@ -1677,7 +1689,8 @@ nonisolated extension CatalogEntry {
                 + "        Image(systemName: \"exclamationmark.triangle\")\n    } else {\n        ProgressView()\n    }\n}"
         ),
         build: { v in
-            let url = v.pick("url", from: [AsyncImageDemo.readableURL, AsyncImageDemo.missingURL]) ?? nil
+            let url = v.pick(
+                "url", from: [AsyncImageDemo.readableURL ?? AsyncImageDemo.missingURL, AsyncImageDemo.missingURL])
             return AnyView(
                 AsyncImage(url: url, scale: v.number("scale") ?? 1) { phase in
                     if let image = phase.image {
@@ -2063,7 +2076,7 @@ nonisolated extension CatalogEntry {
                     [Choice("2 段", code: "[1.0, 1.4]"), Choice("3 段", code: "[1.0, 1.4, 0.7]")], initial: 0),
                 required: true, summary: "切り替える段階の値（ここでは大きさの倍率）"),
             .argument(
-                "trigger", .fixed(code: "count"),
+                "trigger", .fixed(code: "count"), on: true,
                 summary: "見張る値。変わるたびに段階を 1 周する（省くと、ずっと繰り返す）"),
         ],
         code: CodeTemplate(
@@ -2660,7 +2673,7 @@ nonisolated extension CatalogEntry {
                     "",
                     "var body: some View {",
                     "    HStack {",
-                    "        ForEach(names, id: \\.self) { name in",
+                    "        ForEach([\"りんご\", \"みかん\", \"ぶどう\"], id: \\.self) { name in",
                     "            Text(name)",
                     "                .padding(8)",
                     "                .matchedGeometryEffect(id: name, in: namespace)",
@@ -2677,7 +2690,7 @@ nonisolated extension CatalogEntry {
                 withoutWrapper: [
                     "var body: some View {",
                     "    HStack {",
-                    "        ForEach(names, id: \\.self) { name in",
+                    "        ForEach([\"りんご\", \"みかん\", \"ぶどう\"], id: \\.self) { name in",
                     "            Text(name)",
                     "                .padding(8)",
                     "                .onTapGesture { withAnimation { selected = name } }",
@@ -3021,7 +3034,7 @@ Expected: 終了コード 0。`合計 40 / 40（抜け 0）`
 - [ ] **Step 7: スクリーンショットを見る**
 
 Run: `rm -rf build/shots && xcrun xcresulttool export attachments --path <最新の build/Logs/Test/*.xcresult> --output-path build/shots`
-Expected: `build/shots/manifest.json` で名前が `listStyle`・`AsyncImage` の画像を開く。`listStyle` は「果物」の見出しの下に「りんご」「みかん」が地の色のまま区切り線で並ぶ（.plain）。`AsyncImage` は青い額縁の写真の記号が出ている（読み込みに失敗した三角の印や、回る印ではない）
+Expected: `build/shots/manifest.json` で名前が `listStyle`・`AsyncImage` の画像を開く。`listStyle` は「果物」の見出しの下に「りんご」「みかん」が、画面の幅いっぱいの白い行で区切り線をはさんで並ぶ（.plain。角の丸い箱にならない）。`AsyncImage` は青い額縁の写真の記号が出ている（読み込みに失敗した三角の印や、回る印ではない）
 
 - [ ] **Step 8: コミット**
 
