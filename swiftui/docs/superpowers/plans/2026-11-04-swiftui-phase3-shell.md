@@ -120,7 +120,7 @@
 | widgetAccentable | アプリ拡張のウィジェットの中で効く。ロック画面・Apple Watch・色付きのホーム画面など、ウィジェットを 2 色で描くときに出る |
 | dynamicIsland | アプリ拡張のライブアクティビティの中で効く。Dynamic Island を長押しして広げたときに出る |
 
-手引きの数え方（iPhone で見せる工夫が足りずに `.note` にしたものだけを数える）では、10 件のうち 8 件は数えない（iPad・Mac だけで効くもの 3 件と、アプリ拡張の中で効くもの 5 件。toolbarRole は試作で iPhone では変わらないと確かめた）。残りの 2 件（UIApplicationDelegateAdaptor・sceneAccessory）は iPhone でも効くが、アプリの入口と外のディスプレイなので、アプリの画面を足しても見せられない。念のため数えに入れても、この束では 2 / 32 = 6% で、1 割を超えない。
+手引きの数え方（iPhone で見せる工夫が足りずに `.note` にしたものだけを数える）では、10 件のうち 8 件は数えない（iPad・Mac だけで効くもの 3 件と、アプリ拡張の中で効くもの 5 件。toolbarRole は試作で iPhone では変わらないと確かめた）。残りの 2 件（UIApplicationDelegateAdaptor・sceneAccessory）は iPhone でも効くが、アプリの入口と外のディスプレイなので、アプリの画面を足しても見せられない。念のため数えに入れても多くて 2 件で、全体（335 件）の 1 割に届かない。
 
 ### 試作でわかったこと（Task 5 で収録の手引きに足す）
 
@@ -1361,7 +1361,7 @@ nonisolated extension CatalogEntry {
                 .choice([Choice(".automatic"), Choice(".visible"), Choice(".onHover")], initial: 2), on: true,
                 summary: "ツールバーの出し方。.onHover なら、ポインタを画面の上に寄せたときだけ出す")
         ],
-        code: CodeTemplate(call: "Text", fixedArguments: ["\"本文\""])
+        code: CodeTemplate(prefix: ["// Mac のアプリの窓の中"], indent: 0, call: "Text", fixedArguments: ["\"本文\""])
     )
 }
 ```

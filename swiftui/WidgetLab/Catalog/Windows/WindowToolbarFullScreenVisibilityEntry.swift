@@ -15,6 +15,6 @@ nonisolated extension CatalogEntry {
                 .choice([Choice(".automatic"), Choice(".visible"), Choice(".onHover")], initial: 2), on: true,
                 summary: "ツールバーの出し方。.onHover なら、ポインタを画面の上に寄せたときだけ出す")
         ],
-        code: CodeTemplate(call: "Text", fixedArguments: ["\"本文\""])
+        code: CodeTemplate(prefix: ["// Mac のアプリの窓の中"], indent: 0, call: "Text", fixedArguments: ["\"本文\""])
     )
 }
