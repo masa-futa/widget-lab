@@ -304,5 +304,12 @@ nonisolated enum Catalog {
         .fileDialogImportsUnresolvedAliases,
         .fileDialogMessage,
         .fileDialogURLEnabled,
+        .toolbar,
+        .toolbarOverflowMenu,
+        .toolbarVisibility,
+        .toolbarBackgroundVisibility,
+        .toolbarRole,
+        .toolbarColorScheme,
+        .toolbarBackground,
     ]
 }
