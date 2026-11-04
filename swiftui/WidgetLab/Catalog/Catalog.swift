@@ -176,5 +176,12 @@ nonisolated enum Catalog {
         .pickerStyle,
         .datePickerStyle,
         .menuStyle,
+        .toggleStyle,
+        .gaugeStyle,
+        .progressViewStyle,
+        .labelStyle,
+        .textFieldStyle,
+        .textEditorStyle,
+        .listStyle,
     ]
 }
