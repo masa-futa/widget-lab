@@ -25,7 +25,6 @@ nonisolated extension CatalogEntry {
 private struct InvertColorsDemo: View {
     /// nil なら modifier をかけない
     let ignores: Bool?
-    @Environment(\.accessibilityInvertColors) private var invertColors
 
     var body: some View {
         A11yDemo(title: "スマート反転のとき", lines: lines) {
@@ -45,9 +44,6 @@ private struct InvertColorsDemo: View {
     }
 
     private var lines: [String] {
-        [
-            ignores == true ? "写真は元の色のまま、まわりだけ反転する" : "写真も反転して、色が逆になる",
-            "今のスマート反転: \(invertColors ? "入" : "切")",
-        ]
+        [ignores == true ? "写真は元の色のまま、まわりだけ反転する" : "写真も反転して、色が逆になる"]
     }
 }

@@ -47,6 +47,6 @@ private struct LinkedGroupDemo: View {
     }
 
     private var line: String {
-        links ? "「問 1」と「答え 1」の間を、間の要素を飛ばして行き来できる" : "問 1 → 問 2 → 答え 1 の順にしか進めない"
+        links ? "「問 1」と「答え 1」の間を、間の要素を飛ばして行き来できる" : "問 1 → 問 2 → 答え 1 → 答え 2 の順にしか進めない"
     }
 }

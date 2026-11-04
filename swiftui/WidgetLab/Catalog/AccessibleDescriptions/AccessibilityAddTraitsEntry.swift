@@ -30,8 +30,7 @@ private struct AddTraitsDemo: View {
 
     var body: some View {
         A11yDemo(title: "VoiceOver が読む要素", lines: [A11yText.element("お気に入り", traits: traitNames)]) {
-            Label("お気に入り", systemImage: isFavorite ? "star.fill" : "star")
-                .labelStyle(.titleOnly)
+            Text("お気に入り")
                 .font(.title3)
                 .foregroundStyle(isFavorite ? .orange : .primary)
                 .apply(choice) { view, choice in

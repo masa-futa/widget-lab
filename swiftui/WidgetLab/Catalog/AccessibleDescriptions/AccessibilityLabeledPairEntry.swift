@@ -52,7 +52,7 @@ private struct LabeledPairDemo: View {
     private var lines: [String] {
         let value = isOn ? "1" : "0"
         return pairs
-            ? [A11yText.element("通知", value: value, traits: [".isToggle"])]
+            ? A11yText.ordered([A11yText.element("通知"), A11yText.element("通知", value: value, traits: [".isToggle"])])
             : A11yText.ordered([A11yText.element("通知"), A11yText.element(nil, value: value, traits: [".isToggle"])])
     }
 }

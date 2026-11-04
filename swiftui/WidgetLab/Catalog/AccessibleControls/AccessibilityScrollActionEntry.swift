@@ -10,7 +10,9 @@ nonisolated extension CatalogEntry {
         stage: .card,
         properties: [
             .modifier(
-                "accessibilityScrollAction", .fixed(code: "{ edge in page += edge == .trailing ? 1 : -1 }"), on: true,
+                "accessibilityScrollAction",
+                .fixed(code: "{ edge in if edge == .trailing { page += 1 } else if edge == .leading { page -= 1 } }"),
+                on: true,
                 summary: "スクロールの処理。スクロールする向きの端（Edge）が渡る")
         ],
         code: CodeTemplate(call: "Text", fixedArguments: ["\"\\(page) / 5 ページ\""]),
@@ -31,7 +33,11 @@ private struct ScrollActionDemo: View {
                 .monospacedDigit()
                 .apply(isScrollable ? () : nil) { view, _ in
                     view.accessibilityScrollAction { edge in
-                        page = min(max(page + (edge == .trailing ? 1 : -1), 1), 5)
+                        switch edge {
+                        case .trailing: page = min(page + 1, 5)
+                        case .leading: page = max(page - 1, 1)
+                        default: break
+                        }
                     }
                 }
         }

@@ -17,9 +17,10 @@ nonisolated extension CatalogEntry {
                 summary: "押す場所（UnitPoint か CGPoint）。赤い点の場所を押す")
         ],
         code: CodeTemplate(
-            call: "HStack",
-            trailing: " {\n    Text(\"Wi-Fi\")\n    Spacer()\n    Toggle(\"\", isOn: $isOn).labelsHidden()\n}",
-            suffix: [".accessibilityElement(children: .combine)"]),
+            prefix: [
+                "HStack {", "    Text(\"Wi-Fi\")", "    Spacer()", "    Toggle(\"\", isOn: $isOn).labelsHidden()", "}",
+            ],
+            indent: 0, call: ".accessibilityElement", fixedArguments: ["children: .combine"]),
         build: { v in
             AnyView(
                 ActivationPointDemo(
@@ -47,14 +48,14 @@ private struct ActivationPointDemo: View {
             .frame(width: 260, height: 52)
             .background(Color(.systemBackground), in: .rect(cornerRadius: 10))
             .overlay { A11yPointMarker(point: point ?? .center) }
+            .accessibilityElement(children: .combine)
             .apply(point) { view, point in
                 view.accessibilityActivationPoint(point)
             }
-            .accessibilityElement(children: .combine)
         }
     }
 
     private var lines: String {
-        point == nil ? "赤い点（既定の真ん中。何もない所を押す）" : "赤い点"
+        point == nil ? "赤い点（既定の真ん中）" : "赤い点"
     }
 }

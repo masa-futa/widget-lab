@@ -55,7 +55,10 @@ private struct AdjustableActionDemo: View {
 
     private var lines: [String] {
         isAdjustable
-            ? [A11yText.element("評価", value: "\(rating) 個", traits: [".adjustable"]), "上下にスワイプで 1 つずつ変える"]
+            ? [
+                A11yText.element("評価", value: "\(rating) 個", traits: ["調整できる（UIKit の .adjustable）"]),
+                "上下にスワイプで 1 つずつ変える",
+            ]
             : [A11yText.element("評価", value: "\(rating) 個"), "（VoiceOver からは変えられない）"]
     }
 }

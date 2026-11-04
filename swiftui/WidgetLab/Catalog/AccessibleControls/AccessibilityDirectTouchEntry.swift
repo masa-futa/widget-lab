@@ -65,12 +65,10 @@ private struct DirectTouchDemo: View {
 
     private var lines: [String] {
         guard isDirect == true else { return ["鍵盤を選んで、2 回タップで鳴らす"] }
-        let option: [String] =
-            switch optionIndex {
-            case 0: ["触れても、鍵盤の名前を読まない"]
-            case 1: ["先に 2 回タップしてから、直接触れられる"]
-            default: []
-            }
-        return ["触れた鍵盤がすぐ鳴る（2 回タップしなくてよい）"] + option
+        return switch optionIndex {
+        case 0: ["触れた鍵盤がすぐ鳴る（2 回タップしなくてよい）", "触れても、鍵盤の名前を読まない"]
+        case 1: ["先に 2 回タップしてから、触れた鍵盤がすぐ鳴る"]
+        default: ["触れた鍵盤がすぐ鳴る（2 回タップしなくてよい）"]
+        }
     }
 }
