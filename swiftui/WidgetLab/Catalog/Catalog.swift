@@ -331,5 +331,12 @@ nonisolated enum Catalog {
         .searchFocused,
         .defaultFocus,
         .focusEffectDisabled,
+        .focusedValue,
+        .focusedValueWrapper,
+        .focusedBinding,
+        .focusedSceneValue,
+        .focusedObject,
+        .focusedSceneObject,
+        .focusedObjectWrapper,
     ]
 }
