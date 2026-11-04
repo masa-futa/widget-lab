@@ -222,7 +222,7 @@ modifier と suffix の字下げは、呼び出しで決まる。呼び出しが
 
 **ハードウェアのキーボードの入力 → `typeKey` で試す。** シミュレータはハードウェアキーボードがつながっているので、`onKeyPress`・`keyboardShortcut` は UI テストの `typeKey(_:modifierFlags:)` で試せる。代わりに、入力欄をタップしても画面のキーボードは出ない（`submitLabel` は束 2 の `keyboardType` と同じく、入力欄にカーソルが入るところまで見る）。
 
-**ドラッグとドロップ → iPhone のアプリの中で動くので `.card` にする。** 見本は、上に札（`DragChip`）、下に落とす先の箱（`DropBox`）を置く（`Catalog/DragAndDrop/DragAndDropDemo.swift`）。UI テストでは `press(forDuration: 1, thenDragTo: 箱, withVelocity: .slow, thenHoldForDuration: 1)` で落とせる。「動かす」と「写す」の違いは、元の札が消えるかで見せる（`onDragSessionUpdated` で `.ended(.move)` を見る）。`dragContainerSelection` は `dragContainer` の外側（あと）にかける。内側にかけると、選んでいても引いた札 1 つしか運ばれなかった。
+**ドラッグとドロップ → iPhone のアプリの中で動くので `.card` にする。** 見本は、上に札（`DragChip`）、下に落とす先の箱（`DropBox`）を置く（`Catalog/DragAndDrop/DragAndDropDemo.swift`）。UI テストでは 札と箱が出るのを待ち、札が hittable になるまで待ってから、`press(forDuration: 1.5, thenDragTo: 箱, withVelocity: .slow, thenHoldForDuration: 1.5)` で落とす。箱が残っていれば 3 回まで繰り返す。「動かす」と「写す」の違いは、元の札が消えるかで見せる（`onDragSessionUpdated` で `.ended(.move)` を見る）。`dragContainerSelection` は `dragContainer` の外側（あと）にかける。内側にかけると、選んでいても引いた札 1 つしか運ばれなかった。
 
 **ジェスチャーを組み合わせる型 → 2 つのジェスチャーを、1 つの名前なしの引数（required）の選択肢にする。** `SequenceGesture`・`SimultaneousGesture`・`ExclusiveGesture` は片方だけでは書けず、`onChanged` の中身も組によって変わるため。比べるは出ない。
 

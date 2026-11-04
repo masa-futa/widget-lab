@@ -22,7 +22,7 @@ nonisolated extension CatalogEntry {
             AnyView(
                 SpatialTapGestureDemo(
                     count: v.number("count").map { Int($0) } ?? 1,
-                    space: coordinateSpace(global: v.pick("coordinateSpace", from: [false, true]))))
+                    space: demoCoordinateSpace(global: v.pick("coordinateSpace", from: [false, true]))))
         }
     )
 }

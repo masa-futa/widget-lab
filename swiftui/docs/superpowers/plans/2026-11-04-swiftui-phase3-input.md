@@ -4,7 +4,7 @@
 
 **Goal:** gestures・input-events・drag-and-drop の 43 件を収録して、3 トピックの抜けを 0 にする。
 
-**Architecture:** 1 件 = 1 ファイルの収録データを 4〜7 件ずつ足し、`Catalog.all` に並べる。複数の収録で使う補助（`GestureDemo`・`DragAndDropDemo`）はトピックのフォルダに置く。収録の型（`WidgetLab/Catalog/Model/`）と `CodeGenerator` は変えない。stage は `.card` が 21 件、`.behavior` が 12 件、`.full` が 1 件、`.note` が 9 件。
+**Architecture:** 1 件 = 1 ファイルの収録データを 4〜7 件ずつ足し、`Catalog.all` に並べる。複数の収録で使う補助（`GestureDemo`・`DragAndDropDemo`）はトピックのフォルダに置く。収録の型（`WidgetLab/Catalog/Model/`）と `CodeGenerator` は変えない。stage は `.card` が 22 件、`.behavior` が 11 件、`.full` が 1 件、`.note` が 9 件。
 
 **Tech Stack:** Xcode 27.0 / Swift 6（言語モード 6、既定の分離は MainActor）/ SwiftUI / Swift Testing / XCTest（UI テストだけ）/ swift-format / Python 3（道具）
 

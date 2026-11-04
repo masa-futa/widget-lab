@@ -17,10 +17,13 @@ nonisolated extension CatalogEntry {
                 summary: "選んでいる札の id の配列。札を押すと選べる（橙になる）")
         ],
         code: CodeTemplate(
-            call: "HStack",
-            trailing:
-                " {\n    ForEach(fruits) { fruit in\n        Text(fruit.id)\n            .draggable(containerItemID: fruit.id)\n            .onTapGesture { selection.append(fruit.id) }\n    }\n}",
-            suffix: [".dragContainer(for: Fruit.self) { ids in fruits.filter { ids.contains($0.id) } }"]),
+            prefix: [
+                "HStack {", "    ForEach(fruits) { fruit in", "        Text(fruit.id)",
+                "            .draggable(containerItemID: fruit.id)",
+                "            .onTapGesture { selection.append(fruit.id) }", "    }", "}",
+            ],
+            indent: 0, call: ".dragContainer", fixedArguments: ["for: Fruit.self"],
+            trailing: " { ids in fruits.filter { ids.contains($0.id) } }"),
         build: { v in
             AnyView(DragContainerDemo(isContainer: true, selects: v["dragContainerSelection"] != nil))
         }

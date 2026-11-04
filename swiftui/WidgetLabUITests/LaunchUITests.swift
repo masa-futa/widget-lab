@@ -135,8 +135,15 @@ final class LaunchUITests: XCTestCase {
         let drag = openDetail(searching: "draggable", entryID: "draggable", title: ".draggable")
         let apple = drag.staticTexts.matching(NSPredicate(format: "label == %@", "りんご")).firstMatch
         let box = drag.staticTexts["ここに落とす"]
-        apple.press(forDuration: 1, thenDragTo: box, withVelocity: .slow, thenHoldForDuration: 1)
-        XCTAssertTrue(box.waitForNonExistence(timeout: 5), drag.debugDescription)
+        XCTAssertTrue(apple.waitForExistence(timeout: 5), drag.debugDescription)
+        XCTAssertTrue(box.waitForExistence(timeout: 5), drag.debugDescription)
+        let hittable = XCTNSPredicateExpectation(predicate: NSPredicate(format: "hittable == true"), object: apple)
+        XCTAssertEqual(XCTWaiter().wait(for: [hittable], timeout: 5), .completed, drag.debugDescription)
+        for _ in 0..<3 where box.exists {
+            apple.press(forDuration: 1.5, thenDragTo: box, withVelocity: .slow, thenHoldForDuration: 1.5)
+            _ = box.waitForNonExistence(timeout: 3)
+        }
+        XCTAssertFalse(box.exists, drag.debugDescription)
         attachScreenshot(drag, name: "draggable")
         drag.terminate()
     }

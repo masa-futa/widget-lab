@@ -15,8 +15,8 @@ nonisolated extension CatalogEntry {
                 summary: "後回しにする端。付けると、端から 1 回引いてもシステムの操作にならず、もう 1 回引くとなる")
         ],
         code: CodeTemplate(
-            call: "Color.yellow",
-            suffix: [".ignoresSafeArea()", ".gesture(DragGesture().onChanged { distance = $0.translation.height })"]),
+            prefix: ["Color.yellow"], call: ".ignoresSafeArea",
+            suffix: [".gesture(DragGesture().onChanged { distance = $0.translation.height })"]),
         build: { v in
             AnyView(
                 DefersSystemGesturesDemo(edges: v.pick("defersSystemGestures", from: [Edge.Set.bottom, .top, .all])))

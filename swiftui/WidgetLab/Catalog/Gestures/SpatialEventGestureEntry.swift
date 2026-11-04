@@ -20,7 +20,8 @@ nonisolated extension CatalogEntry {
         ),
         build: { v in
             AnyView(
-                SpatialEventGestureDemo(space: coordinateSpace(global: v.pick("coordinateSpace", from: [false, true]))))
+                SpatialEventGestureDemo(
+                    space: demoCoordinateSpace(global: v.pick("coordinateSpace", from: [false, true]))))
         }
     )
 }

@@ -39,6 +39,6 @@ struct OuterGestureFrame<Content: View>: View {
 nonisolated let coordinateSpaceChoices = [Choice(".local"), Choice(".global")]
 
 /// 選んだ座標の基準（nil なら省く = .local）
-func coordinateSpace(global: Bool?) -> any CoordinateSpaceProtocol {
+func demoCoordinateSpace(global: Bool?) -> any CoordinateSpaceProtocol {
     global == true ? .global as GlobalCoordinateSpace : .local as LocalCoordinateSpace
 }

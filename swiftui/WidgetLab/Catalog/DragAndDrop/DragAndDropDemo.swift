@@ -61,7 +61,7 @@ func loadTexts(from providers: [NSItemProvider], add: @escaping @MainActor (Stri
     }
 }
 
-extension Array where Element: Identifiable {
+nonisolated extension Array where Element: Identifiable {
     /// 並べ替えの差分を当てる。動かすものを抜き、行き先の前（または最後）に入れ直す
     mutating func applyReorder(_ difference: ReorderDifference<Element.ID, ReorderableSingleCollectionIdentifier>) {
         let moving = filter { difference.sources.contains($0.id) }
