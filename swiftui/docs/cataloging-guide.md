@@ -105,7 +105,7 @@ modifier の収録は、まず「引数」の形を考える。引数がどれ�
 
 `CatalogTests` の `buildsAllCombinations` が、全件を全部 OFF・全部 ON・選択肢ごとに組み立て、`.card` と `.behavior` は `ImageRenderer` で描く。id と Manifest の一致、チップの名前の重なり、required の引数に兄弟があるか、1 つの行の鍵に違う modifier の名前が混ざっていないかも見ている。だから収録ごとのテストは書かない。新しい型の使い方を足したときだけ `CodeGeneratorTests` に足す。
 
-ただし `ImageRenderer` は、ScrollView・List・Form・GroupBox・ControlGroup を白く描き、UIKit で描くコントロール（Toggle・Slider・Stepper・Picker・DatePicker・ColorPicker・Menu など）を黄色の地に禁止の印で描く。エラーにはならないので、テストが通っても見た目は確かめられていない。これらは一時的な UI テストで詳細画面を撮って見る。束の終わりには、代表の 1〜2 件を撮る UI テストを残す（束 1 は `testLayoutEntriesShowPreview`、束 2 は `testTextEntriesShowPreview`、束 3 は `testControlEntriesShowPreview`、束 4 は `testDrawingEntriesShowPreview`、束 5 は `testStyleEntriesShowPreview`、束 6 は `testListEntriesShowPreview`、束 7 は `testNavigationEntriesShowPreview`）。
+ただし `ImageRenderer` は、ScrollView・List・Form・GroupBox・ControlGroup を白く描き、UIKit で描くコントロール（Toggle・Slider・Stepper・Picker・DatePicker・ColorPicker・Menu など）を黄色の地に禁止の印で描く。エラーにはならないので、テストが通っても見た目は確かめられていない。これらは一時的な UI テストで詳細画面を撮って見る。束の終わりには、代表の 1〜2 件を撮る UI テストを残す（束 1 は `testLayoutEntriesShowPreview`、束 2 は `testTextEntriesShowPreview`、束 3 は `testControlEntriesShowPreview`、束 4 は `testDrawingEntriesShowPreview`、束 5 は `testStyleEntriesShowPreview`、束 6 は `testListEntriesShowPreview`、束 7 は `testNavigationEntriesShowPreview`、束 9 は `testDataEntriesShowPreview`）。
 
 撮った画像は `xcrun xcresulttool export attachments --path <最新の build/Logs/Test/*.xcresult> --output-path build/shots` で取り出せる。名前と画像のファイルの対応は `build/shots/manifest.json` にある。
 
@@ -218,6 +218,20 @@ modifier と suffix の字下げは、呼び出しで決まる。呼び出しが
 
 **`preferredColorScheme` を全画面で試す → 「付けない」に切り替えても暗いまま。** 表示の単位が最後の値を覚えているため。閉じれば詳細は元の見た目に戻る。
 
+**大文字と小文字だけ違う id がある → プロパティラッパーの側に `Wrapper` を付ける。** `environmentObject` と `EnvironmentObject` のように、modifier とプロパティラッパーの id が頭の文字だけ違うと、`static let` の名前がぶつかり、macOS のファイルの名前（大文字と小文字を区別しない）もぶつかる。modifier は決まりどおり（`environmentObject`・`EnvironmentObjectEntry.swift`）にし、プロパティラッパーは `environmentObjectWrapper`・`EnvironmentObjectWrapperEntry.swift` にする（束 9）。
+
+**比べるの画像は、左半分が「付けない」、右半分が「付けた」の合成になる → 違いを仕切りにまたがせる。** 印を付ける子を真ん中に置くと、仕切りで印が半分に切れて違いが見える（束 9 の `anchorPreference` の「ぶどう」）。付けた側だけに出る値は右に寄せる（`defaultAppStorage` の数、`environmentObject` の「テーマ: 夜」）。
+
+**シーンぜんたいに値を出すもの → `.full` にする。** `focusedSceneValue`・`focusedSceneObject` を `.card` にすると、比べるの左（付けない側）の札にも値が届き、一覧の行からも届いた。全画面で開けば、「付けない」に切り替えたときに値が消える（束 9）。
+
+**見本の init で記録の窓口に書かない。** 子を作るたびに `recorder?.log` を書いたら、記録の表示の描き直しが続いて UI テストが止まった。記録はボタンを押したときなど、操作のときに書く（束 9 の `StateObject`）。
+
+**保存先ごとに初めの値を変えたい → `set(_:forKey:)` で書く。** `UserDefaults.register(defaults:)` の値は、どの保存先（`standard` も）からも見えるので、付けない側も同じ値になった（束 9 の `defaultAppStorage`）。
+
+**クリップボードの modifier → キーボードの ⌘C・⌘X・⌘V で試す。** `copyable`・`cuttable`・`pasteDestination` は、iOS 27.0 の iPhone でも、フォーカスのある View でハードウェアキーボードの操作に応える（シミュレータは Mac のキーボード）。長押しでは編集メニューは出ない。UI テストでは `typeKey("c", modifierFlags: .command)` で試せる。見本は `.focusable()` の札に `@FocusState` でフォーカスを当てる（束 9）。
+
+**iPhone では効かなかったフォーカスの modifier（束 9 で `.note` にした）:** `defaultFocus`（はじめのフォーカスが決まらず、`@FocusState` は nil のまま）、`focusEffectDisabled`（iPhone にはフォーカスの輪が出ない）。`focusable` は、ボタンから `@FocusState` でフォーカスを当てられることで見せられたので `.card` にした。
+
 ## 用語
 
 - **収録**: 1 つの API（View・modifier・プロパティラッパー・ジェスチャー）を 1 件として `CatalogEntry` に書いたもの
@@ -228,4 +242,4 @@ modifier と suffix の字下げは、呼び出しで決まる。呼び出しが
 
 この手引きで決まらないことは、束の計画で決め、決めたことをここに足す。型を変える判断は ADR-0002 に書く。
 
-最終更新: 2026-11-04（束 2〜7 のあと）
+最終更新: 2026-11-04（束 2〜7・9 のあと）

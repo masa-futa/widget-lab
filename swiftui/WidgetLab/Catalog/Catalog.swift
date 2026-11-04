@@ -338,5 +338,12 @@ nonisolated enum Catalog {
         .focusedObject,
         .focusedSceneObject,
         .focusedObjectWrapper,
+        .userActivity,
+        .onContinueUserActivity,
+        .onOpenURL,
+        .handlesExternalEvents,
+        .copyable,
+        .cuttable,
+        .pasteDestination,
     ]
 }

@@ -125,6 +125,19 @@ final class LaunchUITests: XCTestCase {
         stack.terminate()
     }
 
+    @MainActor
+    func testDataEntriesShowPreview() {
+        let focus = openDetail(searching: "focusedValue", entryID: "focusedValue", title: ".focusedValue")
+        focus.textFields["メモ A"].tap()
+        XCTAssertTrue(
+            focus.staticTexts["フォーカスのあるメモ: メモ A"].waitForExistence(timeout: 5), focus.debugDescription)
+        attachScreenshot(focus, name: "focusedValue")
+        focus.terminate()
+        let anchor = openDetail(searching: "anchorPreference", entryID: "anchorPreference", title: ".anchorPreference")
+        attachScreenshot(anchor, name: "anchorPreference")
+        anchor.terminate()
+    }
+
     /// 起動して、検索の結果から詳細を開く
     @MainActor
     private func openDetail(searching text: String, entryID: String, title: String) -> XCUIApplication {
