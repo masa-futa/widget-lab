@@ -186,7 +186,7 @@ modifier と suffix の字下げは、呼び出しで決まる。呼び出しが
 
 **違いが幅に左右されるもの → 幅を刻んで描き比べる。** `allowsTightening` は、詰めれば収まり、付けなければ省かれる幅でないと違いが見えない。一時的なテストで幅を 2 ずつ変えて描き、206 に決めた。
 
-**省けない引数と、既定の値がある引数を 1 行にまとめる → 省けない引数を ON / OFF にし、既定の値がある引数を required にする。** `listRowSeparatorTint(_:edges:)` の色は省けず、`edges` は省ける。`edges` を ON / OFF できると、色が OFF で `edges` が ON のとき `.listRowSeparatorTint(edges: .top)` という書けないコードになる。色を required でない ON のプロパティにし、`edges` を required にすると、色が OFF なら行ごと消え、ON なら `edges` も書かれる（束 6 の `listRowSeparator`・`listRowInsets`・`swipeActions`・`scrollPosition`・`scrollTransition`・`onScrollGeometryChange` ほか）。
+**1 行にまとめる引数が複数ある → 中身の引数 1 つを ON / OFF にし、ほかの引数を required にする（既定の値があるかは問わない）。** `listRowSeparatorTint(_:edges:)` の色は省けず、`edges` は省ける。`edges` を ON / OFF できると、色が OFF で `edges` が ON のとき `.listRowSeparatorTint(edges: .top)` という書けないコードになる。色を required でない ON のプロパティにし、`edges` を required にすると、色が OFF なら行ごと消え、ON なら `edges` も書かれる既定の値がない引数（`onScrollGeometryChange` の `for`・`of`、`safeAreaBar` の `edge`）も同じで、中身の引数（`action`・`content`）が OFF なら行ごと消える（束 6 の `listRowSeparator`・`listRowInsets`・`swipeActions`・`scrollPosition`・`scrollTransition`・`onScrollGeometryChange` ほか）。
 
 **iPhone で形が変わる View → 幅の区分では戻らないことがある。** `Table` は iPhone（幅が compact）で、最初の列だけを 1 列の一覧として出す。`.environment(\.horizontalSizeClass, .regular)` をかけても、列も見出しも出なかった。束 6 では `tableColumnHeaders` を `.note` にした。
 

@@ -12,7 +12,7 @@ nonisolated extension CatalogEntry {
             .modifier(
                 "scrollIndicators",
                 .choice([Choice(".hidden"), Choice(".visible"), Choice(".never"), Choice(".automatic")], initial: 0),
-                on: true, summary: "バーを出すか（スクロールしている間に見る）")
+                on: true, summary: "バーを出すか（スクロールしている間に見る。iOS では .visible も自動で消え、.never と .hidden は同じに見える）")
         ],
         code: CodeTemplate(
             call: "ScrollView", trailing: " {\n    ForEach(1...30, id: \\.self) { Text(\"行 \\($0)\") }\n}"),

@@ -20,7 +20,7 @@ nonisolated extension CatalogEntry {
         code: CodeTemplate(
             prefix: [
                 "ScrollView {", "    ForEach(1...12, id: \\.self) { Text(\"行 \\($0)\").frame(height: 44) }",
-                "    Text(\"目印\")",
+                "    Text(\"目印\")", "        .frame(maxWidth: .infinity, minHeight: 44)",
             ],
             indent: 8, call: ".background", fixedArguments: [".orange"],
             closing: ["    ForEach(13...24, id: \\.self) { Text(\"行 \\($0)\").frame(height: 44) }", "}"]),

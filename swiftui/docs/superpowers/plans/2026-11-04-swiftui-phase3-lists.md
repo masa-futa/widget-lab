@@ -45,7 +45,7 @@
 
 | id | 形 | プロパティ | コードの形（最初の値） |
 |---|---|---|---|
-| List | View | selection*（`$selected`）・.listStyle*（5 つ）・.tint | `List(selection: $selected) { ForEach(果物) { Text($0) } }.listStyle(.insetGrouped)` |
+| List | View | selection*（`$selected`）・.listStyle*（5 つ） | `List(selection: $selected) { ForEach(果物) { Text($0) } }.listStyle(.insetGrouped)` |
 | OutlineGroup | View（入れ子） | children R（`\.children`） | `List { OutlineGroup(tree, children: \.children) { item in Text(item.name) } }` |
 | DisclosureGroup | View（入れ子） | title R・isExpanded*（`$isExpanded`、最初は開く）・.tint | `List { DisclosureGroup("詳しい設定", isExpanded: $isExpanded) { Toggle; Text } }` |
 | listRowInsets | 付け外し（入れ子） | .listRowInsets edges R（3 つ）・length*（0〜60） | `List { Text("行 1").frame(…).background(.yellow).listRowInsets(.leading, 48); Text("行 2") }` |
@@ -73,7 +73,7 @@
 
 | id | stage | 形 | プロパティ | コードの形（最初の値） |
 |---|---|---|---|---|
-| Table | .card | View | selection*（`$selected`）・.tint | `Table(fruits, selection: $selected) { TableColumn("名前", value: \.name); 産地; 値段 }` |
+| Table | .card | View | selection*（`$selected`） | `Table(fruits, selection: $selected) { TableColumn("名前", value: \.name); 産地; 値段 }` |
 | tableColumnHeaders | .note | 付け外し | .tableColumnHeaders*（.hidden・.visible・.automatic） | `Table(fruits) { … }.tableColumnHeaders(.hidden)` |
 
 ### scroll-views（21 件）
@@ -2894,6 +2894,17 @@ git commit -m "feat: scrollBounceBehavior・scrollEdgeEffectStyle・scrollEdgeEf
 ```
 
 ---
+
+## 最終レビューで直したこと
+
+束の最終レビュー（opus）は「マージしてよい」で、Critical・Important はなかった。Minor の 6 件を、試作とリポジトリの両方で同じに直した（直したあとも、収録のファイルは試作と `cmp` で一致）。
+
+- `List`・`Table` の `.tint`（「選んだ行の色」）を外した。一時的な UI テストで ON にして撮ると、選んだ行の地は灰色のままで、色が変わらなかった
+- 手引きの「1 行にまとめる引数が複数ある」段落を、「中身の引数 1 つを ON / OFF にし、ほかを required にする（既定の値があるかは問わない）」に広げた。`onScrollGeometryChange` の `for`・`of` や `safeAreaBar` の `edge` は既定の値がないため
+- `scrollPosition` の要約を「anchor の位置に見えている子の id」に直した
+- `onScrollVisibilityChange` のコードに、「目印」の `.frame(maxWidth: .infinity, minHeight: 44)` を書いた（threshold は目印の高さに対する割合なので、効き目に関わる）
+- `SectionIndexDemo` の入れ子の型 `Group` を `LetterGroup` にした（`SwiftUI.Group` を隠さないため）
+- `scrollIndicators` のプロパティの説明に、iOS では `.visible` も自動で消え、`.never` と `.hidden` が同じに見えることを足した
 
 ## 終わったら
 

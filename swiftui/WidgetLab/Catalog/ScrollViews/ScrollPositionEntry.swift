@@ -5,7 +5,7 @@ nonisolated extension CatalogEntry {
         id: "scrollPosition",
         kind: .modifier,
         topic: .scrollViews,
-        summary: "ScrollView のいまの位置（いちばん上に見えている子の id）を値に結び付ける modifier。値を変えるとスクロールする。",
+        summary: "ScrollView のいまの位置（anchor の位置に見えている子の id。.top なら、いちばん上の子）を値に結び付ける modifier。値を変えるとスクロールする。",
         docURL: URL(string: "https://developer.apple.com/documentation/swiftui/view/scrollposition(id:anchor:)")!,
         stage: .card,
         properties: [

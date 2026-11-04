@@ -19,7 +19,6 @@ nonisolated extension CatalogEntry {
                     ],
                     initial: 1),
                 on: true, summary: "一覧の見た目のスタイル"),
-            .modifier("tint", .color(initial: 3), summary: "選んだ行の色"),
         ],
         code: CodeTemplate(
             call: "List",
@@ -28,8 +27,7 @@ nonisolated extension CatalogEntry {
             AnyView(
                 ListDemo(
                     selects: v["selection"] != nil,
-                    style: v.pick("listStyle", from: ListDemo.Style.allCases),
-                    tint: v.color("tint"))
+                    style: v.pick("listStyle", from: ListDemo.Style.allCases))
             )
         }
     )
@@ -42,7 +40,6 @@ private struct ListDemo: View {
 
     let selects: Bool
     let style: Style?
-    let tint: Color?
     @State private var selected: String? = "みかん"
 
     var body: some View {
@@ -56,7 +53,6 @@ private struct ListDemo: View {
                 case .grouped: view.listStyle(.grouped)
                 }
             }
-            .apply(tint) { $0.tint($1) }
     }
 
     @ViewBuilder

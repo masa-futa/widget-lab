@@ -9,15 +9,14 @@ nonisolated extension CatalogEntry {
         docURL: URL(string: "https://developer.apple.com/documentation/swiftui/table")!,
         stage: .card,
         properties: [
-            .argument("selection", .fixed(code: "$selected"), on: true, summary: "選んだ行の id を入れる値（タップで行を選ぶ）"),
-            .modifier("tint", .color(initial: 3), summary: "選んだ行の色"),
+            .argument("selection", .fixed(code: "$selected"), on: true, summary: "選んだ行の id を入れる値（タップで行を選ぶ）")
         ],
         code: CodeTemplate(
             call: "Table", fixedArguments: ["fruits"],
             trailing: " {\n    TableColumn(\"名前\", value: \\.name)\n    TableColumn(\"産地\", value: \\.origin)\n"
                 + "    TableColumn(\"値段\") { Text(\"\\($0.price) 円\") }\n}"),
         build: { v in
-            AnyView(TableDemo(selects: v["selection"] != nil, tint: v.color("tint")))
+            AnyView(TableDemo(selects: v["selection"] != nil))
         }
     )
 }
@@ -37,16 +36,9 @@ private struct TableDemo: View {
     ]
 
     let selects: Bool
-    let tint: Color?
     @State private var selected: Fruit.ID? = "みかん"
 
     var body: some View {
-        table
-            .apply(tint) { $0.tint($1) }
-    }
-
-    @ViewBuilder
-    private var table: some View {
         if selects {
             Table(Self.fruits, selection: $selected) { columns }
         } else {
