@@ -399,5 +399,12 @@ nonisolated enum Catalog {
         .accessibilityRespondsToUserInteraction,
         .accessibilityLabel,
         .accessibilityInputLabels,
+        .accessibilityLabeledPair,
+        .accessibilityValue,
+        .accessibilityTextContentType,
+        .accessibilityHeading,
+        .accessibilityChartDescriptor,
+        .accessibilityCustomContent,
+        .accessibilityAddTraits,
     ]
 }
