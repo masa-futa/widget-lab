@@ -385,5 +385,12 @@ nonisolated enum Catalog {
         .accessibilityIgnoresInvertColors,
         .accessibilityShowsLargeContentViewer,
         .assistiveAccessNavigationIcon,
+        .accessibilityAction,
+        .accessibilityActions,
+        .accessibilityAdjustableAction,
+        .accessibilityScrollAction,
+        .accessibilityActivationPoint,
+        .accessibilityDragPoint,
+        .accessibilityDropPoint,
     ]
 }
