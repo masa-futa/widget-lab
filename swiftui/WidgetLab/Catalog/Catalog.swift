@@ -190,5 +190,12 @@ nonisolated enum Catalog {
         .groupBoxStyle,
         .indexViewStyle,
         .labeledContentStyle,
+        .image,
+        .imageScale,
+        .asyncImage,
+        .symbolVariant,
+        .symbolEffect,
+        .symbolEffectsRemoved,
+        .symbolRenderingMode,
     ]
 }
