@@ -310,5 +310,13 @@ nonisolated enum Catalog {
         .onReceive,
         .environmentObject,
         .environmentObjectWrapper,
+        .environmentWrapper,
+        .environment,
+        .transformEnvironment,
+        .defaultAppStorage,
+        .appStorage,
+        .sceneStorage,
+        .fetchRequest,
+        .sectionedFetchRequest,
     ]
 }
