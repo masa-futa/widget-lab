@@ -154,6 +154,21 @@ final class LaunchUITests: XCTestCase {
     }
 
     @MainActor
+    func testA11yEntriesShowPreview() {
+        // UI テストはアクセシビリティの木を読めるので、modifier が木に届いたことを確かめる
+        let label = openDetail(
+            searching: "accessibilityLabel", entryID: "accessibilityLabel", title: ".accessibilityLabel")
+        XCTAssertTrue(label.buttons["ごみ箱に入れる"].waitForExistence(timeout: 5), label.debugDescription)
+        attachScreenshot(label, name: "accessibilityLabel")
+        label.terminate()
+        let element = openDetail(
+            searching: "accessibilityElement", entryID: "accessibilityElement", title: ".accessibilityElement")
+        XCTAssertTrue(element.staticTexts["星、お気に入り、12"].waitForExistence(timeout: 5), element.debugDescription)
+        attachScreenshot(element, name: "accessibilityElement")
+        element.terminate()
+    }
+
+    @MainActor
     func testInputEntriesShowPreview() {
         let tap = openDetail(searching: "onTapGesture", entryID: "onTapGesture", title: ".onTapGesture")
         tap.buttons["2 回タップ"].doubleTap()

@@ -103,9 +103,9 @@ modifier の収録は、まず「引数」の形を考える。引数がどれ�
 
 ## 5. 見た目の確かめは、テストの画像とシミュレータの画像で分ける
 
-`CatalogTests` の `buildsAllCombinations` が、全件を全部 OFF・全部 ON・選択肢ごとに組み立て、`.card` と `.behavior` は `ImageRenderer` で描く。id と Manifest の一致、チップの名前の重なり、required の引数に兄弟があるか、1 つの行の鍵に違う modifier の名前が混ざっていないかも見ている。だから収録ごとのテストは書かない。新しい型の使い方を足したときだけ `CodeGeneratorTests` に足す。
+`CatalogTests` の `buildsAllCombinations` が、全件を全部 OFF・全部 ON・選択肢ごとに組み立て、`.card` と `.behavior` は `ImageRenderer` で描く。id と Manifest の一致、Manifest の全件が `Catalog.all` にあること（抜け 0。束 11 から）、チップの名前の重なり、required の引数に兄弟があるか、1 つの行の鍵に違う modifier の名前が混ざっていないかも見ている。だから収録ごとのテストは書かない。新しい型の使い方を足したときだけ `CodeGeneratorTests` に足す。
 
-ただし `ImageRenderer` は、ScrollView・List・Form・GroupBox・ControlGroup を白く描き、UIKit で描くコントロール（Toggle・Slider・Stepper・Picker・DatePicker・ColorPicker・Menu など）を黄色の地に禁止の印で描く。エラーにはならないので、テストが通っても見た目は確かめられていない。これらは一時的な UI テストで詳細画面を撮って見る。束の終わりには、代表の 1〜2 件を撮る UI テストを残す（束 1 は `testLayoutEntriesShowPreview`、束 2 は `testTextEntriesShowPreview`、束 3 は `testControlEntriesShowPreview`、束 4 は `testDrawingEntriesShowPreview`、束 5 は `testStyleEntriesShowPreview`、束 6 は `testListEntriesShowPreview`、束 7 は `testNavigationEntriesShowPreview`、束 8 は `testShellEntriesShowPreview`、束 9 は `testDataEntriesShowPreview`、束 10 は `testInputEntriesShowPreview`）。
+ただし `ImageRenderer` は、ScrollView・List・Form・GroupBox・ControlGroup を白く描き、UIKit で描くコントロール（Toggle・Slider・Stepper・Picker・DatePicker・ColorPicker・Menu など）を黄色の地に禁止の印で描く。エラーにはならないので、テストが通っても見た目は確かめられていない。これらは一時的な UI テストで詳細画面を撮って見る。束の終わりには、代表の 1〜2 件を撮る UI テストを残す（束 1 は `testLayoutEntriesShowPreview`、束 2 は `testTextEntriesShowPreview`、束 3 は `testControlEntriesShowPreview`、束 4 は `testDrawingEntriesShowPreview`、束 5 は `testStyleEntriesShowPreview`、束 6 は `testListEntriesShowPreview`、束 7 は `testNavigationEntriesShowPreview`、束 8 は `testShellEntriesShowPreview`、束 9 は `testDataEntriesShowPreview`、束 10 は `testInputEntriesShowPreview`、束 11 は `testA11yEntriesShowPreview`）。
 
 撮った画像は `xcrun xcresulttool export attachments --path <最新の build/Logs/Test/*.xcresult> --output-path build/shots` で取り出せる。名前と画像のファイルの対応は `build/shots/manifest.json` にある。
 
@@ -258,6 +258,16 @@ modifier と suffix の字下げは、呼び出しで決まる。呼び出しが
 
 **iPhone では出ないもの（束 10 で `.note` にした）:** ポインタの効果と出入り（`onHover`・`onContinuousHover`・`hoverEffect`・`hoverEffectDisabled`・`defaultHoverEffect`。iPhone にはポインタがない）、Apple Pencil（`onPencilDoubleTap`・`onPencilSqueeze`）、Apple Watch のダブルタップ（`handGestureShortcut`）。`onCameraCaptureEvent` は、撮影の画面とカメラが要るので `.note` にした（1 割の数に入る）。
 
+**支援技術がないと効き目が見えない modifier → 見本の下に「支援技術に渡る中身」の札を出す。** SwiftUI は、VoiceOver などの支援技術が動いていないとアクセシビリティの要素を作らない（`UIHostingController` の `accessibilityElements` は空だった）ので、アプリの中から木を読んで出すことはできない。`Catalog/AccessibilityFundamentals/AccessibilityDemo.swift` の `A11yDemo(title:lines:) { 見本 }` で、見本に渡したのと同じ値から札を書く。特性は SwiftUI の名前（`.isButton` など）で書き、VoiceOver の日本語の言い方は書かない。触れる場所の modifier は `A11yPointMarker` の赤い点で場所を出す（束 11）。
+
+**札の中身は、一時的な UI テストの木と突き合わせる。** UI テストは支援技術として木を読めるので、`app.debugDescription` を書き出して札と比べる。`.combine` のラベルは「、」でつなぐ、SF Symbols の既定のラベルは日本語の名前（`trash` は「ゴミ箱」、`sparkles` は「ぴかぴか」）、`Label` は絵と文字の 2 つの要素、`Text("\(3000) 歩")` は「3,000 歩」になる。ただし UI テストの木は VoiceOver と同じではない（`accessibilityHidden(true)` の View も出る、`accessibilityLabeledPair` の組は出ない）。束の終わりの UI テストでは、ラベルが木に届いたことを `buttons["ごみ箱に入れる"]` のように確かめられる（束 11）。
+
+**`accessibilityRepresentation` の付け外し → `.id` で見本を作り直す。** 同じ View のまま representation を外すと、UI テストでアプリが idle にならず止まった（束 11）。
+
+**文字の大きさを変えて撮る → `launchArguments` に `-UIPreferredContentSizeCategoryName UICTContentSizeCategoryAccessibilityXL` を足す。** `accessibilityLargeContentViewerEnabled` は true になるが、UI テストの長押しでは大きく出す画面は撮れなかった。iOS の UI テストには `XCUIElement.increment()` もないので、調整できる要素の上げ下げも試せない（束 11）。
+
+**iPhone で試せなかったアクセシビリティの modifier（束 11 で `.note` にした）:** `assistiveAccessNavigationIcon`（アシスティブアクセスに入ったときだけ効き、アプリの中からは入れない）。VoiceOver で聞けば確かめられるもの（speech の 4 件・ローター）は、札で違いを見せて `.card` にした。
+
 ## 用語
 
 - **収録**: 1 つの API（View・modifier・プロパティラッパー・ジェスチャー）を 1 件として `CatalogEntry` に書いたもの
@@ -268,4 +278,4 @@ modifier と suffix の字下げは、呼び出しで決まる。呼び出しが
 
 この手引きで決まらないことは、束の計画で決め、決めたことをここに足す。型を変える判断は ADR-0002 に書く。
 
-最終更新: 2026-11-04（束 2〜10 のあと）
+最終更新: 2026-11-04（束 2〜11 のあと）
