@@ -193,4 +193,42 @@ struct DetailViewModelTests {
         #expect(viewModel.valueLabel("State") == "OFF")
         #expect(viewModel.selectedLine?.text == "private let box = Box()  // SwiftUI が見張らない参照型")
     }
+
+    @Test func fullTrialShowsWithSideFirstAndDropsOnlySelectedPropertyOnWithoutSide() {
+        let viewModel = DetailViewModel(entry: .statusBarHidden, clipboard: clipboard)
+        viewModel.isTryingFull = true
+        #expect(viewModel.trialShowsWith)
+        #expect(viewModel.trialValues == viewModel.current)
+        viewModel.trialShowsWith = false
+        #expect(viewModel.trialValues["statusBarHidden"] == nil)
+        #expect(viewModel.current["statusBarHidden"] != nil)
+    }
+
+    @Test func reopeningFullTrialStartsFromWithSideAndRestartsDemo() {
+        let viewModel = DetailViewModel(entry: .statusBarHidden, clipboard: clipboard)
+        viewModel.isTryingFull = true
+        viewModel.trialShowsWith = false
+        viewModel.isTryingFull = false
+        let start = viewModel.demoGeneration
+        viewModel.isTryingFull = true
+        #expect(viewModel.trialShowsWith)
+        #expect(viewModel.demoGeneration > start)
+    }
+
+    @Test func fullTrialKeepsRequiredPropertyOnWithoutSide() {
+        let viewModel = DetailViewModel(entry: .link, clipboard: clipboard)
+        viewModel.selectedID = "title"
+        viewModel.trialShowsWith = false
+        #expect(viewModel.trialValues == viewModel.current)
+    }
+
+    @Test func fullTrialWithSideTurnsOnSelectedPropertyThatIsOff() {
+        let viewModel = DetailViewModel(entry: .navigationLink, clipboard: clipboard)
+        viewModel.selectedID = "disabled"
+        #expect(viewModel.current["disabled"] == nil)
+        viewModel.trialShowsWith = true
+        #expect(viewModel.trialValues["disabled"] != nil)
+        viewModel.trialShowsWith = false
+        #expect(viewModel.trialValues["disabled"] == nil)
+    }
 }

@@ -73,13 +73,13 @@ nonisolated extension CatalogEntry {
 | `.card` | プレビューの枠に収まり、触って変化が見えるもの | 33 件すべて |
 | `.behavior` | 見た目を持たず、記録（描き直しの回数・ログ）で違いを見せるもの | `@State`・`@Binding`・`TapGesture` |
 | `.note(reason:)` | アプリの 1 画面の中で、効き目を見ることも触ることもできないもの | なし |
-| `.full` | 全画面・sheet で開くもの | なし |
+| `.full` | 画面の行き来の入れ物（NavigationStack・TabView）と、表示の単位ぜんたいに効くもの。詳細の「試す」から全画面で開く | なし |
 
 **`.note` の基準**は、アプリ拡張の中で効くもの、iOS では効かない窓の modifier、外の仕組み（Core Data など）が要るもの。理由には使う場所を一言入れる（例: 「ウィジェットの中で効く」）。`.note` は `build` を書かない初期化（`noteReason:` を渡すもの）で書ける。チップとコードはふつうに動く。迷ったら束の計画で 1 件ずつ決める。束 4 では `materialActiveAppearance` を `.note` にした（iOS では `.inactive` が使えず、窓もいつも手前にあるので、見た目が変わらない）。束 5 では `textEditorStyle`・`tableStyle` を `.note` にした（iPhone では選べる既製のスタイルがどれも同じ見た目になり、`TextEditorStyleConfiguration` は中身を渡さないので自作のスタイルも作れない）。
 
-`.note` にしたくなっても、まず枠の中で見せる方法を探す。束 1 の `ignoresSafeArea` は、親に `.safeAreaPadding(.vertical, 40)` をかけて安全な領域を作り、`.card` で見せられた。`.note` が全体の 1 割を超えたら ADR-0002 を見直す約束になっている。
+`.note` にしたくなっても、まず枠の中で見せる方法を探す。束 1 の `ignoresSafeArea` は、親に `.safeAreaPadding(.vertical, 40)` をかけて安全な領域を作り、`.card` で見せられた。`.note` のうち、iPhone で見せる工夫が足りずに `.note` にしたものが全体の 1 割を超えたら、ADR-0002 を見直す約束になっている。iPhone では効かないと公式か試作で確かめたもの（iPad・Mac・Apple Watch だけで効くもの、アプリ拡張の中で効くもの）は数えない（2026-11-04 束 7 で決定。束 7 の 19 件で、`.note` が全体の 1 割を超えたため。束 5〜7 のマージのあとで 32 / 303 件）。
 
-**`.full` はまだ動かない（2026-11-03 時点）。** 型にはあるが、詳細画面の「試す」から全画面で開く仕組みを作っていない。今は `.card` と同じく枠の中に描かれる。仕組みは束 7（画面の行き来）で作る。束 3 では、表示の単位（presentation）ぜんたいに効く modifier（`preferredColorScheme`・`statusBarHidden`・`persistentSystemOverlays`）を、仕組みより先に `.full` にした（2026-11-03 オーナーが決定）。`.card` にすると一覧の行の見本からも効いてしまい（行が見えただけでアプリ全体が暗くなる）、押し込んだ詳細画面からではステータスバーが消えないため。仕組みができるまでは、比べるで付けた側の効き目が画面全体にかかり（`preferredColorScheme` は左右とも暗くなる）、`statusBarHidden`・`persistentSystemOverlays` は効き目が見えない。
+**`.full` は、詳細の「試す」から全画面で開く（束 7 で作った）。** 枠には見本を描かず「試す」のボタンだけを出し、押すと見本を画面いっぱいに出す。下の帯の「付けない｜付けた」で、選んでいるプロパティを外した見本に切り替え、「閉じる」で詳細に戻る。値を変えるときは、詳細のチップと編集パネルで変えてから、もう一度「試す」を押す。一覧の行は絵にする。束 3 では、表示の単位（presentation）ぜんたいに効く modifier（`preferredColorScheme`・`statusBarHidden`・`persistentSystemOverlays`）を `.full` にした（2026-11-03 オーナーが決定）。`.card` にすると一覧の行の見本からも効いてしまい（行が見えただけでアプリ全体が暗くなる）、押し込んだ詳細画面からではステータスバーが消えないため。全画面で開けば、その表示の単位でだけ効く。
 
 ## 4. 形は 3 つ。modifier を消して比べたいなら「付け外し」
 
@@ -105,7 +105,7 @@ modifier の収録は、まず「引数」の形を考える。引数がどれ�
 
 `CatalogTests` の `buildsAllCombinations` が、全件を全部 OFF・全部 ON・選択肢ごとに組み立て、`.card` と `.behavior` は `ImageRenderer` で描く。id と Manifest の一致、チップの名前の重なり、required の引数に兄弟があるか、1 つの行の鍵に違う modifier の名前が混ざっていないかも見ている。だから収録ごとのテストは書かない。新しい型の使い方を足したときだけ `CodeGeneratorTests` に足す。
 
-ただし `ImageRenderer` は、ScrollView・List・Form・GroupBox・ControlGroup を白く描き、UIKit で描くコントロール（Toggle・Slider・Stepper・Picker・DatePicker・ColorPicker・Menu など）を黄色の地に禁止の印で描く。エラーにはならないので、テストが通っても見た目は確かめられていない。これらは一時的な UI テストで詳細画面を撮って見る。束の終わりには、代表の 1〜2 件を撮る UI テストを残す（束 1 は `testLayoutEntriesShowPreview`、束 2 は `testTextEntriesShowPreview`、束 3 は `testControlEntriesShowPreview`、束 4 は `testDrawingEntriesShowPreview`、束 5 は `testStyleEntriesShowPreview`、束 6 は `testListEntriesShowPreview`）。
+ただし `ImageRenderer` は、ScrollView・List・Form・GroupBox・ControlGroup を白く描き、UIKit で描くコントロール（Toggle・Slider・Stepper・Picker・DatePicker・ColorPicker・Menu など）を黄色の地に禁止の印で描く。エラーにはならないので、テストが通っても見た目は確かめられていない。これらは一時的な UI テストで詳細画面を撮って見る。束の終わりには、代表の 1〜2 件を撮る UI テストを残す（束 1 は `testLayoutEntriesShowPreview`、束 2 は `testTextEntriesShowPreview`、束 3 は `testControlEntriesShowPreview`、束 4 は `testDrawingEntriesShowPreview`、束 5 は `testStyleEntriesShowPreview`、束 6 は `testListEntriesShowPreview`、束 7 は `testNavigationEntriesShowPreview`）。
 
 撮った画像は `xcrun xcresulttool export attachments --path <最新の build/Logs/Test/*.xcresult> --output-path build/shots` で取り出せる。名前と画像のファイルの対応は `build/shots/manifest.json` にある。
 
@@ -208,6 +208,16 @@ modifier と suffix の字下げは、呼び出しで決まる。呼び出しが
 
 **操作してから見る効き目 → 一時的な UI テストで操作してから撮る。** チップは `app.buttons["chip-<プロパティの id>"]`、編集パネルの ON / OFF は `app.switches["editor-on"]` で、スイッチの右端（`coordinate(withNormalizedOffset: CGVector(dx: 0.95, dy: 0.5))`）を押す（真ん中を押しても切り替わらない）。引っ張って更新は、行の座標から `press(forDuration:thenDragTo:)` で下へ引く。
 
+**画面を重ねて出すもの → `.card` でボタンから出す。** sheet・alert・popover・fileImporter などは、見本をボタンにすると、押したときに詳細の画面の上に出る。比べるでは、仕切りの右（付けた側）のボタンを押したときだけ出る。シートの中身にかける modifier（`presentationDetents` など）は、`Catalog/ModalPresentations/ModalDemo.swift` の `SheetModifierDemo` で開き、コードは `CodeTemplate.inSheet()`（`Button` → `.sheet {` → 中身の `Text` に modifier）の形にする（束 7）。
+
+**画面の行き来の入れ物 → `.full` にする。** NavigationStack・TabView などを枠の中に描くと、詳細の NavigationStack の中に入れ子になる。全画面で開けば、題名・戻るボタン・タブバーがふつうに出る。中の画面にかける modifier（`navigationTitle` など）も同じ（束 7）。
+
+**iPhone では出ないもの（束 7 で `.note` にした）:** TabView のサイドバー（`defaultTabBarPlacement(.sidebar)` でも、iOS 27.0 の iPhone 18 Pro ではタブバーのまま。サイドバーにかける modifier は見えない）、シートの大きさと置き場所（`presentationSizing`・`presentationPlacement`。iPhone のシートはいつも幅いっぱい）、`dismissalConfirmationDialog`（シートを下げても出なかった）。`sectionActions` は List の Section でも効くので `.card` にした。
+
+**システムのファイルの画面を撮る → 押してから 5 秒ほど待つ。** fileImporter・fileExporter・fileMover の画面は、出るまで数秒かかる。
+
+**`preferredColorScheme` を全画面で試す → 「付けない」に切り替えても暗いまま。** 表示の単位が最後の値を覚えているため。閉じれば詳細は元の見た目に戻る。
+
 ## 用語
 
 - **収録**: 1 つの API（View・modifier・プロパティラッパー・ジェスチャー）を 1 件として `CatalogEntry` に書いたもの
@@ -218,4 +228,4 @@ modifier と suffix の字下げは、呼び出しで決まる。呼び出しが
 
 この手引きで決まらないことは、束の計画で決め、決めたことをここに足す。型を変える判断は ADR-0002 に書く。
 
-最終更新: 2026-11-04（束 2・3・4・5・6 のあと）
+最終更新: 2026-11-04（束 2〜7 のあと）

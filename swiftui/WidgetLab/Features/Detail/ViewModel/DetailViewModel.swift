@@ -12,6 +12,18 @@ final class DetailViewModel {
     var isComparing = false {
         didSet { if oldValue != isComparing { restartDemo() } }
     }
+    /// 全画面で試しているか（stage が .full の収録だけ）。開くたびに付けた側から始める
+    var isTryingFull = false {
+        didSet {
+            guard oldValue != isTryingFull else { return }
+            trialShowsWith = true
+            restartDemo()
+        }
+    }
+    /// 全画面で、選んでいるプロパティを付けた側を出すか（false なら付けない側）
+    var trialShowsWith = true {
+        didSet { if oldValue != trialShowsWith { restartDemo() } }
+    }
     /// コードをコピーした直後に true
     private(set) var didCopy = false
     /// 見本の記録（見た目を持たないものの見本が書く）
@@ -67,6 +79,7 @@ final class DetailViewModel {
         values = Dictionary(uniqueKeysWithValues: entry.properties.map { ($0.id, $0.control.initialValue) })
         enabled = entry.initialValues.ids
         isComparing = false
+        trialShowsWith = true
         didCopy = false
         restartDemo()
     }
@@ -96,6 +109,14 @@ final class DetailViewModel {
         without[id] = nil
         with[id] = values[id]
         return (without, with)
+    }
+
+    /// 全画面で試すときに渡す値。付けた側は選んでいるプロパティを付け、付けない側は外す（ほかは今の値）
+    var trialValues: PropertyValues {
+        guard canCompare, let id = selectedID else { return current }
+        var trial = current
+        trial[id] = trialShowsWith ? values[id] : nil
+        return trial
     }
 
     /// チップに出す今の値（OFF なら "OFF"）

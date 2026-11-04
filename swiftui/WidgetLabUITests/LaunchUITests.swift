@@ -94,6 +94,37 @@ final class LaunchUITests: XCTestCase {
         }
     }
 
+    /// 全画面の収録は「試す」で全画面に開き、付けない側に切り替えられ、閉じると詳細に戻る
+    @MainActor
+    func testFullEntryOpensFullScreenAndCloses() {
+        let app = openDetail(searching: "statusBarHidden", entryID: "statusBarHidden", title: ".statusBarHidden")
+        app.buttons["try-full"].tap()
+        let close = app.buttons["close-full"]
+        XCTAssertTrue(close.waitForExistence(timeout: 5), app.debugDescription)
+        XCTAssertTrue(app.staticTexts["画面のいちばん上の時刻を見る"].exists)
+        attachScreenshot(app, name: "statusBarHidden-full")
+        app.buttons["付けない"].tap()
+        attachScreenshot(app, name: "statusBarHidden-full-without")
+        close.tap()
+        XCTAssertTrue(app.navigationBars[".statusBarHidden"].waitForExistence(timeout: 5), app.debugDescription)
+    }
+
+    @MainActor
+    func testNavigationEntriesShowPreview() {
+        let sheet = openDetail(
+            searching: "presentationDetents", entryID: "presentationDetents", title: ".presentationDetents")
+        sheet.buttons["シートを開く"].tap()
+        XCTAssertTrue(sheet.staticTexts["シートの中身"].waitForExistence(timeout: 5), sheet.debugDescription)
+        attachScreenshot(sheet, name: "presentationDetents")
+        sheet.terminate()
+        let stack = openDetail(searching: "NavigationStack", entryID: "NavigationStack", title: "NavigationStack")
+        stack.buttons["try-full"].tap()
+        stack.buttons["ぶどうの先まで"].tap()
+        XCTAssertTrue(stack.staticTexts["ぶどうの先"].waitForExistence(timeout: 5), stack.debugDescription)
+        attachScreenshot(stack, name: "NavigationStack")
+        stack.terminate()
+    }
+
     /// 起動して、検索の結果から詳細を開く
     @MainActor
     private func openDetail(searching text: String, entryID: String, title: String) -> XCUIApplication {

@@ -3,6 +3,7 @@ import SwiftUI
 /// プレビュー。比べるときは、左に「付けない」、右に「付けた」を出す
 /// 見た目のもの（.card）は重ねて仕切りで見比べ、見た目を持たないもの（.behavior）は左右に並べて下に記録を出す
 /// 説明だけのもの（.note）は、見本の代わりに試せない理由を出す
+/// 全画面のもの（.full）は、枠に「試す」のボタンだけを出し、押すと見本を全画面で開く（比べるは全画面の中で切り替える）
 struct PreviewArea: View {
     let viewModel: DetailViewModel
     /// 仕切りの位置（左端 0 〜 右端 1）
@@ -27,11 +28,16 @@ struct PreviewArea: View {
         }
         .background(Self.areaBackground)
         .clipped()
+        .fullScreenCover(
+            isPresented: Binding(get: { viewModel.isTryingFull }, set: { viewModel.isTryingFull = $0 })
+        ) {
+            FullTrialScreen(viewModel: viewModel)
+        }
     }
 
     @ViewBuilder
     private var compareToggle: some View {
-        if viewModel.canCompare {
+        if viewModel.canCompare, viewModel.entry.stage != .full {
             Toggle(isOn: Binding(get: { viewModel.isComparing }, set: { viewModel.isComparing = $0 })) {
                 // 押せる範囲は label の大きさになるので、ここで 44pt 以上にする
                 Text("比べる").frame(minWidth: 44, minHeight: 44)
@@ -46,6 +52,8 @@ struct PreviewArea: View {
         let pair = viewModel.comparison
         if case .note(let reason) = viewModel.entry.stage {
             NoteView(reason: reason)
+        } else if viewModel.entry.stage == .full {
+            FullLauncher { viewModel.isTryingFull = true }
         } else if viewModel.entry.stage == .behavior {
             if let pair {
                 HStack(spacing: 0) {
@@ -126,6 +134,70 @@ struct PreviewArea: View {
                         }
                     }
             }
+        }
+    }
+}
+
+/// 全画面の収録で、見本の代わりに出す。押すと全画面で開く
+private struct FullLauncher: View {
+    let onTry: () -> Void
+
+    var body: some View {
+        VStack(spacing: 12) {
+            Image(systemName: "rectangle.portrait")
+                .font(.title)
+                .foregroundStyle(.secondary)
+                .accessibilityHidden(true)
+            Text("画面ぜんたいで動くので、全画面で開いて試します")
+                .font(.subheadline)
+                .foregroundStyle(.secondary)
+                .multilineTextAlignment(.center)
+            Button("試す", systemImage: "arrow.up.left.and.arrow.down.right", action: onTry)
+                .buttonStyle(.borderedProminent)
+                .accessibilityIdentifier("try-full")
+        }
+        .padding(24)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+    }
+}
+
+/// 全画面で試す。上に見本、下に比べるの切り替えと閉じるのボタン
+/// （見本に重ねると、TabView のタブバーやナビゲーションバーを隠すので、下に並べる）
+private struct FullTrialScreen: View {
+    let viewModel: DetailViewModel
+
+    var body: some View {
+        VStack(spacing: 0) {
+            viewModel.entry.build(viewModel.trialValues)
+                .id(viewModel.demoGeneration)
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+            Divider()
+            HStack(spacing: 12) {
+                if viewModel.canCompare, let selected = viewModel.selected {
+                    // どのプロパティを切り替えるかを目で見えるようにする（VoiceOver は Picker のラベルで読める）
+                    Text(selected.displayName)
+                        .font(.caption.monospaced())
+                        .foregroundStyle(.secondary)
+                        .lineLimit(1)
+                        .accessibilityHidden(true)
+                    Picker(
+                        selected.displayName,
+                        selection: Binding(get: { viewModel.trialShowsWith }, set: { viewModel.trialShowsWith = $0 })
+                    ) {
+                        Text("付けない").tag(false)
+                        Text("付けた").tag(true)
+                    }
+                    .pickerStyle(.segmented)
+                    .accessibilityIdentifier("trial-side")
+                }
+                Spacer(minLength: 0)
+                Button("閉じる") { viewModel.isTryingFull = false }
+                    .buttonStyle(.bordered)
+                    .accessibilityIdentifier("close-full")
+            }
+            .padding(.horizontal, 16)
+            .padding(.vertical, 8)
+            .background(.bar)
         }
     }
 }
