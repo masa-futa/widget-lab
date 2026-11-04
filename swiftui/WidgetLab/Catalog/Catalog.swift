@@ -311,5 +311,12 @@ nonisolated enum Catalog {
         .spatialEventGesture,
         .gesture,
         .dragGesture,
+        .magnifyGesture,
+        .rotateGesture,
+        .magnificationGesture,
+        .rotationGesture,
+        .sequenceGesture,
+        .simultaneousGestureType,
+        .exclusiveGesture,
     ]
 }
