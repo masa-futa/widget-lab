@@ -169,5 +169,12 @@ nonisolated enum Catalog {
         .privacySensitive,
         .redacted,
         .unredacted,
+        .list,
+        .outlineGroup,
+        .disclosureGroup,
+        .listRowInsets,
+        .listRowSpacing,
+        .listSectionSpacing,
+        .listSectionMargins,
     ]
 }
