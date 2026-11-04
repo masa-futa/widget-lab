@@ -183,5 +183,12 @@ nonisolated enum Catalog {
         .defaultTabBarPlacement,
         .defaultAdaptableTabBarPlacement,
         .sectionActions,
+        .tabViewSidebarHeader,
+        .tabViewSidebarFooter,
+        .tabViewSidebarBottomBar,
+        .tabViewCustomization,
+        .sheet,
+        .fullScreenCover,
+        .popover,
     ]
 }
