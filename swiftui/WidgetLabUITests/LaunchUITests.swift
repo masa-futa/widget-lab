@@ -153,6 +153,21 @@ final class LaunchUITests: XCTestCase {
         anchor.terminate()
     }
 
+    @MainActor
+    func testA11yEntriesShowPreview() {
+        // UI テストはアクセシビリティの木を読めるので、modifier が木に届いたことを確かめる
+        let label = openDetail(
+            searching: "accessibilityLabel", entryID: "accessibilityLabel", title: ".accessibilityLabel")
+        XCTAssertTrue(label.buttons["ごみ箱に入れる"].waitForExistence(timeout: 5), label.debugDescription)
+        attachScreenshot(label, name: "accessibilityLabel")
+        label.terminate()
+        let element = openDetail(
+            searching: "accessibilityElement", entryID: "accessibilityElement", title: ".accessibilityElement")
+        XCTAssertTrue(element.staticTexts["星、お気に入り、12"].waitForExistence(timeout: 5), element.debugDescription)
+        attachScreenshot(element, name: "accessibilityElement")
+        element.terminate()
+    }
+
     /// 起動して、検索の結果から詳細を開く
     @MainActor
     private func openDetail(searching text: String, entryID: String, title: String) -> XCUIApplication {

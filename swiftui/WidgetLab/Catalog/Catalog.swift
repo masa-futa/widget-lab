@@ -412,5 +412,9 @@ nonisolated enum Catalog {
         .speechAlwaysIncludesPunctuation,
         .speechAnnouncementsQueued,
         .speechSpellsOutCharacters,
+        .accessibilityRotor,
+        .accessibilityRotorEntry,
+        .accessibilityLinkedGroup,
+        .accessibilitySortPriority,
     ]
 }
