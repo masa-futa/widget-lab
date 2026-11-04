@@ -176,5 +176,12 @@ nonisolated enum Catalog {
         .listRowSpacing,
         .listSectionSpacing,
         .listSectionMargins,
+        .listItemTint,
+        .headerProminence,
+        .listRowSeparatorTint,
+        .listSectionSeparatorTint,
+        .listRowSeparator,
+        .listSectionSeparator,
+        .listRowBackground,
     ]
 }
