@@ -190,5 +190,11 @@ nonisolated enum Catalog {
         .refreshable,
         .moveDisabled,
         .deleteDisabled,
+        .listSectionIndexVisibility,
+        .sectionIndexLabel,
+        .table,
+        .tableColumnHeaders,
+        .scrollView,
+        .scrollViewReader,
     ]
 }
