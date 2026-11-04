@@ -197,5 +197,12 @@ nonisolated enum Catalog {
         .symbolEffect,
         .symbolEffectsRemoved,
         .symbolRenderingMode,
+        .animation,
+        .phaseAnimator,
+        .keyframeAnimator,
+        .timelineView,
+        .transition,
+        .contentTransition,
+        .transaction,
     ]
 }
