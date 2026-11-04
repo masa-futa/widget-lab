@@ -316,5 +316,13 @@ nonisolated enum Catalog {
         .toolbarMinimizationBehavior,
         .toolbarMinimizationRestoration,
         .toolbarMinimizationSafeAreaAdjustment,
+        .searchable,
+        .searchSuggestions,
+        .searchCompletion,
+        .searchScopes,
+        .searchPresentationToolbarBehavior,
+        .findNavigator,
+        .findDisabled,
+        .replaceDisabled,
     ]
 }
