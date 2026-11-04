@@ -105,7 +105,7 @@ modifier の収録は、まず「引数」の形を考える。引数がどれ�
 
 `CatalogTests` の `buildsAllCombinations` が、全件を全部 OFF・全部 ON・選択肢ごとに組み立て、`.card` と `.behavior` は `ImageRenderer` で描く。id と Manifest の一致、チップの名前の重なり、required の引数に兄弟があるか、1 つの行の鍵に違う modifier の名前が混ざっていないかも見ている。だから収録ごとのテストは書かない。新しい型の使い方を足したときだけ `CodeGeneratorTests` に足す。
 
-ただし `ImageRenderer` は、ScrollView・List・Form・GroupBox・ControlGroup を白く描き、UIKit で描くコントロール（Toggle・Slider・Stepper・Picker・DatePicker・ColorPicker・Menu など）を黄色の地に禁止の印で描く。エラーにはならないので、テストが通っても見た目は確かめられていない。これらは一時的な UI テストで詳細画面を撮って見る。束の終わりには、代表の 1〜2 件を撮る UI テストを残す（束 1 は `testLayoutEntriesShowPreview`、束 2 は `testTextEntriesShowPreview`、束 3 は `testControlEntriesShowPreview`、束 4 は `testDrawingEntriesShowPreview`、束 5 は `testStyleEntriesShowPreview`、束 6 は `testListEntriesShowPreview`、束 7 は `testNavigationEntriesShowPreview`）。
+ただし `ImageRenderer` は、ScrollView・List・Form・GroupBox・ControlGroup を白く描き、UIKit で描くコントロール（Toggle・Slider・Stepper・Picker・DatePicker・ColorPicker・Menu など）を黄色の地に禁止の印で描く。エラーにはならないので、テストが通っても見た目は確かめられていない。これらは一時的な UI テストで詳細画面を撮って見る。束の終わりには、代表の 1〜2 件を撮る UI テストを残す（束 1 は `testLayoutEntriesShowPreview`、束 2 は `testTextEntriesShowPreview`、束 3 は `testControlEntriesShowPreview`、束 4 は `testDrawingEntriesShowPreview`、束 5 は `testStyleEntriesShowPreview`、束 6 は `testListEntriesShowPreview`、束 7 は `testNavigationEntriesShowPreview`、束 8 は `testShellEntriesShowPreview`）。
 
 撮った画像は `xcrun xcresulttool export attachments --path <最新の build/Logs/Test/*.xcresult> --output-path build/shots` で取り出せる。名前と画像のファイルの対応は `build/shots/manifest.json` にある。
 
@@ -218,6 +218,18 @@ modifier と suffix の字下げは、呼び出しで決まる。呼び出しが
 
 **`preferredColorScheme` を全画面で試す → 「付けない」に切り替えても暗いまま。** 表示の単位が最後の値を覚えているため。閉じれば詳細は元の見た目に戻る。
 
+**ツールバーと検索の欄に効く modifier → `.full` にする。** 枠の中に描くと、詳細の NavigationStack のバーと混ざる。見本は `Catalog/Toolbars/ToolbarDemo.swift` の `ToolbarStack`・`Catalog/Search/SearchDemo.swift` の `SearchStack` に modifier をかけ、コードは `CodeTemplate.inToolbarStack()`・`.inSearchStack()` の形にする（束 8）。
+
+**ツールバーの地 → 色と組にする。** iOS 27 のバーは地がなく、`toolbarBackgroundVisibility(.visible)` だけでは見た目が変わらない。`toolbarBackground(.yellow, for:)` と組にし、大きな題名が消えるので `toolbarTitleDisplayMode(.inline)` でバーの中に出す（束 8）。
+
+**スクロールでバーを畳むもの → `for: .navigationBar` で見る。** 下のバーのボタンが 1 つだけだと、`.bottomBar` を畳んでも見た目が変わらない。安全な領域が広がるか（`toolbarMinimizationSafeAreaAdjustment`）は、`.overlay(alignment: .top)` で上の端に文字の印を置いて見る。印の地は `background(_:ignoresSafeAreaEdges: [])` にする（ふつうの `background` は安全な領域の外まで伸びる）（束 8）。
+
+**検索の範囲の切り替え → `activation: .onSearchPresentation` を渡す。** `searchScopes(_:scopes:)` のままでは、iOS 27.0 の iPhone 17 で欄を押しても出なかった（束 8）。
+
+**TextEditor の find の帯 → 文を押してから出す。** `findNavigator(isPresented:)` は、TextEditor に入力の印があるときだけ帯を出す。UI テストでは `app.textViews.firstMatch` を押してから、帯を出すボタンを押す（束 8）。
+
+**iPhone では変わらないもの（束 8 で `.note` にした）:** `toolbarRole`（iOS 26 から戻るボタンはいつも矢印だけで、.browser・.editor でも題名と戻るボタンが変わらない）、窓の modifier（`windowToolbarFullScreenVisibility` は Mac だけ、`allowsWindowActivationEvents` は窓を並べられる iPad と Mac）。アプリの入口（`UIApplicationDelegateAdaptor`）と外のディスプレイ（`sceneAccessory`）も、アプリの画面の中では見せられない。
+
 ## 用語
 
 - **収録**: 1 つの API（View・modifier・プロパティラッパー・ジェスチャー）を 1 件として `CatalogEntry` に書いたもの
@@ -228,4 +240,4 @@ modifier と suffix の字下げは、呼び出しで決まる。呼び出しが
 
 この手引きで決まらないことは、束の計画で決め、決めたことをここに足す。型を変える判断は ADR-0002 に書く。
 
-最終更新: 2026-11-04（束 2〜7 のあと）
+最終更新: 2026-11-04（束 2〜8 のあと）
