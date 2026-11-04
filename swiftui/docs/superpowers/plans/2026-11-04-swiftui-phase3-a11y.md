@@ -2983,10 +2983,24 @@ git commit -m "docs: 収録の手引きに、抜け 0 がテストの条件に�
 Co-Authored-By: Claude <実装したモデルの名前> <noreply@anthropic.com>"
 ```
 
+## 束の最終レビューで直したこと（82964c6）
+
+上の Task のコードは試作のときのもの。最終レビュー（opus）の指摘で、次の 8 件を直した。
+- accessibilityIgnoresInvertColors: 札から「今のスマート反転」の行を消した（`\.accessibilityInvertColors` はクラシックの反転を指し、スマート反転の状態ではないため）
+- accessibilityActivationPoint: `.accessibilityElement(children: .combine)` で 1 つにしてから activation point をかける順にした（見本とコード）。OFF の札の「何もない所を押す」を消した
+- accessibilityLabeledPair: ON の札を、ラベルの要素と組になったスイッチの 2 要素にした
+- accessibilityDirectTouch: `.requiresActivation` の札が「2 回タップしなくてよい」と食い違わないようにした
+- accessibilityScrollAction: 上下のスワイプ（.top・.bottom）ではページを変えない（見本とコード）
+- accessibilityAdjustableAction: 札の特性を「調整できる（UIKit の .adjustable）」にした（SwiftUI の AccessibilityTraits に .adjustable はない）
+- accessibilityAddTraits: 見本をコードと同じ `Text` にした
+- accessibilityLinkedGroup: OFF の札に「答え 2」まで書いた
+
 ## 残したこと
 
 - **大きく出す画面（`accessibilityShowsLargeContentViewer`）とスマート反転（`accessibilityIgnoresInvertColors`）の見た目は、画像で確かめていない。** UI テストの長押しでは大きく出す画面が出ず、スマート反転はシミュレータの設定を UI テストから入れられない。札の環境の値（「今は使える」）が文字の大きさで変わることは確かめた。実機かシミュレータの設定で、手で一度見る
 - **VoiceOver の実際の読み上げ・操作（speech の 4 件・ローター・操作の一覧・カーソルの移動）は、耳と手では確かめていない。** UI テストの木で確かめたのは、ラベル・値・識別子・`.combine`・並び・子まで。束 12 の仕上げで、VoiceOver を入れて代表を触る
+- **束の最終レビューで、VoiceOver で確かめないと決まらないと言われたもの:** `speechAnnouncementsQueued`（VoiceOver のカーソルが「進める」にあると、値が変わっても読まれないかもしれず、付けても付けなくても同じに聞こえるおそれ）、`accessibilityLinkedGroup`（iOS でどの操作で行き来するかが公式に書かれていない）、`accessibilityActivationPoint`（`.combine` で Toggle の操作がまとまると、押す場所にかかわらず切り替わるおそれ）、`accessibilityLabeledPair`（組にしてもラベルの要素が残るか）。束 12 で VoiceOver を入れて触るときに、合わせて見る
+- 補助の名前（`A11yDemo`・`A11yPointMarker`・`AccessibilityFocusDemo`・`DemoMail`）はモジュール全体で見える。あとの束では同じ名前を使わない
 - 比べるでは、左右の札が仕切りで切れて重なる。ほかの束と同じ見え方（仕切りを動かして読む）なので、そのままにした
 - `CatalogTests` で「FocusState の値を View の body の外で読んだ」という実行時の警告が出る（失敗ではない）。ImageRenderer で `@FocusState`・`@AccessibilityFocusState` を持つ見本を描くため。束 9 の SceneStorage の警告と同じ種類
 
