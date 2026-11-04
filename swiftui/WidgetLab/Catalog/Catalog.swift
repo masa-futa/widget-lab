@@ -343,5 +343,9 @@ nonisolated enum Catalog {
         .itemProvider,
         .dragConfiguration,
         .dropConfiguration,
+        .dragContainer,
+        .dragContainerSelection,
+        .reorderContainer,
+        .springLoadingBehavior,
     ]
 }

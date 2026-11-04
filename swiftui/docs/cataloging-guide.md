@@ -105,7 +105,7 @@ modifier の収録は、まず「引数」の形を考える。引数がどれ�
 
 `CatalogTests` の `buildsAllCombinations` が、全件を全部 OFF・全部 ON・選択肢ごとに組み立て、`.card` と `.behavior` は `ImageRenderer` で描く。id と Manifest の一致、チップの名前の重なり、required の引数に兄弟があるか、1 つの行の鍵に違う modifier の名前が混ざっていないかも見ている。だから収録ごとのテストは書かない。新しい型の使い方を足したときだけ `CodeGeneratorTests` に足す。
 
-ただし `ImageRenderer` は、ScrollView・List・Form・GroupBox・ControlGroup を白く描き、UIKit で描くコントロール（Toggle・Slider・Stepper・Picker・DatePicker・ColorPicker・Menu など）を黄色の地に禁止の印で描く。エラーにはならないので、テストが通っても見た目は確かめられていない。これらは一時的な UI テストで詳細画面を撮って見る。束の終わりには、代表の 1〜2 件を撮る UI テストを残す（束 1 は `testLayoutEntriesShowPreview`、束 2 は `testTextEntriesShowPreview`、束 3 は `testControlEntriesShowPreview`、束 4 は `testDrawingEntriesShowPreview`、束 5 は `testStyleEntriesShowPreview`、束 6 は `testListEntriesShowPreview`、束 7 は `testNavigationEntriesShowPreview`）。
+ただし `ImageRenderer` は、ScrollView・List・Form・GroupBox・ControlGroup を白く描き、UIKit で描くコントロール（Toggle・Slider・Stepper・Picker・DatePicker・ColorPicker・Menu など）を黄色の地に禁止の印で描く。エラーにはならないので、テストが通っても見た目は確かめられていない。これらは一時的な UI テストで詳細画面を撮って見る。束の終わりには、代表の 1〜2 件を撮る UI テストを残す（束 1 は `testLayoutEntriesShowPreview`、束 2 は `testTextEntriesShowPreview`、束 3 は `testControlEntriesShowPreview`、束 4 は `testDrawingEntriesShowPreview`、束 5 は `testStyleEntriesShowPreview`、束 6 は `testListEntriesShowPreview`、束 7 は `testNavigationEntriesShowPreview`、束 10 は `testInputEntriesShowPreview`）。
 
 撮った画像は `xcrun xcresulttool export attachments --path <最新の build/Logs/Test/*.xcresult> --output-path build/shots` で取り出せる。名前と画像のファイルの対応は `build/shots/manifest.json` にある。
 
@@ -218,6 +218,20 @@ modifier と suffix の字下げは、呼び出しで決まる。呼び出しが
 
 **`preferredColorScheme` を全画面で試す → 「付けない」に切り替えても暗いまま。** 表示の単位が最後の値を覚えているため。閉じれば詳細は元の見た目に戻る。
 
+**ジェスチャーとキーの入力 → 起きたことは `.behavior` の記録に出し、動きが見えるものは `.card` にする（束 10）。** タップ・長押し・内側と外側のジェスチャーの勝ち負け・キーの入力は記録に出す。ドラッグ・拡大・回転は見本が動くので `.card` にする。UI テストでは `doubleTap()`・`press(forDuration:)`・`pinch(withScale:velocity:)`・`rotate(_:withVelocity:)` で操作して撮れる。的に `.accessibilityAddTraits(.isButton)` を付けたら `app.buttons[…]` で探し、記号の画像には `.accessibilityLabel` を付けて `app.images[…]` で探す。
+
+**ハードウェアのキーボードの入力 → `typeKey` で試す。** シミュレータはハードウェアキーボードがつながっているので、`onKeyPress`・`keyboardShortcut` は UI テストの `typeKey(_:modifierFlags:)` で試せる。代わりに、入力欄をタップしても画面のキーボードは出ない（`submitLabel` は束 2 の `keyboardType` と同じく、入力欄にカーソルが入るところまで見る）。
+
+**ドラッグとドロップ → iPhone のアプリの中で動くので `.card` にする。** 見本は、上に札（`DragChip`）、下に落とす先の箱（`DropBox`）を置く（`Catalog/DragAndDrop/DragAndDropDemo.swift`）。UI テストでは `press(forDuration: 1, thenDragTo: 箱, withVelocity: .slow, thenHoldForDuration: 1)` で落とせる。「動かす」と「写す」の違いは、元の札が消えるかで見せる（`onDragSessionUpdated` で `.ended(.move)` を見る）。`dragContainerSelection` は `dragContainer` の外側（あと）にかける。内側にかけると、選んでいても引いた札 1 つしか運ばれなかった。
+
+**ジェスチャーを組み合わせる型 → 2 つのジェスチャーを、1 つの名前なしの引数（required）の選択肢にする。** `SequenceGesture`・`SimultaneousGesture`・`ExclusiveGesture` は片方だけでは書けず、`onChanged` の中身も組によって変わるため。比べるは出ない。
+
+**id の頭を小文字にした名前が、ほかの id とぶつかる → 型の側に `Type` を付ける。** `SimultaneousGesture`（型）と `simultaneousGesture`（modifier）は、型の側の `static let` を `simultaneousGestureType` にした（束 10）。
+
+**最初の値が「付けない」と同じ効き目 → 比べるで違いが出る値を最初にする。** `springLoadingBehavior` は、付けない（`.automatic`）と `.disabled` がどちらもボタンを押さなかったので、最初の値を `.enabled` にした。
+
+**iPhone では出ないもの（束 10 で `.note` にした）:** ポインタの効果と出入り（`onHover`・`onContinuousHover`・`hoverEffect`・`hoverEffectDisabled`・`defaultHoverEffect`。iPhone にはポインタがない）、Apple Pencil（`onPencilDoubleTap`・`onPencilSqueeze`）、Apple Watch のダブルタップ（`handGestureShortcut`）。`onCameraCaptureEvent` は、撮影の画面とカメラが要るので `.note` にした（1 割の数に入る）。
+
 ## 用語
 
 - **収録**: 1 つの API（View・modifier・プロパティラッパー・ジェスチャー）を 1 件として `CatalogEntry` に書いたもの
@@ -228,4 +242,4 @@ modifier と suffix の字下げは、呼び出しで決まる。呼び出しが
 
 この手引きで決まらないことは、束の計画で決め、決めたことをここに足す。型を変える判断は ADR-0002 に書く。
 
-最終更新: 2026-11-04（束 2〜7 のあと）
+最終更新: 2026-11-04（束 2〜7・10 のあと）

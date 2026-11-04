@@ -125,6 +125,22 @@ final class LaunchUITests: XCTestCase {
         stack.terminate()
     }
 
+    @MainActor
+    func testInputEntriesShowPreview() {
+        let tap = openDetail(searching: "onTapGesture", entryID: "onTapGesture", title: ".onTapGesture")
+        tap.buttons["2 回タップ"].doubleTap()
+        XCTAssertTrue(tap.staticTexts["タップ（2 回）"].waitForExistence(timeout: 5), tap.debugDescription)
+        attachScreenshot(tap, name: "onTapGesture")
+        tap.terminate()
+        let drag = openDetail(searching: "draggable", entryID: "draggable", title: ".draggable")
+        let apple = drag.staticTexts.matching(NSPredicate(format: "label == %@", "りんご")).firstMatch
+        let box = drag.staticTexts["ここに落とす"]
+        apple.press(forDuration: 1, thenDragTo: box, withVelocity: .slow, thenHoldForDuration: 1)
+        XCTAssertTrue(box.waitForNonExistence(timeout: 5), drag.debugDescription)
+        attachScreenshot(drag, name: "draggable")
+        drag.terminate()
+    }
+
     /// 起動して、検索の結果から詳細を開く
     @MainActor
     private func openDetail(searching text: String, entryID: String, title: String) -> XCUIApplication {
