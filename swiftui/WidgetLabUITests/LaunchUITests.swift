@@ -153,6 +153,29 @@ final class LaunchUITests: XCTestCase {
         anchor.terminate()
     }
 
+    @MainActor
+    func testInputEntriesShowPreview() {
+        let tap = openDetail(searching: "onTapGesture", entryID: "onTapGesture", title: ".onTapGesture")
+        tap.buttons["2 回タップ"].doubleTap()
+        XCTAssertTrue(tap.staticTexts["タップ（2 回）"].waitForExistence(timeout: 5), tap.debugDescription)
+        attachScreenshot(tap, name: "onTapGesture")
+        tap.terminate()
+        let drag = openDetail(searching: "draggable", entryID: "draggable", title: ".draggable")
+        let apple = drag.staticTexts.matching(NSPredicate(format: "label == %@", "りんご")).firstMatch
+        let box = drag.staticTexts["ここに落とす"]
+        XCTAssertTrue(apple.waitForExistence(timeout: 5), drag.debugDescription)
+        XCTAssertTrue(box.waitForExistence(timeout: 5), drag.debugDescription)
+        let hittable = XCTNSPredicateExpectation(predicate: NSPredicate(format: "hittable == true"), object: apple)
+        XCTAssertEqual(XCTWaiter().wait(for: [hittable], timeout: 5), .completed, drag.debugDescription)
+        for _ in 0..<3 where box.exists {
+            apple.press(forDuration: 1.5, thenDragTo: box, withVelocity: .slow, thenHoldForDuration: 1.5)
+            _ = box.waitForNonExistence(timeout: 3)
+        }
+        XCTAssertFalse(box.exists, drag.debugDescription)
+        attachScreenshot(drag, name: "draggable")
+        drag.terminate()
+    }
+
     /// 起動して、検索の結果から詳細を開く
     @MainActor
     private func openDetail(searching text: String, entryID: String, title: String) -> XCUIApplication {
