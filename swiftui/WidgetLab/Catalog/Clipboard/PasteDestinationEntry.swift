@@ -18,7 +18,7 @@ nonisolated extension CatalogEntry {
                 on: true, summary: "受け取ったときの処理。札にフォーカスを当て、キーボードの ⌘V で貼り付ける（iPhone ではハードウェアキーボードをつなぐ）"),
         ],
         code: CodeTemplate(
-            call: "Text", fixedArguments: ["fruits.joined(separator: \"・\")"], suffix: [".focusable()"]),
+            prefix: ["Text(fruits.joined(separator: \"・\"))"], indent: 4, call: ".focusable"),
         build: { v in
             AnyView(ClipboardDemo(command: v["pasteDestination.action"] != nil ? .paste : nil))
         }

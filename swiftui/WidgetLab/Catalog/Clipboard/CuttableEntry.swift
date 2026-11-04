@@ -18,7 +18,7 @@ nonisolated extension CatalogEntry {
                 summary: "移す物を返し、元から消す処理。札にフォーカスを当て、キーボードの ⌘X で切り取る（iPhone ではハードウェアキーボードをつなぐ）"),
         ],
         code: CodeTemplate(
-            call: "Text", fixedArguments: ["fruits.joined(separator: \"・\")"], suffix: [".focusable()"]),
+            prefix: ["Text(fruits.joined(separator: \"・\"))"], indent: 4, call: ".focusable"),
         build: { v in
             AnyView(ClipboardDemo(command: v["cuttable.action"] != nil ? .cut : nil))
         }

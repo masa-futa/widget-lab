@@ -12,6 +12,6 @@ nonisolated extension CatalogEntry {
             .modifier("focusEffectDisabled", .toggle(initial: true), on: true, summary: "フォーカスの効果を出さないか")
         ],
         code: CodeTemplate(
-            call: "Text", fixedArguments: ["\"札\""], suffix: [".focusable()"])
+            prefix: ["Text(\"札\")"], indent: 4, call: ".focusable")
     )
 }

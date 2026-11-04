@@ -14,7 +14,7 @@ nonisolated extension CatalogEntry {
                 summary: "コピーする物（Transferable の配列）。札にフォーカスを当て、キーボードの ⌘C でコピーする（iPhone ではハードウェアキーボードをつなぐ）")
         ],
         code: CodeTemplate(
-            call: "Text", fixedArguments: ["fruits.joined(separator: \"・\")"], suffix: [".focusable()"]),
+            prefix: ["Text(fruits.joined(separator: \"・\"))"], indent: 4, call: ".focusable"),
         build: { v in
             AnyView(ClipboardDemo(command: v["copyable"] != nil ? .copy : nil))
         }

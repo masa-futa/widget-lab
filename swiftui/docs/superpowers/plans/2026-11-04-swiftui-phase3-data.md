@@ -107,7 +107,7 @@ Manifest には、modifier とプロパティラッパーで、頭の文字の�
 | focusedSceneObject | .full | 付け外し | .focusedSceneObject*（`notebook`） | `VStack { NoteLabel(); TextField("題名", text: $notebook.title) }.focusedSceneObject(notebook)` |
 | FocusedObject | .card | ラッパー | @FocusedObject | 札 `@FocusedObject private var note: Note?`。外すと `private var note: Note? = nil  // フォーカスを見ない` |
 | defaultFocus | .note | 付け外し | .defaultFocus.binding R（`$field`）・.defaultFocus.value*（.mail・.name）・.defaultFocus(priority:) R（.automatic・.userInitiated） | `VStack { TextField("名前", …).focused($field, equals: .name); TextField("メール", …).focused($field, equals: .mail) }.defaultFocus($field, .mail, priority: .automatic)` |
-| focusEffectDisabled | .note | 付け外し | .focusEffectDisabled*（toggle、true） | `Text("札").focusEffectDisabled(true).focusable()` |
+| focusEffectDisabled | .note | 付け外し | .focusEffectDisabled*（toggle、true） | `Text("札").focusable().focusEffectDisabled(true)` |
 
 ### system-events（4 件）
 
@@ -122,9 +122,9 @@ Manifest には、modifier とプロパティラッパーで、頭の文字の�
 
 | id | stage | 形 | プロパティ | コードの形（最初の値） |
 |---|---|---|---|---|
-| copyable | .behavior | 付け外し | .copyable*（`fruits`） | `Text(fruits.joined(separator: "・")).copyable(fruits).focusable()` |
-| cuttable | .behavior | 付け外し | .cuttable(for:) R（`String.self`）・.cuttable(action:)*（`{ let cut = fruits; fruits = []; return cut }`） | `Text(…).cuttable(for: String.self, action: { … }).focusable()` |
-| pasteDestination | .behavior | 付け外し | .pasteDestination(for:) R・.pasteDestination(action:)*（`{ fruits += $0 }`） | `Text(…).pasteDestination(for: String.self, action: { fruits += $0 }).focusable()` |
+| copyable | .behavior | 付け外し | .copyable*（`fruits`） | `Text(fruits.joined(separator: "・")).focusable().copyable(fruits)` |
+| cuttable | .behavior | 付け外し | .cuttable(for:) R（`String.self`）・.cuttable(action:)*（`{ let cut = fruits; fruits = []; return cut }`） | `Text(…).focusable().cuttable(for: String.self, action: { … })` |
+| pasteDestination | .behavior | 付け外し | .pasteDestination(for:) R・.pasteDestination(action:)*（`{ fruits += $0 }`） | `Text(…).focusable().pasteDestination(for: String.self, action: { fruits += $0 })` |
 
 ### `.behavior` にするもの（12 件）と理由
 
@@ -2341,7 +2341,7 @@ nonisolated extension CatalogEntry {
             .modifier("focusEffectDisabled", .toggle(initial: true), on: true, summary: "フォーカスの効果を出さないか")
         ],
         code: CodeTemplate(
-            call: "Text", fixedArguments: ["\"札\""], suffix: [".focusable()"])
+            prefix: ["Text(\"札\")"], indent: 4, call: ".focusable")
     )
 }
 ```
@@ -3103,7 +3103,7 @@ nonisolated extension CatalogEntry {
                 summary: "コピーする物（Transferable の配列）。札にフォーカスを当て、キーボードの ⌘C でコピーする（iPhone ではハードウェアキーボードをつなぐ）")
         ],
         code: CodeTemplate(
-            call: "Text", fixedArguments: ["fruits.joined(separator: \"・\")"], suffix: [".focusable()"]),
+            prefix: ["Text(fruits.joined(separator: \"・\"))"], indent: 4, call: ".focusable"),
         build: { v in
             AnyView(ClipboardDemo(command: v["copyable"] != nil ? .copy : nil))
         }
@@ -3134,7 +3134,7 @@ nonisolated extension CatalogEntry {
                 summary: "移す物を返し、元から消す処理。札にフォーカスを当て、キーボードの ⌘X で切り取る（iPhone ではハードウェアキーボードをつなぐ）"),
         ],
         code: CodeTemplate(
-            call: "Text", fixedArguments: ["fruits.joined(separator: \"・\")"], suffix: [".focusable()"]),
+            prefix: ["Text(fruits.joined(separator: \"・\"))"], indent: 4, call: ".focusable"),
         build: { v in
             AnyView(ClipboardDemo(command: v["cuttable.action"] != nil ? .cut : nil))
         }
@@ -3165,7 +3165,7 @@ nonisolated extension CatalogEntry {
                 on: true, summary: "受け取ったときの処理。札にフォーカスを当て、キーボードの ⌘V で貼り付ける（iPhone ではハードウェアキーボードをつなぐ）"),
         ],
         code: CodeTemplate(
-            call: "Text", fixedArguments: ["fruits.joined(separator: \"・\")"], suffix: [".focusable()"]),
+            prefix: ["Text(fruits.joined(separator: \"・\"))"], indent: 4, call: ".focusable"),
         build: { v in
             AnyView(ClipboardDemo(command: v["pasteDestination.action"] != nil ? .paste : nil))
         }
