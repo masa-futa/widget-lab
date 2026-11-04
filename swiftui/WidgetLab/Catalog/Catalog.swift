@@ -190,5 +190,13 @@ nonisolated enum Catalog {
         .sheet,
         .fullScreenCover,
         .popover,
+        .presentationCompactAdaptation,
+        .presentationSizing,
+        .presentationDetents,
+        .presentationContentInteraction,
+        .presentationDragIndicator,
+        .presentationPlacement,
+        .presentationCornerRadius,
+        .presentationBackground,
     ]
 }
