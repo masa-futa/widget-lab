@@ -183,5 +183,12 @@ nonisolated enum Catalog {
         .listRowSeparator,
         .listSectionSeparator,
         .listRowBackground,
+        .badge,
+        .badgeProminence,
+        .swipeActions,
+        .selectionDisabled,
+        .refreshable,
+        .moveDisabled,
+        .deleteDisabled,
     ]
 }
