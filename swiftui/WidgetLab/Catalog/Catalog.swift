@@ -169,5 +169,12 @@ nonisolated enum Catalog {
         .privacySensitive,
         .redacted,
         .unredacted,
+        .navigationStack,
+        .navigationLink,
+        .navigationView,
+        .navigationSplitView,
+        .navigationTitle,
+        .navigationSubtitle,
+        .navigationDocument,
     ]
 }
