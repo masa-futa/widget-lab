@@ -210,5 +210,10 @@ nonisolated enum Catalog {
         .scrollContentBackground,
         .scrollClipDisabled,
         .scrollDisabled,
+        .scrollBounceBehavior,
+        .scrollEdgeEffectStyle,
+        .scrollEdgeEffectHidden,
+        .safeAreaBar,
+        .scrollInputBehavior,
     ]
 }
