@@ -125,6 +125,21 @@ final class LaunchUITests: XCTestCase {
         stack.terminate()
     }
 
+    @MainActor
+    func testShellEntriesShowPreview() {
+        let scopes = openDetail(searching: "searchScopes", entryID: "searchScopes", title: ".searchScopes")
+        scopes.buttons["try-full"].tap()
+        scopes.searchFields.firstMatch.tap()
+        XCTAssertTrue(scopes.buttons["野菜"].waitForExistence(timeout: 5), scopes.debugDescription)
+        attachScreenshot(scopes, name: "searchScopes")
+        scopes.terminate()
+        let rename = openDetail(searching: "RenameButton", entryID: "RenameButton", title: "RenameButton")
+        rename.buttons["名称変更"].tap()
+        XCTAssertTrue(rename.keyboards.firstMatch.waitForExistence(timeout: 5), rename.debugDescription)
+        attachScreenshot(rename, name: "RenameButton")
+        rename.terminate()
+    }
+
     /// 起動して、検索の結果から詳細を開く
     @MainActor
     private func openDetail(searching text: String, entryID: String, title: String) -> XCUIApplication {

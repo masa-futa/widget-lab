@@ -331,5 +331,10 @@ nonisolated enum Catalog {
         .documentLaunchView,
         .newDocumentButton,
         .renameButton,
+        .controlWidgetActionHint,
+        .controlWidgetStatus,
+        .widgetLabel,
+        .widgetAccentable,
+        .dynamicIsland,
     ]
 }
