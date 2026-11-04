@@ -76,6 +76,15 @@ final class LaunchUITests: XCTestCase {
         field.terminate()
     }
 
+    @MainActor
+    func testStyleEntriesShowPreview() {
+        for (id, title) in [("listStyle", ".listStyle"), ("AsyncImage", "AsyncImage")] {
+            let app = openDetail(searching: id, entryID: id, title: title)
+            attachScreenshot(app, name: id)
+            app.terminate()
+        }
+    }
+
     /// 起動して、検索の結果から詳細を開く
     @MainActor
     private func openDetail(searching text: String, entryID: String, title: String) -> XCUIApplication {
