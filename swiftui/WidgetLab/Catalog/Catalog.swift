@@ -169,5 +169,12 @@ nonisolated enum Catalog {
         .privacySensitive,
         .redacted,
         .unredacted,
+        .glassEffectContainer,
+        .buttonStyle,
+        .signInWithAppleButtonStyle,
+        .buttonSizing,
+        .pickerStyle,
+        .datePickerStyle,
+        .menuStyle,
     ]
 }
