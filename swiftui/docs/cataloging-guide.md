@@ -188,7 +188,9 @@ modifier と suffix の字下げは、呼び出しで決まる。呼び出しが
 
 **既製のスタイルが `.automatic` だけ → 自作のスタイルと比べる。** `disclosureGroupStyle`・`groupBoxStyle`・`labeledContentStyle` は、iOS の既製のスタイルが `.automatic` しかない。選択肢を `.automatic` と `Choice("自作", code: "TintedGroupBoxStyle()")` にし、自作のスタイルの struct を `closing` に空の行をはさんで書く（コードに定義まで出る）。見本の側では同じ名前の `private struct` を使う。
 
-**アニメーションの見本 → 値と動かすボタンを、見本の `private struct` に持たせる。** `build` の中では `@State` を持てないので、`AnimationDemo` のように struct に `@State` とボタンを置く。コードはボタンまで書く（`closing` に `Button(…)` と `}`）。テストの画像では動きが見えないので、一時的な UI テストでボタンを押して 0.4〜0.5 秒後に撮る。比べるは左右で 2 つの見本が重なり、途中の見た目が読みにくいので、チップの「付ける」を切って片方ずつ撮る。
+**アニメーションの見本 → 値と動かすボタンを、見本の `private struct` に持たせる。** `build` の中では `@State` を持てないので、`AnimationDemo` のように struct に `@State` とボタンを置く。コードはボタンまで書く（`closing` に `Button(…)` と `}`）。テストの画像では動きが見えないので、一時的な UI テストでボタンを押して 0.4〜0.5 秒後に撮る。比べるは左右で 2 つの見本が重なり、途中の見た目が読みにくいので、チップの「付ける」を切って片方ずつ撮る。一覧の行でも最初の値で組み立てるので、ずっと動き続ける見本は最初の値で止めておく（`PhaseAnimator` は `trigger` を最初から ON にした）。
+
+**sheet を開く見本 → 開くのは押したときだけにする。** `.card` の見本は一覧の行でも組み立てる（行は押せない）。`matchedTransitionSource`・`navigationTransition` の見本（`ZoomTransitionDemo`）は、ボタンを押したときだけ sheet を開くので、行からは開かない。最初から開いている（`isPresented` の初期値が true の）見本は作らない。
 
 **ネットから読む見本 → 端末の一時フォルダに書いたファイルの URL を渡す。** アプリはオフラインで動くので、`AsyncImage` は `AsyncImageDemo` が `ImageRenderer` で書き出した PNG の file URL を読む。コードには `https://example.com/…` と書き、要約にそのことを書く。
 

@@ -5,7 +5,7 @@ nonisolated extension CatalogEntry {
         id: "buttonStyle",
         kind: .modifier,
         topic: .viewStyles,
-        summary: "この View の中のボタンの見た目を、まとめて決める modifier。押したときの動きはそのまま。",
+        summary: "この View の中のボタンの見た目を、まとめて決める modifier。押したときに呼ぶ処理（action）はそのまま。",
         docURL: URL(string: "https://developer.apple.com/documentation/swiftui/view/buttonstyle(_:)")!,
         stage: .card,
         properties: [

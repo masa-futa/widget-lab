@@ -13,7 +13,7 @@ nonisolated extension CatalogEntry {
             .modifier(
                 "signInWithAppleButtonStyle",
                 .choice([Choice(".black"), Choice(".white"), Choice(".whiteOutline")], initial: 0), on: true,
-                summary: "ボタンの色（OFF なら画面の明るさに合わせる）")
+                summary: "ボタンの色（OFF なら既定の見た目）")
         ],
         code: CodeTemplate(
             prefix: ["// import AuthenticationServices が要る"], indent: 0, call: "SignInWithAppleButton",

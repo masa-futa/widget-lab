@@ -29,7 +29,8 @@ nonisolated extension CatalogEntry {
                 + "        Image(systemName: \"exclamationmark.triangle\")\n    } else {\n        ProgressView()\n    }\n}"
         ),
         build: { v in
-            let url = v.pick("url", from: [AsyncImageDemo.readableURL, AsyncImageDemo.missingURL]) ?? nil
+            let url = v.pick(
+                "url", from: [AsyncImageDemo.readableURL ?? AsyncImageDemo.missingURL, AsyncImageDemo.missingURL])
             return AnyView(
                 AsyncImage(url: url, scale: v.number("scale") ?? 1) { phase in
                     if let image = phase.image {

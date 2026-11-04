@@ -15,7 +15,7 @@ nonisolated extension CatalogEntry {
                     [Choice("2 段", code: "[1.0, 1.4]"), Choice("3 段", code: "[1.0, 1.4, 0.7]")], initial: 0),
                 required: true, summary: "切り替える段階の値（ここでは大きさの倍率）"),
             .argument(
-                "trigger", .fixed(code: "count"),
+                "trigger", .fixed(code: "count"), on: true,
                 summary: "見張る値。変わるたびに段階を 1 周する（省くと、ずっと繰り返す）"),
         ],
         code: CodeTemplate(

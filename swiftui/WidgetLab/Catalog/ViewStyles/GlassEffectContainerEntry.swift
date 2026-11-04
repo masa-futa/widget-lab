@@ -18,7 +18,7 @@ nonisolated extension CatalogEntry {
             trailing: " {\n    HStack(spacing: 20) {\n        Image(systemName: \"pencil\")\n"
                 + "            .frame(width: 56, height: 56)\n            .glassEffect()\n"
                 + "        Image(systemName: \"eraser\")\n            .frame(width: 56, height: 56)\n"
-                + "            .glassEffect()\n    }\n}"),
+                + "            .glassEffect()\n    }\n    .font(.title2)\n}"),
         build: { v in
             AnyView(
                 GlassEffectContainerDemo.container(spacing: v.number("spacing"))

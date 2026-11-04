@@ -19,7 +19,7 @@ nonisolated extension CatalogEntry {
                     "",
                     "var body: some View {",
                     "    HStack {",
-                    "        ForEach(names, id: \\.self) { name in",
+                    "        ForEach([\"りんご\", \"みかん\", \"ぶどう\"], id: \\.self) { name in",
                     "            Text(name)",
                     "                .padding(8)",
                     "                .matchedGeometryEffect(id: name, in: namespace)",
@@ -36,7 +36,7 @@ nonisolated extension CatalogEntry {
                 withoutWrapper: [
                     "var body: some View {",
                     "    HStack {",
-                    "        ForEach(names, id: \\.self) { name in",
+                    "        ForEach([\"りんご\", \"みかん\", \"ぶどう\"], id: \\.self) { name in",
                     "            Text(name)",
                     "                .padding(8)",
                     "                .onTapGesture { withAnimation { selected = name } }",
