@@ -76,6 +76,21 @@ final class LaunchUITests: XCTestCase {
         field.terminate()
     }
 
+    /// 全画面の収録は「試す」で全画面に開き、付けない側に切り替えられ、閉じると詳細に戻る
+    @MainActor
+    func testFullEntryOpensFullScreenAndCloses() {
+        let app = openDetail(searching: "statusBarHidden", entryID: "statusBarHidden", title: ".statusBarHidden")
+        app.buttons["try-full"].tap()
+        let close = app.buttons["close-full"]
+        XCTAssertTrue(close.waitForExistence(timeout: 5), app.debugDescription)
+        XCTAssertTrue(app.staticTexts["画面のいちばん上の時刻を見る"].exists)
+        attachScreenshot(app, name: "statusBarHidden-full")
+        app.buttons["付けない"].tap()
+        attachScreenshot(app, name: "statusBarHidden-full-without")
+        close.tap()
+        XCTAssertTrue(app.navigationBars[".statusBarHidden"].waitForExistence(timeout: 5), app.debugDescription)
+    }
+
     /// 起動して、検索の結果から詳細を開く
     @MainActor
     private func openDetail(searching text: String, entryID: String, title: String) -> XCUIApplication {

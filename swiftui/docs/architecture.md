@@ -18,9 +18,9 @@ WidgetLab/
     <トピック>/             1 件 = 1 ファイルの収録データ（<名前>Entry.swift）
   Features/
     Catalog/{UI,ViewModel}  ホーム（大分類ごとのトピックと検索）とトピック画面。一覧の行の見た目（文字の色・右の矢印・押したときの地）は NavigationRowButtonStyle にまとめる
-    Detail/{UI,ViewModel}   詳細（プレビュー・コードの 1 行・チップ・編集パネル・比べる・説明とコードのシート・見た目を持たないものの記録 DetailRecorder と RecordPanel）
+    Detail/{UI,ViewModel}   詳細（プレビュー・コードの 1 行・チップ・編集パネル・比べる・全画面で試す（.full）・説明とコードのシート・見た目を持たないものの記録 DetailRecorder と RecordPanel）
 WidgetLabTests/             Swift Testing。WidgetLab と同じ形（Catalog/・Features/<機能>/）と、fake を置く Support/
-WidgetLabUITests/           XCTest の UI テスト（起動 → 検索 → 詳細 → コピー、詳細で比べるを開いて左右が出ること、`@State` を比べて付けた側だけ表示が変わること、レイアウト・描画・テキスト・操作の部品の代表 2 件ずつのスクリーンショットの 7 本）
+WidgetLabUITests/           XCTest の UI テスト（起動 → 検索 → 詳細 → コピー、詳細で比べるを開いて左右が出ること、`@State` を比べて付けた側だけ表示が変わること、全画面の収録を試すで開いて閉じること、レイアウト・描画・テキスト・操作の部品の代表 2 件ずつのスクリーンショットの 8 本）
 tools/                      manifest を作る道具（Python 3.9 以上、標準ライブラリだけ）とそのテスト
 ```
 
@@ -45,7 +45,7 @@ UI → ViewModel → Repository。逆向きと、機能をまたぐ直接の参�
 ## コードの生成
 `CodeGenerator.lines` が、`CodeTemplate`（呼び出しの名前・いつも書く引数・末尾のクロージャ・前後の行）に、付けた引数と modifier を定義の順で埋めて、行ごと（`CodeLine`）に返す。最初の値から変えたプロパティの行には `isChanged` が付く。同じ modifier の名前を持つプロパティは 1 行にまとめる（`.frame(width:height:)` など）。同じ modifier を 2 回かけるときは、プロパティの `line` で行を分ける。呼び出しの前後の行は `prefix`・`suffix`・`closing`（字下げせずに書く閉じ括弧など）で書き、呼び出しの字下げは `indent` で決める（省けば prefix があるとき 4）。modifier と suffix は、呼び出しが modifier か末尾のクロージャが複数行なら呼び出しと同じ桁、ほかは 1 段深く書く。
 
-プレビューの出し方は `DemoStage` で決める。`.card` は枠に収まる見本、`.full` は全画面で開くもの、`.behavior` は見た目を持たないもの（左右に並べて記録を出す）、`.note` はアプリの画面では試せないもの（見本の代わりに理由を出し、比べるは出さない）。
+プレビューの出し方は `DemoStage` で決める。`.card` は枠に収まる見本、`.full` は画面の行き来の入れ物や表示の単位に効くもの（枠には「試す」だけを出し、押すと見本を `fullScreenCover` で全画面に出す。下の帯で、選んでいるプロパティの付けない／付けたを切り替える。状態は `DetailViewModel` の `isTryingFull`・`trialShowsWith`・`trialValues`）、`.behavior` は見た目を持たないもの（左右に並べて記録を出す）、`.note` はアプリの画面では試せないもの（見本の代わりに理由を出し、比べるは出さない）。
 
 プロパティラッパーの収録は、`CodeTemplate.wrapper`（`WrapperCode`）の付けた形と外した形の行をそのまま使う。外した形では、付けた形にない行に `isChanged` が付く。引数のない呼び出しの括弧を省くのは、末尾が " {" で始まるクロージャのときだけ（`.gesture(TapGesture().onEnded { })` では省かない）。
 

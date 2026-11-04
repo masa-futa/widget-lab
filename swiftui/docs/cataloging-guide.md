@@ -73,13 +73,13 @@ nonisolated extension CatalogEntry {
 | `.card` | プレビューの枠に収まり、触って変化が見えるもの | 33 件すべて |
 | `.behavior` | 見た目を持たず、記録（描き直しの回数・ログ）で違いを見せるもの | `@State`・`@Binding`・`TapGesture` |
 | `.note(reason:)` | アプリの 1 画面の中で、効き目を見ることも触ることもできないもの | なし |
-| `.full` | 全画面・sheet で開くもの | なし |
+| `.full` | 画面の行き来の入れ物（NavigationStack・TabView）と、表示の単位ぜんたいに効くもの。詳細の「試す」から全画面で開く | なし |
 
 **`.note` の基準**は、アプリ拡張の中で効くもの、iOS では効かない窓の modifier、外の仕組み（Core Data など）が要るもの。理由には使う場所を一言入れる（例: 「ウィジェットの中で効く」）。`.note` は `build` を書かない初期化（`noteReason:` を渡すもの）で書ける。チップとコードはふつうに動く。迷ったら束の計画で 1 件ずつ決める。束 4 では `materialActiveAppearance` を `.note` にした（iOS では `.inactive` が使えず、窓もいつも手前にあるので、見た目が変わらない）。
 
 `.note` にしたくなっても、まず枠の中で見せる方法を探す。束 1 の `ignoresSafeArea` は、親に `.safeAreaPadding(.vertical, 40)` をかけて安全な領域を作り、`.card` で見せられた。`.note` が全体の 1 割を超えたら ADR-0002 を見直す約束になっている。
 
-**`.full` はまだ動かない（2026-11-03 時点）。** 型にはあるが、詳細画面の「試す」から全画面で開く仕組みを作っていない。今は `.card` と同じく枠の中に描かれる。仕組みは束 7（画面の行き来）で作る。束 3 では、表示の単位（presentation）ぜんたいに効く modifier（`preferredColorScheme`・`statusBarHidden`・`persistentSystemOverlays`）を、仕組みより先に `.full` にした（2026-11-03 オーナーが決定）。`.card` にすると一覧の行の見本からも効いてしまい（行が見えただけでアプリ全体が暗くなる）、押し込んだ詳細画面からではステータスバーが消えないため。仕組みができるまでは、比べるで付けた側の効き目が画面全体にかかり（`preferredColorScheme` は左右とも暗くなる）、`statusBarHidden`・`persistentSystemOverlays` は効き目が見えない。
+**`.full` は、詳細の「試す」から全画面で開く（束 7 で作った）。** 枠には見本を描かず「試す」のボタンだけを出し、押すと見本を画面いっぱいに出す。下の帯の「付けない｜付けた」で、選んでいるプロパティを外した見本に切り替え、「閉じる」で詳細に戻る。値を変えるときは、詳細のチップと編集パネルで変えてから、もう一度「試す」を押す。一覧の行は絵にする。束 3 では、表示の単位（presentation）ぜんたいに効く modifier（`preferredColorScheme`・`statusBarHidden`・`persistentSystemOverlays`）を `.full` にした（2026-11-03 オーナーが決定）。`.card` にすると一覧の行の見本からも効いてしまい（行が見えただけでアプリ全体が暗くなる）、押し込んだ詳細画面からではステータスバーが消えないため。全画面で開けば、その表示の単位でだけ効く。
 
 ## 4. 形は 3 つ。modifier を消して比べたいなら「付け外し」
 
