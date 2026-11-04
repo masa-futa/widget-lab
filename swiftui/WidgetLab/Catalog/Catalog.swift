@@ -318,5 +318,12 @@ nonisolated enum Catalog {
         .sequenceGesture,
         .simultaneousGestureType,
         .exclusiveGesture,
+        .simultaneousGesture,
+        .highPriorityGesture,
+        .gestureState,
+        .defersSystemGestures,
+        .handGestureShortcut,
+        .onPencilDoubleTap,
+        .onPencilSqueeze,
     ]
 }
