@@ -105,7 +105,7 @@ modifier の収録は、まず「引数」の形を考える。引数がどれ�
 
 `CatalogTests` の `buildsAllCombinations` が、全件を全部 OFF・全部 ON・選択肢ごとに組み立て、`.card` と `.behavior` は `ImageRenderer` で描く。id と Manifest の一致、チップの名前の重なり、required の引数に兄弟があるか、1 つの行の鍵に違う modifier の名前が混ざっていないかも見ている。だから収録ごとのテストは書かない。新しい型の使い方を足したときだけ `CodeGeneratorTests` に足す。
 
-ただし `ImageRenderer` は、ScrollView・List・Form・GroupBox・ControlGroup を白く描き、UIKit で描くコントロール（Toggle・Slider・Stepper・Picker・DatePicker・ColorPicker・Menu など）を黄色の地に禁止の印で描く。エラーにはならないので、テストが通っても見た目は確かめられていない。これらは一時的な UI テストで詳細画面を撮って見る。束の終わりには、代表の 1〜2 件を撮る UI テストを残す（束 1 は `testLayoutEntriesShowPreview`、束 2 は `testTextEntriesShowPreview`、束 3 は `testControlEntriesShowPreview`、束 4 は `testDrawingEntriesShowPreview`、束 5 は `testStyleEntriesShowPreview`）。
+ただし `ImageRenderer` は、ScrollView・List・Form・GroupBox・ControlGroup を白く描き、UIKit で描くコントロール（Toggle・Slider・Stepper・Picker・DatePicker・ColorPicker・Menu など）を黄色の地に禁止の印で描く。エラーにはならないので、テストが通っても見た目は確かめられていない。これらは一時的な UI テストで詳細画面を撮って見る。束の終わりには、代表の 1〜2 件を撮る UI テストを残す（束 1 は `testLayoutEntriesShowPreview`、束 2 は `testTextEntriesShowPreview`、束 3 は `testControlEntriesShowPreview`、束 4 は `testDrawingEntriesShowPreview`、束 5 は `testStyleEntriesShowPreview`、束 6 は `testListEntriesShowPreview`）。
 
 撮った画像は `xcrun xcresulttool export attachments --path <最新の build/Logs/Test/*.xcresult> --output-path build/shots` で取り出せる。名前と画像のファイルの対応は `build/shots/manifest.json` にある。
 
@@ -196,6 +196,18 @@ modifier と suffix の字下げは、呼び出しで決まる。呼び出しが
 
 **UI テストで編集パネルの選択肢を押す → 名前（label）で探す。** 選択肢は `staticTexts[".automatic"]` では見つからない。`app.descendants(matching: .any).matching(NSPredicate(format: "label == %@", ".automatic")).firstMatch` で押す。チップを OFF にするのは、`app.buttons["chip-<id>"]` を押してから `app.switches["editor-on"]` を押す。
 
+**1 行にまとめる引数が複数ある → 中身の引数 1 つを ON / OFF にし、ほかの引数を required にする（既定の値があるかは問わない）。** `listRowSeparatorTint(_:edges:)` の色は省けず、`edges` は省ける。`edges` を ON / OFF できると、色が OFF で `edges` が ON のとき `.listRowSeparatorTint(edges: .top)` という書けないコードになる。色を required でない ON のプロパティにし、`edges` を required にすると、色が OFF なら行ごと消え、ON なら `edges` も書かれる。既定の値がない引数（`onScrollGeometryChange` の `for`・`of`、`safeAreaBar` の `edge`）も同じで、中身の引数（`action`・`content`）が OFF なら行ごと消える（束 6 の `listRowSeparator`・`listRowInsets`・`swipeActions`・`scrollPosition`・`scrollTransition`・`onScrollGeometryChange` ほか）。
+
+**iPhone で形が変わる View → 幅の区分では戻らないことがある。** `Table` は iPhone（幅が compact）で、最初の列だけを 1 列の一覧として出す。`.environment(\.horizontalSizeClass, .regular)` をかけても、列も見出しも出なかった。束 6 では `tableColumnHeaders` を `.note` にした。
+
+**スクロールしないと見えない効き目 → 開いたときから見える位置にする。** `scrollEdgeEffectStyle` などの端の効果は、バーの下に中身が入らないと見えない。`.defaultScrollAnchor(.center)` で、最初から中身がバーの下に入るようにした（コードにも書く）。
+
+**右端に出る効き目は、比べるで見えない → 最初の値を、付けないときと違う見た目にする。** 比べるの左半分は「付けない」側なので、List の索引やバッジのように右端に出るものは違いが見えない。索引は付けないと出る（`.automatic`）ので、`listSectionIndexVisibility` の最初の値を `.hidden` にし、編集パネルの ON / OFF で違いが出るようにした。
+
+**ScrollGeometry の値が負から始まる → `contentInsets.top` を足す。** `contentOffset.y` は、上の余白（`safeAreaInset` で置いた表示など）の分だけ負から始まる。`onScrollGeometryChange` の見本は、`$0.contentOffset.y + $0.contentInsets.top` で 0 から数える。
+
+**操作してから見る効き目 → 一時的な UI テストで操作してから撮る。** チップは `app.buttons["chip-<プロパティの id>"]`、編集パネルの ON / OFF は `app.switches["editor-on"]` で、スイッチの右端（`coordinate(withNormalizedOffset: CGVector(dx: 0.95, dy: 0.5))`）を押す（真ん中を押しても切り替わらない）。引っ張って更新は、行の座標から `press(forDuration:thenDragTo:)` で下へ引く。
+
 ## 用語
 
 - **収録**: 1 つの API（View・modifier・プロパティラッパー・ジェスチャー）を 1 件として `CatalogEntry` に書いたもの
@@ -206,4 +218,4 @@ modifier と suffix の字下げは、呼び出しで決まる。呼び出しが
 
 この手引きで決まらないことは、束の計画で決め、決めたことをここに足す。型を変える判断は ADR-0002 に書く。
 
-最終更新: 2026-11-04（束 2・3・4・5 のあと）
+最終更新: 2026-11-04（束 2・3・4・5・6 のあと）
