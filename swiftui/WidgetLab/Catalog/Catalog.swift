@@ -325,5 +325,11 @@ nonisolated enum Catalog {
         .onPreferenceChange,
         .backgroundPreferenceValue,
         .overlayPreferenceValue,
+        .focusState,
+        .focused,
+        .focusable,
+        .searchFocused,
+        .defaultFocus,
+        .focusEffectDisabled,
     ]
 }
