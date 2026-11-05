@@ -1,0 +1,31 @@
+# pitcrew / pitwall の manifest。書式は pitcrew の schema/manifest.schema.json、確認は `pit manifest check`。
+# このリポジトリはモノレポ（flutter/・swiftui/）だが、manifest は 1 つしか置けないので、いまは swiftui 版だけを書く。
+# コマンドはリポジトリのルートから実行される前提で、swiftui/ に入ってから動かす。
+
+kind = "app"
+product = "Widget Lab SwiftUI"
+stack = ["ios"]
+
+[github]
+repo = "masa-futa/widget-lab"
+default_branch = "main"
+
+[ios]
+bundle_id = { dev = "jp.nimi.widgetLab.swiftui" }
+min_os = "27.0"
+
+[verify]
+analyze = "cd swiftui && xcrun swift-format lint --strict -r WidgetLab WidgetLabTests WidgetLabUITests && python3 -m unittest discover tools"
+unit = "cd swiftui && xcodebuild test -project WidgetLab.xcodeproj -scheme WidgetLab -only-testing:WidgetLabTests -destination 'platform=iOS Simulator,name=iPhone 17,OS=27.0' -derivedDataPath build CODE_SIGNING_ALLOWED=NO -test-timeouts-enabled YES -maximum-test-execution-time-allowance 120"
+# 借りた端末を $PIT_DEVICE_ID で受け取る
+e2e = "cd swiftui && xcodebuild test -project WidgetLab.xcodeproj -scheme WidgetLab -only-testing:WidgetLabUITests -destination \"id=$PIT_DEVICE_ID\" -derivedDataPath build CODE_SIGNING_ALLOWED=NO -test-timeouts-enabled YES -maximum-test-execution-time-allowance 120"
+
+[docs]
+spec_dir = "swiftui/docs/superpowers/specs"
+adr_dir = "swiftui/docs/adr"
+
+[pr]
+evidence_store = "branch"
+
+[review]
+models = ["claude", "codex"]
