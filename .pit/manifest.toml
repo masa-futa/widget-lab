@@ -16,7 +16,8 @@ min_os = "27.0"
 
 [verify]
 analyze = "cd swiftui && xcrun swift-format lint --strict -r WidgetLab WidgetLabTests WidgetLabUITests && python3 -m unittest discover tools"
-unit = "cd swiftui && xcodebuild test -project WidgetLab.xcodeproj -scheme WidgetLab -only-testing:WidgetLabTests -destination 'platform=iOS Simulator,name=iPhone 17,OS=27.0' -derivedDataPath build CODE_SIGNING_ALLOWED=NO -test-timeouts-enabled YES -maximum-test-execution-time-allowance 120"
+# 借りた端末を $PIT_DEVICE_ID で受け取る（pin された iPhone 17 / 27.0 を避けるため、名前で指定しない）
+unit = "cd swiftui && xcodebuild test -project WidgetLab.xcodeproj -scheme WidgetLab -only-testing:WidgetLabTests -destination \"id=$PIT_DEVICE_ID\" -derivedDataPath build CODE_SIGNING_ALLOWED=NO -test-timeouts-enabled YES -maximum-test-execution-time-allowance 120"
 # 借りた端末を $PIT_DEVICE_ID で受け取る
 e2e = "cd swiftui && xcodebuild test -project WidgetLab.xcodeproj -scheme WidgetLab -only-testing:WidgetLabUITests -destination \"id=$PIT_DEVICE_ID\" -derivedDataPath build CODE_SIGNING_ALLOWED=NO -test-timeouts-enabled YES -maximum-test-execution-time-allowance 120"
 
