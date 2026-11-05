@@ -55,8 +55,12 @@ private struct TopicRow: View {
             }
             Spacer()
             Text("\(summary.count)")
-                .foregroundStyle(.secondary)
+                .font(.footnote.weight(.semibold))
+                .foregroundStyle(.tint)
                 .monospacedDigit()
+                .padding(.horizontal, 8)
+                .padding(.vertical, 2)
+                .background(.tint.opacity(0.15), in: .capsule)
         }
         .contentShape(.rect)
     }
