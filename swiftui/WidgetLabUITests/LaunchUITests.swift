@@ -36,6 +36,7 @@ final class LaunchUITests: XCTestCase {
         XCTAssertLessThan(without.frame.midX, with.frame.midX, "付けない側が左")
         let withoutRedraws = redraws(in: without)
         let withRedraws = redraws(in: with)
+        XCTAssertGreaterThanOrEqual(withoutRedraws, 0, app.debugDescription)
         without.buttons["+1"].tap()
         with.buttons["+1"].tap()
         XCTAssertTrue(with.staticTexts["count: 1"].waitForExistence(timeout: 5), app.debugDescription)

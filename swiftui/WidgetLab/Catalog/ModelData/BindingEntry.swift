@@ -100,7 +100,9 @@ private enum BindingDemo {
                 Stepper(value: $count) { label }
                     .fixedSize()
                 VStack(spacing: 4) {
+                    // 読み上げは Stepper のラベルに任せる（2 回読ませない）
                     label
+                        .accessibilityHidden(true)
                     Stepper(value: $count) { label }
                         .labelsHidden()
                 }
