@@ -5,12 +5,13 @@ struct DetailScreen: View {
     @Bindable var viewModel: DetailViewModel
     @State private var showsInfo = false
     @State private var showsCode = false
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
 
     var body: some View {
         VStack(spacing: 0) {
             PreviewArea(viewModel: viewModel)
                 .frame(maxWidth: .infinity)
-                .frame(height: 280)
+                .frame(height: previewHeight)
             CodeStrip(line: viewModel.selectedLine) { showsCode = true }
             PropertyChips(viewModel: viewModel)
             Divider()
@@ -33,6 +34,12 @@ struct DetailScreen: View {
             CodeSheet(viewModel: viewModel)
         }
     }
+
+    /// プレビューの高さ。文字がアクセシビリティの大きさのときは、編集パネルに場所を譲る
+    /// （見た目を持たないものは記録の欄も入るので、低くしない）
+    private var previewHeight: CGFloat {
+        dynamicTypeSize.isAccessibilitySize && viewModel.entry.stage != .behavior ? 220 : 280
+    }
 }
 
 /// 選んでいるプロパティのコードの 1 行。押すと全文のシートを開く
@@ -40,10 +47,12 @@ private struct CodeStrip: View {
     let line: CodeLine?
     let onTap: () -> Void
 
+    private var text: String { line?.text.trimmingCharacters(in: .whitespaces) ?? "" }
+
     var body: some View {
         Button(action: onTap) {
             HStack {
-                Text(line?.text.trimmingCharacters(in: .whitespaces) ?? "")
+                Text(text)
                     .font(.system(.footnote, design: .monospaced))
                     .lineLimit(1)
                 Spacer()
@@ -55,7 +64,9 @@ private struct CodeStrip: View {
             .background(.fill.tertiary)
         }
         .buttonStyle(.plain)
-        .accessibilityLabel("コードの全文を開く")
+        // VoiceOver でもコードを読めるよう、ラベルは行の文字にする
+        .accessibilityLabel(text.isEmpty ? "コード" : text)
+        .accessibilityHint("コードの全文を開く")
         .accessibilityIdentifier("code-strip")
     }
 }

@@ -4,6 +4,8 @@ final class LaunchUITests: XCTestCase {
     @MainActor
     func testSearchOpenDetailAndCopyCode() {
         let app = openDetail(searching: "pad", entryID: "padding", title: ".padding")
+        // VoiceOver では、コードの帯をコードの 1 行として読む
+        XCTAssertEqual(app.buttons["code-strip"].label, ".padding(24)")
         app.buttons["code-strip"].tap()
         app.buttons["copy"].tap()
         XCTAssertTrue(app.buttons["コピーしました"].waitForExistence(timeout: 5))
