@@ -56,7 +56,7 @@ private struct TopicRow: View {
             Spacer()
             Text("\(summary.count)")
                 .font(.footnote.weight(.semibold))
-                .foregroundStyle(.tint)
+                .foregroundStyle(.primary)
                 .monospacedDigit()
                 .padding(.horizontal, 8)
                 .padding(.vertical, 2)
