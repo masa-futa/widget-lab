@@ -1140,3 +1140,9 @@ VoiceOver はシミュレータでは使えないので、実機で確かめる�
 - [ ] **Step 4: マージ**: `git -C ~/dev/widget-lab merge --no-ff feat/swiftui-p3-polish -m "Merge branch 'feat/swiftui-p3-polish': SwiftUI 版 Phase 3 束 12（仕上げ。見た目と a11y の持ち越しの課題）"`。ブランチは消さない
 - [ ] **Step 5: main で lint と単体テストを流す**: `~/dev/widget-lab/swiftui` で `xcrun swift-format lint --strict -r WidgetLab WidgetLabTests WidgetLabUITests && python3 -m unittest discover tools && xcodebuild test ... -only-testing:WidgetLabTests`（derivedDataPath は `build`）
 - [ ] **Step 6: push はオーナーに頼んで止まる**（サンドボックスの中からは SSH で push できない）。`git -C ~/dev/widget-lab push origin main`
+
+---
+
+## 確かめた結果（2026-11-05 オーナー）
+
+A1〜A9・B1〜B6 は、全部期待どおりだった。A7（`accessibilityLinkedGroup` の行き来）・A9（`accessibilityLabeledPair` のラベルの要素）の書き留める点も、特に問題はない。この束で直すものはない。
