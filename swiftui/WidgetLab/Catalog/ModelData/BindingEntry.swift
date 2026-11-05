@@ -95,10 +95,20 @@ private enum BindingDemo {
         @Binding var count: Int
 
         var body: some View {
-            Stepper(value: $count) {
-                Text("子: \(count)").monospacedDigit()
+            // 文字が大きくて半分の幅に入らないときは、ラベルを上に置く
+            ViewThatFits(in: .horizontal) {
+                Stepper(value: $count) { label }
+                    .fixedSize()
+                VStack(spacing: 4) {
+                    label
+                    Stepper(value: $count) { label }
+                        .labelsHidden()
+                }
             }
-            .fixedSize()
+        }
+
+        private var label: some View {
+            Text("子: \(count)").monospacedDigit()
         }
     }
 }

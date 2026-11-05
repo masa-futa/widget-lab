@@ -6,6 +6,8 @@ struct RecordPanel<Accessory: View>: View {
     /// 比べているとき、行の頭に側を付ける
     let showsSide: Bool
     @ViewBuilder let accessory: Accessory
+    /// 見出しの 1 行とログの 3 行が入る高さ。文字の大きさに合わせて伸ばす
+    @ScaledMetric(relativeTo: .caption) private var height: CGFloat = 90
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -41,6 +43,7 @@ struct RecordPanel<Accessory: View>: View {
         }
         .padding(.horizontal, 12)
         .padding(.bottom, 4)
+        .frame(height: height)
     }
 }
 
