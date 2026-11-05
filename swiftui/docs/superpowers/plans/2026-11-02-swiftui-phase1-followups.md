@@ -37,15 +37,15 @@
 | 済: ラッパーのコードとプロパティの組み合わせの確認 | `CatalogTests` | `code.wrapper` があるのに `.wrapper` のプロパティがないと、黙って普通の形になる。テストの条件にする → `CatalogTests.wrapperCodeGoesWithWrapperProperty` |
 | 済: `.behavior` の見本も描いて確かめる | `CatalogTests` | いまは組み立てだけで、Binding・TapGesture の body はテストで評価されない。窓口が nil なら記録しないので、`ImageRenderer` で描ける。`.full` だけ組み立てだけにする（spec も直す） → 描いて確かめる。spec も直した |
 | 済: TapGesture のコードの行のテスト | `DetailViewModelTests` | `TapGesture(count: 2)` と、OFF のときの `TapGesture()` → `DetailViewModelTests.tapGestureCodeWritesCountAndOmitsItWhenOff` |
-| VoiceOver での複数回のタップ | `TapGestureEntry` | VoiceOver の操作では 1 回しか届かない。`accessibilityAction` を足すか、説明に書く → Phase 3 の束 12（仕上げ）で扱う |
-| UI テストで左右を確かめる | `LaunchUITests` | 今は「+1」を並びの番号で押し、`count: 1` がどちら側かを見ていない。左右の列の中で探す。付けた側の描き直しが増えることも確かめる → Phase 3 の束 12（仕上げ）で扱う |
-| 記録の欄の高さ | `PreviewArea`（`RecordPanel` の 90pt） | 文字を大きくすると見出しが伸びて、ログが 3 行入らない。Binding の Stepper も半分の幅からはみ出すことがある → Phase 3 の束 12（仕上げ）で扱う |
+| 済: VoiceOver での複数回のタップ | `TapGestureEntry` | VoiceOver の操作では 1 回しか届かない。`accessibilityAction` を足すか、説明に書く → 見本に accessibilityAction を足し、VoiceOver の操作でも記録に出す（束 12） |
+| 済: UI テストで左右を確かめる | `LaunchUITests` | 今は「+1」を並びの番号で押し、`count: 1` がどちら側かを見ていない。左右の列の中で探す。付けた側の描き直しが増えることも確かめる → 左右の列に識別子（side-without・side-with）を付け、列の中で探す。描き直しの回数も確かめる（束 12） |
+| 済: 記録の欄の高さ | `PreviewArea`（`RecordPanel` の 90pt） | 文字を大きくすると見出しが伸びて、ログが 3 行入らない。Binding の Stepper も半分の幅からはみ出すことがある → 高さを @ScaledMetric にし、.behavior のプレビューは文字の大きさの上限を accessibility1 にした。Stepper は入らない幅でラベルを上に置く（束 12） |
 
 ## 時間のあるときに直す
 - 道具: キャッシュを一時ファイルに書いてから置き換える（取り出しが途中で切れても壊れたキャッシュが残らない）。記号の JSON が欠けたら件数を警告に出す。前のトピックで見た View がある節の modifier の数え方を、テストで確かめる
-- 一覧の行の押したときの地は、余白を決め打ち（-20 / -12）で広げている。iPad や読みやすい幅の余白では足りないことがある
-- コードの 1 行の帯は、VoiceOver でコードを読めるようにする（ラベルを行の文字、ヒントを「コードの全文を開く」に）
-- チップの選んでいる状態を、色のほかに形でも示す（WCAG 1.4.1）
-- 文字を大きくしたとき、プレビューの高さ 280pt で編集パネルが狭くなる
+- 済（束 12）: 一覧の行の押したときの地は、余白を決め打ち（-20 / -12）で広げている。iPad や読みやすい幅の余白では足りないことがある
+- 済（束 12）: コードの 1 行の帯は、VoiceOver でコードを読めるようにする（ラベルを行の文字、ヒントを「コードの全文を開く」に）
+- 済（束 12）: チップの選んでいる状態を、色のほかに形でも示す（WCAG 1.4.1）
+- 済（束 12）: 文字を大きくしたとき、プレビューの高さ 280pt で編集パネルが狭くなる
 - UI テストの準備（起動 → 検索 → 詳細）を補助の関数にまとめる（3 本目を足すとき）
 - `FakeClipboard` の `@unchecked Sendable` は要らない（既定の MainActor に属している）。`CodeGeneratorTests` の 1 件は Swift として正しくない呼び出しを期待しているので、実在の形にする

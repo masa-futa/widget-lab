@@ -268,6 +268,8 @@ modifier と suffix の字下げは、呼び出しで決まる。呼び出しが
 
 **iPhone で試せなかったアクセシビリティの modifier（束 11 で `.note` にした）:** `assistiveAccessNavigationIcon`（アシスティブアクセスに入ったときだけ効き、アプリの中からは入れない）。VoiceOver で聞けば確かめられるもの（speech の 4 件・ローター）は、札で違いを見せて `.card` にした。
 
+**`.behavior` の見本の文字は、大きくしても accessibility1 で止まる（束 12）。** プレビューの 280pt に、見本・描き直しの回数・記録の欄を入れるため、`PreviewArea` が `.behavior` の分だけ `.dynamicTypeSize(...DynamicTypeSize.accessibility1)` をかけている。文字の大きさで効き目が変わる見本は `.card` にする（`.card` には上限をかけない）。半分の幅に入らない部品は、`ViewThatFits(in: .horizontal)` で縦に並べ替える（`BindingEntry` の Stepper）。
+
 ## 用語
 
 - **収録**: 1 つの API（View・modifier・プロパティラッパー・ジェスチャー）を 1 件として `CatalogEntry` に書いたもの
