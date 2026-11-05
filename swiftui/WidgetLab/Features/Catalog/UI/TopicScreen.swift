@@ -14,6 +14,7 @@ struct TopicScreen: View {
                 EntryRow(entry: entry)
             }
             .buttonStyle(.navigationRow)
+            .listRowInsets(EdgeInsets())
             .accessibilityIdentifier("entry-\(entry.id)")
         }
         .navigationTitle(topic.title)

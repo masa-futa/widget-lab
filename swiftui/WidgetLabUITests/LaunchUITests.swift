@@ -4,6 +4,8 @@ final class LaunchUITests: XCTestCase {
     @MainActor
     func testSearchOpenDetailAndCopyCode() {
         let app = openDetail(searching: "pad", entryID: "padding", title: ".padding")
+        // VoiceOver では、コードの帯をコードの 1 行として読む
+        XCTAssertEqual(app.buttons["code-strip"].label, ".padding(24)")
         app.buttons["code-strip"].tap()
         app.buttons["copy"].tap()
         XCTAssertTrue(app.buttons["コピーしました"].waitForExistence(timeout: 5))
@@ -26,13 +28,21 @@ final class LaunchUITests: XCTestCase {
         let compare = app.switches["compare"]
         XCTAssertTrue(compare.waitForExistence(timeout: 5), app.debugDescription)
         compare.tap()
-        let plusOne = app.buttons.matching(NSPredicate(format: "label == %@", "+1"))
-        XCTAssertTrue(plusOne.element(boundBy: 1).waitForExistence(timeout: 5), app.debugDescription)
-        // 左が付けない側、右が付けた側
-        plusOne.element(boundBy: 0).tap()
-        plusOne.element(boundBy: 1).tap()
-        XCTAssertTrue(app.staticTexts["count: 1"].waitForExistence(timeout: 5), app.debugDescription)
-        XCTAssertTrue(app.staticTexts["count: 0"].exists, "付けない側の表示は変わらない")
+        // 左右の列の中で探す（並びの番号に頼らない）
+        let without = app.otherElements["side-without"]
+        let with = app.otherElements["side-with"]
+        XCTAssertTrue(with.waitForExistence(timeout: 5), app.debugDescription)
+        XCTAssertTrue(without.exists, app.debugDescription)
+        XCTAssertLessThan(without.frame.midX, with.frame.midX, "付けない側が左")
+        let withoutRedraws = redraws(in: without)
+        let withRedraws = redraws(in: with)
+        XCTAssertGreaterThanOrEqual(withoutRedraws, 0, app.debugDescription)
+        without.buttons["+1"].tap()
+        with.buttons["+1"].tap()
+        XCTAssertTrue(with.staticTexts["count: 1"].waitForExistence(timeout: 5), app.debugDescription)
+        XCTAssertTrue(without.staticTexts["count: 0"].exists, "付けない側の表示は変わらない")
+        XCTAssertGreaterThan(redraws(in: with), withRedraws, "付けた側は描き直す")
+        XCTAssertEqual(redraws(in: without), withoutRedraws, "付けない側は描き直さない")
         attachScreenshot(app, name: "state-compare")
     }
 
@@ -189,6 +199,13 @@ final class LaunchUITests: XCTestCase {
         XCTAssertFalse(box.exists, drag.debugDescription)
         attachScreenshot(drag, name: "draggable")
         drag.terminate()
+    }
+
+    /// 列の上の「描き直し N 回」の N
+    @MainActor
+    private func redraws(in column: XCUIElement) -> Int {
+        let label = column.staticTexts.matching(NSPredicate(format: "label CONTAINS %@", "描き直し")).firstMatch.label
+        return Int(label.filter(\.isNumber)) ?? -1
     }
 
     /// 起動して、検索の結果から詳細を開く

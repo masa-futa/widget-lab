@@ -25,7 +25,14 @@ struct PropertyChips: View {
                         .background(
                             viewModel.selectedID == spec.id
                                 ? AnyShapeStyle(.tint.opacity(0.2)) : AnyShapeStyle(.fill.tertiary),
-                            in: .rect(cornerRadius: 10))
+                            in: .rect(cornerRadius: 10)
+                        )
+                        .overlay {
+                            // 色のほかに、縁の形でも選んでいることを示す（WCAG 1.4.1）
+                            if viewModel.selectedID == spec.id {
+                                RoundedRectangle(cornerRadius: 10).strokeBorder(.tint, lineWidth: 2)
+                            }
+                        }
                     }
                     .buttonStyle(.plain)
                     .accessibilityAddTraits(viewModel.selectedID == spec.id ? .isSelected : [])

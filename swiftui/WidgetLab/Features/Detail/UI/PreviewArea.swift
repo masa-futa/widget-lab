@@ -12,13 +12,16 @@ struct PreviewArea: View {
     var body: some View {
         VStack(spacing: 0) {
             if viewModel.entry.stage == .behavior {
-                // 見本に重ならないよう、比べるの切り替えは記録の欄の見出しに置く
-                content
-                Divider()
-                RecordPanel(recorder: viewModel.recorder, showsSide: viewModel.comparison != nil) {
-                    compareToggle
+                VStack(spacing: 0) {
+                    // 見本に重ならないよう、比べるの切り替えは記録の欄の見出しに置く
+                    content
+                    Divider()
+                    RecordPanel(recorder: viewModel.recorder, showsSide: viewModel.comparison != nil) {
+                        compareToggle
+                    }
                 }
-                .frame(height: 90)
+                // 見本・描き直しの回数・記録の欄が 280pt に入るよう、文字の大きさの上限を決める
+                .dynamicTypeSize(...DynamicTypeSize.accessibility1)
             } else {
                 content
                     .overlay(alignment: .bottomTrailing) {
@@ -88,6 +91,9 @@ struct PreviewArea: View {
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
         .padding(8)
+        // UI テストが左右の列の中で探せるよう、列を 1 つの入れ物にする
+        .accessibilityElement(children: .contain)
+        .accessibilityIdentifier(side == .with ? "side-with" : "side-without")
     }
 
     private func compare(_ without: PropertyValues, _ with: PropertyValues) -> some View {
@@ -207,6 +213,18 @@ private struct NoteView: View {
     let reason: String
 
     var body: some View {
+        // 収まるなら枠の真ん中に、収まらない（理由が長い・文字が大きい）ならスクロールで読む
+        ViewThatFits(in: .vertical) {
+            message
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+            ScrollView {
+                message
+                    .frame(maxWidth: .infinity)
+            }
+        }
+    }
+
+    private var message: some View {
         VStack(spacing: 8) {
             Image(systemName: "text.page")
                 .font(.title)
@@ -220,7 +238,6 @@ private struct NoteView: View {
                 .multilineTextAlignment(.center)
         }
         .padding(24)
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
         .accessibilityElement(children: .combine)
         .accessibilityIdentifier("note")
     }
